@@ -1,0 +1,12 @@
+# Pins the toolchain for everyone who touches this repo: a clone, the prek
+# hook, and CI all get the same rustc and, more to the point, the same clippy.
+# Without this a contributor on an older toolchain sees a different lint set
+# than `just check` enforces, and the disagreement only surfaces in CI.
+#
+# `channel = "stable"` tracks the newest stable rather than freezing a number,
+# which is what a template wants: `rustup update` is enough to move, and the
+# MSRV that actually matters is `rust-version` in Cargo.toml.
+[toolchain]
+channel = "stable"
+components = ["clippy", "rustfmt"]
+profile = "minimal"

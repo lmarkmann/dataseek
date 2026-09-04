@@ -1,0 +1,83 @@
+name: release-plz
+
+on:
+  push:
+    branches: [main]
+
+permissions: {}
+
+# This is the only workflow here pinned to commit SHAs rather than tags, and the
+# asymmetry with ci.yml is deliberate: it is the only one holding a secret and the
+# only one running with contents: write, so a rewritten tag on any action below
+# reaches a token that can push to main and cut releases. ci.yml is read-only and
+# ships nothing, which is why it stays on readable tags. See docs/security.md.
+#
+# Written by `pinact run`, which also writes the trailing version comment; that
+# comment is not decoration, it is what `just actions-outdated` compares against
+# and what makes the pin reviewable. dtolnay/rust-toolchain is excluded because
+# `stable` is a toolchain selector rather than a version, and pinact refuses it
+# for that reason. Re-pin with:
+#
+#   pinact run --update --exclude 'dtolnay/rust-toolchain' .github/workflows/release-plz.yml
+
+# Two jobs rather than one, which is what upstream supports: running both commands in a
+# single job is documented as "not recommended", and bug reports caused by it are not
+# investigated. The split is also what keeps `release` out of the concurrency group below.
+jobs:
+  # Cut the tag for whatever the merged release PR bumped. Deliberately ungrouped:
+  # GitHub cancels an existing *pending* run in a concurrency group when a new one
+  # queues, regardless of cancel-in-progress, so a merge commit waiting behind an
+  # earlier push could lose the only run that would have tagged it. With
+  # release_always = false that means no tag at all, silently.
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pull-requests: read
+    # Set at job level rather than per step so the guard below can read it: `secrets` is
+    # not an available context in a step's `if`, and a job-level `if` sees neither
+    # `secrets` nor `env`. A clone that has not created the secret skips the step and
+    # the job reports green.
+    env:
+      GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: release-plz/action@b5543c19b03be9bd48852d20ca89f478b7723260 # v0.5.132
+        if: env.GITHUB_TOKEN != ''
+        with:
+          command: release
+
+  # Open or update the release PR. Serialized, because two runs writing the same release
+  # branch race; a superseded run here costs nothing, since the next push redoes the work.
+  release-pr:
+    name: release PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pull-requests: write
+    concurrency:
+      group: release-plz-${{ github.ref }}
+      cancel-in-progress: false
+    env:
+      GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: release-plz/action@b5543c19b03be9bd48852d20ca89f478b7723260 # v0.5.132
+        if: env.GITHUB_TOKEN != ''
+        with:
+          command: release-pr

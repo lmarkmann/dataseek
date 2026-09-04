@@ -1,0 +1,67 @@
+[package]
+name = "cli-template"
+version = "0.3.0"
+description = "A starter CLI that already clears the quality contract."
+edition = "2024"
+rust-version = "1.98"
+publish = false
+
+# Lints enforce the quality contract in the editor, `cargo build`, `prek`, and CI.
+# See docs/contract.md for the rationale.
+[lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+rust_2018_idioms = { level = "warn", priority = -1 }
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+print_stdout = "deny"  # stdout is data; use the output handle
+print_stderr = "deny"  # stderr status goes through ui.rs
+# The panic doors. unwrap and panic are the two everyone remembers;
+# indexing and arithmetic are how a CLI that denies both still aborts on
+# a user's input. clippy.toml reopens them for tests, where a panic is
+# the assertion.
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"         # report failures, do not panic
+panic_in_result_fn = "deny"
+unreachable = "deny"
+unimplemented = "deny"
+indexing_slicing = "deny"
+arithmetic_side_effects = "deny"
+unchecked_time_subtraction = "deny"
+dbg_macro = "deny"
+todo = "deny"
+exit = "deny"          # return ExitCode from main
+struct_excessive_bools = "allow"
+doc_markdown = "allow" # help text backticks would print literally
+
+[dependencies]
+anyhow = "1"
+anstream = "1"
+clap = { version = "4", features = ["derive", "wrap_help"] }
+clap_complete = "4"
+clap_mangen = "0.3"
+etcetera = "0.11"
+indicatif = "0.18"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tempfile = "3"
+thiserror = "2"
+
+# Signals do not exist on Windows, and neither does the SIGPIPE constant, so
+# this is not pulled in there at all rather than imported and cfg'd away.
+[target.'cfg(unix)'.dependencies]
+signal-hook = "0.4"
+
+[dev-dependencies]
+assert_cmd = "2"
+insta = { version = "1", features = ["filters"] }
+predicates = "3"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = "symbols"

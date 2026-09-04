@@ -1,0 +1,14 @@
+# See docs/security.md.
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        # release-plz.yml is hash-pinned because it is the workflow holding the
+        # token; this keeps it that way. Only the action unique to that file can
+        # be named here: zizmor keys policies by action, not by workflow, and
+        # actions/checkout appears in both ci.yml on a tag and release-plz.yml on
+        # a SHA, so no pattern can hold it to the stricter rule in one file only.
+        # That half is guarded by the comment at the top of release-plz.yml and by
+        # `pinact run --verify`, not by this config.
+        "release-plz/*": hash-pin
+        "*": ref-pin

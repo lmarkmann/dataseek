@@ -1,0 +1,38 @@
+# cargo-deny configuration. See docs/security.md for rationale.
+# Reference: https://embarkstudios.github.io/cargo-deny/checks/cfg.html
+
+[advisories]
+ignore = []
+
+[licenses]
+allow = [
+  "MIT",
+  "Apache-2.0",
+  "Apache-2.0 WITH LLVM-exception",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "ISC",
+  "Unicode-3.0",
+  "Zlib",
+  "0BSD",
+]
+unused-allowed-license = "allow"
+
+[licenses.private]
+ignore = true  # this crate is publish = false and has no license field
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+deny = []
+# syn 2 and 3 coexist while the ecosystem migrates: clap_derive, serde_derive and
+# thiserror-impl are on 3, wasm-bindgen (reached through indicatif -> web-time ->
+# js-sys) is still on 2. Nothing in this crate can resolve that, so the tree it
+# printed on every `just audit` was noise, and noise in an audit trains you to
+# skim it. Drop this entry once wasm-bindgen ships a syn 3 release.
+skip = [{ crate = "syn@2", reason = "wasm-bindgen has not migrated to syn 3" }]
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]

@@ -1,0 +1,108 @@
+use clap::{Parser, Subcommand, ValueEnum};
+use clap_complete::Shell;
+
+use crate::palette;
+
+/// When to colorize output. The de-facto standard flag (git, ripgrep, fd).
+#[derive(Clone, Copy, Debug, Default, ValueEnum)]
+pub enum ColorChoice {
+    /// Color when stdout is a terminal and NO_COLOR is unset.
+    #[default]
+    Auto,
+    /// Always color, even through a pipe (for `| less -R`).
+    Always,
+    /// Never color.
+    Never,
+}
+
+#[derive(Parser)]
+#[command(
+    name = "cli-template",
+    version,
+    about = env!("CARGO_PKG_DESCRIPTION"),
+    after_help = "Examples:\n  \
+        cli-template count README.md\n  \
+        cat file | cli-template count --json | jq .lines\n  \
+        cli-template doctor\n  \
+        cli-template completion fish > ~/.config/fish/completions/cli-template.fish\n  \
+        cli-template man | man -l -",
+    arg_required_else_help = true,
+    disable_help_subcommand = true,
+    styles = palette::help()
+)]
+pub struct Cli {
+    /// Errors and final result only.
+    #[arg(short = 'q', long, global = true, conflicts_with = "verbose")]
+    pub quiet: bool,
+
+    /// Explain what is happening on stderr.
+    // Counted rather than a plain flag so a clone can add levels without
+    // changing the flag's shape; today every count above zero is the same.
+    #[arg(short = 'v', long, global = true, action = clap::ArgAction::Count)]
+    pub verbose: u8,
+
+    /// Emit JSON to stdout instead of text.
+    #[arg(long, global = true)]
+    pub json: bool,
+
+    /// When to colorize output: auto, always, or never.
+    #[arg(long, value_name = "WHEN", default_value = "auto", global = true)]
+    pub color: ColorChoice,
+
+    /// Disable ANSI colors; shorthand for --color=never (or set NO_COLOR).
+    #[arg(long, global = true)]
+    pub no_color: bool,
+
+    /// ASCII-only output; implies --color=never.
+    #[arg(long, global = true)]
+    pub plain: bool,
+
+    #[command(subcommand)]
+    pub command: Command,
+}
+
+#[derive(Subcommand)]
+pub enum Command {
+    /// Count lines, words, and bytes of a file or stdin.
+    #[command(after_help = "Examples:\n  \
+        cli-template count README.md\n  \
+        cat file | cli-template count\n  \
+        cli-template count src/main.rs --json | jq .lines")]
+    Count {
+        /// File to read; omit or pass - to read stdin.
+        #[arg(value_name = "FILE")]
+        file: Option<String>,
+    },
+
+    /// Check the environment and report readiness.
+    Doctor,
+
+    /// Print a shell completion script to stdout.
+    Completion {
+        /// Target shell (fish, bash, zsh, ...).
+        shell: Shell,
+    },
+
+    /// Print the man page, in roff, to stdout.
+    #[command(after_help = "Examples:\n  \
+        cli-template man | man -l -\n  \
+        cli-template man > ~/.local/share/man/man1/cli-template.1")]
+    Man,
+}
+
+#[cfg(test)]
+mod tests {
+    use clap::CommandFactory;
+
+    use super::Cli;
+
+    // clap's own recommended test. It walks the built command and panics on a
+    // malformed definition: a short flag used twice, a default_value that is
+    // not among the possible values, an arg that conflicts with itself. None
+    // of those are compile errors, so without this they first appear when a
+    // user happens to touch the broken path.
+    #[test]
+    fn the_definition_is_well_formed() {
+        Cli::command().debug_assert();
+    }
+}

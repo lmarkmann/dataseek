@@ -1,0 +1,45 @@
+[workspace]
+# See docs/release.md for the release-plz setup.
+changelog_update = true
+git_only = true
+publish = false
+git_tag_enable = true
+git_release_enable = false
+semver_check = false
+release_always = false
+pr_labels = ["release"]
+pr_name = "chore: release{% if version %} v{{ version }}{% endif %}"
+
+[changelog]
+header = """# Changelog
+
+All notable changes to this project are recorded here. Format roughly follows
+Keep a Changelog and versions follow SemVer.
+"""
+body = """
+## [{{ version }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | upper_first }}
+{% for commit in commits %}
+- {{ commit.message | upper_first }}{% endfor %}
+{% endfor %}
+"""
+# git-cliff takes the first match, so the specific chore(release) rule has to sit
+# ahead of the general chore one. The trailing catch-all is the point of the list:
+# without it a subject matching nothing lands in the changelog under no heading at
+# all and in silence, which is what 24 build/test/ci commits had already done.
+# test and ci are skipped rather than grouped because neither is observable to
+# anyone using the binary; build stays, since it carries MSRV and toolchain moves.
+commit_parsers = [
+  { message = "^feat", group = "added" },
+  { message = "^fix", group = "fixed" },
+  { message = "^perf", group = "performance" },
+  { message = "^refactor", group = "changed" },
+  { message = "^doc", group = "docs" },
+  { message = "^build", group = "other" },
+  { message = "^chore\\(release\\)", skip = true },
+  { message = "^chore", group = "other" },
+  { message = "^test", skip = true },
+  { message = "^ci", skip = true },
+  { message = ".*", group = "uncategorized" },
+]

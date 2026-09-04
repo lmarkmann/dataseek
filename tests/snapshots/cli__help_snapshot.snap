@@ -1,0 +1,52 @@
+---
+source: tests/cli.rs
+expression: "String::from_utf8_lossy(&out.stdout)"
+---
+A starter CLI that already clears the quality contract.
+
+Usage: cli-template [OPTIONS] <COMMAND>
+
+Commands:
+  count       Count lines, words, and bytes of a file or stdin
+  doctor      Check the environment and report readiness
+  completion  Print a shell completion script to stdout
+  man         Print the man page, in roff, to stdout
+
+Options:
+  -q, --quiet
+          Errors and final result only
+
+  -v, --verbose...
+          Explain what is happening on stderr
+
+      --json
+          Emit JSON to stdout instead of text
+
+      --color <WHEN>
+          When to colorize output: auto, always, or never
+
+          Possible values:
+          - auto:   Color when stdout is a terminal and NO_COLOR is unset
+          - always: Always color, even through a pipe (for `| less -R`)
+          - never:  Never color
+          
+          [default: auto]
+
+      --no-color
+          Disable ANSI colors; shorthand for --color=never (or set NO_COLOR)
+
+      --plain
+          ASCII-only output; implies --color=never
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+  -V, --version
+          Print version
+
+Examples:
+  cli-template count README.md
+  cat file | cli-template count --json | jq .lines
+  cli-template doctor
+  cli-template completion fish > ~/.config/fish/completions/cli-template.fish
+  cli-template man | man -l -
