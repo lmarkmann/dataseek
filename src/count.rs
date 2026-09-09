@@ -8,7 +8,7 @@ use crate::{palette, ui};
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error(
-        "cannot read stdin: no input was piped\n  Try:   pass a file or pipe input: cat FILE | cli-template count"
+        "cannot read stdin: no input was piped\n  Try:   pass a file or pipe input: cat FILE | dataseek count"
     )]
     TerminalStdin,
 
@@ -16,7 +16,7 @@ pub enum Error {
     // attribute, so it already reaches the `Cause:` line in main::report.
     // Interpolating it here as well would print it twice.
     #[error(
-        "cannot read {path}\n  Try:   check the path, or pipe input instead: cat FILE | cli-template count"
+        "cannot read {path}\n  Try:   check the path, or pipe input instead: cat FILE | dataseek count"
     )]
     Open { path: String, source: std::io::Error },
 

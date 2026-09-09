@@ -69,11 +69,11 @@ Naked invocation prints help and exits `0`, because asking for help is not a usa
 
 ## Completion and the man page
 
-`cli-template completion fish` (or `bash`, `zsh`, ...) prints a completion script to stdout. `cli-template man` prints the man page, in roff, to the same place:
+`dataseek completion fish` (or `bash`, `zsh`, ...) prints a completion script to stdout. `dataseek man` prints the man page, in roff, to the same place:
 
 ```sh
-cli-template man | man -l -
-cli-template man > ~/.local/share/man/man1/cli-template.1
+dataseek man | man -l -
+dataseek man > ~/.local/share/man/man1/dataseek.1
 ```
 
 Both are data, so both go to stdout, and both are derived from the clap definition rather than maintained by hand. The man page is rendered on demand by `clap_mangen` instead of at build time by a build script: it then cannot drift from the flags, and the clone gets no `build.rs` and no `OUT_DIR` lookup to understand. The test in `tests/cli.rs` asserts the page carries the manifest version, so it is held to the same single-source rule as `--version`.

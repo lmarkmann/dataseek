@@ -28,14 +28,14 @@ mod tests {
     fn normalizes_unstable_values() {
         with_snapshot_filters(|| {
             insta::assert_snapshot!(
-                "version 1.2.3\ncreated 2026-07-27T14:30:45Z\nunix /tmp/cli-template/run.log\nmacos /var/folders/ab/cdef/T/cli-template/run.log\nwindows C:\\Users\\dev\\AppData\\Local\\Temp\\cli-template\\run.log\nusage cli-template.exe [OPTIONS]",
+                "version 1.2.3\ncreated 2026-07-27T14:30:45Z\nunix /tmp/dataseek/run.log\nmacos /var/folders/ab/cdef/T/dataseek/run.log\nwindows C:\\Users\\dev\\AppData\\Local\\Temp\\dataseek\\run.log\nusage dataseek.exe [OPTIONS]",
                 @r"
             version [VERSION]
             created [TIMESTAMP]
             unix [TEMP_PATH]
             macos [TEMP_PATH]
             windows [TEMP_PATH]
-            usage cli-template [OPTIONS]"
+            usage dataseek [OPTIONS]"
             );
         });
     }

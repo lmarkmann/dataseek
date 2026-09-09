@@ -17,15 +17,15 @@ pub enum ColorChoice {
 
 #[derive(Parser)]
 #[command(
-    name = "cli-template",
+    name = "dataseek",
     version,
     about = env!("CARGO_PKG_DESCRIPTION"),
     after_help = "Examples:\n  \
-        cli-template count README.md\n  \
-        cat file | cli-template count --json | jq .lines\n  \
-        cli-template doctor\n  \
-        cli-template completion fish > ~/.config/fish/completions/cli-template.fish\n  \
-        cli-template man | man -l -",
+        dataseek count README.md\n  \
+        cat file | dataseek count --json | jq .lines\n  \
+        dataseek doctor\n  \
+        dataseek completion fish > ~/.config/fish/completions/dataseek.fish\n  \
+        dataseek man | man -l -",
     arg_required_else_help = true,
     disable_help_subcommand = true,
     styles = palette::help()
@@ -65,9 +65,9 @@ pub struct Cli {
 pub enum Command {
     /// Count lines, words, and bytes of a file or stdin.
     #[command(after_help = "Examples:\n  \
-        cli-template count README.md\n  \
-        cat file | cli-template count\n  \
-        cli-template count src/main.rs --json | jq .lines")]
+        dataseek count README.md\n  \
+        cat file | dataseek count\n  \
+        dataseek count src/main.rs --json | jq .lines")]
     Count {
         /// File to read; omit or pass - to read stdin.
         #[arg(value_name = "FILE")]
@@ -85,8 +85,8 @@ pub enum Command {
 
     /// Print the man page, in roff, to stdout.
     #[command(after_help = "Examples:\n  \
-        cli-template man | man -l -\n  \
-        cli-template man > ~/.local/share/man/man1/cli-template.1")]
+        dataseek man | man -l -\n  \
+        dataseek man > ~/.local/share/man/man1/dataseek.1")]
     Man,
 }
 

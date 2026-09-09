@@ -1,7 +1,7 @@
 # cli-template
 
 <!-- repo-description -->
-A starting point for a Rust CLI that already clears the cli-check quality contract: single-source version, clean pipes, honest errors, shell completion, and tests for the CLI surface itself.
+Search for datasets from the terminal
 <!-- /repo-description -->
 
 Clone it, rename it, replace the `count` command with your own.

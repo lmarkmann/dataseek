@@ -22,7 +22,7 @@ use clap::{CommandFactory, Parser};
 use cli::{Cli, Command};
 use output::Out;
 
-/// Rust ignores SIGPIPE by default, so `cli-template count | head` would panic
+/// Rust ignores SIGPIPE by default, so `dataseek count | head` would panic
 /// on the next write. Restore the Unix default: die quietly with 141.
 ///
 /// Signals are a Unix concept, and `signal_hook::consts::SIGPIPE` does not
@@ -88,7 +88,7 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
             clap_complete::generate(
                 shell,
                 &mut cmd,
-                "cli-template",
+                "dataseek",
                 &mut script,
             );
             out.stdout().write_all(&script)?;

@@ -4,7 +4,7 @@ expression: "String::from_utf8_lossy(&out.stdout)"
 ---
 A starter CLI that already clears the quality contract.
 
-Usage: cli-template [OPTIONS] <COMMAND>
+Usage: dataseek [OPTIONS] <COMMAND>
 
 Commands:
   count       Count lines, words, and bytes of a file or stdin
@@ -45,8 +45,8 @@ Options:
           Print version
 
 Examples:
-  cli-template count README.md
-  cat file | cli-template count --json | jq .lines
-  cli-template doctor
-  cli-template completion fish > ~/.config/fish/completions/cli-template.fish
-  cli-template man | man -l -
+  dataseek count README.md
+  cat file | dataseek count --json | jq .lines
+  dataseek doctor
+  dataseek completion fish > ~/.config/fish/completions/dataseek.fish
+  dataseek man | man -l -

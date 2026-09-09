@@ -1,7 +1,7 @@
 [package]
-name = "cli-template"
+name = "dataseek"
 version = "0.3.0"
-description = "A starter CLI that already clears the quality contract."
+description = "Search for datasets from the terminal"
 edition = "2024"
 rust-version = "1.98"
 publish = false

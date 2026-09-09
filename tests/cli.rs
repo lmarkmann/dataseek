@@ -13,7 +13,7 @@ use predicates::prelude::*;
 
 fn bin() -> Command {
     let mut cmd =
-        Command::cargo_bin("cli-template").expect("cli-template binary");
+        Command::cargo_bin("dataseek").expect("dataseek binary");
     // clap's wrap_help reads COLUMNS, so help output is a function of the
     // terminal width of whoever ran the tests. Without pinning it, the
     // snapshot fails for anyone whose shell or CI image exports a different
@@ -28,7 +28,7 @@ fn version_matches_manifest() {
         .arg("--version")
         .assert()
         .success()
-        .stdout(format!("cli-template {}\n", env!("CARGO_PKG_VERSION")));
+        .stdout(format!("dataseek {}\n", env!("CARGO_PKG_VERSION")));
 }
 
 #[test]
@@ -50,7 +50,7 @@ fn naked_invocation_prints_help_to_stderr_and_exits_zero() {
         .assert()
         .success()
         .stdout(predicate::str::is_empty())
-        .stderr(predicate::str::contains("Usage: cli-template"))
+        .stderr(predicate::str::contains("Usage: dataseek"))
         .stderr(predicate::str::contains("Commands:"));
 }
 
@@ -206,7 +206,7 @@ fn binary_input_says_it_is_not_text() {
     // The binary this suite just built is the most convenient non-UTF-8 file
     // around.
     let out = bin()
-        .args(["count", env!("CARGO_BIN_EXE_cli-template")])
+        .args(["count", env!("CARGO_BIN_EXE_dataseek")])
         .output()
         .unwrap();
     assert_eq!(out.status.code(), Some(1));
@@ -227,7 +227,7 @@ fn doctor_reports_ready_with_clean_pipe() {
     );
     let text = String::from_utf8_lossy(&out.stdout);
     assert!(
-        text.contains(&format!("cli-template {}", env!("CARGO_PKG_VERSION")))
+        text.contains(&format!("dataseek {}", env!("CARGO_PKG_VERSION")))
     );
     // "Ready." exactly: "Ready, with notes above." also contains "Ready".
     assert!(text.contains("Ready."), "{text}");
@@ -258,7 +258,7 @@ fn a_closed_stdout_dies_quietly() {
     use std::os::unix::process::ExitStatusExt;
     use std::process::{Command as StdCommand, Stdio};
 
-    let mut child = StdCommand::new(env!("CARGO_BIN_EXE_cli-template"))
+    let mut child = StdCommand::new(env!("CARGO_BIN_EXE_dataseek"))
         .args(["completion", "zsh"])
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
