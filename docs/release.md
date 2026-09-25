@@ -29,6 +29,7 @@ The workflow runs `release` and `release-pr` as separate jobs, which is the layo
 - `git_release_enable = true`, `git_release_type = "auto"`: every tag gets a GitHub release whose body is that version's changelog section, marked prerelease when the version has one. Changed on 2026-09-25; see `rejected.md`.
 - `semver_check = false`: a binary exposes no public API, so cargo-semver-checks has nothing to compare.
 - `release_always = false`: tag only when the release PR merges, not on every push to main.
+- `release_commits = "^(feat|fix|perf|refactor)"`: release-plz decides from changed files, not from the changelog groups, so without this a `ci:` or `chore:` merge alone opens a release PR whose changelog section is empty (that is how v0.3.1 happened).
 - `pr_body` replaces the default body, which carries a robot emoji and a generated-with footer.
 
 ## The first release

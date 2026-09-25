@@ -6,6 +6,9 @@ publish = false
 git_tag_enable = true
 git_release_enable = true
 git_release_type = "auto"
+# Only commits a user of the binary can notice cut a release; v0.3.1 was cut by two
+# ci: merges and carries an empty changelog section.
+release_commits = "^(feat|fix|perf|refactor)"
 semver_check = false
 release_always = false
 pr_name = "chore: release{% if version %} v{{ version }}{% endif %}"
