@@ -12,7 +12,8 @@ check:
     cargo nextest run --all-features --locked
 
 # Everything CI gates on, in the same order. See docs/development.md.
-ci: check typos cross shear msrv audit
+ci: check cross shear msrv audit
+    typos
 
 test *args:
     cargo nextest run {{ args }}
@@ -31,9 +32,6 @@ build:
     cargo build --release
 
 # Dependencies declared in Cargo.toml but never used.
-typos:
-    typos
-
 # The Windows and macOS compile boundary, checked from this machine the way CI does.
 cross:
     rustup target add x86_64-pc-windows-msvc aarch64-apple-darwin
