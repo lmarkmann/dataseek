@@ -46,7 +46,10 @@ jobs:
         uses: release-plz/action@d6c56271d640b6c1b61d1e00593641c400a9f4bd # v0.5.138
         with:
           command: release
-          token: ${{ steps.app.outputs.token }}
+        env:
+          # release-plz reads the GitHub token from this variable; its `token` input is
+          # the cargo registry token and must never carry a GitHub credential.
+          GITHUB_TOKEN: ${{ steps.app.outputs.token }}
 
   release-pr:
     needs: release
@@ -79,7 +82,10 @@ jobs:
         uses: release-plz/action@d6c56271d640b6c1b61d1e00593641c400a9f4bd # v0.5.138
         with:
           command: release-pr
-          token: ${{ steps.app.outputs.token }}
+        env:
+          # release-plz reads the GitHub token from this variable; its `token` input is
+          # the cargo registry token and must never carry a GitHub credential.
+          GITHUB_TOKEN: ${{ steps.app.outputs.token }}
       - name: automerge
         if: steps.pr.outputs.prs_created == 'true'
         env:
