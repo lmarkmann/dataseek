@@ -1,7 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:recommended",
+    "helpers:pinGitHubActionDigests"
   ],
   "schedule": [
     "before 9am on monday"
@@ -28,6 +29,13 @@
         "major"
       ],
       "groupName": "major dependencies"
+    },
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "minimumReleaseAge": "7 days",
+      "groupName": "actions"
     }
   ]
 }

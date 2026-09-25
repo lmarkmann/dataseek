@@ -4,11 +4,18 @@ changelog_update = true
 git_only = true
 publish = false
 git_tag_enable = true
-git_release_enable = false
+git_release_enable = true
+git_release_type = "auto"
 semver_check = false
 release_always = false
-pr_labels = ["release"]
 pr_name = "chore: release{% if version %} v{{ version }}{% endif %}"
+# The default body carries a robot emoji and a generated-with footer.
+pr_body = """
+{% for release in releases %}{{ release.package }}: {{ release.previous_version }} -> {{ release.next_version }}
+{% if release.changelog %}
+{{ release.changelog }}
+{% endif %}{% endfor -%}
+"""
 
 [changelog]
 header = """# Changelog

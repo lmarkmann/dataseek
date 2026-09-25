@@ -12,7 +12,7 @@ check:
     cargo nextest run --all-features --locked
 
 # Everything CI gates on, in the same order. See docs/development.md.
-ci: check shear msrv audit
+ci: check typos cross shear msrv audit
 
 test *args:
     cargo nextest run {{ args }}
@@ -31,6 +31,15 @@ build:
     cargo build --release
 
 # Dependencies declared in Cargo.toml but never used.
+typos:
+    typos
+
+# The Windows and macOS compile boundary, checked from this machine the way CI does.
+cross:
+    rustup target add x86_64-pc-windows-msvc aarch64-apple-darwin
+    cargo clippy --all-targets --all-features --locked --target x86_64-pc-windows-msvc -- -D warnings
+    cargo clippy --all-targets --all-features --locked --target aarch64-apple-darwin -- -D warnings
+
 shear:
     cargo shear
 
@@ -150,8 +159,8 @@ repin:
       echo "  Try:   brew install pinact" >&2
       exit 1
     fi
-    pinact run --update --exclude 'dtolnay/rust-toolchain' .github/workflows/release-plz.yml
-    pinact run --verify --check --exclude 'dtolnay/rust-toolchain' .github/workflows/release-plz.yml
+    pinact run --update --min-age 7
+    pinact run --verify --check
 
 # See docs/security.md.
 deny:

@@ -11,7 +11,7 @@ just build   # release build
 just ci      # everything CI gates on, before you push
 ```
 
-`check` is the inner loop and runs in seconds. `ci` is `check` plus the unused-dependency, MSRV, and supply-chain gates, so a green `just ci` means a green pipeline **on your platform**. The macOS and Windows jobs are the part you cannot run locally, and they exist because a `cfg` boundary can fail to compile on a platform nobody develops on; see the comment on the matrix in `ci.yml`.
+`check` is the inner loop and runs in seconds. `ci` is `check` plus the unused-dependency, MSRV, and supply-chain gates, so a green `just ci` means a green pipeline **on your platform**. CI is one Linux machine. A `cfg` boundary can still fail to compile on a platform nobody develops on, so the `cross-check` step (and `just cross`) runs clippy for the Windows and macOS targets from that machine; see the comment at the top of `ci.yml`.
 
 ## Format and lint
 
