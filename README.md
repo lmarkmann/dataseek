@@ -19,7 +19,7 @@ See the docs in [`docs/`](docs/):
 - [`contract.md`](docs/contract.md): the quality contract the template satisfies.
 - [`development.md`](docs/development.md): daily commands, tests, and hooks.
 - [`security.md`](docs/security.md): cargo-deny and zizmor.
-- [`release.md`](docs/release.md): versioning with release-plz.
+- [`release.md`](docs/release.md): automatic releases with release-plz: release PR, auto-merge, tag and GitHub release.
 - [`rejected.md`](docs/rejected.md): what was left out, and why. Read it before proposing an addition.
 - [`watchlist.md`](docs/watchlist.md): what is parked as *not yet*, and the trigger that would revisit it.
 
@@ -27,6 +27,7 @@ See the docs in [`docs/`](docs/):
 
 ```sh
 just check   # fmt --check + clippy -D warnings + tests
+just ci      # everything the CI job runs: check, typos, Windows and macOS cross-check, shear, msrv, audit
 just audit   # cargo-deny + zizmor
 just run count Cargo.toml
 ```
