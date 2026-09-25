@@ -85,12 +85,7 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
         Command::Completion { shell } => {
             let mut cmd = Cli::command();
             let mut script = Vec::new();
-            clap_complete::generate(
-                shell,
-                &mut cmd,
-                "dataseek",
-                &mut script,
-            );
+            clap_complete::generate(shell, &mut cmd, "dataseek", &mut script);
             out.stdout().write_all(&script)?;
         }
         // roff is data, so it goes to stdout like every other result.

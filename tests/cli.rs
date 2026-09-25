@@ -12,8 +12,7 @@ use assert_cmd::Command;
 use predicates::prelude::*;
 
 fn bin() -> Command {
-    let mut cmd =
-        Command::cargo_bin("dataseek").expect("dataseek binary");
+    let mut cmd = Command::cargo_bin("dataseek").expect("dataseek binary");
     // clap's wrap_help reads COLUMNS, so help output is a function of the
     // terminal width of whoever ran the tests. Without pinning it, the
     // snapshot fails for anyone whose shell or CI image exports a different
@@ -226,9 +225,7 @@ fn doctor_reports_ready_with_clean_pipe() {
         "doctor leaked ANSI into a piped stdout"
     );
     let text = String::from_utf8_lossy(&out.stdout);
-    assert!(
-        text.contains(&format!("dataseek {}", env!("CARGO_PKG_VERSION")))
-    );
+    assert!(text.contains(&format!("dataseek {}", env!("CARGO_PKG_VERSION"))));
     // "Ready." exactly: "Ready, with notes above." also contains "Ready".
     assert!(text.contains("Ready."), "{text}");
     // The narration invariant, mechanically: piped stdout means no human is
