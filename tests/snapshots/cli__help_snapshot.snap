@@ -1,8 +1,9 @@
 ---
 source: tests/cli.rs
+assertion_line: 364
 expression: "String::from_utf8_lossy(&out.stdout)"
 ---
-A starter CLI that already clears the quality contract.
+Search for datasets from the terminal
 
 Usage: dataseek [OPTIONS] <COMMAND>
 
