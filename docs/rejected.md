@@ -38,6 +38,8 @@ Also inherited from `celsius`. It ran `cargo codspeed build --bench render` agai
 
 `git_release_enable = false`: with no binaries to attach, a GitHub release only duplicates the tag it was cut from.
 
+**Overturned 2026-09-25 for GitHub releases; `semver_check = false` stands.** The standing rule across the user's repositories is a tag and a GitHub release per version, the release body being that version's changelog section, so a reader of the Releases page gets the notes without opening the file. `git_release_enable = true` and `git_release_type = "auto"` now.
+
 `semver_check = false`: cargo-semver-checks compares the public API of a library. This crate is a binary and has no public API, so the check has nothing to compare. Turning it off also removed the 15-line custom `pr_body` template, which existed solely to surface the semver marker.
 
 ## 2026-07-27: `release_always = true` (release-plz default)
@@ -66,6 +68,8 @@ Pinned with [`pinact`](https://github.com/suzuki-shunsuke/pinact), which writes 
 
 The rest of this entry stands, and `ci.yml` stays on tags. It runs read-only, holds no secret and ships nothing, so it buys nothing from pins that a clone has no bot to refresh.
 
+**Fully overturned 2026-09-25.** The entry's own condition was a bot to keep the hashes alive, and Renovate is that bot: `.github/renovate.json` now extends `helpers:pinGitHubActionDigests`, which writes the SHA with the `# v7.0.1` comment this entry named as the reviewable form, and a seven-day `minimumReleaseAge` holds action updates back for a week. With the bot in place every `uses:` in both workflows is hash-pinned and `.github/zizmor.yml` is gone.
+
 ## 2026-07-27: `persist-credentials: false` on the release-plz checkout
 
 Applied to every other checkout to clear zizmor's `artipacked` finding. Not applied here: those credentials are what release-plz pushes the release branch and the tag with. `artipacked` is ignored for that one workflow in `.github/zizmor.yml`.
@@ -88,11 +92,15 @@ Both are library lints. In a binary, `pub` on an item in a private module is the
 
 The manifest carries a curated list, so it cannot deny a lint nobody listed. `-D warnings` stays in `just check` and CI as the catch-all for everything not named explicitly. The manifest gives editor and `cargo build` parity; the flag is the backstop. They are not redundant.
 
+**Holds, respelled in CI on 2026-09-25.** `ci.yml` sets `CARGO_BUILD_WARNINGS=deny` (Cargo's `build.warnings`, stable since Rust 1.97) instead of passing `-D warnings`: the same catch-all over local lints, measured failing build, clippy and rustdoc, without invalidating the build cache the way `RUSTFLAGS` does. `just check` keeps the flag.
+
 ## 2026-07-27: Removing `components:` from `ci.yml` to single-source the toolchain
 
 `rust-toolchain.toml` names the channel and the components, so repeating `components: clippy, rustfmt` in CI looks like duplication worth deleting. It is not: `dtolnay/rust-toolchain` installs the toolchain itself, and rustup only honors a components list when it is the one performing the install. Deleting the CI line risks a runner with a toolchain but no clippy.
 
 Kept the duplication with a comment at the site saying the two must agree. The alternative that would genuinely single-source it is dropping the toolchain step entirely and letting rustup auto-install from the file on first `cargo` invocation.
+
+**Resolved 2026-09-25 the way this entry named.** CI no longer uses `dtolnay/rust-toolchain`: `rustup toolchain install` with no argument installs the toolchain and components `rust-toolchain.toml` names, so the file is the only list.
 
 ## 2026-07-27: Freezing a specific rustc version in `rust-toolchain.toml`
 

@@ -1,137 +1,80 @@
 name: ci
 
+# One Linux machine runs every check as a named step. The OS matrix this replaced
+# (ubuntu, macOS, Windows) guarded two things: path layouts, which etcetera resolves
+# as XDG on every Unix and differently only on Windows, and cfg boundaries that fail
+# to compile off Linux, which is how the unconditional SIGPIPE import once slipped
+# through. The second is caught below by clippy on the Windows and macOS targets from
+# this machine; a macOS or Windows runner on a private repo would cost 10x and 2x.
+
 on:
+  pull_request:
   push:
     branches: [main]
-  pull_request:
+  merge_group:
 
-permissions:
-  contents: read
+permissions: {}
 
-# Six jobs and a three-OS matrix, so a pull request pushed twice in a minute is worth
-# cancelling. Only for pull requests: on main every commit should keep its own result,
-# and github.ref is the same value for all of them, so cancelling there would leave
-# commits permanently without a green check.
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
+  CARGO_BUILD_WARNINGS: deny
   CARGO_TERM_COLOR: always
 
 jobs:
-  check:
-    # paths.rs resolves config/cache/state through etcetera, and those layouts differ by platform.
-    # Windows earns its slot separately: it is the one platform where a cfg boundary can fail to
-    # compile at all, which is how the unconditional SIGPIPE import survived a ubuntu-only gate.
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    # A wedged job otherwise runs to GitHub's six-hour default. 20 for the jobs
-    # that compile, 10 for the ones that only read the tree.
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      # Components are repeated because rustup honors the list only when it installs the toolchain.
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: clippy, rustfmt
-      - uses: Swatinem/rust-cache@v2
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-nextest
-      # --locked throughout: Cargo.lock is committed, so a manifest it no longer matches fails here instead of being resolved away in silence.
-      - name: format
-        run: cargo fmt --all -- --check
-      - name: clippy
-        run: cargo clippy --all-targets --all-features --locked -- -D warnings
-      # The same runner as `just test`. nextest skips doctests by design; this crate is a binary and has none. A clone that grows a src/lib.rs should add `cargo test --doc --locked` here.
-      - name: test
-        run: cargo nextest run --all-features --locked
-
-  shear:
-    name: unused deps
+  linux:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-shear
-      - run: cargo shear
-
-  msrv:
-    name: msrv
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      # The floor is declared once, in Cargo.toml; read it from there rather than repeating the number here.
-      - id: floor
-        run: echo "version=$(sed -n 's/^rust-version = "\(.*\)"/\1/p' Cargo.toml)" >> "$GITHUB_OUTPUT"
-      - uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ steps.floor.outputs.version }}
-      - uses: Swatinem/rust-cache@v2
-      # rust-toolchain.toml pins everyone to stable and would override the toolchain installed above. RUSTUP_TOOLCHAIN outranks that file, which is what makes this job build against the floor instead of against stable.
-      - name: check on ${{ steps.floor.outputs.version }}
-        env:
-          RUSTUP_TOOLCHAIN: ${{ steps.floor.outputs.version }}
-        run: cargo check --all-targets --all-features --locked
-
-  # The doc comments in src/cli.rs are the --help text, so a typo there is a
-  # user-visible defect that fmt, clippy and shear all look straight past. prek runs
-  # this on commit, but --no-verify, a web edit, or a contributor without prek all
-  # reach main without it. Pinned to the same tag as prek.toml so both agree.
-  typos:
-    name: typos
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - uses: crate-ci/typos@v1.50.1
-
-  deny:
-    name: cargo-deny
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - uses: EmbarkStudios/cargo-deny-action@v2
-        with:
-          command: check advisories licenses bans sources
-
-  zizmor:
-    name: zizmor
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
     permissions:
-      contents: read  # restated because job-level replaces workflow-level
+      contents: read
     steps:
-      - uses: actions/checkout@v7
+      - name: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      # advanced-security: false prints findings and fails the job on them. The default
-      # uploads SARIF to the Security tab instead, which needs a public repo or paid
-      # Advanced Security, and by design does not fail the job when it finds something.
-      # online-audits defaults to true here, which the action's README flags as the
-      # opposite of the zizmor CLI default. Left alone, CI runs strictly more audits
-      # than `just audit`, so the two disagree about what green means.
-      - uses: zizmorcore/zizmor-action@v0.6.3
+      - name: toolchain
+        run: rustup toolchain install
+      - name: cache
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:
-          advanced-security: false
-          online-audits: false
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - name: tools
+        uses: taiki-e/install-action@76c2e6406e52637deed7160d77bded76bd83e06e # v2.87.14
+        with:
+          tool: cargo-nextest,cargo-deny,cargo-shear,typos,zizmor
+          fallback: none
+      - name: fmt
+        run: cargo fmt --all --check
+      # The doc comments in src/cli.rs are the --help text, so a typo there is a
+      # user-visible defect the other steps look straight past.
+      - name: typos
+        run: typos
+      - name: clippy
+        run: cargo clippy --workspace --all-targets --all-features --locked
+      - name: cross-check
+        run: |
+          rustup target add x86_64-pc-windows-msvc aarch64-apple-darwin
+          cargo clippy --all-targets --all-features --locked --target x86_64-pc-windows-msvc
+          cargo clippy --all-targets --all-features --locked --target aarch64-apple-darwin
+      # nextest skips doctests by design; this crate is a binary and has none.
+      - name: test
+        run: cargo nextest run --workspace --all-features --locked
+      - name: deny
+        run: cargo deny check advisories licenses bans sources
+      - name: shear
+        run: cargo shear
+      - name: workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          zizmor --format=github .
+          go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+      # Last: it installs a second toolchain, and everything above failing first
+      # is cheaper than waiting for it.
+      - name: msrv
+        run: |
+          msrv=$(cargo metadata --no-deps --format-version 1 | jq -r '[.packages[].rust_version | select(.)] | sort_by(split(".") | map(tonumber)) | last')
+          rustup toolchain install "$msrv" --profile minimal
+          RUSTUP_TOOLCHAIN="$msrv" cargo check --workspace --all-targets --all-features --locked
