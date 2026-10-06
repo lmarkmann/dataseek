@@ -35,6 +35,7 @@ pub(super) fn parse(body: &Value) -> Result<Vec<Dataset>, SourceError> {
                 Dataset::new(&title, &format!("{endpoint}.html"))
                     .describe(text(row, "/description"));
             dataset.publisher = Some("U.S. Census Bureau".to_owned());
+            dataset.license = text(row, "/license");
             dataset.updated = day(text(row, "/modified"));
             dataset.valid()
         })
@@ -66,7 +67,10 @@ mod tests {
                 ),
                 publisher: Some("U.S. Census Bureau".into()),
                 doi: None,
-                license: None,
+                license: Some(
+                    "https://creativecommons.org/publicdomain/zero/1.0/"
+                        .into()
+                ),
                 updated: Some("2019-10-09".into()),
                 size_bytes: None,
                 popularity: None,
