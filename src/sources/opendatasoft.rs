@@ -41,7 +41,8 @@ fn record(row: &Value) -> Option<Dataset> {
         &format!("https://data.opendatasoft.com/explore/dataset/{id}/"),
     )
     .describe(text(meta, "/description"));
-    dataset.publisher = text(meta, "/publisher");
+    dataset.publisher = text(meta, "/publisher")
+        .or_else(|| text(meta, "/source_domain_title"));
     dataset.license = text(meta, "/license");
     dataset.updated = day(text(meta, "/modified"));
     dataset.valid()
@@ -72,7 +73,7 @@ mod tests {
                       diva-4d-analysis-of-water_body_nitrate-summer@pndb/"
                     .into(),
                 description: Some("Lien vers la fiche source".into()),
-                publisher: None,
+                publisher: Some("PNDB".into()),
                 doi: None,
                 license: None,
                 updated: Some("2018-03-26".into()),

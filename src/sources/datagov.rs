@@ -8,7 +8,7 @@ use serde_json::Value;
 use super::Ctx;
 use crate::credentials::Key;
 use crate::http::SourceError;
-use crate::record::{Dataset, day, text};
+use crate::record::{Dataset, day, from_markdown, text};
 
 pub fn search(
     ctx: &Ctx<'_>,
@@ -43,7 +43,7 @@ fn record(row: &Value) -> Option<Dataset> {
         &text(row, "/title")?,
         &format!("https://catalog.data.gov/dataset/{slug}"),
     )
-    .describe(text(row, "/description"))
+    .describe(text(row, "/description").map(|d| from_markdown(&d)))
     .doi_from(text(row, "/dcat/identifier"));
     dataset.publisher = text(row, "/dcat/publisher/name")
         .or_else(|| text(row, "/organization/name"));
@@ -64,6 +64,15 @@ mod tests {
     fn records_map_from_a_recorded_search() {
         let hits = parse(&fixture::json("datagov.json"), 10).unwrap();
         assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[3].description.as_deref(),
+            Some(
+                "NOTE: This dataset is no longer being updated. For current \
+                 water supply and conservation data, please use this \
+                 dataset: Urban Retail Water Supplier - Water Conservation, \
+                 Supply, and Demand (June 2014 onwards)"
+            )
+        );
         assert_eq!(
             hits[0],
             Dataset {

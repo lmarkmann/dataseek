@@ -44,6 +44,8 @@ fn record(repo: &Value) -> Option<Dataset> {
     dataset.license =
         text(repo, "/license/spdx_id").filter(|l| l != "NOASSERTION");
     dataset.updated = day(text(repo, "/updated_at"));
+    dataset.size_bytes =
+        number(repo, "/size").and_then(|kib| kib.checked_mul(1024));
     dataset.popularity = number(repo, "/stargazers_count");
     dataset.valid()
 }
@@ -71,7 +73,7 @@ mod tests {
                 doi: None,
                 license: None,
                 updated: Some("2026-06-01".into()),
-                size_bytes: None,
+                size_bytes: Some(73_274_368),
                 popularity: Some(202),
                 aliases: vec![],
             }

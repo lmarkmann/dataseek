@@ -5,7 +5,7 @@ use serde_json::Value;
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::{Dataset, day, items, text};
+use crate::record::{Dataset, day, items, number, text};
 
 const TYPES: &str =
     "https://osf.io/vocab/2022/Project,https://osf.io/vocab/2022/Registration";
@@ -39,10 +39,18 @@ pub(super) fn parse(
 fn record(card: &Value) -> Option<Dataset> {
     let mut dataset =
         Dataset::new(&text(card, "/title/0/@value")?, &text(card, "/@id")?)
-            .describe(text(card, "/description/0/@value"));
+            .describe(text(card, "/description/0/@value"))
+            .doi_from(
+                items(card, "/identifier")
+                    .iter()
+                    .filter_map(|id| text(id, "/@value"))
+                    .find(|id| id.contains("doi.org/")),
+            );
     dataset.publisher = text(card, "/creator/0/name/0/@value")
         .or_else(|| text(card, "/publisher/0/name/0/@value"));
+    dataset.license = text(card, "/rights/0/name/0/@value");
     dataset.updated = day(text(card, "/dateModified/0/@value"));
+    dataset.size_bytes = number(card, "/storageByteCount/0/@value");
     dataset.valid()
 }
 
@@ -55,6 +63,7 @@ mod tests {
     fn records_map_from_a_recorded_search() {
         let hits = parse(&fixture::json("osf.json"), 10).unwrap();
         assert_eq!(hits.len(), 3);
+        assert_eq!(hits[1].doi.as_deref(), Some("10.17605/osf.io/zh3w9"));
         assert_eq!(
             hits[0],
             Dataset {
@@ -65,9 +74,9 @@ mod tests {
                 description: None,
                 publisher: Some("Bronislav Farka\u{10d}".into()),
                 doi: None,
-                license: None,
+                license: Some("CC-By Attribution 4.0 International".into()),
                 updated: Some("2026-06-23".into()),
-                size_bytes: None,
+                size_bytes: Some(142_773),
                 popularity: None,
                 aliases: vec![],
             }

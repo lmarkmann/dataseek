@@ -6,7 +6,7 @@ use serde_json::Value;
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::{Dataset, items, text};
+use crate::record::{Dataset, from_markdown, items, text};
 
 pub struct Catalog {
     pub collections: &'static str,
@@ -80,8 +80,8 @@ fn record(catalog: &Catalog, collection: &Value) -> Option<Dataset> {
         None => format!("{}/{id}", catalog.collections),
     };
     let title = text(collection, "/title").unwrap_or_else(|| id.clone());
-    let mut dataset =
-        Dataset::new(&title, &url).describe(text(collection, "/description"));
+    let mut dataset = Dataset::new(&title, &url)
+        .describe(text(collection, "/description").map(|d| from_markdown(&d)));
     dataset.publisher = Some(catalog.publisher.to_owned());
     dataset.license = text(collection, "/license")
         .filter(|l| l != "proprietary" && l != "other" && l != "various");
@@ -120,6 +120,15 @@ mod tests {
                 popularity: None,
                 aliases: vec![],
             }
+        );
+        assert_eq!(
+            entries[2].description.as_deref(),
+            Some(
+                "The National Agriculture Imagery Program (NAIP) provides \
+                 U.S.-wide, high-resolution aerial imagery, with four \
+                 spectral bands (R, G, B, IR)."
+            ),
+            "STAC descriptions are CommonMark"
         );
     }
 }

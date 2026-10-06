@@ -36,12 +36,22 @@ pub static OECD: Agency = Agency {
 };
 /// ECB.DISS dataflows are the published-series subsets of other dataflows
 /// and have no page on the portal (89 of 215 on 2026-10-06, all 404).
+///
+/// The link is a dataset's information tab, not its bare page. The bare
+/// page redirects to itself with the dataset's name in the query string,
+/// which the portal's firewall blocks for the "International Reserves of the
+/// Eurosystem" flows (503), and it refuses datasets still in draft (403).
+/// The information tab answered 200 without a redirect for all 126 other
+/// flows, drafts included, on 2026-10-06.
 pub static ECB: Agency = Agency {
     dataflows: "https://data-api.ecb.europa.eu/service/dataflow",
     publisher: "European Central Bank",
     page: |agency, id| {
-        (agency != "ECB.DISS")
-            .then(|| format!("https://data.ecb.europa.eu/data/datasets/{id}"))
+        (agency != "ECB.DISS").then(|| {
+            format!(
+                "https://data.ecb.europa.eu/data/datasets/{id}/data-information"
+            )
+        })
     },
 };
 pub static BUNDESBANK: Agency = Agency {
@@ -260,20 +270,37 @@ mod tests {
         let datasets = parse(&ECB, &fixture::text("sdmx.xml")).unwrap();
         let titles: Vec<&str> =
             datasets.iter().map(|d| d.title.as_str()).collect();
-        assert_eq!(titles, ["AGR", "AMECO", "Exchange Rates"]);
+        assert_eq!(
+            titles,
+            [
+                "AGR",
+                "AMECO",
+                "Exchange Rates",
+                "Quarterly non-financial accounts, QSA by country",
+                "International Reserves of the Eurosystem (BPM6)",
+            ]
+        );
         assert_eq!(
             datasets[0],
             Dataset {
                 title: "AGR".into(),
-                url: "https://data.ecb.europa.eu/data/datasets/AGR".into(),
+                url: "https://data.ecb.europa.eu/data/datasets/AGR/\
+                      data-information"
+                    .into(),
                 description: Some("AGR".into()),
                 publisher: Some("European Central Bank".into()),
                 ..Dataset::default()
             }
         );
+        let urls: Vec<&str> =
+            datasets[3..].iter().map(|d| d.url.as_str()).collect();
         assert_eq!(
-            datasets[2].url,
-            "https://data.ecb.europa.eu/data/datasets/EXR"
+            urls,
+            [
+                "https://data.ecb.europa.eu/data/datasets/IEAF/data-information",
+                "https://data.ecb.europa.eu/data/datasets/RA6/data-information",
+            ],
+            "a draft and a firewalled flow link past the bare page"
         );
     }
 }
