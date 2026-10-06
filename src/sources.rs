@@ -19,6 +19,8 @@
 mod arcgis;
 mod aws;
 mod cellxgene;
+mod cern;
+mod cessda;
 mod ckan;
 mod cmr;
 mod dandi;
@@ -39,11 +41,13 @@ mod github;
 mod google;
 mod huggingface;
 mod kaggle;
+mod materials;
 mod mendeley;
 mod modelscope;
 mod nada;
 mod ncbi;
 mod ncei;
+mod nomad;
 mod omicsdi;
 mod openaire;
 mod opendatasoft;
@@ -361,7 +365,8 @@ const fn via(
 
 use Category::{
     Aggregator, Code, Ecology, Geospatial, Government, LifeSciences,
-    MachineLearning, Neuroscience, Research, Statistics,
+    MachineLearning, Neuroscience, Physics, Research, SocialScience,
+    Statistics,
 };
 
 const CKAN_DOCS: &str = "https://docs.ckan.org/en/latest/api/";
@@ -969,6 +974,40 @@ pub static SOURCES: &[Source] = &[
         "project list",
         "https://physionet.org/about/",
         physionet::list,
+    ),
+    // Physics and materials.
+    live(
+        "cern",
+        "CERN Open Data",
+        Physics,
+        "Invenio",
+        "https://github.com/cernopendata/opendata.cern.ch",
+        cern::search,
+    ),
+    listed(
+        "materials-project",
+        "Materials Project (MPContribs)",
+        Physics,
+        "MPContribs, listed",
+        "https://api.materialsproject.org/docs",
+        materials::list,
+    ),
+    listed(
+        "nomad",
+        "NOMAD",
+        Physics,
+        "NOMAD API, listed",
+        "https://nomad-lab.eu/prod/v1/api/v1/extensions/docs",
+        nomad::list,
+    ),
+    // Social science.
+    live(
+        "cessda",
+        "CESSDA Data Catalogue",
+        SocialScience,
+        "CESSDA",
+        "https://api.tech.cessda.eu/",
+        cessda::search,
     ),
 ];
 
