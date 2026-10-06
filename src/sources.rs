@@ -16,6 +16,7 @@
 //! response to [`SourceError::Shape`] rather than an empty list, and never put
 //! a credential into a URL or message that could be printed.
 
+mod ckan;
 mod datacite;
 mod europa;
 mod figshare;
@@ -49,6 +50,7 @@ pub struct Ctx<'a> {
 pub enum Adapter {
     Live(Live),
     Catalog(Listing),
+    Ckan(&'static ckan::Portal),
 }
 
 /// What a source mainly holds. The names are what `--category` accepts and
@@ -134,6 +136,7 @@ impl Source {
     ) -> Result<Vec<Dataset>, SourceError> {
         match &self.adapter {
             Adapter::Live(run) => run(ctx, query, limit),
+            Adapter::Ckan(portal) => ckan::search(ctx, portal, query, limit),
             Adapter::Catalog(list) => {
                 self.local(ctx, query, limit, || list(ctx))
             }
@@ -145,7 +148,7 @@ impl Source {
     pub fn warm(&self, ctx: &Ctx<'_>) -> Option<Result<usize, SourceError>> {
         let downloaded = match &self.adapter {
             Adapter::Catalog(list) => list(ctx),
-            Adapter::Live(_) => return None,
+            _ => return None,
         };
         Some(downloaded.map(|entries| {
             ctx.cache.store(Kind::Catalog, self.id, &entries);
@@ -278,7 +281,29 @@ const fn keyed(mut source: Source, key: Key, need: Need) -> Source {
     source
 }
 
+const fn via(
+    id: &'static str,
+    name: &'static str,
+    category: Category,
+    protocol: &'static str,
+    docs: &'static str,
+    adapter: Adapter,
+) -> Source {
+    Source {
+        id,
+        name,
+        category,
+        protocol,
+        docs,
+        key: None,
+        persist: true,
+        adapter,
+    }
+}
+
 use Category::{Aggregator, Government, MachineLearning, Research};
+
+const CKAN_DOCS: &str = "https://docs.ckan.org/en/latest/api/";
 
 pub static SOURCES: &[Source] = &[
     // Aggregators and general search engines.
@@ -297,6 +322,14 @@ pub static SOURCES: &[Source] = &[
         "OpenAIRE Graph",
         "https://graph.openaire.eu/docs/apis/graph-api/",
         openaire::search,
+    ),
+    via(
+        "b2find",
+        "EUDAT B2FIND",
+        Aggregator,
+        "CKAN",
+        CKAN_DOCS,
+        Adapter::Ckan(&ckan::B2FIND),
     ),
     // Machine learning.
     keyed(
@@ -387,6 +420,46 @@ pub static SOURCES: &[Source] = &[
         "DCAT-AP (piveau)",
         "https://dataeuropa.gitlab.io/data-provider-manual/api-documentation/",
         europa::search,
+    ),
+    via(
+        "data-gov-uk",
+        "data.gov.uk",
+        Government,
+        "CKAN",
+        CKAN_DOCS,
+        Adapter::Ckan(&ckan::DATA_GOV_UK),
+    ),
+    via(
+        "open-canada",
+        "Open Government Canada",
+        Government,
+        "CKAN",
+        CKAN_DOCS,
+        Adapter::Ckan(&ckan::OPEN_CANADA),
+    ),
+    via(
+        "data-gov-au",
+        "data.gov.au",
+        Government,
+        "CKAN",
+        CKAN_DOCS,
+        Adapter::Ckan(&ckan::DATA_GOV_AU),
+    ),
+    via(
+        "govdata",
+        "GovData (Germany)",
+        Government,
+        "CKAN",
+        CKAN_DOCS,
+        Adapter::Ckan(&ckan::GOVDATA),
+    ),
+    via(
+        "hdx",
+        "Humanitarian Data Exchange",
+        Government,
+        "CKAN",
+        "https://data.humdata.org/faqs/devs",
+        Adapter::Ckan(&ckan::HDX),
     ),
 ];
 
