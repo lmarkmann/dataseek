@@ -1,7 +1,14 @@
 //! Google Data Commons: statistical variables resolved from the query by the
-//! v2 `resolve` endpoint's indicator resolver. Without a key of the user's
-//! own, the trial key Data Commons publishes for general public use is sent;
-//! it is quota-limited, so a personal key is the better route.
+//! v2 `resolve` endpoint's indicator resolver. Every request to
+//! api.datacommons.org must carry a key, and the one the docs publish is a
+//! trial for single requests, not for software (Data Commons, October 2026),
+//! so the user's own key is required and the registry skips the source
+//! without one. The key travels in the `X-API-Key` header, which the endpoint
+//! accepts on GET (an invalid key is rejected as such, probed October 2026),
+//! so it never reaches a URL. An indicator search returns every match in one
+//! response, best score first, with no paging (Data Commons, October 2026);
+//! topics are dropped. The resolver names a variable but sends no
+//! description, so the record has none.
 
 use serde_json::Value;
 
@@ -10,23 +17,19 @@ use crate::credentials::Key;
 use crate::http::SourceError;
 use crate::record::{Dataset, items, text};
 
-/// Published at https://docs.datacommons.org/api/rest/v2/ for anyone to try
-/// the API with; it is not a secret.
-const TRIAL_KEY: &str = "AIzaSyCTI4Xz-UW_G2Q2RfknhcfdAnTHq5X5XuI";
-
 pub fn search(
     ctx: &Ctx<'_>,
     query: &str,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    let key = ctx
+    let secret = ctx
         .creds
         .get(Key::DataCommons)
-        .map_or(TRIAL_KEY, |secret| secret.token());
+        .ok_or(SourceError::Unauthorized(401))?;
     let body = ctx
         .http
         .get("https://api.datacommons.org/v2/resolve")
-        .header("X-API-Key", key)
+        .header("X-API-Key", secret.token())
         .query("nodes", query)
         .query("resolver", "indicator")
         .json()?;
@@ -58,8 +61,7 @@ fn record(candidate: &Value) -> Option<Dataset> {
     let mut dataset = Dataset::new(
         &name,
         &format!("https://datacommons.org/browser/{dcid}"),
-    )
-    .describe(Some(dcid));
+    );
     dataset.publisher = Some("Data Commons".to_owned());
     dataset.valid()
 }
@@ -67,7 +69,7 @@ fn record(candidate: &Value) -> Option<Dataset> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::sources::fixture;
+    use crate::sources::{Services, fixture};
 
     #[test]
     fn records_map_from_a_recorded_search() {
@@ -79,7 +81,7 @@ mod tests {
                 title: "unemployment rate".into(),
                 url: "https://datacommons.org/browser/UnemploymentRate_Person"
                     .into(),
-                description: Some("UnemploymentRate_Person".into()),
+                description: None,
                 publisher: Some("Data Commons".into()),
                 doi: None,
                 license: None,
@@ -89,5 +91,13 @@ mod tests {
                 aliases: vec![],
             }
         );
+    }
+
+    #[test]
+    fn without_the_users_key_the_source_refuses_before_any_request() {
+        let dir = tempfile::tempdir().unwrap();
+        let services = Services::scratch(dir.path());
+        let outcome = search(&services.ctx(false), "population", 10);
+        assert!(matches!(outcome, Err(SourceError::Unauthorized(401))));
     }
 }
