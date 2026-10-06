@@ -4,7 +4,7 @@ use serde_json::Value;
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::{Dataset, items, text};
+use crate::record::{Dataset, items, number, text};
 
 pub fn search(
     ctx: &Ctx<'_>,
@@ -49,6 +49,7 @@ fn record(hit: &Value) -> Option<Dataset> {
         .map(|e| format!("CERN {e}"));
     dataset.license = text(meta, "/license/attribution");
     dataset.updated = text(meta, "/date_published");
+    dataset.size_bytes = number(meta, "/distribution/size");
     dataset.valid()
 }
 
@@ -78,7 +79,7 @@ mod tests {
                 doi: Some("10.7483/opendata.opera.ocjx.pjsn".into()),
                 license: Some("CC0-1.0".into()),
                 updated: Some("2018".into()),
-                size_bytes: None,
+                size_bytes: Some(8371),
                 popularity: None,
                 aliases: vec![],
             }
