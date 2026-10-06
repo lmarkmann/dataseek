@@ -2,6 +2,46 @@
 
 What shipped, newest first. release-plz writes each section from the conventional commits merged since the previous tag; see [`reference/release.md`](reference/release.md).
 
+## 0.4.1 - 2026-10-06
+
+### Changed
+
+- Split each adapter's parsing from its request
+
+### Docs
+
+- How the adapters, loop and HTTP client are tested
+
+### Fixed
+
+- Drop ECB dataflows that have no page of their own
+- Send Mendeley Data the query it actually reads
+- Cut World Bank descriptions on a word and mark the cut
+- Decode named and numeric HTML entities in remote text
+- Pick the AWS registry's description paragraph by shape
+- Keep GBIF's real datasets in DataCite results
+- Treat ArcGIS Hub's "none" license as no license
+- Strip every Google tracking fragment from result links
+- Take CMR's DOI from its links and stop dating by coverage start
+- Date a dandiset by the version its name and size come from
+- Read PhysioNet's publish_date
+- Spell out compact dates like 20100708 for every source
+- Keep OpenML's catalog in a stable order
+- Read numbers written as decimal strings
+- End a DOI at the first space
+- Report a GEO esummary without results as a changed response
+- Never cache an empty catalog, fall back to the old one instead
+- Keep a literal < in titles instead of eating the rest
+- Strip control characters from localized text
+
+### Other
+
+- Keep typos off recorded fixtures
+
+### Uncategorized
+
+- Merge remote-tracking branch 'origin/main' into test/source-adapters
+
 ## 0.4.0 - 2026-10-06
 
 ### Added
