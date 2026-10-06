@@ -30,3 +30,6 @@ perf.data
 perf.data.old
 flamegraph.svg
 *.profraw
+
+# Each `just bench-startup` run rewrites it; CI keeps it as an artifact.
+docs/bench/startup.json
