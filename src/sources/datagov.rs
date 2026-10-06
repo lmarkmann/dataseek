@@ -59,22 +59,23 @@ fn record(row: &Value) -> Option<Dataset> {
             .filter(|d| d != NO_DESCRIPTION)
             .map(|d| from_markdown(&d)),
     );
-    dataset.doi = doi_of(row);
+    let landing = text(row, "/dcat/landingPage");
+    dataset.doi = doi_of(row, landing.as_deref());
     dataset.publisher = text(row, "/dcat/publisher/name")
         .or_else(|| text(row, "/organization/name"));
     dataset.license =
         text(row, "/dcat/license").filter(|l| !l.ends_with(UNKNOWN_LICENSE));
     dataset.updated = day(text(row, "/dcat/modified"));
     dataset.popularity = number(row, "/popularity");
-    dataset.aliases.extend(text(row, "/dcat/landingPage"));
+    dataset.aliases.extend(landing);
     dataset.valid()
 }
 
 /// Publishers put a DOI in `DOI`, in the identifier, or only as a doi.org
 /// landing page.
-fn doi_of(row: &Value) -> Option<String> {
-    let resolver_link = text(row, "/dcat/landingPage")
-        .filter(|page| page.contains("doi.org/"));
+fn doi_of(row: &Value, landing: Option<&str>) -> Option<String> {
+    let resolver_link =
+        landing.filter(|page| page.contains("doi.org/")).map(str::to_owned);
     [text(row, "/dcat/DOI"), text(row, "/dcat/identifier"), resolver_link]
         .into_iter()
         .flatten()
