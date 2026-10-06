@@ -37,7 +37,7 @@ jobs:
       - name: tools
         uses: taiki-e/install-action@4cef1412cce204788f482e778a0b9187f9626a29 # v2.87.21
         with:
-          tool: cargo-nextest,cargo-deny,cargo-shear,typos,zizmor,actionlint
+          tool: cargo-nextest,cargo-deny,cargo-shear,typos,zizmor
           fallback: none
       - name: fmt
         run: cargo fmt --all --check
@@ -61,7 +61,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           zizmor --format=github .
-          actionlint
+          go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
       # Last: it installs a second toolchain.
       - name: msrv
         run: |
