@@ -47,3 +47,5 @@ Examples:
   dataseek doctor
   dataseek completion fish > ~/.config/fish/completions/dataseek.fish
   dataseek man | man -l -
+
+dsk is the same program under a shorter name: dsk doctor

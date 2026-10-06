@@ -23,7 +23,8 @@ pub enum ColorChoice {
     after_help = "Examples:\n  \
         dataseek doctor\n  \
         dataseek completion fish > ~/.config/fish/completions/dataseek.fish\n  \
-        dataseek man | man -l -",
+        dataseek man | man -l -\n\n\
+        dsk is the same program under a shorter name: dsk doctor",
     arg_required_else_help = true,
     disable_help_subcommand = true,
     styles = palette::help()
