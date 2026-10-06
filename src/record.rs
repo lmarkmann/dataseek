@@ -73,9 +73,9 @@ impl Dataset {
 
 /// HTML tags removed (a `<` opens one only before a letter, `/` or `!`, so
 /// "aged <5" survives), the common entities decoded, whitespace collapsed,
-/// and every control character (ESC, CSI, OSC, C1) replaced by a space, so a
-/// record from a remote source can never drive the terminal it is printed
-/// on.
+/// invisible format characters dropped, and every control character (ESC,
+/// CSI, OSC, C1) replaced by a space, so a record from a remote source can
+/// never drive the terminal it is printed on.
 pub fn clean(text: &str) -> String {
     let mut plain = String::with_capacity(text.len());
     let mut in_tag = false;
@@ -93,7 +93,7 @@ pub fn clean(text: &str) -> String {
                 in_tag = false;
                 plain.push(' ');
             }
-            _ if !in_tag => plain.push(c),
+            _ if !in_tag && !invisible(c) => plain.push(c),
             _ => {}
         }
     }
@@ -145,7 +145,8 @@ fn entity(name: &str) -> Option<char> {
                 Some(hex) => u32::from_str_radix(hex, 16).ok()?,
                 None => code.parse().ok()?,
             };
-            return char::from_u32(number).filter(|c| !c.is_control());
+            return char::from_u32(number)
+                .filter(|&c| !c.is_control() && !invisible(c));
         }
     };
     Some(named)
@@ -189,13 +190,13 @@ pub fn doi(raw: &str) -> Option<String> {
     plausible.then(|| candidate.to_owned())
 }
 
-/// The string at a JSON pointer, trimmed, with control characters replaced
-/// by spaces (see [`clean`]); numbers are rendered as text. `None` for
+/// The string at a JSON pointer, trimmed, with control and invisible
+/// characters handled as in [`clean`]; numbers are rendered as text. `None` for
 /// absent, null, empty and non-scalar values.
 pub fn text(value: &Value, pointer: &str) -> Option<String> {
     match value.pointer(pointer)? {
         Value::String(s) => {
-            let safe: String = without_controls(s).collect();
+            let safe: String = printable(s).collect();
             let trimmed = safe.trim();
             (!trimmed.is_empty()).then(|| trimmed.to_owned())
         }
@@ -248,13 +249,41 @@ pub fn localized(value: Option<&Value>) -> Option<String> {
             .or_else(|| map.values().find_map(Value::as_str)),
         _ => None,
     }
-    .map(|s| without_controls(s).collect::<String>().trim().to_owned())
+    .map(|s| printable(s).collect::<String>().trim().to_owned())
     .filter(|s| !s.is_empty())
 }
 
-/// Every control character (ESC, CSI, OSC, C1) replaced by a space.
+/// Every control character (ESC, CSI, OSC, C1) replaced by a space and
+/// every [`invisible`] one dropped.
+fn printable(text: &str) -> impl Iterator<Item = char> + '_ {
+    without_controls(text).filter(|&c| !invisible(c))
+}
+
+/// Every control character replaced by a space, one char for one, which
+/// keeps [`clean`]'s loop as fast as a plain `chars()`.
 fn without_controls(text: &str) -> impl Iterator<Item = char> + '_ {
     text.chars().map(|c| if c.is_control() { ' ' } else { c })
+}
+
+/// Format characters that render as nothing: soft hyphen, zero-width space,
+/// direction marks and overrides, word joiner, byte order mark. The
+/// zero-width joiners U+200C and U+200D stay, because Persian, Indic scripts
+/// and emoji sequences need them.
+fn invisible(c: char) -> bool {
+    c >= '\u{ad}'
+        && matches!(
+            c,
+            '\u{ad}'
+                | '\u{61c}'
+                | '\u{180e}'
+                | '\u{200b}'
+                | '\u{200e}'
+                | '\u{200f}'
+                | '\u{202a}'..='\u{202e}'
+                | '\u{2060}'..='\u{2064}'
+                | '\u{2066}'..='\u{206f}'
+                | '\u{feff}'
+        )
 }
 
 /// Unix seconds or milliseconds as an ISO date (`2024-01-31`).
@@ -326,6 +355,7 @@ mod tests {
         fn cleaned_text_is_printable_and_tidy(raw in any::<String>()) {
             let shown = clean(&raw);
             prop_assert!(!shown.chars().any(char::is_control), "{shown:?}");
+            prop_assert!(!shown.chars().any(invisible), "{shown:?}");
             prop_assert_eq!(shown.trim(), shown.as_str());
             prop_assert!(!shown.contains("  "), "{shown:?}");
         }
@@ -491,6 +521,21 @@ mod tests {
             Dataset::new("t", "https://x.org/\u{1b}[2J").valid().is_none()
         );
         assert!(Dataset::new("t", "https://x.org/a b").valid().is_none());
+    }
+
+    #[test]
+    fn invisible_format_characters_are_dropped_but_joiners_stay() {
+        assert_eq!(
+            clean(
+                "\u{200b}Monthly\u{feff} soft\u{ad}ware \u{202e}data\u{2066}"
+            ),
+            "Monthly software data"
+        );
+        let v = json!({"t": "\u{200b} x\u{200f}", "m": {"en": "\u{2060}y"}});
+        assert_eq!(clean("a&#x200b;b&#8206;"), "a&#x200b;b&#8206;");
+        assert_eq!(text(&v, "/t").as_deref(), Some("x"));
+        assert_eq!(localized(v.get("m")).as_deref(), Some("y"));
+        assert_eq!(clean("\u{645}\u{200c}\u{647}"), "\u{645}\u{200c}\u{647}");
     }
 
     #[test]

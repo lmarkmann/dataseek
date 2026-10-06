@@ -67,7 +67,7 @@ mod tests {
                       Austin-Water-Residential-Water-Consumption/sxk7-7k6z"
                     .into(),
                 description: Some(
-                    "\u{200b}Monthly residential water consumption grouped \
+                    "Monthly residential water consumption grouped \
                      by zip code and customer class."
                         .into()
                 ),
