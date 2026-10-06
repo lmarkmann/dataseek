@@ -1,10 +1,11 @@
 //! The Google Earth Engine public data catalog, read from its catalog page
-//! (every dataset's id and title in one document) and searched locally. The
-//! STAC mirror of the same catalog would take one request per dataset.
+//! (every dataset's id, title, description snippet and providers in one
+//! document) and searched locally. The STAC mirror of the same catalog would
+//! take one request per dataset.
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::Dataset;
+use crate::record::{Dataset, clean};
 
 const MARK: &str = "data-label=\"toc-click-to-dataset-page ";
 
@@ -39,11 +40,33 @@ fn parse(page: &str) -> Vec<Dataset> {
                     "https://developers.google.com/earth-engine/datasets/catalog/{id}"
                 ),
             )
-            .describe(Some(id.replace('_', " ")));
-            dataset.publisher = id.split('_').next().map(str::to_owned);
+            .describe(
+                between(rest, "ee-dataset-description-snippet\">", "</td>")
+                    .map(str::to_owned),
+            );
+            dataset.publisher = between(rest, "<figcaption>", "</figcaption>")
+                .and_then(|caption| between(caption, "<!--", "-->"))
+                .map(providers)
+                .filter(|p| !p.is_empty());
             dataset.valid()
         })
         .collect()
+}
+
+/// The comment in a card's caption holds the dataset type and tags on its
+/// first line, the asset id on its second, then one provider per line.
+fn providers(comment: &str) -> String {
+    let lines: Vec<&str> = comment
+        .lines()
+        .map(str::trim)
+        .filter(|l| !l.is_empty())
+        .skip(2)
+        .collect();
+    clean(&lines.join(", "))
+}
+
+fn between<'a>(text: &'a str, start: &str, end: &str) -> Option<&'a str> {
+    text.split_once(start)?.1.split_once(end).map(|(inside, _)| inside)
 }
 
 #[cfg(test)]
@@ -63,6 +86,21 @@ mod tests {
     }
 
     #[test]
+    fn every_provider_line_is_kept() {
+        // The caption of ACA/reef_habitat/v2_0 on the live catalog page.
+        let comment = "
+            image oceans sentinel2-derived
+            ACA/reef_habitat/v2_0
+            Allen Coral Atlas Partnership (ACA)
+            University of Queensland (UQ)
+        ";
+        assert_eq!(
+            providers(comment),
+            "Allen Coral Atlas Partnership (ACA), University of Queensland (UQ)"
+        );
+    }
+
+    #[test]
     fn records_map_from_a_recorded_list() {
         let entries = parse(&fixture::text("gee.html"));
         assert_eq!(entries.len(), 4);
@@ -76,8 +114,16 @@ mod tests {
                 url: "https://developers.google.com/earth-engine/datasets/\
                       catalog/OSU_GIMP_2000_IMAGERY_MOSAIC"
                     .into(),
-                description: Some("OSU GIMP 2000 IMAGERY MOSAIC".into()),
-                publisher: Some("OSU".into()),
+                description: Some(
+                    "This dataset provides a complete 15 m resolution image \
+                     mosaic of the Greenland ice sheet derived from Landsat 7 \
+                     ETM+ and RADARSAT-1 SAR imagery from the years 1999 to \
+                     2002. The methods include a combination of image cloud \
+                     masking, pan sharpening, image sampling and resizing, \
+                     \u{2026}"
+                        .into()
+                ),
+                publisher: Some("NASA NSIDC DAAC at CIRES".into()),
                 doi: None,
                 license: None,
                 updated: None,
