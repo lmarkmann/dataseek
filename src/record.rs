@@ -153,14 +153,19 @@ fn entity(name: &str) -> Option<char> {
 
 /// [`clean`], cut to a teaser on a char boundary. `None` when nothing is left.
 pub fn summary(text: &str) -> Option<String> {
+    shortened(text, SUMMARY_CHARS)
+}
+
+/// [`clean`], cut to at most `chars` on a word, with `...` marking a cut.
+pub fn shortened(text: &str, chars: usize) -> Option<String> {
     let plain = clean(text);
     if plain.is_empty() {
         return None;
     }
-    if plain.chars().count() <= SUMMARY_CHARS {
+    if plain.chars().count() <= chars {
         return Some(plain);
     }
-    let cut: String = plain.chars().take(SUMMARY_CHARS).collect();
+    let cut: String = plain.chars().take(chars).collect();
     let cut = cut.rsplit_once(' ').map_or(cut.as_str(), |(head, _)| head);
     Some(format!("{}...", cut.trim_end_matches([',', '.', ';', ':'])))
 }

@@ -1,0 +1,73 @@
+[
+  {
+    "page": 1,
+    "pages": 1,
+    "per_page": "40000",
+    "total": 29544
+  },
+  [
+    {
+      "id": "1.0.HCount.1.90usd",
+      "name": "Poverty Headcount ($1.90 a day)",
+      "unit": "",
+      "source": {
+        "id": "37",
+        "value": "LAC Equity Lab"
+      },
+      "sourceNote": "The poverty headcount index measures the proportion of the population with daily per capita income (in 2011 PPP) below the poverty line.",
+      "sourceOrganization": "LAC Equity Lab tabulations of SEDLAC (CEDLAS and the World Bank).",
+      "topics": [
+        {
+          "id": "11",
+          "value": "Poverty "
+        }
+      ]
+    },
+    {
+      "id": "1.0.HCount.2.5usd",
+      "name": "Poverty Headcount ($2.50 a day)",
+      "unit": "",
+      "source": {
+        "id": "37",
+        "value": "LAC Equity Lab"
+      },
+      "sourceNote": "The poverty headcount index measures the proportion of the population with daily per capita income (in 2005 PPP) below the poverty line.",
+      "sourceOrganization": "LAC Equity Lab tabulations of SEDLAC (CEDLAS and the World Bank).",
+      "topics": [
+        {
+          "id": "11",
+          "value": "Poverty "
+        }
+      ]
+    },
+    {
+      "id": "1.0.PGap.1.90usd",
+      "name": "Poverty Gap ($1.90 a day)",
+      "unit": "",
+      "source": {
+        "id": "37",
+        "value": "LAC Equity Lab"
+      },
+      "sourceNote": "The poverty gap captures the mean aggregate income or consumption shortfall relative to the poverty line across the entire population. It measures the total resources needed to bring all the poor to the level of the poverty line (averaged over the total population). ",
+      "sourceOrganization": "LAC Equity Lab tabulations of SEDLAC (CEDLAS and the World Bank).",
+      "topics": [
+        {
+          "id": "11",
+          "value": "Poverty "
+        }
+      ]
+    },
+    {
+      "id": "100000",
+      "name": "100000:GROSS DOMESTIC PRODUCT",
+      "unit": "",
+      "source": {
+        "id": "71",
+        "value": "International Comparison Program (ICP) 2005"
+      },
+      "sourceNote": "",
+      "sourceOrganization": "",
+      "topics": []
+    }
+  ]
+]
