@@ -71,16 +71,24 @@ impl Dataset {
     }
 }
 
-/// HTML tags removed, the common entities decoded, whitespace collapsed,
+/// HTML tags removed (a `<` opens one only before a letter, `/` or `!`, so
+/// "aged <5" survives), the common entities decoded, whitespace collapsed,
 /// and every control character (ESC, CSI, OSC, C1) replaced by a space, so a
 /// record from a remote source can never drive the terminal it is printed
 /// on.
 pub fn clean(text: &str) -> String {
     let mut plain = String::with_capacity(text.len());
     let mut in_tag = false;
-    for c in text.chars().map(|c| if c.is_control() { ' ' } else { c }) {
+    let mut chars = without_controls(text).peekable();
+    while let Some(c) = chars.next() {
         match c {
-            '<' => in_tag = true,
+            '<' if !in_tag
+                && chars.peek().is_some_and(|n| {
+                    n.is_alphabetic() || matches!(n, '/' | '!')
+                }) =>
+            {
+                in_tag = true;
+            }
             '>' if in_tag => {
                 in_tag = false;
                 plain.push(' ');
@@ -309,6 +317,13 @@ mod tests {
             date_from_epoch(951_782_400).as_deref(),
             Some("2000-02-29")
         );
+    }
+
+    #[test]
+    fn a_literal_less_than_sign_is_text_not_a_tag() {
+        assert_eq!(clean("Children aged <5 years"), "Children aged <5 years");
+        assert_eq!(clean("PM2.5 < 10 and > 2"), "PM2.5 < 10 and > 2");
+        assert_eq!(clean("a<b>bold</b> c<!-- x -->d"), "a bold c d");
     }
 
     #[test]
