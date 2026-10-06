@@ -1,0 +1,170 @@
+---
+source: tests/cli.rs
+expression: "serde_json::to_string_pretty(&shapes).unwrap()"
+---
+{
+  "cache info": {
+    "budget_bytes": 31457280,
+    "budget_files": 2000,
+    "bytes": 0,
+    "files": 0,
+    "path": "[TEMP_PATH]",
+    "schema": "dataseek-cache-info/1"
+  },
+  "cache warm --dry-run": {
+    "schema": "dataseek-cache-warm/1"
+  },
+  "doctor": {
+    "checks": [
+      {
+        "detail": "[VERSION]",
+        "label": "version",
+        "ok": true
+      },
+      {
+        "detail": "[TEMP_PATH] (not yet created)",
+        "label": "config",
+        "ok": true
+      },
+      {
+        "detail": "[TEMP_PATH] (not yet created)",
+        "label": "cache",
+        "ok": true
+      },
+      {
+        "detail": "[TEMP_PATH] (not yet created)",
+        "label": "state",
+        "ok": true
+      },
+      {
+        "detail": "disabled (piped, or suppressed by the environment)",
+        "label": "color",
+        "ok": true
+      },
+      {
+        "detail": "enabled",
+        "label": "unicode",
+        "ok": true
+      },
+      {
+        "detail": "not set, get one at https://huggingface.co/settings/tokens",
+        "label": "key HF_TOKEN",
+        "ok": true
+      },
+      {
+        "detail": "not set, get one at https://www.kaggle.com/settings/api",
+        "label": "key KAGGLE_API_TOKEN",
+        "ok": true
+      },
+      {
+        "detail": "not set, get one at https://api.data.gov/signup/",
+        "label": "key DATAGOV_API_KEY",
+        "ok": true
+      },
+      {
+        "detail": "not set, get one at https://github.com/settings/tokens",
+        "label": "key GITHUB_TOKEN",
+        "ok": true
+      },
+      {
+        "detail": "not set, get one at https://fredaccount.stlouisfed.org/apikeys",
+        "label": "key FRED_API_KEY",
+        "ok": true
+      },
+      {
+        "detail": "not set, get one at https://app.roboflow.com/settings/api",
+        "label": "key ROBOFLOW_API_KEY",
+        "ok": true
+      },
+      {
+        "detail": "not set, get one at https://apikeys.datacommons.org",
+        "label": "key DATACOMMONS_API_KEY",
+        "ok": true
+      },
+      {
+        "detail": "not set, get one at https://account.ncbi.nlm.nih.gov/settings/",
+        "label": "key NCBI_API_KEY",
+        "ok": true
+      },
+      {
+        "detail": "0 files, 0 B of 31.5 MB",
+        "label": "cache use",
+        "ok": true
+      }
+    ],
+    "name": "dataseek",
+    "ready": true,
+    "schema": "dataseek-doctor/1",
+    "version": "[VERSION]"
+  },
+  "help exit-codes": {
+    "codes": [
+      {
+        "code": 0,
+        "meaning": "success; for search, at least one source answered, even with no results"
+      },
+      {
+        "code": 1,
+        "meaning": "failure: an error, every source failed or none could run, or a catalog failed to download"
+      },
+      {
+        "code": 2,
+        "meaning": "usage error: an unknown command, flag or value"
+      },
+      {
+        "code": 130,
+        "meaning": "interrupted by Ctrl-C"
+      }
+    ],
+    "schema": "dataseek-exit-codes/1"
+  },
+  "help search": {
+    "schema": "dataseek-command/1"
+  },
+  "search": {
+    "query": "rainfall",
+    "results": [
+      {
+        "score": 0.01639344262295082,
+        "sources": [
+          "openml"
+        ],
+        "title": "Rainfall in Lisbon",
+        "updated": "2001-01-01",
+        "url": "https://www.openml.org/d/1"
+      },
+      {
+        "score": 0.016129032258064516,
+        "sources": [
+          "openml"
+        ],
+        "title": "Monthly rainfall in Porto",
+        "updated": "2025-06-01",
+        "url": "https://www.openml.org/d/2"
+      }
+    ],
+    "schema": "dataseek-search/1",
+    "sources": [
+      {
+        "answered": true,
+        "id": "openml",
+        "ms": 0,
+        "results": 2,
+        "status": "ok"
+      }
+    ]
+  },
+  "sources": {
+    "schema": "dataseek-sources/1",
+    "sources[0]": {
+      "category": "aggregator",
+      "docs": "https://support.datacite.org/docs/api",
+      "id": "datacite",
+      "key": "none",
+      "key_env": null,
+      "name": "DataCite",
+      "protocol": "DataCite REST",
+      "search": "live"
+    }
+  }
+}

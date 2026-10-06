@@ -46,11 +46,13 @@ pub fn run(out: &Out) -> Result<()> {
         })
         .collect();
 
-    let mut w = out.stdout();
     if out.json {
-        writeln!(w, "{}", serde_json::to_string(&rows)?)?;
-        return Ok(());
+        return out.json(&serde_json::json!({
+            "schema": "dataseek-sources/1",
+            "sources": rows,
+        }));
     }
+    let mut w = out.stdout();
     if out.plain {
         for r in &rows {
             writeln!(

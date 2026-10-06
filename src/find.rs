@@ -1,11 +1,13 @@
 //! `search`: run the search loop, merge, and print. stdout carries the
 //! merged results (text, `--plain` TSV, or `--json` with a per-source
-//! report); stderr narrates progress and names the sources that failed.
+//! report); stderr announces the search and, after the results, names the
+//! sources that failed and sums up, so the last line says how it went.
 //!
 //! Terminal states: results found exits 0; nothing matched exits 0 with an
-//! empty result set; some sources failing is a warning, not a failure; every
-//! attempted source failing exits 1, because that is an offline machine or a
-//! broken network rather than an empty answer.
+//! empty result set and a stderr line saying so; some sources failing is a
+//! warning, not a failure; every attempted source failing exits 1, because
+//! that is an offline machine or a broken network rather than an empty
+//! answer (ADR 0007).
 
 use std::io::Write;
 use std::sync::Arc;
@@ -15,9 +17,10 @@ use anyhow::Result;
 use clap::builder::styling::Style;
 use serde::Serialize;
 
-use crate::cli::Selection;
+use crate::cli::{Selection, Sort};
 use crate::dedup::{Hit, merge, weigh};
-use crate::output::Out;
+use crate::http::SourceError;
+use crate::output::{self, Out, fit};
 use crate::search::{Outcome, Plan, Status, run};
 use crate::sources::{Services, select};
 use crate::{palette, ui};
@@ -29,22 +32,41 @@ pub enum Error {
     )]
     AllFailed,
     #[error(
+        "no source could be reached; this machine looks offline\n  Try:   check the connection, or add --offline to search what is cached"
+    )]
+    Offline,
+    #[error(
+        "nothing cached answers this query\n  Try:   run it once without --offline, or `dataseek cache warm` while online"
+    )]
+    NothingCached,
+    #[error(
         "none of the chosen sources can run\n  Try:   `dataseek sources` shows which keys are missing"
     )]
     NothingRan,
+    #[error(
+        "every chosen source failed minutes ago and is resting, so none was asked\n  Try:   name them with -s to ask anyway, or add --offline to search what is cached"
+    )]
+    Resting,
+    #[error(
+        "no source is left after -s, -c and -x\n  Try:   `dataseek sources` lists the ids and categories; DATASEEK_EXCLUDE counts as -x"
+    )]
+    NoneSelected,
 }
 
 pub struct Request<'a> {
     pub words: &'a [String],
     pub selection: &'a Selection,
     pub limit: usize,
+    pub sort: Sort,
     pub refresh: bool,
+    pub offline: bool,
     /// Seconds to wait for the slowest sources; `None` waits for all.
     pub timeout: Option<u64>,
 }
 
 pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
-    let Request { words, selection, limit, refresh, timeout } = *request;
+    let Request { words, selection, limit, sort, refresh, offline, timeout } =
+        *request;
     let services = Arc::new(Services::load()?);
     let query = words.join(" ");
     let plan = Arc::new(Plan {
@@ -55,12 +77,17 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
             &selection.categories,
         ),
         per_source: usize::from(selection.per_source),
-        forced: !selection.only.is_empty(),
+        forced: offline || !selection.only.is_empty(),
     });
+    if plan.sources.is_empty() {
+        return Err(Error::NoneSelected.into());
+    }
 
     ui::stage(format!(
-        "searching {} sources for \"{query}\"",
-        plan.sources.len()
+        "searching {} source{} for \"{query}\"{}",
+        plan.sources.len(),
+        if plan.sources.len() == 1 { "" } else { "s" },
+        if offline { ", offline" } else { "" }
     ));
     let progress = ui::bar(plan.sources.len() as u64, "sources");
     let outcomes = run(
@@ -73,25 +100,52 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
     progress.finish_and_clear();
     services.cache.trim();
 
-    narrate(out, &outcomes);
+    notes(out, &outcomes);
     if !outcomes.iter().any(|o| o.status.attempted()) {
-        return Err(Error::NothingRan.into());
+        let resting =
+            outcomes.iter().any(|o| matches!(o.status, Status::Resting(_)));
+        return Err(
+            if resting { Error::Resting } else { Error::NothingRan }.into()
+        );
     }
     if !outcomes.iter().any(|o| o.status.answered()) {
-        return Err(Error::AllFailed.into());
+        warn_failures(&outcomes);
+        return Err(failure(&outcomes, offline).into());
     }
 
     let lists: Vec<_> =
         outcomes.iter().map(|o| (o.source.id, o.datasets.clone())).collect();
     let mut hits = weigh(merge(&lists), &query);
-    hits.truncate(limit);
-    if hits.is_empty() {
-        ui::warn(format!("no datasets matched \"{query}\""));
+    if sort == Sort::Newest {
+        // Stable, so equally dated hits keep their relevance order; `None`
+        // sorts below every date.
+        hits.sort_by(|a, b| b.dataset.updated.cmp(&a.dataset.updated));
     }
-    print(out, &query, &hits, &outcomes)
+    let found = hits.len();
+    hits.truncate(limit);
+    print(out, &query, &hits, &outcomes)?;
+    summarize(&query, hits.len(), found, &outcomes);
+    Ok(())
 }
 
-fn narrate(out: &Out, outcomes: &[Outcome]) {
+/// Which failure every source failing amounts to: all unreachable reads as
+/// an offline machine, all skipped by `--offline` as an empty cache.
+fn failure(outcomes: &[Outcome], offline: bool) -> Error {
+    let failed =
+        || outcomes.iter().filter(|o| o.status.attempted()).map(|o| &o.status);
+    if offline {
+        Error::NothingCached
+    } else if failed()
+        .all(|s| matches!(s, Status::Failed(SourceError::Unreachable(_))))
+    {
+        Error::Offline
+    } else {
+        Error::AllFailed
+    }
+}
+
+/// Per-source timings for `-v`.
+fn notes(out: &Out, outcomes: &[Outcome]) {
     for o in outcomes {
         out.note(&format!(
             "{:<22} {:>5} ms  {:>3} results  {}",
@@ -101,34 +155,65 @@ fn narrate(out: &Out, outcomes: &[Outcome]) {
             o.status.label()
         ));
     }
-    let answered = outcomes.iter().filter(|o| o.status.answered()).count();
-    let attempted = outcomes.iter().filter(|o| o.status.attempted()).count();
-    ui::ok(format!("{answered} of {attempted} sources answered"));
+}
+
+/// Sources that did not answer, and catalogs still downloading. Sources
+/// skipped by `--offline` are counted, not listed: there would be dozens.
+fn warn_failures(outcomes: &[Outcome]) {
+    let downloading = |o: &&Outcome| {
+        o.source.is_catalog() && matches!(o.status, Status::Running(_))
+    };
     let failed: Vec<String> = outcomes
         .iter()
         .filter(|o| o.status.attempted() && !o.status.answered())
+        .filter(|o| !matches!(o.status, Status::Failed(SourceError::Offline)))
+        .filter(|o| !downloading(o))
         .map(|o| format!("{} ({})", o.source.id, o.status.label()))
         .collect();
     if !failed.is_empty() {
         ui::warn(format!("no answer from {}", failed.join(", ")));
     }
-    let downloading: Vec<&str> = outcomes
+    let skipped = outcomes
         .iter()
-        .filter(|o| {
-            o.source.is_catalog() && matches!(o.status, Status::Running(_))
-        })
-        .map(|o| o.source.id)
-        .collect();
-    if !downloading.is_empty() {
+        .filter(|o| matches!(o.status, Status::Failed(SourceError::Offline)))
+        .count();
+    if skipped > 0 {
+        ui::warn(format!("{skipped} sources had nothing cached (--offline)"));
+    }
+    let catalogs: Vec<&str> =
+        outcomes.iter().filter(downloading).map(|o| o.source.id).collect();
+    if !catalogs.is_empty() {
         ui::warn(format!(
             "{} were still downloading their catalogs; `dataseek cache warm` fetches them once",
-            downloading.join(", ")
+            catalogs.join(", ")
         ));
     }
 }
 
+/// The closing lines on stderr, after the results: what failed, then one
+/// line on how it went and how to see more.
+fn summarize(query: &str, shown: usize, found: usize, outcomes: &[Outcome]) {
+    warn_failures(outcomes);
+    let answered = outcomes.iter().filter(|o| o.status.answered()).count();
+    let attempted = outcomes.iter().filter(|o| o.status.attempted()).count();
+    let sources = format!("{answered} of {attempted} sources answered");
+    if found == 0 {
+        ui::warn(format!("no datasets matched \"{query}\"; {sources}"));
+    } else if shown < found {
+        ui::ok(format!(
+            "{shown} of {found} results; {sources}; -n {found} shows all"
+        ));
+    } else {
+        ui::ok(format!("{found} results; {sources}"));
+    }
+}
+
+/// Tag of the `--json` shape; bumped when a key changes meaning or goes.
+const SCHEMA: &str = "dataseek-search/1";
+
 #[derive(Serialize)]
 struct Report<'a> {
+    schema: &'static str,
     query: &'a str,
     results: &'a [Hit],
     sources: Vec<SourceReport>,
@@ -149,9 +234,9 @@ fn print(
     hits: &[Hit],
     outcomes: &[Outcome],
 ) -> Result<()> {
-    let mut w = out.stdout();
     if out.json {
-        let report = Report {
+        return out.json(&Report {
+            schema: SCHEMA,
             query,
             results: hits,
             sources: outcomes
@@ -164,10 +249,9 @@ fn print(
                     ms: o.elapsed.as_millis(),
                 })
                 .collect(),
-        };
-        writeln!(w, "{}", serde_json::to_string(&report)?)?;
-        return Ok(());
+        });
     }
+    let mut w = out.stdout();
     if out.plain {
         for hit in hits {
             let d = &hit.dataset;
@@ -186,19 +270,21 @@ fn print(
     let (number, title, muted) =
         (palette::accent(), Style::new().bold(), palette::muted());
     let width = hits.len().to_string().len();
+    let indent = width.saturating_add(2);
+    let pad = " ".repeat(indent);
+    let line = output::width().map(|w| w.saturating_sub(indent));
     for (i, hit) in hits.iter().enumerate() {
         let d = &hit.dataset;
-        let pad = " ".repeat(width.saturating_add(2));
         writeln!(
             w,
             "{number}{:>width$}{number:#}  {title}{}{title:#}",
             i.saturating_add(1),
-            d.title
+            fit(&d.title, line)
         )?;
-        writeln!(w, "{pad}{}", d.url)?;
-        writeln!(w, "{pad}{muted}{}{muted:#}", facts(hit))?;
+        writeln!(w, "{pad}{}", out.link(&d.url))?;
+        writeln!(w, "{pad}{muted}{}{muted:#}", fit(&facts(hit), line))?;
         if let Some(text) = &d.description {
-            writeln!(w, "{pad}{text}")?;
+            writeln!(w, "{pad}{}", fit(text, line))?;
         }
         writeln!(w)?;
     }

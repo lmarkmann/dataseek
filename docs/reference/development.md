@@ -58,6 +58,15 @@ just bench catalog/search         # one group; the filter is a regex over names
 
 CI runs the same benches through CodSpeed's CPU simulation on every push to main and on pull requests that touch code ([ADR 0012](../adr/0012-benchmarks-criterion-local-codspeed-ci.md)). The simulation counts instructions instead of timing, so its numbers hold steady across runs but are not milliseconds; compare them only with other CodSpeed runs. `cargo codspeed` measures only on Linux. Local wall time is a rough guide: an A/A run on a busy Mac reported identical code up to 52% faster ([baseline](../bench/2026-10-06-baseline.md)). Measured results go in [`../bench/`](../bench/) with the machine they came from.
 
+Startup is measured separately, on the release binary:
+
+```sh
+just bench-startup           # hyperfine over --version, --help, the overview, completion fish, sources
+just bench-startup --bless   # rewrite this machine class's baseline
+```
+
+`scripts/bench_check.py` reads hyperfine's export (`docs/bench/startup.json`) and fails on any path over its budget: 10 ms for `--version`, 20 ms for the rest, doubled under `CI` because runners are slower and noisier. A path more than 25% and 2 ms slower than `docs/bench/baseline-<os>-<arch>.json` only warns. The CI job runs it after the tests and uploads the JSON, so a slow path can be traced to its commit.
+
 ## Dependencies
 
 ```sh
@@ -67,7 +76,7 @@ just crates-outdated   # only the crates
 just actions-outdated  # only the action and hook tags
 ```
 
-`cargo shear` runs on every commit because it takes milliseconds and catches the dependency you stopped using two commits ago. The template ships a few deps speculatively (`tempfile` for `fs.rs`, `indicatif` for `ui.rs`), so a clone that deletes one of those modules gets told about the leftover.
+`cargo shear` runs on every commit because it takes milliseconds and catches the dependency you stopped using two commits ago.
 
 `just outdated` covers two kinds of pin, because they rot differently. `cargo outdated` reads the manifest, where requirements are major-only and the lockfile decides the build, so a stale crate is still visible to `cargo update` and a vulnerable one to `cargo-deny`. The tags in `.github/workflows/` and `prek.toml` have neither backstop: nothing in the repo resolves them and nothing says when they fall behind, which is how the `crate-ci/typos` pin came to sit a release behind in both files at once. `just actions-outdated` asks GitHub for each latest tag and compares only the components the pin declares, so `@v2` stays quiet until a v3 exists while `@v1.48.0` reports the next patch. It needs `gh` authenticated, and it skips branch pins like `@stable`, which move on their own. A hash pin is compared through the `# v7.0.1` comment `pinact` writes beside it, since a 40-character SHA carries no version to compare; a SHA with no such comment is reported as an error rather than skipped, because silently dropping an action from the freshness report is the one way pinning could leave the repo less current than tags did.
 

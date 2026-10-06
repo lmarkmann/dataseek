@@ -2,12 +2,14 @@
 source: tests/cli.rs
 expression: "String::from_utf8_lossy(&out.stdout)"
 ---
-Search for datasets from the terminal
+Search for datasets from the terminal.
 
-Usage: dataseek [OPTIONS] <COMMAND>
+dsk is the same program under a shorter name.
+
+Usage: dataseek [OPTIONS] [COMMAND]
 
 Commands:
-  search      Search every source at once, merged and deduplicated [alias: s]
+  search      Search every source at once, merged, deduplicated and ranked [alias: s]
   sources     List every source: what it covers, its protocol, its key, its docs
   bench       Time every source on real queries and measure their overlap
   inspect     Read a dataset page's schema.org Dataset or Croissant metadata
@@ -15,16 +17,20 @@ Commands:
   doctor      Check the environment, keys and cache, and report readiness
   completion  Print a shell completion script to stdout
   man         Print the man page, in roff, to stdout
+  help        Explain a command or a topic: environment, exit-codes
 
 Options:
   -q, --quiet
-          Errors and final result only
+          Errors only on stderr; stdout data is unaffected
 
   -v, --verbose...
           Explain what is happening on stderr
 
       --json
           Emit JSON to stdout instead of text
+
+      --jq <EXPR>
+          Filter the JSON output through a jq expression; implies --json
 
       --color <WHEN>
           When to colorize output: auto, always, or never
@@ -42,6 +48,21 @@ Options:
       --plain
           ASCII-only output; implies --color=never
 
+      --no-progress
+          No progress bars or spinners; status lines print plain, as in a pipe
+
+      --cache-dir <DIR>
+          Keep the cache here instead of the platform cache directory
+          
+          [env: DATASEEK_CACHE_DIR=]
+
+      --connect-timeout <SECS>
+          Seconds a host gets to accept the connection; each request's own deadline (15 s, 90 s for
+          catalogs) still caps it
+          
+          [env: DATASEEK_CONNECT_TIMEOUT=]
+          [default: 10]
+
   -h, --help
           Print help (see a summary with '-h')
 
@@ -49,10 +70,11 @@ Options:
           Print version
 
 Examples:
-  dataseek search sea surface temperature
-  dataseek search imagenet -s huggingface,kaggle --json | jq '.results[0]'
-  dataseek sources
-  dataseek bench "air quality" "gene expression"
-  dataseek inspect https://zenodo.org/records/1234567
+  dsk search sea surface temperature              every source, ranked
+  dsk s mnist -s huggingface,kaggle               only these sources
+  dsk s census --json | jq -r '.results[].url'    one field per line
 
-dsk is the same program under a shorter name: dsk search mnist
+Exit status: 0 success, 1 failure, 2 usage error, 130 interrupted.
+`dataseek help exit-codes` and `dataseek help environment` say more.
+
+Report bugs at https://github.com/lmarkmann/dataseek/issues

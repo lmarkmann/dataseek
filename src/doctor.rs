@@ -1,5 +1,5 @@
-//! `doctor`: report readiness at a glance. Narrates the sweep on stderr through
-//! [`crate::ui`] and prints the styled summary on stdout.
+//! `doctor`: report readiness at a glance, as a styled summary on stdout. The
+//! checks take milliseconds, so nothing is narrated while they run.
 
 use std::io::Write;
 
@@ -11,7 +11,7 @@ use crate::cache::{BUDGET_BYTES, Cache};
 use crate::credentials::{Credentials, Key};
 use crate::find::human_bytes;
 use crate::output::Out;
-use crate::{palette, paths, ui};
+use crate::{palette, paths};
 
 #[derive(Serialize)]
 struct Check {
@@ -21,20 +21,7 @@ struct Check {
 }
 
 pub fn run(out: &Out) -> Result<()> {
-    ui::stage("inspecting environment");
     let checks = gather(out)?;
-
-    let progress = ui::bar(checks.len() as u64, "checks");
-    for check in &checks {
-        if check.ok {
-            ui::ok(format!("{}: {}", check.label, check.detail));
-        } else {
-            ui::warn(format!("{}: {}", check.label, check.detail));
-        }
-        progress.inc(1);
-    }
-    progress.finish_and_clear();
-
     report(out, &checks)
 }
 
@@ -154,14 +141,13 @@ fn report(out: &Out, checks: &[Check]) -> Result<()> {
     let all_ok = checks.iter().all(|c| c.ok);
 
     if out.json {
-        let report = serde_json::json!({
+        return out.json(&serde_json::json!({
+            "schema": "dataseek-doctor/1",
             "name": env!("CARGO_PKG_NAME"),
             "version": env!("CARGO_PKG_VERSION"),
             "ready": all_ok,
             "checks": checks,
-        });
-        writeln!(out.stdout(), "{}", serde_json::to_string(&report)?)?;
-        return Ok(());
+        }));
     }
 
     let mut w = out.stdout();
