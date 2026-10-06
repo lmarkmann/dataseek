@@ -5,8 +5,11 @@ What reads across several dataset sources at once: how registries such as Huggin
 | the fact | its home |
 |---|---|
 | a comparison across sources | **here** |
-| one source's API shape, used by one adapter | [`../reference/`](../reference/) |
+| one source's API shape, used by one adapter | the adapter's module docstring in `src/sources/` |
 | a decision drawn from a comparison | [`../adr/`](../adr/), citing the file here |
 | what shipped | [`../CHANGELOG.md`](../CHANGELOG.md) |
 
-Empty until dataseek talks to a second source.
+| file | covers |
+|---|---|
+| [search-methods.md](search-methods.md) | endpoint, query syntax, matching, ranking, paging and rate limits of every search interface, plus the quirks that shaped the adapters |
+| [bench-2026-10-06.md](bench-2026-10-06.md) | latency, answer rate, results and overlap per source from `dataseek bench` |

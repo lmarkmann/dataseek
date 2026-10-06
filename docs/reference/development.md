@@ -6,7 +6,7 @@
 just         # list recipes
 just check   # fmt --check + clippy -D warnings + nextest
 just test    # cargo nextest run
-just run doctor
+just run search sea surface temperature
 just build   # release build
 just ci      # everything CI gates on, before you push
 ```
@@ -32,9 +32,11 @@ just review  # step through changed snapshots
 just bless   # accept them all, unread
 ```
 
-CI runs the same nextest as `just test`. nextest does not run doctests, which costs nothing here because a binary crate has none; a clone that grows a `src/lib.rs` should add `cargo test --doc --locked` to the workflow.
+CI runs the same nextest as `just test`. nextest does not run doctests, so CI and `just check` run `cargo test --doc --locked` beside it: the crate has a library target since `dsk` joined `dataseek` ([ADR 0010](../adr/0010-dsk-is-dataseek.md)).
 
-Not every test can live in `tests/cli.rs`. That file runs the compiled binary, so it can assert on flags, exit codes, and stdout, but it cannot reach into the crate: a binary has no library target for an integration test to import. Anything that needs a Rust value rather than a process is a `#[cfg(test)]` module beside the code, which is why `palette`, `ui`, `fs`, and `cli` each carry one.
+No test touches the network. `tests/cli.rs` gives every run its own home, config and cache directories and routes HTTP through a proxy on a closed port, which is exactly how an offline machine looks to dataseek. Adapters are tested on recorded response shapes in their own modules (Google Dataset Search, SDMX, the HTML catalogs); live behavior is what `dataseek bench` measures.
+
+Not every test can live in `tests/cli.rs`. That file runs the compiled binary, so it can assert on flags, exit codes, and stdout, but it cannot reach into the crate: the library's modules are private, so there is nothing for an integration test to import. Anything that needs a Rust value rather than a process is a `#[cfg(test)]` module beside the code, which is why `palette`, `ui`, `fs`, and `cli` each carry one.
 
 The unit test in `src/cli.rs` is the one worth knowing about. It calls clap's `debug_assert()` on the built command, which walks the whole definition and rejects the mistakes that compile perfectly: a short flag used twice, a `default_value` that is not among the possible values, an arg that conflicts with itself. Left uncaught, those panic inside clap the first time a user reaches the broken path, which is precisely the runtime panic `panic = "deny"` cannot see, because the panic is in the dependency and not in this crate. Add a flag, and this test is what tells you the flag is well formed before a user does.
 

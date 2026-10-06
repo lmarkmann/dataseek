@@ -282,3 +282,18 @@ Found by the same fourteen-repo survey as the hash-pinning re-check above, and t
 `taplo` formats and lints TOML. Also one of fourteen (starship). The manifest, `deny.toml`, `clippy.toml` and `release-plz.toml` here are hand-maintained and small enough that a formatter would only ever reformat what a human already read.
 
 A rustdoc job (`RUSTDOCFLAGS="-D warnings" cargo doc --no-deps`) is the closest call of the three: five of fourteen run one, including ripgrep, jj, bat and delta, and `missing_docs` is already `warn` here so doc comments are not decorative. Left out because what it would add over the existing gate is broken intra-doc links, and this is a binary crate whose doc comments are read as `--help` text rather than as rendered rustdoc. A clone that grows a `src/lib.rs` should add it in the same breath as the `cargo test --doc` step noted in `development.md`.
+
+## 2026-10-06: Sources considered and not built
+
+Each was weighed in the source research that produced ADR 0004.
+
+- **Papers with Code**: shut down in July 2025; every URL, the API included, redirects to Hugging Face trending papers.
+- **data.world**: search answers 401 without a key and the catalog is commercial; nothing it holds was missing from the open sources.
+- **ICPSR, GESIS, UK Data Service, USGS ScienceBase direct**: each served a Cloudflare challenge page to non-browser clients. Their metadata arrives through DataCite and the CESSDA catalogue instead.
+- **Dryad direct**: a clean keyless API, but DataCite carries every Dryad DOI; revisit only if file-level details are wanted.
+- **Cloud marketplaces** (BigQuery public datasets, Snowflake, Databricks, AWS Data Exchange): listing needs cloud credentials and an account.
+- **LDC**: a paywalled membership catalog.
+- **Internet Archive**: a `mediatype:data` query returned books; too noisy to merge.
+- **Academic Torrents**: asks clients to read its RSS feeds rather than search; small.
+- **re3data**: a registry of 3,534 repositories, not of datasets; useful for pointing at repositories, not for search.
+- **Materials Project core API**: a per-material database rather than a dataset catalog; its contributed datasets (MPContribs) are searched instead.

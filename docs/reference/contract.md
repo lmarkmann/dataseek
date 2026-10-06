@@ -22,7 +22,7 @@ The version lives only in `Cargo.toml`. Clap reads it via `#[command(version)]`,
 
 ## Conventions for clones
 
-None of the following is implemented here, because no command in the template needs it. They are the rules to follow when your clone grows one, collected so the decision is already made when you get there.
+Rules for anything a command grows, collected so the decision is already made. The secrets rule is the one dataseek implements today: API keys come from the environment or files ([`keys-and-cache.md`](keys-and-cache.md)).
 
 - Name a **dry run** flag `-n, --dry-run`. It must describe the actions it would take without changing state.
 - Prompt only when `stdin().is_terminal()` is true, and provide `--no-input` for automation. If a required answer is missing under `--no-input`, fail with a recovery hint instead of prompting or hanging.
@@ -33,7 +33,7 @@ None of the following is implemented here, because no command in the template ne
 
 Every byte of stdout goes through a handle from `src/output.rs`, including the two commands whose output is raw data, `completion` and `man`. Narration, spinners, and progress go through `src/ui.rs` on stderr.
 
-The UI layer no-ops unless **stderr** is a terminal, and whenever `--json` or `--quiet` is set. Keying it on stderr rather than stdout is the point rather than an implementation detail: `tool doctor | wc -l` run by a person should still narrate, because someone is watching even though the data is piped. What must never happen is a spinner frame reaching stdout, and that is guaranteed by the layer only ever writing to stderr, not by guessing whether stdout is redirected.
+The UI layer no-ops unless **stderr** is a terminal, and whenever `--json` or `--quiet` is set. Keying it on stderr rather than stdout is the point rather than an implementation detail: `dataseek search census | wc -l` run by a person should still narrate, because someone is watching even though the data is piped. What must never happen is a spinner frame reaching stdout, and that is guaranteed by the layer only ever writing to stderr, not by guessing whether stdout is redirected.
 
 This is why `Cargo.toml` denies `print_stdout` and `print_stderr`: a stray `println!` is a contract violation, not a style preference.
 
@@ -64,6 +64,8 @@ Expected failures never show a stack trace. `Cargo.toml` denies every route a pa
 - `0`: success
 - `1`: failure
 - `2`: usage error (clap)
+
+For `search`, success means at least one source answered, even with no results: an empty answer is a result. `1` means every attempted source failed (an offline machine looks like this) or none of the chosen sources could run for want of a key; stderr says which and how to recover. A source that fails while others answer is a warning on stderr, never a failure.
 
 Naked invocation prints help and exits `0`, because asking for help is not a usage error. clap sends that help to **stderr** and leaves stdout empty, which is the right side of the split: a bare invocation in a pipeline hands the consumer nothing rather than a help page. `--help` asked for explicitly is a result, so it goes to stdout.
 
