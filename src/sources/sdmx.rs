@@ -38,6 +38,15 @@ pub static ECB: Agency = Agency {
     publisher: "European Central Bank",
     page: |_, id| format!("https://data.ecb.europa.eu/data/datasets/{id}"),
 };
+pub static BUNDESBANK: Agency = Agency {
+    dataflows: "https://api.statistiken.bundesbank.de/rest/metadata/dataflow/BBK",
+    publisher: "Deutsche Bundesbank",
+    page: |agency, id| {
+        format!(
+            "https://api.statistiken.bundesbank.de/rest/metadata/dataflow/{agency}/{id}"
+        )
+    },
+};
 pub static BIS: Agency = Agency {
     dataflows: "https://stats.bis.org/api/v1/dataflow",
     publisher: "Bank for International Settlements",

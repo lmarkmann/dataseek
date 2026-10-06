@@ -19,6 +19,7 @@
 mod arcgis;
 mod aws;
 mod cellxgene;
+mod census;
 mod cern;
 mod cessda;
 mod ckan;
@@ -34,6 +35,7 @@ mod ebi;
 mod europa;
 mod eurostat;
 mod figshare;
+mod fiscal;
 mod fred;
 mod gbif;
 mod gee;
@@ -112,6 +114,10 @@ pub enum Category {
     Government,
     /// Official and general statistics.
     Statistics,
+    /// Macroeconomic and development data: IMF, OECD, World Bank, ILO.
+    Economics,
+    /// Central bank, market and public-finance data.
+    Finance,
     /// Earth observation, climate and geospatial catalogs.
     Geospatial,
     /// Genomics, proteomics and biomedical archives.
@@ -364,9 +370,9 @@ const fn via(
 }
 
 use Category::{
-    Aggregator, Code, Ecology, Geospatial, Government, LifeSciences,
-    MachineLearning, Neuroscience, Physics, Research, SocialScience,
-    Statistics,
+    Aggregator, Code, Ecology, Economics, Finance, Geospatial, Government,
+    LifeSciences, MachineLearning, Neuroscience, Physics, Research,
+    SocialScience, Statistics,
 };
 
 const CKAN_DOCS: &str = "https://docs.ckan.org/en/latest/api/";
@@ -674,7 +680,7 @@ pub static SOURCES: &[Source] = &[
     live(
         "dbnomics",
         "DBnomics",
-        Statistics,
+        Economics,
         "DBnomics",
         "https://api.db.nomics.world/v22/apidocs",
         dbnomics::search,
@@ -682,7 +688,7 @@ pub static SOURCES: &[Source] = &[
     listed(
         "worldbank",
         "World Bank indicators",
-        Statistics,
+        Economics,
         "World Bank API, listed",
         "https://datahelpdesk.worldbank.org/knowledgebase/articles/889392",
         worldbank::list,
@@ -690,7 +696,7 @@ pub static SOURCES: &[Source] = &[
     via(
         "worldbank-microdata",
         "World Bank Microdata Library",
-        Statistics,
+        Economics,
         "NADA",
         NADA_DOCS,
         Adapter::Nada("https://microdata.worldbank.org/index.php"),
@@ -722,7 +728,7 @@ pub static SOURCES: &[Source] = &[
     via(
         "imf",
         "IMF",
-        Statistics,
+        Economics,
         "SDMX",
         "https://portal.api.imf.org/",
         Adapter::Sdmx(&sdmx::IMF),
@@ -730,7 +736,7 @@ pub static SOURCES: &[Source] = &[
     via(
         "oecd",
         "OECD",
-        Statistics,
+        Economics,
         "SDMX",
         "https://sdmx.oecd.org/public/rest/",
         Adapter::Sdmx(&sdmx::OECD),
@@ -738,7 +744,7 @@ pub static SOURCES: &[Source] = &[
     via(
         "ecb",
         "European Central Bank",
-        Statistics,
+        Finance,
         "SDMX",
         "https://data.ecb.europa.eu/help/api/overview",
         Adapter::Sdmx(&sdmx::ECB),
@@ -754,7 +760,7 @@ pub static SOURCES: &[Source] = &[
     via(
         "bis",
         "Bank for International Settlements",
-        Statistics,
+        Finance,
         "SDMX",
         "https://stats.bis.org/api-doc/v2/",
         Adapter::Sdmx(&sdmx::BIS),
@@ -762,7 +768,7 @@ pub static SOURCES: &[Source] = &[
     via(
         "ilo",
         "ILOSTAT",
-        Statistics,
+        Economics,
         "SDMX",
         "https://ilostat.ilo.org/resources/sdmx-tools/",
         Adapter::Sdmx(&sdmx::ILO),
@@ -799,13 +805,37 @@ pub static SOURCES: &[Source] = &[
         live(
             "fred",
             "FRED",
-            Statistics,
+            Finance,
             "FRED API",
             "https://fred.stlouisfed.org/docs/api/fred/series_search.html",
             fred::search,
         ),
         Key::Fred,
         Need::Required,
+    ),
+    via(
+        "bundesbank",
+        "Deutsche Bundesbank",
+        Finance,
+        "SDMX",
+        "https://www.bundesbank.de/en/statistics/time-series-databases/help-for-sdmx-web-service",
+        Adapter::Sdmx(&sdmx::BUNDESBANK),
+    ),
+    listed(
+        "fiscal-data",
+        "U.S. Treasury Fiscal Data",
+        Finance,
+        "Fiscal Data API, listed",
+        "https://fiscaldata.treasury.gov/api-documentation/",
+        fiscal::list,
+    ),
+    listed(
+        "census",
+        "U.S. Census Bureau API",
+        Statistics,
+        "DCAT data.json, listed",
+        "https://www.census.gov/data/developers/guidance/api-user-guide.html",
+        census::list,
     ),
     listed(
         "who",
