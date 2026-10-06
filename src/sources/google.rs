@@ -73,7 +73,8 @@ fn parse(page: &str, limit: usize) -> Result<Vec<Dataset>, SourceError> {
 
 /// One result: `[_, _, record, docid, url]`; inside `record`, 1 is the
 /// title, 2 the provider block (`[_, host, name, home, domain, icon,
-/// [_, _, url]]`), 10 the file formats, 21 the DOI, 25 the publishers
+/// [_, _, url]]`), 10 the file formats, 13 the license (`[[code, [url]]]`,
+/// the URL missing for some codes), 21 the DOI, 25 the publishers
 /// (`[[name, home, icon]]`), 27 the description (HTML), 32 the creators,
 /// 39 the last update ("Feb 17, 2026").
 fn record(item: &Value) -> Option<Dataset> {
@@ -86,6 +87,7 @@ fn record(item: &Value) -> Option<Dataset> {
         .doi_from(text(item, "/2/21").as_deref().and_then(doi));
     dataset.publisher =
         first_text(item, &["/2/25/0/0", "/2/32", "/2/2/2", "/2/2/1"]);
+    dataset.license = text(item, "/2/13/0/1/0");
     dataset.updated = text(item, "/2/39").map(|d| iso_date(&d).unwrap_or(d));
     dataset.size_bytes = text(item, "/2/10/0").as_deref().and_then(bytes_in);
     if let Some(page) = text(item, "/4") {
@@ -210,6 +212,17 @@ mod tests {
                 Some("Technical University of Denmark"),
                 Some("NASA"),
                 Some("willian oliveira"),
+            ]
+        );
+        let licenses: Vec<_> =
+            hits.iter().map(|h| h.license.as_deref()).collect();
+        assert_eq!(
+            licenses,
+            [
+                None,
+                None,
+                None,
+                Some("https://creativecommons.org/publicdomain/zero/1.0/"),
             ]
         );
         assert_eq!(
