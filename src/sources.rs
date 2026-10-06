@@ -28,6 +28,7 @@ mod nada;
 mod openaire;
 mod openml;
 mod roboflow;
+mod socrata;
 mod uci;
 mod zenodo;
 
@@ -55,6 +56,7 @@ pub enum Adapter {
     Ckan(&'static ckan::Portal),
     Dataverse(&'static str),
     Nada(&'static str),
+    Socrata(&'static str),
 }
 
 /// What a source mainly holds. The names are what `--category` accepts and
@@ -145,6 +147,7 @@ impl Source {
                 dataverse::search(ctx, base, query, limit)
             }
             Adapter::Nada(base) => nada::search(ctx, base, query, limit),
+            Adapter::Socrata(base) => socrata::search(ctx, base, query, limit),
             Adapter::Catalog(list) => {
                 self.local(ctx, query, limit, || list(ctx))
             }
@@ -318,6 +321,7 @@ const DATAVERSE_DOCS: &str =
     "https://guides.dataverse.org/en/latest/api/search.html";
 const NADA_DOCS: &str =
     "https://microdata.worldbank.org/api-documentation/catalog/index.html";
+const SOCRATA_DOCS: &str = "https://dev.socrata.com/docs/other/discovery";
 
 pub static SOURCES: &[Source] = &[
     // Aggregators and general search engines.
@@ -514,6 +518,22 @@ pub static SOURCES: &[Source] = &[
         "CKAN",
         "https://data.humdata.org/faqs/devs",
         Adapter::Ckan(&ckan::HDX),
+    ),
+    via(
+        "socrata",
+        "Socrata portals (US)",
+        Government,
+        "Socrata Discovery",
+        SOCRATA_DOCS,
+        Adapter::Socrata("https://api.us.socrata.com"),
+    ),
+    via(
+        "socrata-eu",
+        "Socrata portals (EU)",
+        Government,
+        "Socrata Discovery",
+        SOCRATA_DOCS,
+        Adapter::Socrata("https://api.eu.socrata.com"),
     ),
     // Statistics.
     via(
