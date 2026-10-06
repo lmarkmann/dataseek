@@ -17,13 +17,20 @@ use std::time::Duration;
 use serde_json::Value;
 
 static OFFLINE: AtomicBool = AtomicBool::new(false);
-static CONNECT_SECS: AtomicU64 = AtomicU64::new(10);
+/// `--connect-timeout` unless the user sets it. A host that misses a limit the
+/// user chose is not down, only slower than they asked for.
+pub const DEFAULT_CONNECT_SECS: u64 = 10;
+static CONNECT_SECS: AtomicU64 = AtomicU64::new(DEFAULT_CONNECT_SECS);
 
 /// From now on every request fails at once with [`SourceError::Offline`],
 /// which the search loop answers from the cache and never records as an
 /// outage. Set once, from `main`, for `--offline`.
 pub fn go_offline() {
     OFFLINE.store(true, Ordering::Relaxed);
+}
+
+pub fn is_offline() -> bool {
+    OFFLINE.load(Ordering::Relaxed)
 }
 
 /// How long a host gets to accept the connection, for clients built after
@@ -48,6 +55,8 @@ pub enum SourceError {
     Unreachable(String),
     #[error("timed out")]
     Timeout,
+    #[error("did not connect within --connect-timeout ({0} s)")]
+    ConnectLimit(u64),
     #[error("rate limited by the source")]
     RateLimited,
     #[error("rejected the credentials (HTTP {0})")]
@@ -72,6 +81,7 @@ impl SourceError {
             Self::RateLimited
             | Self::Unauthorized(_)
             | Self::Shape(_)
+            | Self::ConnectLimit(_)
             | Self::Offline => false,
         }
     }
@@ -290,7 +300,13 @@ impl Retry {
 }
 
 fn transport(error: &ureq::Error) -> SourceError {
+    let limit = CONNECT_SECS.load(Ordering::Relaxed);
     match error {
+        ureq::Error::Timeout(ureq::Timeout::Connect)
+            if limit != DEFAULT_CONNECT_SECS =>
+        {
+            SourceError::ConnectLimit(limit)
+        }
         ureq::Error::Timeout(_) => SourceError::Timeout,
         other => SourceError::Unreachable(other.to_string()),
     }
@@ -315,6 +331,7 @@ mod tests {
         for (error, outage) in [
             (SourceError::Unreachable("dns".into()), true),
             (SourceError::Timeout, true),
+            (SourceError::ConnectLimit(2), false),
             (SourceError::Blocked, true),
             (SourceError::Status(503), true),
             (SourceError::Status(500), true),
@@ -325,6 +342,20 @@ mod tests {
         ] {
             assert_eq!(error.is_outage(), outage, "{error:?}");
         }
+    }
+
+    #[test]
+    fn a_connect_timeout_the_user_chose_is_not_an_outage() {
+        let connect = ureq::Error::Timeout(ureq::Timeout::Connect);
+        assert!(transport(&connect).is_outage(), "the default limit missed");
+
+        connect_within(Duration::from_secs(2));
+        let error = transport(&connect);
+        assert!(!error.is_outage(), "{error:?}");
+        assert!(error.to_string().contains("--connect-timeout"), "{error}");
+
+        let slow_answer = ureq::Error::Timeout(ureq::Timeout::Global);
+        assert!(transport(&slow_answer).is_outage(), "a hung host is down");
     }
 
     /// A local server that answers each connection with the next canned

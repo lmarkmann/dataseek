@@ -58,7 +58,7 @@ Options:
 
       --connect-timeout <SECS>
           Seconds a host gets to accept the connection; each request's own deadline (15 s, 90 s for
-          catalogs) still caps it
+          catalogs) still caps it. A host that misses a limit you set is not marked as down
           
           [env: DATASEEK_CONNECT_TIMEOUT=]
           [default: 10]
