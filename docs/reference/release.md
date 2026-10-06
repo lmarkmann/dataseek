@@ -1,52 +1,51 @@
 # Release
 
-Versioning is automatic through `release-plz`.
+Versioning is automatic: release-plz bumps `Cargo.toml`, writes [`../CHANGELOG.md`](../CHANGELOG.md), tags `vX.Y.Z` and cuts the GitHub release. Why it is built this way is [ADR 0001](../adr/0001-release-plz-owns-the-version.md); what moves the number is [ADR 0003](../adr/0003-the-cli-surface-sets-the-version.md).
 
 ## Conventional commits
 
-Write [conventional commits](https://www.conventionalcommits.org) so release-plz can group them:
+Write [conventional commits](https://www.conventionalcommits.org). The prefix decides both the changelog group and whether a release happens at all:
 
-- `feat:` -> Added
-- `fix:` -> Fixed
-- `perf:` -> Performance
-- `refactor:` -> Changed
-- `doc:` -> Docs
-- `build:` -> Other
-- `chore:` -> Other
-- `chore(release):`, `test:` and `ci:` -> skipped
-- anything else -> **Uncategorized**, which is the changelog telling you the subject was not conventional
+| prefix | changelog group | cuts a release |
+|---|---|---|
+| `feat:` | Added | yes, minor |
+| `fix:` | Fixed | yes, patch |
+| `perf:` | Performance | yes, patch |
+| `refactor:` | Changed | yes, patch |
+| `doc:` | Docs | no |
+| `build:`, `chore:` | Other | no |
+| `chore(release):`, `test:`, `ci:` | skipped | no |
+| anything else | Uncategorized | no |
 
-## How release-plz works
+Uncategorized is the changelog telling you a subject was not conventional. Add `!` after the prefix for a breaking change.
 
-On every push to `main`, `release-plz` opens a PR that bumps the version in `Cargo.toml` and rewrites `CHANGELOG.md` from the conventional commits since the last tag, and queues it for auto-merge. CI runs on that PR like on any other; once the required `linux` check is green GitHub merges it and deletes the branch, and that merge commit's run tags `vX.Y.Z` and cuts the GitHub release. Nobody clicks anything between a `feat:` or `fix:` landing and its release.
+## The loop
 
-The workflow runs `release` and `release-pr` as separate jobs, which is the layout upstream supports; a single job running both is documented as "not recommended". The split matters for more than support, because only `release-pr` carries a `concurrency` group. GitHub cancels an existing *pending* run in a concurrency group as soon as another queues, whatever `cancel-in-progress` says, so a grouped `release` job could have its run discarded while waiting behind an earlier push. With `release_always = false` the merge of the release PR is the one commit that cuts a tag, and losing that run loses the tag with no failure anywhere. Serializing `release-pr` is still right: two runs writing the same release branch race, and a superseded one costs nothing because the next push redoes it.
+On every push to `main`, the `release-pr` job opens or updates a PR that bumps the version and writes the changelog section from the commits since the last tag, then queues it for auto-merge. CI runs on that PR like on any other; once the required `linux` check is green, GitHub squash-merges it and deletes the branch, and the `release` job on that merge commit tags it and cuts the GitHub release, whose body is the changelog section. Nobody clicks anything between a `feat:` landing and its release.
 
-`release-plz.toml` configures this:
+Nothing earlier than v0.3.0 exists: release-plz diffs against the newest `v*` tag, and that baseline was tagged by hand.
 
-- `git_only = true`: the crate is `publish = false`, so the previous version comes from git tags rather than crates.io.
-- `publish = false`: nothing is published.
-- `git_release_enable = true`, `git_release_type = "auto"`: every tag gets a GitHub release whose body is that version's changelog section, marked prerelease when the version has one. Changed on 2026-09-25; see `rejected.md`.
-- `semver_check = false`: a binary exposes no public API, so cargo-semver-checks has nothing to compare.
-- `release_always = false`: tag only when the release PR merges, not on every push to main.
-- `release_commits = "^(feat|fix|perf|refactor)"`: release-plz decides from changed files, not from the changelog groups, so without this a `ci:` or `chore:` merge alone opens a release PR whose changelog section is empty (that is how v0.3.1 happened).
-- `pr_body` replaces the default body, which carries a robot emoji and a generated-with footer.
+## The config
 
-## The first release
+`.github/release-plz.toml`, passed through the action's `config` input in both jobs and `--config` locally:
 
-Release-plz anchors itself to git tags: with no `v*` tag, it treats the manifest version as an initial release and has nothing to diff against, so the first tag comes from outside the automation. `Cargo.toml` says 0.3.0 and the repo had no tag, so `v0.3.0` goes on the commit that carries that version:
+- `git_only = true`, `publish = false`: the previous version comes from git tags, not crates.io, and nothing is published.
+- `git_release_enable = true`, `git_release_type = "auto"`, `git_release_body = "{{ changelog }}"`: every tag gets a GitHub release carrying that version's section.
+- `release_commits`: release-plz decides whether to release from changed files, not from changelog groups, so without it a `ci:` merge alone opens a release with an empty section. That is how v0.3.1 happened.
+- `features_always_increment_minor = true`: see ADR 0003.
+- `semver_check = false`: a binary has no public API for cargo-semver-checks to compare.
+- `release_always = false`: tag only when the release PR merges.
+- `pr_name` and `pr_body` replace the defaults, which carry a robot emoji and a generated-with footer.
+- `[[package]] changelog_path = "docs/CHANGELOG.md"`: relative to the root `Cargo.toml`. It cannot be set under `[workspace]`.
+- `commit_parsers`: git-cliff takes the first match, so `^chore\(release\)` sits ahead of `^chore`. The trailing `.*` catch-all exists because without it a subject matching no rule is dropped from the changelog silently. `test` and `ci` are skipped because a user of the binary cannot observe them; `build` stays because it carries MSRV and toolchain moves.
 
-```sh
-git tag v0.3.0 <commit> && git push origin v0.3.0
-```
-
-after which everything is automatic.
+Section headings read `## <version> - <YYYY-MM-DD>`.
 
 ## The release token
 
-The workflow does not use `GITHUB_TOKEN` for writes: pushes, PRs and merges made with it trigger no workflow runs, so CI would never run on the release PR and its merge would never start the release run. Both jobs mint a one-hour token from the `lmarkmann-release` GitHub App instead, with only Contents and Pull requests write; the job's own `GITHUB_TOKEN` stays read-only.
+Both jobs mint a one-hour token from the `lmarkmann-release` GitHub App with Contents and Pull requests write; the job's own `GITHUB_TOKEN` stays read-only. The repository holds `RELEASE_APP_CLIENT_ID` (an Actions variable) and `RELEASE_APP_PRIVATE_KEY` (a secret), set from 1Password (`GITHUB_RELEASE_APP` in the Developer vault) by the ci-vcm skill's `app_secrets.sh`, and the App is installed on the repo. The key does not expire.
 
-The repository needs `RELEASE_APP_CLIENT_ID` (an Actions variable) and `RELEASE_APP_PRIVATE_KEY` (a secret), both set from 1Password (`GITHUB_RELEASE_APP` in the Developer vault) by the ci-vcm skill's `app_secrets.sh`, and the App installed on the repo. The App's key does not expire, so there is nothing to rotate on a calendar. Auto-merge needs the repository settings the same skill's `repo_setup.sh` writes: squash merges titled by the PR, auto-merge allowed, branches deleted on merge, and a ruleset requiring the `linux` check.
+Auto-merge needs squash merges titled by the PR, auto-merge allowed, branches deleted on merge, and a ruleset requiring the `linux` check.
 
 ## Preview the next release
 
@@ -54,13 +53,11 @@ The repository needs `RELEASE_APP_CLIENT_ID` (an Actions variable) and `RELEASE_
 just release-preview
 ```
 
-No release-plz subcommand has a dry-run flag, so the recipe runs the real `release-plz update`, prints the diff, and restores the tree afterwards. It refuses to start unless the tree is clean, untracked files included, because the restore ends in a `git clean` and that needs a known starting point.
+No release-plz subcommand has a dry-run flag, so the recipe runs the real `release-plz update`, prints the diff and restores the tree on every exit path. It refuses to start on a dirty tree, untracked files included, because the restore ends in `git clean`.
 
-## Making a clone publishable
+## Publishing to crates.io
 
-To turn a clone into something publishable:
-
-1. Drop `publish = false` from `Cargo.toml`, and add `license`.
-2. Drop `publish = false` and `git_only = true` from `release-plz.toml`. The first is what actually stops the publish; the second tells release-plz to read the previous version from git tags instead of from the registry, which is only correct while nothing is published.
-3. Give the `release` job `id-token: write` and register the repo as a crates.io trusted publisher; release-plz does the OIDC exchange itself, so there is no registry token. The first publish is manual.
-4. Turn `semver_check` on at the same time if the crate grows a library; it was off because a binary has no public API.
+1. Drop `publish = false` from `Cargo.toml` and add `license`.
+2. Drop `publish = false` and `git_only = true` from `.github/release-plz.toml`.
+3. Give the `release` job `id-token: write` and register the repo as a crates.io trusted publisher; release-plz does the OIDC exchange, so there is no registry token. The first publish is manual.
+4. Turn `semver_check` on if the crate grows a library, and revisit ADR 0003.
