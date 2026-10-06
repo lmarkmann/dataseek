@@ -100,5 +100,79 @@
       "gait"
     ],
     "source_url": "https://physionet.org/content/taichidb/1.0.0/"
+  },
+  {
+    "public_project_uuid": "478881c2-0335-4d98-bce8-ea5de091acd6",
+    "slug": "voiced",
+    "version": "1.0.0",
+    "core_doi": "10.13026/twfd-kb89",
+    "version_doi": "10.13026/C25Q2N",
+    "is_latest_version": true,
+    "short_description": "",
+    "publish_date": "2018-06-07",
+    "title": "VOICED Database",
+    "abstract": "<p>This database includes 208 voice samples, from 150 pathological, and 58 healthy voices.</p>",
+    "license": {
+      "name": "Open Data Commons Attribution License v1.0"
+    },
+    "dua": null,
+    "main_storage_size": 115343616,
+    "compressed_storage_size": 115492496,
+    "resource_type": "Database",
+    "access_policy": "Open",
+    "topics": [
+      "sound",
+      "voice",
+      "auditory"
+    ],
+    "source_url": "https://physionet.org/content/voiced/1.0.0/"
+  },
+  {
+    "public_project_uuid": "79f8e045-78a1-48d4-84fc-567b18f95f6c",
+    "slug": "wfdb-swig-matlab",
+    "version": "1.0.0",
+    "core_doi": null,
+    "version_doi": "10.13026/C28378",
+    "is_latest_version": true,
+    "short_description": "",
+    "publish_date": "2009-08-17",
+    "title": "WFDB SWIG Toolbox for MATLAB",
+    "abstract": "<p>The WFDB SWIG Toolbox for MATLAB is a collection of applications for reading, writing, manipulating, and plotting PhysioBank data, implemented as functions in MATLAB.</p>",
+    "license": {
+      "name": "Open Data Commons Attribution License v1.0"
+    },
+    "dua": null,
+    "main_storage_size": 43715077,
+    "compressed_storage_size": 0,
+    "resource_type": "Software",
+    "access_policy": "Open",
+    "topics": [
+      "wfdb"
+    ],
+    "source_url": "https://physionet.org/content/wfdb-swig-matlab/1.0.0/"
+  },
+  {
+    "public_project_uuid": "20f97372-6da4-41c7-96f0-e06b2abbb669",
+    "slug": "clinical-bert-mimic-notes",
+    "version": "1.0.0",
+    "core_doi": "10.13026/e4hr-yh29",
+    "version_doi": "10.13026/vk2z-bz63",
+    "is_latest_version": true,
+    "short_description": "We explore recovering sensitive info from BERT trained over non-deidentified EHR. We make our models and data available to further facilitate research.",
+    "publish_date": "2021-04-28",
+    "title": "Clinical BERT Models Trained on Pseudo Re-identified MIMIC-III Notes",
+    "abstract": "<p>This project contains the weights of 7 different BERT models trained over a surrogate re-identified set of MIMIC-III (v1.4) notes. Each model is suitable for direct compatibility with the HuggingFace framework; users can easily load and apply the model.</p>",
+    "license": {
+      "name": "PhysioNet Credentialed Health Data License 1.5.0"
+    },
+    "dua": {
+      "name": "PhysioNet Credentialed Health Data Use Agreement 1.5.0"
+    },
+    "main_storage_size": 9474970963,
+    "compressed_storage_size": 5604946282,
+    "resource_type": "Model",
+    "access_policy": "Credentialed",
+    "topics": [],
+    "source_url": "https://physionet.org/content/clinical-bert-mimic-notes/1.0.0/"
   }
 ]
