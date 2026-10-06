@@ -123,11 +123,16 @@ pub fn summary(text: &str) -> Option<String> {
 }
 
 /// A bare lowercase DOI (`10.5281/zenodo.1`) from any of the forms sources
-/// use: `doi:`, `https://doi.org/`, `http://dx.doi.org/`, or bare.
+/// use: `doi:`, `https://doi.org/`, `http://dx.doi.org/`, or bare. A DOI
+/// ends at the first space, so a trailing note like "(version 2)" is dropped.
 pub fn doi(raw: &str) -> Option<String> {
     let lower = raw.trim().to_lowercase();
     let start = lower.find("10.")?;
-    let candidate = lower.get(start..)?.trim_end_matches(['/', '.']);
+    let candidate = lower
+        .get(start..)?
+        .split_whitespace()
+        .next()?
+        .trim_end_matches(['/', '.']);
     let (prefix, suffix) = candidate.split_once('/')?;
     let registrant = prefix.strip_prefix("10.")?;
     let plausible = registrant.len() >= 4
@@ -251,8 +256,51 @@ pub fn day(timestamp: Option<String>) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use proptest::prelude::*;
     use serde_json::json;
+
+    use super::*;
+
+    proptest! {
+        #[test]
+        fn cleaned_text_is_printable_and_tidy(raw in any::<String>()) {
+            let shown = clean(&raw);
+            prop_assert!(!shown.chars().any(char::is_control), "{shown:?}");
+            prop_assert_eq!(shown.trim(), shown.as_str());
+            prop_assert!(!shown.contains("  "), "{shown:?}");
+        }
+
+        #[test]
+        fn text_without_markup_only_has_its_spacing_tidied(
+            raw in "[a-zA-Z0-9 .,;:()%'\"-]{0,80}"
+        ) {
+            let tidy = raw.split_whitespace().collect::<Vec<_>>().join(" ");
+            prop_assert_eq!(clean(&raw), tidy);
+        }
+
+        #[test]
+        fn a_normalized_doi_normalizes_to_itself(
+            raw in "[a-z :/]{0,8}10\\.[0-9.]{3,8}/[a-zA-Z0-9 ./:()-]{0,20}"
+        ) {
+            if let Some(bare) = doi(&raw) {
+                prop_assert!(!bare.contains(char::is_whitespace), "{bare:?}");
+                prop_assert_eq!(doi(&bare), Some(bare.clone()));
+            }
+        }
+
+        #[test]
+        fn every_doi_spelling_gives_the_bare_form(
+            registrant in "[0-9]{4,6}",
+            suffix in "[a-z0-9_-][a-z0-9._/-]{0,20}[a-z0-9_-]",
+            resolver in prop::sample::select(vec![
+                "", "doi:", "https://doi.org/", "http://dx.doi.org/", " DOI: ",
+            ]),
+        ) {
+            let bare = format!("10.{registrant}/{suffix}");
+            let spelled = format!("{resolver}{}", bare.to_uppercase());
+            prop_assert_eq!(doi(&spelled), Some(bare));
+        }
+    }
 
     #[test]
     fn clean_strips_markup_and_collapses_space() {
@@ -278,6 +326,7 @@ mod tests {
             "doi:10.5281/zenodo.1",
             "https://doi.org/10.5281/zenodo.1",
             "http://dx.doi.org/10.5281/zenodo.1/",
+            "https://doi.org/10.5281/zenodo.1 (version 2)",
         ] {
             assert_eq!(doi(raw).as_deref(), Some("10.5281/zenodo.1"), "{raw}");
         }

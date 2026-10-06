@@ -64,6 +64,7 @@ ureq = { version = "3", features = ["json"] }
 assert_cmd = "2"
 insta = { version = "1", features = ["filters"] }
 predicates = "3"
+proptest = "1"
 
 [profile.release]
 opt-level = 3
