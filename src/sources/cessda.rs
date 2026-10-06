@@ -39,7 +39,12 @@ fn record(row: &Value) -> Option<Dataset> {
         &text(row, "/titleStudy")?,
         &format!("https://datacatalogue.cessda.eu/detail/{id}?lang=en"),
     )
-    .describe(text(row, "/abstract"));
+    .describe(text(row, "/abstract"))
+    .doi_from(items(row, "/pidStudies").iter().find_map(|pid| {
+        text(pid, "/agency")
+            .filter(|agency| agency.eq_ignore_ascii_case("doi"))
+            .and(text(pid, "/pid"))
+    }));
     dataset.publisher = text(row, "/publisher/publisher");
     dataset.updated = day(text(row, "/lastModified"));
     if let Some(study) = text(row, "/studyUrl") {
@@ -50,13 +55,31 @@ fn record(row: &Value) -> Option<Dataset> {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::json;
+
     use super::*;
     use crate::sources::fixture;
+
+    #[test]
+    fn the_doi_agency_is_matched_in_any_case() {
+        // A pidStudies row as the Slovenian archive (ADP) sends it.
+        let row = json!({
+            "id": "x",
+            "titleStudy": "t",
+            "pidStudies": [
+                {"agency": "ADP", "pid": "OOS23"},
+                {"agency": "doi", "pid": "https://doi.org/10.17898/ADP_OOS23_V1"}
+            ]
+        });
+        let dataset = record(&row).unwrap();
+        assert_eq!(dataset.doi.as_deref(), Some("10.17898/adp_oos23_v1"));
+    }
 
     #[test]
     fn records_map_from_a_recorded_search() {
         let hits = parse(&fixture::json("cessda.json"), 10).unwrap();
         assert_eq!(hits.len(), 4);
+        assert_eq!(hits[3].doi.as_deref(), Some("10.5255/ukda-sn-856479"));
         assert_eq!(
             hits[0],
             Dataset {
@@ -75,7 +98,7 @@ mod tests {
                         .into()
                 ),
                 publisher: Some("Finnish Social Science Data Archive".into()),
-                doi: None,
+                doi: Some("10.60686/t-fsd3325".into()),
                 license: None,
                 updated: Some("2026-08-11".into()),
                 size_bytes: None,
