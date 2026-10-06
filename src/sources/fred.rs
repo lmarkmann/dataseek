@@ -1,5 +1,17 @@
 //! FRED (Federal Reserve Bank of St. Louis) series search. Requires the
 //! user's free API key; the registry skips this source without one.
+//!
+//! `limit` takes 1 to 1000 (default 1000), results come in `search_rank`
+//! order, and the search stems the words of a title, units, frequency and
+//! tags but not of the notes (FRED API docs, October 2026). A key gets 120
+//! requests a minute, then 429 (FRED API errors page, October 2026). A
+//! rejected key is HTTP 400 with an `error_message`, so it surfaces as a plain
+//! status (probe with a made-up key, October 2026). Series search exists only
+//! in version 1, which takes the key as `api_key`; version 2 has bulk release
+//! observations alone (FRED API docs, October 2026). The seasonally adjusted
+//! and unadjusted unemployment rates are both titled "Unemployment Rate", so
+//! the id FRED shows after the title on its pages goes there too (UNRATE and
+//! UNRATENSA, FRED, October 2026).
 
 use serde_json::Value;
 
@@ -43,7 +55,7 @@ fn record(row: &Value) -> Option<Dataset> {
         (f, u) => f.or(u),
     };
     let mut dataset = Dataset::new(
-        &text(row, "/title")?,
+        &format!("{} ({id})", text(row, "/title")?),
         &format!("https://fred.stlouisfed.org/series/{id}"),
     )
     .describe(text(row, "/notes").or(cadence));
@@ -66,7 +78,8 @@ mod tests {
         assert_eq!(
             hits[0],
             Dataset {
-                title: "Monetary Services Index: M2 (preferred)".into(),
+                title: "Monetary Services Index: M2 (preferred) (MSIM2)"
+                    .into(),
                 url: "https://fred.stlouisfed.org/series/MSIM2".into(),
                 description: Some(
                     "The MSI measure the flow of monetary services received \
