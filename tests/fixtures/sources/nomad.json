@@ -1,0 +1,41 @@
+{
+  "pagination": {
+    "page_size": 1000,
+    "order": "asc",
+    "page": 1,
+    "total": 2121,
+    "next_page_after_value": "999",
+    "page_url": "https://nomad-lab.eu/prod/v1/api/v1/datasets/?page_size=1000",
+    "next_page_url": "https://nomad-lab.eu/prod/v1/api/v1/datasets/?page_size=1000&page_after_value=999",
+    "first_page_url": "https://nomad-lab.eu/prod/v1/api/v1/datasets/?page_size=1000"
+  },
+  "data": [
+    {
+      "dataset_id": "wWgAnNZNQxOHLf97H62dgw",
+      "dataset_name": "demo example data",
+      "user_id": "05375d3f-87e5-4266-9ec8-e80bfe2a739d",
+      "doi": "10.17172/NOMAD/2020.05.20-1",
+      "dataset_create_time": "2020-05-20T09:46:15.163000"
+    },
+    {
+      "dataset_id": "ShfhuBLuR1SSXCJGPrDwbA",
+      "dataset_name": "NOMAD parsers example data",
+      "user_id": "05375d3f-87e5-4266-9ec8-e80bfe2a739d",
+      "doi": "10.17172/NOMAD/2023.03.14-1",
+      "dataset_create_time": "2020-02-24T07:04:26"
+    },
+    {
+      "dataset_id": "jRLJKAG8T22e2ZtHCCHlwg",
+      "dataset_name": "RMQ1D",
+      "user_id": "1c2e4445-7c64-41e5-ac41-769a969a3c1e",
+      "doi": "10.17172/NOMAD/2021.02.03-1",
+      "dataset_create_time": "2021-02-03T03:56:04.108000"
+    },
+    {
+      "dataset_id": "417HCiXDRhC22th2aE4Xzw",
+      "dataset_name": "QM9NMR | MPW1PW91 / 6311G(2d,p) | DMSO",
+      "user_id": "1c2e4445-7c64-41e5-ac41-769a969a3c1e",
+      "dataset_create_time": "2021-10-16T05:15:01.003000"
+    }
+  ]
+}

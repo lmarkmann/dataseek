@@ -197,14 +197,8 @@ impl Source {
             Adapter::Nada(base) => nada::search(ctx, base, query, limit),
             Adapter::Socrata(base) => socrata::search(ctx, base, query, limit),
             Adapter::Ebi(domain) => ebi::search(ctx, domain, query, limit),
-            Adapter::Catalog(list) => {
-                self.local(ctx, query, limit, || list(ctx))
-            }
-            Adapter::Stac(catalog) => {
-                self.local(ctx, query, limit, || stac::list(ctx, catalog))
-            }
-            Adapter::Sdmx(agency) => {
-                self.local(ctx, query, limit, || sdmx::list(ctx, agency))
+            Adapter::Catalog(_) | Adapter::Stac(_) | Adapter::Sdmx(_) => {
+                self.local(ctx, query, limit)
             }
         }
     }
@@ -212,27 +206,42 @@ impl Source {
     /// Download and cache this source's catalog now; `None` for live
     /// sources, which have no catalog.
     pub fn warm(&self, ctx: &Ctx<'_>) -> Option<Result<usize, SourceError>> {
+        Some(self.download(ctx)?.map(|entries| {
+            ctx.cache.store(Kind::Catalog, self.id, &entries);
+            entries.len()
+        }))
+    }
+
+    /// The whole catalog, fetched now; `None` for live sources. An empty
+    /// catalog is a changed response, never a valid answer.
+    fn download(
+        &self,
+        ctx: &Ctx<'_>,
+    ) -> Option<Result<Vec<Dataset>, SourceError>> {
         let downloaded = match &self.adapter {
             Adapter::Catalog(list) => list(ctx),
             Adapter::Stac(catalog) => stac::list(ctx, catalog),
             Adapter::Sdmx(agency) => sdmx::list(ctx, agency),
             _ => return None,
         };
-        Some(downloaded.map(|entries| {
-            ctx.cache.store(Kind::Catalog, self.id, &entries);
-            entries.len()
+        Some(downloaded.and_then(|entries| {
+            if entries.is_empty() {
+                Err(SourceError::shape("the catalog came back empty"))
+            } else {
+                Ok(entries)
+            }
         }))
     }
 
     /// Search the cached catalog, downloading it when it is missing or
-    /// expired. A failed download falls back to an expired copy. `--refresh`
-    /// does not apply: catalogs have their own TTL and `cache warm`.
+    /// expired. A failed or empty download falls back to an expired copy.
+    /// `--refresh` does not apply: catalogs have their own TTL and `cache
+    /// warm`.
     fn local(
         &self,
         ctx: &Ctx<'_>,
         query: &str,
         limit: usize,
-        download: impl FnOnce() -> Result<Vec<Dataset>, SourceError>,
     ) -> Result<Vec<Dataset>, SourceError> {
         let cached = ctx.cache.load::<Vec<Dataset>>(
             Kind::Catalog,
@@ -241,15 +250,12 @@ impl Source {
         );
         let entries = match cached {
             Some((entries, Freshness::Fresh)) => entries,
-            stale => match download() {
-                Ok(entries) if !entries.is_empty() => {
+            stale => match self.download(ctx).unwrap_or_else(|| {
+                Err(SourceError::shape("a live source has no catalog"))
+            }) {
+                Ok(entries) => {
                     ctx.cache.store(Kind::Catalog, self.id, &entries);
                     entries
-                }
-                Ok(_) => {
-                    return Err(SourceError::shape(
-                        "the catalog came back empty",
-                    ));
                 }
                 Err(error) => match stale {
                     Some((entries, _)) => entries,
@@ -292,6 +298,16 @@ impl Services {
             creds: Credentials::load(&dirs.config),
             cache: Cache::new(dirs.cache),
         })
+    }
+
+    /// Offline services for tests: no keys, an empty cache under `dir`.
+    #[cfg(test)]
+    pub fn scratch(dir: &std::path::Path) -> Self {
+        Self {
+            http: Http::new(),
+            creds: Credentials::default(),
+            cache: Cache::new(dir.to_path_buf()),
+        }
     }
 
     pub fn ctx(&self, refresh: bool) -> Ctx<'_> {
@@ -1041,6 +1057,25 @@ pub static SOURCES: &[Source] = &[
     ),
 ];
 
+/// Recorded source responses under `tests/fixtures/sources`, the oracle the
+/// adapter tests read their expected values from by hand.
+#[cfg(test)]
+pub mod fixture {
+    use std::path::Path;
+
+    pub fn text(name: &str) -> String {
+        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/sources")
+            .join(name);
+        std::fs::read_to_string(&path)
+            .unwrap_or_else(|e| panic!("{}: {e}", path.display()))
+    }
+
+    pub fn json(name: &str) -> serde_json::Value {
+        serde_json::from_str(&text(name)).unwrap()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1068,7 +1103,191 @@ mod tests {
     }
 
     #[test]
-    fn kaggle_results_are_never_written_to_disk() {
+    fn kaggle_is_registered_as_never_persisted() {
         assert!(!SOURCES.iter().find(|s| s.id == "kaggle").unwrap().persist);
+    }
+
+    fn catalog(list: Listing) -> Source {
+        listed("fake", "Fake", Research, "test", "https://x.org", list)
+    }
+
+    fn entry(title: &str) -> Dataset {
+        Dataset::new(title, "https://x.org/d")
+    }
+
+    #[expect(clippy::unnecessary_wraps, reason = "the Listing signature")]
+    fn rain(_: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
+        Ok(vec![entry("Rainfall"), entry("Snow depth")])
+    }
+
+    #[expect(clippy::unnecessary_wraps, reason = "the Listing signature")]
+    fn nothing(_: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
+        Ok(Vec::new())
+    }
+
+    fn down(_: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
+        Err(SourceError::Timeout)
+    }
+
+    #[expect(
+        clippy::panic_in_result_fn,
+        reason = "an Err would be masked by the stale fallback"
+    )]
+    fn untouchable(_: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
+        panic!("a fresh catalog must not be downloaded again");
+    }
+
+    struct Rig {
+        _dir: tempfile::TempDir,
+        services: Services,
+    }
+
+    fn rig() -> Rig {
+        let dir = tempfile::tempdir().unwrap();
+        let services = Services::scratch(dir.path());
+        Rig { _dir: dir, services }
+    }
+
+    fn cached(ctx: &Ctx<'_>) -> Option<(Vec<Dataset>, Freshness)> {
+        ctx.cache.load(Kind::Catalog, "fake", CATALOG_TTL)
+    }
+
+    #[test]
+    fn a_fresh_catalog_is_searched_without_downloading() {
+        let rig = rig();
+        let ctx = rig.services.ctx(true);
+        ctx.cache.store(Kind::Catalog, "fake", &vec![entry("Rainfall")]);
+        let hits = catalog(untouchable).search(&ctx, "rain", 10).unwrap();
+        assert_eq!(hits, vec![entry("Rainfall")]);
+    }
+
+    #[test]
+    fn a_failed_download_falls_back_to_the_expired_catalog() {
+        let primed = rig();
+        let ctx = primed.services.ctx(false);
+        ctx.cache.store_expired(
+            Kind::Catalog,
+            "fake",
+            &vec![entry("Rainfall")],
+        );
+        let hits = catalog(down).search(&ctx, "rain", 10).unwrap();
+        assert_eq!(hits, vec![entry("Rainfall")]);
+
+        let empty = rig();
+        let without =
+            catalog(down).search(&empty.services.ctx(false), "rain", 10);
+        assert!(matches!(without, Err(SourceError::Timeout)), "{without:?}");
+    }
+
+    #[test]
+    fn an_empty_download_falls_back_to_the_expired_catalog() {
+        let rig = rig();
+        let ctx = rig.services.ctx(false);
+        ctx.cache.store_expired(
+            Kind::Catalog,
+            "fake",
+            &vec![entry("Rainfall")],
+        );
+        let hits = catalog(nothing).search(&ctx, "rain", 10).unwrap();
+        assert_eq!(hits, vec![entry("Rainfall")]);
+    }
+
+    #[test]
+    fn a_downloaded_catalog_is_stored_fresh() {
+        let rig = rig();
+        let ctx = rig.services.ctx(false);
+        assert_eq!(catalog(rain).search(&ctx, "snow", 10).unwrap().len(), 1);
+        let (stored, freshness) = cached(&ctx).unwrap();
+        assert_eq!(stored, rain(&ctx).unwrap());
+        assert_eq!(freshness, Freshness::Fresh);
+    }
+
+    #[test]
+    fn warming_an_empty_catalog_fails_and_stores_nothing() {
+        let rig = rig();
+        let ctx = rig.services.ctx(false);
+        let warmed = catalog(nothing).warm(&ctx).unwrap();
+        assert!(matches!(warmed, Err(SourceError::Shape(_))), "{warmed:?}");
+        assert!(cached(&ctx).is_none(), "an empty catalog was cached");
+    }
+
+    #[test]
+    fn warming_stores_the_catalog_and_counts_it() {
+        let rig = rig();
+        let ctx = rig.services.ctx(false);
+        assert_eq!(catalog(rain).warm(&ctx).unwrap().unwrap(), 2);
+        assert_eq!(cached(&ctx).unwrap().0.len(), 2);
+    }
+
+    type LiveParse =
+        fn(&serde_json::Value, usize) -> Result<Vec<Dataset>, SourceError>;
+
+    /// Every live adapter's parser, fed its recorded response by name.
+    fn live_parsers() -> Vec<(&'static str, LiveParse)> {
+        vec![
+            ("arcgis", |b, n| arcgis::parse(b, n)),
+            ("cern", |b, n| cern::parse(b, n)),
+            ("cessda", |b, n| cessda::parse(b, n)),
+            ("cmr", |b, n| cmr::parse(b, n)),
+            ("dandi", |b, n| dandi::parse(b, n)),
+            ("datacite", |b, n| datacite::parse(b, n)),
+            ("datacommons", |b, n| datacommons::parse(b, n)),
+            ("datagov", |b, n| datagov::parse(b, n)),
+            ("dataone", |b, n| dataone::parse(b, n)),
+            ("dataverse", |b, n| dataverse::parse(b, n)),
+            ("dbnomics", |b, n| dbnomics::parse(b, n)),
+            ("europa", |b, n| europa::parse(b, n)),
+            ("figshare", |b, n| figshare::parse(b, n)),
+            ("fred", |b, n| fred::parse(b, n)),
+            ("gbif", |b, n| gbif::parse(b, n)),
+            ("github", |b, n| github::parse(b, n)),
+            ("kaggle", |b, n| kaggle::parse(b, n)),
+            ("mendeley", |b, n| mendeley::parse(b, n)),
+            ("modelscope", |b, n| modelscope::parse(b, n)),
+            ("ncei", |b, n| ncei::parse(b, n)),
+            ("omicsdi", |b, n| omicsdi::parse(b, n)),
+            ("openaire", |b, n| openaire::parse(b, n)),
+            ("opendatasoft", |b, n| opendatasoft::parse(b, n)),
+            ("osf", |b, n| osf::parse(b, n)),
+            ("owid", |b, n| owid::parse(b, n)),
+            ("pangaea", |b, n| pangaea::parse(b, n)),
+            ("roboflow", |b, n| roboflow::parse(b, n)),
+            ("socrata", |b, n| socrata::parse(b, n)),
+            ("synapse", |b, n| synapse::parse(b, n)),
+            ("zenodo", |b, n| zenodo::parse(b, n)),
+            ("ckan", |b, n| ckan::parse(&ckan::DATA_GOV_UK, b, n)),
+            ("ebi", |b, n| ebi::parse(&ebi::ARRAYEXPRESS, b, n)),
+            ("nada", |b, n| {
+                nada::parse("https://microdata.worldbank.org/index.php", b, n)
+            }),
+            ("huggingface", |b, n| {
+                huggingface::parse(b, &["temperature".to_owned()], n)
+            }),
+            ("ncbi", |b, n| {
+                let ids =
+                    ["200304969", "200279746", "200279384"].map(String::from);
+                ncbi::parse(&ids, b, n)
+            }),
+        ]
+    }
+
+    #[test]
+    fn a_changed_response_is_a_shape_error_never_an_empty_list() {
+        let changed = serde_json::json!({"error": "unexpected"});
+        for (id, parse) in live_parsers() {
+            let outcome = parse(&changed, 10);
+            assert!(
+                matches!(outcome, Err(SourceError::Shape(_))),
+                "{id} answered {outcome:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn every_live_adapter_stops_at_the_limit() {
+        for (id, parse) in live_parsers() {
+            let body = fixture::json(&format!("{id}.json"));
+            assert_eq!(parse(&body, 1).unwrap().len(), 1, "{id}");
+        }
     }
 }

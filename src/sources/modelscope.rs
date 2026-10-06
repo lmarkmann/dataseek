@@ -19,10 +19,17 @@ pub fn search(
         .query("PageSize", limit.clamp(1, 100))
         .query("PageNumber", 1)
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.get("Data").is_none() {
         return Err(SourceError::shape("no Data array"));
     }
-    Ok(items(&body, "/Data").iter().filter_map(record).take(limit).collect())
+    Ok(items(body, "/Data").iter().filter_map(record).take(limit).collect())
 }
 
 fn record(row: &Value) -> Option<Dataset> {
@@ -38,4 +45,34 @@ fn record(row: &Value) -> Option<Dataset> {
     dataset.updated = number(row, "/GmtModified").and_then(date_from_epoch);
     dataset.popularity = number(row, "/Downloads");
     dataset.valid()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("modelscope.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "CarbonGPT/climate-sr".into(),
+                url: "https://www.modelscope.cn/datasets/CarbonGPT/climate-sr"
+                    .into(),
+                description: Some(
+                    "\u{6c14}\u{5019}\u{6570}\u{636e}\u{8d85}\u{5206}".into()
+                ),
+                publisher: Some("CarbonGPT".into()),
+                doi: None,
+                license: Some("Apache License 2.0".into()),
+                updated: Some("2026-10-06".into()),
+                size_bytes: None,
+                popularity: Some(4618),
+                aliases: vec![],
+            }
+        );
+    }
 }

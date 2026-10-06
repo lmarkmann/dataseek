@@ -1,0 +1,8 @@
+[
+  {
+    "name": "Cars",
+    "url": "https://universe.roboflow.com/growth-plan/cars-8q9vz",
+    "thumbnail": "https://source.roboflow.com/.../thumb.jpg",
+    "annotationThumbnail": "https://source.roboflow.com/.../annotation-cars.png"
+  }
+]

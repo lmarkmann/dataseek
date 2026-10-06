@@ -49,6 +49,7 @@ fn parse(page: &str) -> Vec<Dataset> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::sources::fixture;
 
     #[test]
     fn cards_yield_id_and_title_once() {
@@ -59,5 +60,31 @@ mod tests {
         assert_eq!(entries.len(), 1);
         assert_eq!(entries[0].title, "SRTM Digital Elevation");
         assert!(entries[0].url.ends_with("/catalog/NASA_SRTM"));
+    }
+
+    #[test]
+    fn records_map_from_a_recorded_list() {
+        let entries = parse(&fixture::text("gee.html"));
+        assert_eq!(entries.len(), 4);
+        assert_eq!(
+            entries[0],
+            Dataset {
+                title:
+                    "2000 Greenland Mosaic - Greenland Ice Mapping Project \
+                        (GIMP)"
+                        .into(),
+                url: "https://developers.google.com/earth-engine/datasets/\
+                      catalog/OSU_GIMP_2000_IMAGERY_MOSAIC"
+                    .into(),
+                description: Some("OSU GIMP 2000 IMAGERY MOSAIC".into()),
+                publisher: Some("OSU".into()),
+                doi: None,
+                license: None,
+                updated: None,
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
     }
 }

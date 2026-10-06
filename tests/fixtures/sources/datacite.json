@@ -1,0 +1,732 @@
+{
+  "data": [
+    {
+      "id": "10.15468/zrsahs",
+      "type": "dois",
+      "attributes": {
+        "doi": "10.15468/zrsahs",
+        "identifiers": [
+          {
+            "identifier": "c0eddfec-c87b-47c5-977a-dd2c7c7e5dec",
+            "identifierType": "UUID"
+          }
+        ],
+        "creators": [
+          {
+            "affiliation": [
+              "Department of Botany, Jagannath University"
+            ],
+            "name": "NUSRAT SULTANA",
+            "nameIdentifiers": []
+          },
+          {
+            "affiliation": [
+              "Department of Botany, Jagannath University"
+            ],
+            "name": "Sadia Islam Proma",
+            "nameIdentifiers": []
+          },
+          {
+            "affiliation": [
+              "Department of Botany, Jagannath University"
+            ],
+            "name": "Md Rajon Mia",
+            "nameIdentifiers": []
+          },
+          {
+            "affiliation": [
+              "Department of Botany, Jagannath University"
+            ],
+            "name": "Moriom Akter",
+            "nameIdentifiers": []
+          },
+          {
+            "affiliation": [
+              "Department of Botany, Jagannath University"
+            ],
+            "name": "Umme Habiba",
+            "nameIdentifiers": []
+          }
+        ],
+        "titles": [
+          {
+            "title": "Crop Wild Relatives (CWRs) of Bangladesh: An Integrated Database of Species Occurrence, Distribution, Habitat and Herbarium Records"
+          }
+        ],
+        "publisher": "Jagannath University",
+        "container": {},
+        "publicationYear": 2026,
+        "subjects": [
+          {
+            "subject": "Bangladesh",
+            "subjectScheme": "None"
+          },
+          {
+            "subject": "vascular plants",
+            "subjectScheme": "None"
+          },
+          {
+            "subject": "crop diversity",
+            "subjectScheme": "None"
+          },
+          {
+            "subject": "agrobiodiversity",
+            "subjectScheme": "None"
+          },
+          {
+            "subject": "herbarium specimens",
+            "subjectScheme": "None"
+          }
+        ],
+        "contributors": [
+          {
+            "affiliation": [
+              "Department of Botany, Jagannath University"
+            ],
+            "name": "NUSRAT SULTANA",
+            "contributorType": "DataCurator",
+            "nameIdentifiers": []
+          },
+          {
+            "affiliation": [
+              "Global Biodiversity Information Facility (GBIF), Asia Regional Support Team"
+            ],
+            "name": "Lily Shrestha",
+            "contributorType": "RelatedPerson",
+            "nameIdentifiers": []
+          },
+          {
+            "affiliation": [
+              "Department of Botany, Jagannath University"
+            ],
+            "name": "NUSRAT SULTANA",
+            "contributorType": "RelatedPerson",
+            "nameIdentifiers": []
+          }
+        ],
+        "dates": [
+          {
+            "date": "2026-10-06",
+            "dateType": "Created"
+          },
+          {
+            "date": "2026-10-06",
+            "dateType": "Updated"
+          }
+        ],
+        "language": "en",
+        "types": {
+          "schemaOrg": "Dataset",
+          "resourceTypeGeneral": "Dataset",
+          "citeproc": "dataset",
+          "bibtex": "misc",
+          "ris": "DATA",
+          "resourceType": "OCCURRENCE"
+        },
+        "relatedIdentifiers": [],
+        "relatedItems": [],
+        "sizes": [],
+        "formats": [],
+        "version": null,
+        "rightsList": [
+          {
+            "rightsIdentifierScheme": "SPDX",
+            "rightsUri": "https://creativecommons.org/licenses/by/4.0/legalcode",
+            "schemeUri": "https://spdx.org/licenses/",
+            "rights": "Creative Commons Attribution 4.0 International",
+            "rightsIdentifier": "cc-by-4.0"
+          }
+        ],
+        "descriptions": [
+          {
+            "descriptionType": "Abstract",
+            "description": "This dataset compiles occurrence records of crop wild relatives (CWR) of cultivated crops in Bangladesh. Cultivated crops occurring in Bangladesh were identified and categorized based on information from the Food and Agriculture Organization (FAO) FAOSTAT database and Banglapedia."
+          }
+        ],
+        "geoLocations": [
+          {
+            "geoLocationBox": {
+              "northBoundLatitude": 26.63,
+              "southBoundLatitude": 20.57,
+              "eastBoundLongitude": 92.68,
+              "westBoundLongitude": 88.01
+            },
+            "geoLocationPlace": "Bangladesh"
+          }
+        ],
+        "fundingReferences": [],
+        "url": "https://www.gbif.org/dataset/c0eddfec-c87b-47c5-977a-dd2c7c7e5dec",
+        "contentUrl": null,
+        "metadataVersion": 1,
+        "schemaVersion": "http://datacite.org/schema/kernel-4",
+        "source": "api",
+        "isActive": true,
+        "state": "findable",
+        "reason": null,
+        "viewCount": 0,
+        "downloadCount": 0,
+        "referenceCount": 0,
+        "citationCount": 0,
+        "partCount": 0,
+        "partOfCount": 0,
+        "versionCount": 0,
+        "versionOfCount": 0,
+        "created": "2026-10-06T10:09:10Z",
+        "registered": "2026-10-06T10:09:10Z",
+        "published": null,
+        "updated": "2026-10-06T10:10:11Z"
+      },
+      "relationships": {
+        "client": {
+          "data": {
+            "id": "gbif.gbif",
+            "type": "clients"
+          }
+        }
+      }
+    },
+    {
+      "id": "10.5281/zenodo.23111497",
+      "type": "dois",
+      "attributes": {
+        "doi": "10.5281/zenodo.23111497",
+        "identifiers": [],
+        "creators": [
+          {
+            "nameType": "Personal",
+            "affiliation": [
+              "University of Oxford Botanic Garden & Arboretum",
+              "University of Oxford, Department of Biology"
+            ],
+            "givenName": "B. M.",
+            "familyName": "Jones",
+            "name": "Jones, B. M.",
+            "nameIdentifiers": [
+              {
+                "nameIdentifierScheme": "ORCID",
+                "nameIdentifier": "0000-0003-1430-004X"
+              }
+            ]
+          }
+        ],
+        "titles": [
+          {
+            "title": "Vascular Plants of Japan Database (VPJD): Geography Release v1.0.0"
+          }
+        ],
+        "publisher": "Zenodo",
+        "container": {},
+        "publicationYear": 2026,
+        "subjects": [
+          {
+            "subject": "Vascular Plants of Japan Database"
+          },
+          {
+            "subject": "VPJD"
+          },
+          {
+            "subject": "Vascular Plants"
+          },
+          {
+            "subject": "Japan"
+          },
+          {
+            "subject": "Plant distribution"
+          }
+        ],
+        "contributors": [],
+        "dates": [
+          {
+            "date": "2026-10-02",
+            "dateType": "Issued"
+          }
+        ],
+        "language": null,
+        "types": {
+          "schemaOrg": "Dataset",
+          "resourceTypeGeneral": "Dataset",
+          "citeproc": "dataset",
+          "bibtex": "misc",
+          "ris": "DATA",
+          "resourceType": ""
+        },
+        "relatedIdentifiers": [
+          {
+            "relationType": "IsSupplementTo",
+            "resourceTypeGeneral": "Dataset",
+            "relatedIdentifier": "10.5281/zenodo.23017356",
+            "relatedIdentifierType": "DOI"
+          },
+          {
+            "relationType": "HasVersion",
+            "relatedIdentifier": "10.5281/zenodo.23111498",
+            "relatedIdentifierType": "DOI"
+          }
+        ],
+        "relatedItems": [],
+        "sizes": [],
+        "formats": [],
+        "version": "1.0.0",
+        "rightsList": [
+          {
+            "rightsIdentifierScheme": "SPDX",
+            "rightsUri": "https://creativecommons.org/licenses/by/4.0/legalcode",
+            "schemeUri": "https://spdx.org/licenses/",
+            "rights": "Creative Commons Attribution 4.0 International",
+            "rightsIdentifier": "cc-by-4.0"
+          }
+        ],
+        "descriptions": [
+          {
+            "descriptionType": "Abstract",
+            "description": "Vascular Plants of Japan Database (VPJD): Geography Release v1.0.0\n\nThis release provides the geographic evidence layer associated with the Vascular Plants of Japan Database (VPJD) Taxonomic Release v1.0.0."
+          }
+        ],
+        "geoLocations": [],
+        "fundingReferences": [],
+        "url": "https://zenodo.org/doi/10.5281/zenodo.23111497",
+        "contentUrl": null,
+        "metadataVersion": 6,
+        "schemaVersion": "http://datacite.org/schema/kernel-4",
+        "source": "api",
+        "isActive": true,
+        "state": "findable",
+        "reason": null,
+        "viewCount": 0,
+        "downloadCount": 0,
+        "referenceCount": 0,
+        "citationCount": 1,
+        "partCount": 0,
+        "partOfCount": 0,
+        "versionCount": 2,
+        "versionOfCount": 0,
+        "created": "2026-10-02T22:00:58Z",
+        "registered": "2026-10-02T22:00:59Z",
+        "published": null,
+        "updated": "2026-10-03T20:39:34Z"
+      },
+      "relationships": {
+        "client": {
+          "data": {
+            "id": "cern.zenodo",
+            "type": "clients"
+          }
+        }
+      }
+    },
+    {
+      "id": "10.5281/zenodo.23111498",
+      "type": "dois",
+      "attributes": {
+        "doi": "10.5281/zenodo.23111498",
+        "identifiers": [
+          {
+            "identifier": "oai:zenodo.org:23111498",
+            "identifierType": "oai"
+          }
+        ],
+        "creators": [
+          {
+            "nameType": "Personal",
+            "affiliation": [
+              "University of Oxford Botanic Garden & Arboretum",
+              "University of Oxford, Department of Biology"
+            ],
+            "givenName": "B. M.",
+            "familyName": "Jones",
+            "name": "Jones, B. M.",
+            "nameIdentifiers": [
+              {
+                "nameIdentifierScheme": "ORCID",
+                "nameIdentifier": "0000-0003-1430-004X"
+              }
+            ]
+          }
+        ],
+        "titles": [
+          {
+            "title": "Vascular Plants of Japan Database (VPJD): Geography Release v1.0.0"
+          }
+        ],
+        "publisher": "Zenodo",
+        "container": {},
+        "publicationYear": 2026,
+        "subjects": [
+          {
+            "subject": "Vascular Plants of Japan Database"
+          },
+          {
+            "subject": "VPJD"
+          },
+          {
+            "subject": "Vascular Plants"
+          },
+          {
+            "subject": "Japan"
+          },
+          {
+            "subject": "Plant distribution"
+          }
+        ],
+        "contributors": [],
+        "dates": [
+          {
+            "date": "2026-10-02",
+            "dateType": "Issued"
+          }
+        ],
+        "language": null,
+        "types": {
+          "schemaOrg": "Dataset",
+          "resourceTypeGeneral": "Dataset",
+          "citeproc": "dataset",
+          "bibtex": "misc",
+          "ris": "DATA",
+          "resourceType": ""
+        },
+        "relatedIdentifiers": [
+          {
+            "relationType": "IsSupplementTo",
+            "resourceTypeGeneral": "Dataset",
+            "relatedIdentifier": "10.5281/zenodo.23017356",
+            "relatedIdentifierType": "DOI"
+          },
+          {
+            "relationType": "IsVersionOf",
+            "relatedIdentifier": "10.5281/zenodo.23111497",
+            "relatedIdentifierType": "DOI"
+          }
+        ],
+        "relatedItems": [],
+        "sizes": [],
+        "formats": [],
+        "version": "1.0.0",
+        "rightsList": [
+          {
+            "rightsIdentifierScheme": "SPDX",
+            "rightsUri": "https://creativecommons.org/licenses/by/4.0/legalcode",
+            "schemeUri": "https://spdx.org/licenses/",
+            "rights": "Creative Commons Attribution 4.0 International",
+            "rightsIdentifier": "cc-by-4.0"
+          }
+        ],
+        "descriptions": [
+          {
+            "descriptionType": "Abstract",
+            "description": "Vascular Plants of Japan Database (VPJD): Geography Release v1.0.0\n\nThis release provides the geographic evidence layer associated with the Vascular Plants of Japan Database (VPJD) Taxonomic Release v1.0.0."
+          }
+        ],
+        "geoLocations": [],
+        "fundingReferences": [],
+        "url": "https://zenodo.org/doi/10.5281/zenodo.23111498",
+        "contentUrl": null,
+        "metadataVersion": 3,
+        "schemaVersion": "http://datacite.org/schema/kernel-4",
+        "source": "api",
+        "isActive": true,
+        "state": "findable",
+        "reason": null,
+        "viewCount": 0,
+        "downloadCount": 0,
+        "referenceCount": 0,
+        "citationCount": 1,
+        "partCount": 0,
+        "partOfCount": 0,
+        "versionCount": 0,
+        "versionOfCount": 1,
+        "created": "2026-10-02T22:00:58Z",
+        "registered": "2026-10-02T22:00:58Z",
+        "published": null,
+        "updated": "2026-10-03T20:39:33Z"
+      },
+      "relationships": {
+        "client": {
+          "data": {
+            "id": "cern.zenodo",
+            "type": "clients"
+          }
+        }
+      }
+    },
+    {
+      "id": "10.15468/dl.4j2zvq",
+      "type": "dois",
+      "attributes": {
+        "doi": "10.15468/dl.4j2zvq",
+        "identifiers": [
+          {
+            "identifier": "0007014-260928105237408",
+            "identifierType": "GBIF"
+          }
+        ],
+        "creators": [
+          {
+            "nameType": "Organizational",
+            "name": "GBIF.org User",
+            "affiliation": [],
+            "nameIdentifiers": []
+          }
+        ],
+        "titles": [
+          {
+            "title": "Occurrence Download"
+          }
+        ],
+        "publisher": "The Global Biodiversity Information Facility",
+        "container": {},
+        "publicationYear": 2026,
+        "subjects": [
+          {
+            "subject": "GBIF",
+            "lang": "eng"
+          },
+          {
+            "subject": "biodiversity",
+            "lang": "eng"
+          },
+          {
+            "subject": "species occurrences",
+            "lang": "eng"
+          }
+        ],
+        "contributors": [],
+        "dates": [
+          {
+            "date": "2026-10-02",
+            "dateType": "Created"
+          },
+          {
+            "date": "2026-10-02",
+            "dateType": "Updated"
+          }
+        ],
+        "language": null,
+        "types": {
+          "schemaOrg": "Dataset",
+          "resourceTypeGeneral": "Dataset",
+          "citeproc": "dataset",
+          "bibtex": "misc",
+          "ris": "DATA"
+        },
+        "relatedIdentifiers": [
+          {
+            "relationType": "IsDerivedFrom",
+            "relatedIdentifier": "10.15468/ue7xyn",
+            "relatedIdentifierType": "DOI"
+          },
+          {
+            "relationType": "HasMetadata",
+            "relatedIdentifier": "https://api.gbif.org/v1/occurrence/download/0007014-260928105237408",
+            "relatedIdentifierType": "URL"
+          },
+          {
+            "relationType": "HasMetadata",
+            "relatedIdentifier": "https://api.gbif.org/v1/occurrence/download/0007014-260928105237408/datasets",
+            "relatedIdentifierType": "URL"
+          }
+        ],
+        "relatedItems": [],
+        "sizes": [
+          "162932"
+        ],
+        "formats": [
+          "text/tab-separated-values",
+          "application/zip"
+        ],
+        "version": null,
+        "rightsList": [
+          {
+            "rightsIdentifierScheme": "SPDX",
+            "rightsUri": "https://creativecommons.org/licenses/by-nc/4.0/legalcode",
+            "schemeUri": "https://spdx.org/licenses/",
+            "rights": "Creative Commons Attribution Non Commercial 4.0 International",
+            "rightsIdentifier": "cc-by-nc-4.0"
+          }
+        ],
+        "descriptions": [
+          {
+            "descriptionType": "Abstract",
+            "description": "A dataset containing 3682 species occurrences available in GBIF matching the query:\n{\n \"DatasetKey\" : [\n \"is Flora of Sumatra : Vascular plant collection from Batang Toru Forest deposited in ANDA Herbarium\"\n ]\n}\n\n The dataset includes 3682 records from 1 constituent datasets; see https://api.gbif.org/v1/occurrence/download/0007014-260928105237408/datasets/export for details.\n \nData from some individual datasets included in this download may be licensed under less restrictive terms.",
+            "lang": "eng"
+          }
+        ],
+        "geoLocations": [],
+        "fundingReferences": [],
+        "url": "https://www.gbif.org/occurrence/download/0007014-260928105237408",
+        "contentUrl": null,
+        "metadataVersion": 0,
+        "schemaVersion": "http://datacite.org/schema/kernel-4",
+        "source": "api",
+        "isActive": true,
+        "state": "findable",
+        "reason": null,
+        "viewCount": 0,
+        "downloadCount": 0,
+        "referenceCount": 0,
+        "citationCount": 0,
+        "partCount": 0,
+        "partOfCount": 0,
+        "versionCount": 0,
+        "versionOfCount": 0,
+        "created": "2026-10-02T00:48:27Z",
+        "registered": "2026-10-02T00:48:27Z",
+        "published": null,
+        "updated": "2026-10-02T00:48:27Z"
+      },
+      "relationships": {
+        "client": {
+          "data": {
+            "id": "gbif.gbif",
+            "type": "clients"
+          }
+        }
+      }
+    },
+    {
+      "id": "10.3886/e255804v1",
+      "type": "dois",
+      "attributes": {
+        "doi": "10.3886/e255804v1",
+        "identifiers": [],
+        "creators": [
+          {
+            "nameType": "Organizational",
+            "name": "Department of the Interior",
+            "affiliation": [],
+            "nameIdentifiers": []
+          },
+          {
+            "nameType": "Organizational",
+            "name": "National Park Service",
+            "affiliation": [],
+            "nameIdentifiers": []
+          },
+          {
+            "nameType": "Personal",
+            "affiliation": [
+              "United States Department of the Interior. National Park Service"
+            ],
+            "givenName": "Rochefort",
+            "familyName": "Regina",
+            "name": "Regina, Rochefort",
+            "nameIdentifiers": []
+          }
+        ],
+        "titles": [
+          {
+            "lang": "en",
+            "title": "NCCN Inventory Exotic Plants Mount Rainier, North Cascades, and Olympic National Parks"
+          }
+        ],
+        "publisher": "ICPSR - Interuniversity Consortium for Political and Social Research",
+        "container": {},
+        "publicationYear": 2026,
+        "subjects": [
+          {
+            "subject": "species richness",
+            "lang": "en"
+          },
+          {
+            "subject": "biota",
+            "lang": "en"
+          },
+          {
+            "subject": "environment",
+            "lang": "en"
+          },
+          {
+            "subject": "exotic",
+            "lang": "en"
+          },
+          {
+            "subject": "invasive",
+            "lang": "en"
+          }
+        ],
+        "contributors": [],
+        "dates": [
+          {
+            "date": "2001-07-01/2002-10-01",
+            "dateType": "Collected"
+          }
+        ],
+        "language": "en",
+        "types": {
+          "schemaOrg": "Dataset",
+          "resourceTypeGeneral": "Dataset",
+          "citeproc": "dataset",
+          "bibtex": "misc",
+          "ris": "DATA",
+          "resourceType": "geographic information system (GIS) data, observational data"
+        },
+        "relatedIdentifiers": [
+          {
+            "relationType": "IsVersionOf",
+            "relatedIdentifier": "10.3886/e255804",
+            "relatedIdentifierType": "DOI"
+          }
+        ],
+        "relatedItems": [],
+        "sizes": [],
+        "formats": [],
+        "version": "v1",
+        "rightsList": [],
+        "descriptions": [
+          {
+            "descriptionType": "Abstract",
+            "description": "Exotic plant inventory in Mount Rainier, North Cascades, and Olympic National Parks, 2001-2002.",
+            "lang": "en"
+          },
+          {
+            "descriptionType": "Methods",
+            "description": "Collection 9688: Inventory and Monitoring Division Programs, Natural Resources Stewardship and Science Directorate &gt; Program 2195782: North Coast and Cascades Inventory and Monitoring Network (NCCN) &gt; Project 2229723: NCCN Inventory Exotic Plants Mount Rainier, North Cascades, and Olympic National Parks\nOriginal product folder: Exotic Plant Inventories in Mount Rainier, North Cascades, and Olympic National Parks tabular data -&gt; Exotic_Plant_Inventories_in_Mount_Rainier,_North_Cascades,_and_Olympic_National\nOriginal product folder: Exotic plant inventories in Mount Rainier, North Cascades, and Olympic National Parks -&gt; Exotic_plant_inventories_in_Mount_Rainier,_North_Cascades,_and_Olympic_Nationa_2 (Downloaded 2026-09-26)",
+            "lang": "en"
+          }
+        ],
+        "geoLocations": [
+          {
+            "geoLocationPlace": "Washington"
+          }
+        ],
+        "fundingReferences": [],
+        "url": "https://www.datalumos.org/datalumos/project/255804/version/V1/view",
+        "contentUrl": null,
+        "metadataVersion": 0,
+        "schemaVersion": "http://datacite.org/schema/kernel-4",
+        "source": "api",
+        "isActive": true,
+        "state": "findable",
+        "reason": null,
+        "viewCount": 0,
+        "downloadCount": 0,
+        "referenceCount": 0,
+        "citationCount": 0,
+        "partCount": 0,
+        "partOfCount": 0,
+        "versionCount": 0,
+        "versionOfCount": 1,
+        "created": "2026-09-30T03:18:43Z",
+        "registered": "2026-09-30T03:18:43Z",
+        "published": null,
+        "updated": "2026-09-30T03:18:43Z"
+      },
+      "relationships": {
+        "client": {
+          "data": {
+            "id": "gesis.icpsr",
+            "type": "clients"
+          }
+        }
+      }
+    }
+  ],
+  "meta": {
+    "total": 4827,
+    "totalPages": 242,
+    "page": 1
+  },
+  "links": {
+    "self": "https://api.datacite.org/dois?query=vascular+plant+occurrence&resource-type-id=dataset&page%5Bsize%5D=20&affiliation=false&mailto=user%40dataseek.dev",
+    "next": "https://api.datacite.org/dois?affiliation=false&page%5Bnumber%5D=2&page%5Bsize%5D=20&query=vascular+plant+occurrence&resource-type-id=dataset"
+  }
+}

@@ -71,16 +71,24 @@ impl Dataset {
     }
 }
 
-/// HTML tags removed, the common entities decoded, whitespace collapsed,
+/// HTML tags removed (a `<` opens one only before a letter, `/` or `!`, so
+/// "aged <5" survives), the common entities decoded, whitespace collapsed,
 /// and every control character (ESC, CSI, OSC, C1) replaced by a space, so a
 /// record from a remote source can never drive the terminal it is printed
 /// on.
 pub fn clean(text: &str) -> String {
     let mut plain = String::with_capacity(text.len());
     let mut in_tag = false;
-    for c in text.chars().map(|c| if c.is_control() { ' ' } else { c }) {
+    let mut chars = without_controls(text).peekable();
+    while let Some(c) = chars.next() {
         match c {
-            '<' => in_tag = true,
+            '<' if !in_tag
+                && chars.peek().is_some_and(|n| {
+                    n.is_alphabetic() || matches!(n, '/' | '!')
+                }) =>
+            {
+                in_tag = true;
+            }
             '>' if in_tag => {
                 in_tag = false;
                 plain.push(' ');
@@ -89,37 +97,90 @@ pub fn clean(text: &str) -> String {
             _ => {}
         }
     }
-    let decoded = plain
-        .replace("&nbsp;", " ")
-        .replace("&quot;", "\"")
-        .replace("&#39;", "'")
-        .replace("&#x27;", "'")
-        .replace("&lt;", "<")
-        .replace("&gt;", ">")
-        .replace("&amp;", "&");
-    decoded.split_whitespace().collect::<Vec<_>>().join(" ")
+    decode_entities(&plain).split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+/// HTML entities decoded in one pass, so `&amp;lt;` stays the text `&lt;`.
+/// Unknown names and numeric codes for control characters stay as written.
+fn decode_entities(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    let mut rest = text;
+    while let Some((head, tail)) = rest.split_once('&') {
+        out.push_str(head);
+        let decoded = tail
+            .split_once(';')
+            .filter(|(name, _)| name.len() <= 8)
+            .and_then(|(name, after)| Some((entity(name)?, after)));
+        if let Some((c, after)) = decoded {
+            out.push(c);
+            rest = after;
+        } else {
+            out.push('&');
+            rest = tail;
+        }
+    }
+    out.push_str(rest);
+    out
+}
+
+fn entity(name: &str) -> Option<char> {
+    let named = match name {
+        "amp" => '&',
+        "lt" => '<',
+        "gt" => '>',
+        "quot" => '"',
+        "apos" => '\'',
+        "nbsp" => ' ',
+        "lsquo" => '\u{2018}',
+        "rsquo" => '\u{2019}',
+        "ldquo" => '\u{201c}',
+        "rdquo" => '\u{201d}',
+        "ndash" => '\u{2013}',
+        "mdash" => '\u{2014}',
+        "hellip" => '\u{2026}',
+        "rarr" => '\u{2192}',
+        _ => {
+            let code = name.strip_prefix('#')?;
+            let number = match code.strip_prefix(['x', 'X']) {
+                Some(hex) => u32::from_str_radix(hex, 16).ok()?,
+                None => code.parse().ok()?,
+            };
+            return char::from_u32(number).filter(|c| !c.is_control());
+        }
+    };
+    Some(named)
 }
 
 /// [`clean`], cut to a teaser on a char boundary. `None` when nothing is left.
 pub fn summary(text: &str) -> Option<String> {
+    shortened(text, SUMMARY_CHARS)
+}
+
+/// [`clean`], cut to at most `chars` on a word, with `...` marking a cut.
+pub fn shortened(text: &str, chars: usize) -> Option<String> {
     let plain = clean(text);
     if plain.is_empty() {
         return None;
     }
-    if plain.chars().count() <= SUMMARY_CHARS {
+    if plain.chars().count() <= chars {
         return Some(plain);
     }
-    let cut: String = plain.chars().take(SUMMARY_CHARS).collect();
+    let cut: String = plain.chars().take(chars).collect();
     let cut = cut.rsplit_once(' ').map_or(cut.as_str(), |(head, _)| head);
     Some(format!("{}...", cut.trim_end_matches([',', '.', ';', ':'])))
 }
 
 /// A bare lowercase DOI (`10.5281/zenodo.1`) from any of the forms sources
-/// use: `doi:`, `https://doi.org/`, `http://dx.doi.org/`, or bare.
+/// use: `doi:`, `https://doi.org/`, `http://dx.doi.org/`, or bare. A DOI
+/// ends at the first space, so a trailing note like "(version 2)" is dropped.
 pub fn doi(raw: &str) -> Option<String> {
     let lower = raw.trim().to_lowercase();
     let start = lower.find("10.")?;
-    let candidate = lower.get(start..)?.trim_end_matches(['/', '.']);
+    let candidate = lower
+        .get(start..)?
+        .split_whitespace()
+        .next()?
+        .trim_end_matches(['/', '.']);
     let (prefix, suffix) = candidate.split_once('/')?;
     let registrant = prefix.strip_prefix("10.")?;
     let plausible = registrant.len() >= 4
@@ -134,10 +195,7 @@ pub fn doi(raw: &str) -> Option<String> {
 pub fn text(value: &Value, pointer: &str) -> Option<String> {
     match value.pointer(pointer)? {
         Value::String(s) => {
-            let safe: String = s
-                .chars()
-                .map(|c| if c.is_control() { ' ' } else { c })
-                .collect();
+            let safe: String = without_controls(s).collect();
             let trimmed = safe.trim();
             (!trimmed.is_empty()).then(|| trimmed.to_owned())
         }
@@ -154,13 +212,14 @@ pub fn first_text(value: &Value, pointers: &[&str]) -> Option<String> {
 /// A non-negative integer at a pointer, accepting numeric strings and
 /// truncating floats, which sources use interchangeably.
 pub fn number(value: &Value, pointer: &str) -> Option<u64> {
-    match value.pointer(pointer)? {
-        Value::Number(n) => n.as_u64().or_else(|| {
-            n.as_f64().filter(|f| f.is_finite() && *f >= 0.0).map(float_to_u64)
-        }),
-        Value::String(s) => s.trim().parse().ok(),
-        _ => None,
-    }
+    let (whole, float) = match value.pointer(pointer)? {
+        Value::Number(n) => (n.as_u64(), n.as_f64()),
+        Value::String(s) => (s.trim().parse().ok(), s.trim().parse().ok()),
+        _ => return None,
+    };
+    whole.or_else(|| {
+        float.filter(|f: &f64| f.is_finite() && *f >= 0.0).map(float_to_u64)
+    })
 }
 
 #[expect(
@@ -182,15 +241,20 @@ pub fn items<'a>(value: &'a Value, pointer: &str) -> &'a [Value] {
 /// (`{"en": "...", "de": "..."}`), preferring English.
 pub fn localized(value: Option<&Value>) -> Option<String> {
     match value? {
-        Value::String(s) if !s.trim().is_empty() => Some(s.trim().to_owned()),
+        Value::String(s) => Some(s.as_str()),
         Value::Object(map) => map
             .get("en")
             .and_then(Value::as_str)
-            .or_else(|| map.values().find_map(Value::as_str))
-            .map(|s| s.trim().to_owned())
-            .filter(|s| !s.is_empty()),
+            .or_else(|| map.values().find_map(Value::as_str)),
         _ => None,
     }
+    .map(|s| without_controls(s).collect::<String>().trim().to_owned())
+    .filter(|s| !s.is_empty())
+}
+
+/// Every control character (ESC, CSI, OSC, C1) replaced by a space.
+fn without_controls(text: &str) -> impl Iterator<Item = char> + '_ {
+    text.chars().map(|c| if c.is_control() { ' ' } else { c })
 }
 
 /// Unix seconds or milliseconds as an ISO date (`2024-01-31`).
@@ -228,7 +292,8 @@ fn civil_from_days(days: i64) -> (i64, i64, i64) {
     (y, m, d)
 }
 
-/// The date part of an ISO timestamp, so every source prints dates alike.
+/// The date part of an ISO timestamp, or a compact `20220124` spelled out,
+/// so every source prints dates alike.
 pub fn day(timestamp: Option<String>) -> Option<String> {
     let t = timestamp?;
     let head: String = t.chars().take(10).collect();
@@ -236,13 +301,66 @@ pub fn day(timestamp: Option<String>) -> Option<String> {
         && head.chars().enumerate().all(|(i, c)| {
             if i == 4 || i == 7 { c == '-' } else { c.is_ascii_digit() }
         });
-    Some(if looks_iso { head } else { t })
+    if looks_iso {
+        return Some(head);
+    }
+    match (t.get(0..4), t.get(4..6), t.get(6..8)) {
+        (Some(y), Some(m), Some(d))
+            if t.len() == 8 && t.chars().all(|c| c.is_ascii_digit()) =>
+        {
+            Some(format!("{y}-{m}-{d}"))
+        }
+        _ => Some(t),
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use proptest::prelude::*;
     use serde_json::json;
+
+    use super::*;
+
+    proptest! {
+        #[test]
+        fn cleaned_text_is_printable_and_tidy(raw in any::<String>()) {
+            let shown = clean(&raw);
+            prop_assert!(!shown.chars().any(char::is_control), "{shown:?}");
+            prop_assert_eq!(shown.trim(), shown.as_str());
+            prop_assert!(!shown.contains("  "), "{shown:?}");
+        }
+
+        #[test]
+        fn text_without_markup_only_has_its_spacing_tidied(
+            raw in "[a-zA-Z0-9 .,;:()%'\"-]{0,80}"
+        ) {
+            let tidy = raw.split_whitespace().collect::<Vec<_>>().join(" ");
+            prop_assert_eq!(clean(&raw), tidy);
+        }
+
+        #[test]
+        fn a_normalized_doi_normalizes_to_itself(
+            raw in "[a-z :/]{0,8}10\\.[0-9.]{3,8}/[a-zA-Z0-9 ./:()-]{0,20}"
+        ) {
+            if let Some(bare) = doi(&raw) {
+                prop_assert!(!bare.contains(char::is_whitespace), "{bare:?}");
+                prop_assert_eq!(doi(&bare), Some(bare.clone()));
+            }
+        }
+
+        #[test]
+        fn every_doi_spelling_gives_the_bare_form(
+            registrant in "[0-9]{4,6}",
+            suffix in "[a-z0-9_-][a-z0-9._/-]{0,20}[a-z0-9_-]",
+            resolver in prop::sample::select(vec![
+                "", "doi:", "https://doi.org/", "http://dx.doi.org/", " DOI: ",
+            ]),
+        ) {
+            let bare = format!("10.{registrant}/{suffix}");
+            let spelled = format!("{resolver}{}", bare.to_uppercase());
+            prop_assert_eq!(doi(&spelled), Some(bare));
+        }
+    }
 
     #[test]
     fn clean_strips_markup_and_collapses_space() {
@@ -254,10 +372,12 @@ mod tests {
 
     #[test]
     fn summary_cuts_on_a_word_and_marks_the_cut() {
-        let long = "word ".repeat(200);
-        let cut = summary(&long).unwrap();
-        assert!(cut.ends_with("..."));
-        assert!(cut.chars().count() <= SUMMARY_CHARS + 3);
+        // 53 "data, " fill 318 chars, so the 320-char cut lands inside the
+        // 54th word, right after a comma.
+        let long = "data, ".repeat(100);
+        let expected = format!("{}...", vec!["data"; 53].join(", "));
+        assert_eq!(summary(&long), Some(expected));
+        assert_eq!(summary("short, as is.").as_deref(), Some("short, as is."));
         assert_eq!(summary("<p> </p>"), None);
     }
 
@@ -268,6 +388,7 @@ mod tests {
             "doi:10.5281/zenodo.1",
             "https://doi.org/10.5281/zenodo.1",
             "http://dx.doi.org/10.5281/zenodo.1/",
+            "https://doi.org/10.5281/zenodo.1 (version 2)",
         ] {
             assert_eq!(doi(raw).as_deref(), Some("10.5281/zenodo.1"), "{raw}");
         }
@@ -277,12 +398,15 @@ mod tests {
 
     #[test]
     fn pointers_tolerate_missing_and_mixed_types() {
-        let v = json!({"a": {"b": " x ", "n": 3, "s": "42", "f": 7.9}});
+        let v = json!({"a": {"b": " x ", "n": 3, "s": "42", "f": 7.9, "fs": "1197.0"}});
         assert_eq!(text(&v, "/a/b").as_deref(), Some("x"));
         assert_eq!(text(&v, "/a/n").as_deref(), Some("3"));
         assert_eq!(text(&v, "/a/zz"), None);
         assert_eq!(number(&v, "/a/s"), Some(42));
         assert_eq!(number(&v, "/a/f"), Some(7));
+        assert_eq!(number(&v, "/a/fs"), Some(1197));
+        assert_eq!(number(&json!({"n": -2.5}), "/n"), None);
+        assert_eq!(number(&json!({"n": "-2.5"}), "/n"), None);
         assert_eq!(items(&v, "/a").len(), 0);
     }
 
@@ -310,6 +434,30 @@ mod tests {
     }
 
     #[test]
+    fn named_and_numeric_entities_decode_but_never_to_controls() {
+        assert_eq!(
+            clean("England&rsquo;s &apos;map&apos; &#8211; &#x2014; &mdash;"),
+            "England\u{2019}s 'map' \u{2013} \u{2014} \u{2014}"
+        );
+        assert_eq!(
+            clean(
+                "a &gt; &quot;b&quot; &lsquo;c&rsquo; &ldquo;d&rdquo; e&ndash;f&hellip; &rarr;&nbsp;g"
+            ),
+            "a > \"b\" \u{2018}c\u{2019} \u{201c}d\u{201d} e\u{2013}f\u{2026} \u{2192} g"
+        );
+        assert_eq!(clean("&amp;lt; stays &lt;"), "&lt; stays <");
+        assert_eq!(clean("R&D &unknown; &#xZZ;"), "R&D &unknown; &#xZZ;");
+        assert!(!clean("&#27;[2J&#x9b;").chars().any(char::is_control));
+    }
+
+    #[test]
+    fn a_literal_less_than_sign_is_text_not_a_tag() {
+        assert_eq!(clean("Children aged <5 years"), "Children aged <5 years");
+        assert_eq!(clean("PM2.5 < 10 and > 2"), "PM2.5 < 10 and > 2");
+        assert_eq!(clean("a<b>bold</b> c<!-- x -->d"), "a bold c d");
+    }
+
+    #[test]
     fn day_keeps_only_the_date_of_iso_stamps() {
         assert_eq!(
             day(Some("2024-01-04T12:09:45Z".into())).as_deref(),
@@ -319,6 +467,12 @@ mod tests {
             day(Some("Feb 17, 2026".into())).as_deref(),
             Some("Feb 17, 2026")
         );
+        assert_eq!(
+            day(Some("20100708".into())).as_deref(),
+            Some("2010-07-08")
+        );
+        assert_eq!(day(Some("201007".into())).as_deref(), Some("201007"));
+        assert_eq!(day(Some("Feb 2026".into())).as_deref(), Some("Feb 2026"));
     }
 
     #[test]
@@ -327,6 +481,12 @@ mod tests {
         assert!(!clean(hostile).chars().any(char::is_control));
         let v = json!({"t": hostile});
         assert!(!text(&v, "/t").unwrap().chars().any(char::is_control));
+        for map in
+            [json!(hostile), json!({"en": hostile}), json!({"de": hostile})]
+        {
+            let shown = localized(Some(&map)).unwrap();
+            assert!(!shown.chars().any(char::is_control), "{shown:?}");
+        }
         assert!(
             Dataset::new("t", "https://x.org/\u{1b}[2J").valid().is_none()
         );

@@ -23,14 +23,17 @@ pub fn search(
         .query("file_type", "json")
         .query("limit", limit.clamp(1, 1000))
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.get("seriess").is_none() {
         return Err(SourceError::shape("no seriess array"));
     }
-    Ok(items(&body, "/seriess")
-        .iter()
-        .filter_map(record)
-        .take(limit)
-        .collect())
+    Ok(items(body, "/seriess").iter().filter_map(record).take(limit).collect())
 }
 
 fn record(row: &Value) -> Option<Dataset> {
@@ -48,4 +51,40 @@ fn record(row: &Value) -> Option<Dataset> {
     dataset.updated = day(text(row, "/last_updated"));
     dataset.popularity = number(row, "/popularity");
     dataset.valid()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    // https://fred.stlouisfed.org/docs/api/fred/series_search.html
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("fred.json"), 10).unwrap();
+        assert_eq!(hits.len(), 3);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Monetary Services Index: M2 (preferred)".into(),
+                url: "https://fred.stlouisfed.org/series/MSIM2".into(),
+                description: Some(
+                    "The MSI measure the flow of monetary services received \
+                     each period by households and firms from their \
+                     holdings of monetary assets (levels of the indexes are \
+                     sometimes referred to as Divisia monetary aggregates). \
+                     Preferred benchmark rate equals 100 basis points plus \
+                     the largest rate in the set of rates."
+                        .into()
+                ),
+                publisher: Some("Federal Reserve Bank of St. Louis".into()),
+                doi: None,
+                license: None,
+                updated: Some("2014-01-17".into()),
+                size_bytes: None,
+                popularity: Some(34),
+                aliases: vec![],
+            }
+        );
+    }
 }

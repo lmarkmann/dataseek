@@ -20,14 +20,17 @@ pub fn search(
         .query("limit", limit.clamp(1, 200))
         .query("metadataLanguage", "en")
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.get("Results").is_none() {
         return Err(SourceError::shape("no Results array"));
     }
-    Ok(items(&body, "/Results")
-        .iter()
-        .filter_map(record)
-        .take(limit)
-        .collect())
+    Ok(items(body, "/Results").iter().filter_map(record).take(limit).collect())
 }
 
 fn record(row: &Value) -> Option<Dataset> {
@@ -43,4 +46,42 @@ fn record(row: &Value) -> Option<Dataset> {
         dataset.aliases.push(study);
     }
     dataset.valid()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("cessda.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "European Climate Services User Survey (EU-MACS) 2017"
+                    .into(),
+                url: "https://datacatalogue.cessda.eu/detail/\
+                      519d27e0cd34d4f7a43635cdb3a787e072646ba4e03d12900ad5b055caf00481\
+                      ?lang=en"
+                    .into(),
+                description: Some(
+                    "The survey was targeted at users and producers of \
+                     climate services. It charted climate services available \
+                     to Europeans as well as their use and development. The \
+                     study was a part of the EU-MACS project funded by the \
+                     European Commission (grant agreement ID: 730500)."
+                        .into()
+                ),
+                publisher: Some("Finnish Social Science Data Archive".into()),
+                doi: None,
+                license: None,
+                updated: Some("2026-08-11".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec!["https://urn.fi/urn:nbn:fi:fsd:T-FSD3325".into()],
+            }
+        );
+    }
 }

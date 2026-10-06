@@ -131,4 +131,23 @@ mod tests {
         assert_eq!(search(&entries, "co2 Emissions", 10).len(), 1);
         assert_eq!(search(&entries, "   ", 10).len(), 0);
     }
+
+    #[test]
+    fn a_query_of_only_stopwords_still_searches_its_words() {
+        assert_eq!(terms("the data"), ["the", "data"]);
+        assert_eq!(terms("the ocean data"), ["ocean"]);
+    }
+
+    #[test]
+    fn the_whole_query_as_a_title_phrase_wins() {
+        let entries = [
+            entry("Temperature at the sea surface", ""),
+            entry("Sea surface temperature, global monthly grids", ""),
+        ];
+        let hits = search(&entries, "sea surface temperature", 10);
+        assert_eq!(
+            hits[0].title,
+            "Sea surface temperature, global monthly grids"
+        );
+    }
 }

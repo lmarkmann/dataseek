@@ -63,6 +63,7 @@ fn european_date(raw: &str) -> Option<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::sources::fixture;
 
     #[test]
     fn datasets_and_tables_are_kept_once_and_folders_dropped() {
@@ -76,5 +77,28 @@ mod tests {
         assert_eq!(entries[0].title, "Unemployment - monthly");
         assert_eq!(entries[0].updated.as_deref(), Some("2026-09-29"));
         assert!(entries[0].url.contains("/view/une_rt_m/"));
+    }
+
+    #[test]
+    fn records_map_from_a_recorded_list() {
+        let datasets = parse(&fixture::text("eurostat.txt"));
+        assert_eq!(datasets.len(), 4);
+        assert_eq!(
+            datasets[0],
+            Dataset {
+                title: "Current account - quarterly data".into(),
+                url: "https://ec.europa.eu/eurostat/databrowser/view/\
+                      ei_bpm6ca_q/default/table"
+                    .into(),
+                description: Some("ei_bpm6ca_q".into()),
+                publisher: Some("Eurostat".into()),
+                doi: None,
+                license: None,
+                updated: Some("2026-10-02".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
     }
 }

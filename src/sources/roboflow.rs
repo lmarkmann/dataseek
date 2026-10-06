@@ -23,6 +23,13 @@ pub fn search(
         .query("q", query)
         .query("api_key", secret.token())
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     let hits = ["/results", "/data", "/projects", ""]
         .iter()
         .find_map(|p| body.pointer(p).and_then(Value::as_array))
@@ -39,4 +46,33 @@ fn record(hit: &Value) -> Option<Dataset> {
     dataset.popularity =
         number(hit, "/stars").or_else(|| number(hit, "/downloads"));
     dataset.valid()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    // https://docs.roboflow.com/datasets/universe/universe/what-is-roboflow-universe
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("roboflow.json"), 10).unwrap();
+        assert_eq!(hits.len(), 1);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Cars".into(),
+                url: "https://universe.roboflow.com/growth-plan/cars-8q9vz"
+                    .into(),
+                description: None,
+                publisher: None,
+                doi: None,
+                license: None,
+                updated: None,
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
 }

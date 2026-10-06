@@ -323,7 +323,84 @@ fn fold(text: &str) -> String {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::BTreeSet;
+
+    use proptest::prelude::*;
+
     use super::*;
+
+    /// Records drawn from small pools of DOIs and links so they collide
+    /// often; titles stay under the 12 characters a title key needs.
+    fn colliding() -> impl Strategy<Value = Dataset> {
+        (0..4_u8, prop::option::of(0..3_u8), prop::option::of(0..3_u8))
+            .prop_map(|(page, doi, mirror)| {
+                let mut d = Dataset::new(
+                    &format!("Record {page}"),
+                    &format!("https://x.org/{page}"),
+                );
+                d.doi = doi.map(|n| format!("10.1234/{n}"));
+                d.aliases.extend(mirror.map(|n| format!("https://m.org/{n}")));
+                d
+            })
+    }
+
+    /// The groups `merge` should form, by brute force: records sharing any
+    /// identity key, closed transitively, as the set of sources per group.
+    fn expected_groups(
+        lists: &[(&'static str, Vec<Dataset>)],
+    ) -> Vec<BTreeSet<&'static str>> {
+        let records: Vec<(&str, Vec<String>)> = lists
+            .iter()
+            .flat_map(|(s, ds)| ds.iter().map(|d| (*s, identity_keys(d))))
+            .collect();
+        let mut group: Vec<usize> = (0..records.len()).collect();
+        let mut changed = true;
+        while changed {
+            changed = false;
+            for i in 0..records.len() {
+                for j in 0..records.len() {
+                    let shared =
+                        records[i].1.iter().any(|k| records[j].1.contains(k));
+                    if shared && group[j] > group[i] {
+                        group[j] = group[i];
+                        changed = true;
+                    }
+                }
+            }
+        }
+        let mut sets: Vec<BTreeSet<&str>> = BTreeSet::from_iter(group.clone())
+            .into_iter()
+            .map(|g| {
+                records
+                    .iter()
+                    .zip(&group)
+                    .filter(|(_, owner)| **owner == g)
+                    .map(|((source, _), _)| *source)
+                    .collect()
+            })
+            .collect();
+        sets.sort();
+        sets
+    }
+
+    proptest! {
+        #[test]
+        fn merging_groups_exactly_the_records_that_share_a_key(
+            a in prop::collection::vec(colliding(), 0..5),
+            b in prop::collection::vec(colliding(), 0..5),
+            c in prop::collection::vec(colliding(), 0..5),
+        ) {
+            let lists = [("a", a), ("b", b), ("c", c)];
+            let hits = merge(&lists);
+            let mut groups: Vec<BTreeSet<&str>> = hits
+                .iter()
+                .map(|h| h.sources.iter().copied().collect())
+                .collect();
+            groups.sort();
+            prop_assert_eq!(groups, expected_groups(&lists));
+            prop_assert!(hits.windows(2).all(|w| w[0].score >= w[1].score));
+        }
+    }
 
     fn ds(title: &str, url: &str) -> Dataset {
         Dataset::new(title, url)

@@ -1,0 +1,145 @@
+{
+  "header": {
+    "type": "esummary",
+    "version": "0.3"
+  },
+  "result": {
+    "uids": [
+      "200304969",
+      "200279746",
+      "200279384"
+    ],
+    "200304969": {
+      "uid": "200304969",
+      "accession": "GSE304969",
+      "gds": "",
+      "title": "scRNA seq of  LUSC genetically engineered mouse models",
+      "summary": "scRNA seq of PL(PTEN; LKB1) and PLA(PTEN:LKB1;ACKR3) LUSC genetically engineereed mouse",
+      "gpl": "24247",
+      "gse": "304969",
+      "taxon": "Mus musculus",
+      "entrytype": "GSE",
+      "gdstype": "Expression profiling by high throughput sequencing",
+      "ptechtype": "",
+      "valtype": "",
+      "ssinfo": "",
+      "subsetinfo": "",
+      "pdat": "2026/10/05",
+      "suppfile": "CSV, RDS",
+      "samples": [
+        {
+          "accession": "GSM9160430",
+          "title": "PTEN; LKB1  (mouse 1 and mouse 2; PL)"
+        },
+        {
+          "accession": "GSM9160431",
+          "title": "PTEN:LKB1;ACKR3 (mouse 1,mouse 2,mouse 3; PLA-HT)"
+        },
+        {
+          "accession": "GSM9160432",
+          "title": "PTEN:LKB1;ACKR3 (mouse 1,mouse 2,mouse 3; PLA)"
+        }
+      ],
+      "relations": [],
+      "extrelations": [],
+      "n_samples": 4,
+      "seriestitle": "",
+      "platformtitle": "",
+      "platformtaxa": "",
+      "samplestaxa": "",
+      "pubmedids": [],
+      "projects": [],
+      "ftplink": "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE304nnn/GSE304969/",
+      "geo2r": "no",
+      "bioproject": "PRJNA1303615"
+    },
+    "200279746": {
+      "uid": "200279746",
+      "accession": "GSE279746",
+      "gds": "",
+      "title": "scRNA seq of LUAD genetically engineered mouse  models",
+      "summary": "scRNA seq of LUAD genetically engineereed mouse  models belonging to three major oncogenic subsets.",
+      "gpl": "24247",
+      "gse": "279746",
+      "taxon": "Mus musculus",
+      "entrytype": "GSE",
+      "gdstype": "Expression profiling by high throughput sequencing",
+      "ptechtype": "",
+      "valtype": "",
+      "ssinfo": "",
+      "subsetinfo": "",
+      "pdat": "2026/10/05",
+      "suppfile": "CSV",
+      "samples": [
+        {
+          "accession": "GSM8579526",
+          "title": "Experiment 3 replicate 1 Egfr HTO2, replicate 2 Egfr HTO3, replicate 3 Egfr HTO4"
+        },
+        {
+          "accession": "GSM8579517",
+          "title": "Experiment 2 replicate 1 Kras/Stk11 (KL)"
+        },
+        {
+          "accession": "GSM8579521",
+          "title": "Experiment 2 replicate 1 Egfr HTO1, replicate 2 Egfr HTO2, replicate 3 Egfr HTO3"
+        }
+      ],
+      "relations": [],
+      "extrelations": [],
+      "n_samples": 7,
+      "seriestitle": "",
+      "platformtitle": "",
+      "platformtaxa": "",
+      "samplestaxa": "",
+      "pubmedids": [],
+      "projects": [],
+      "ftplink": "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE279nnn/GSE279746/",
+      "geo2r": "no",
+      "bioproject": "PRJNA1174193"
+    },
+    "200279384": {
+      "uid": "200279384",
+      "accession": "GSE279384",
+      "gds": "",
+      "title": "scRNA seq of LUAD genetically engineereed mouse models",
+      "summary": "single nucleus RNA seq of 57 naïve treated human LUAD specimens of different genetic background",
+      "gpl": "24676",
+      "gse": "279384",
+      "taxon": "Homo sapiens",
+      "entrytype": "GSE",
+      "gdstype": "Expression profiling by high throughput sequencing",
+      "ptechtype": "",
+      "valtype": "",
+      "ssinfo": "",
+      "subsetinfo": "",
+      "pdat": "2026/10/05",
+      "suppfile": "CSV, RDATA",
+      "samples": [
+        {
+          "accession": "GSM8568278",
+          "title": "NYU2493"
+        },
+        {
+          "accession": "GSM8568324",
+          "title": "NYU2561"
+        },
+        {
+          "accession": "GSM8568298",
+          "title": "NYU1069-2"
+        }
+      ],
+      "relations": [],
+      "extrelations": [],
+      "n_samples": 57,
+      "seriestitle": "",
+      "platformtitle": "",
+      "platformtaxa": "",
+      "samplestaxa": "",
+      "pubmedids": [],
+      "projects": [],
+      "ftplink": "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE279nnn/GSE279384/",
+      "geo2r": "no",
+      "bioproject": "PRJNA1172338"
+    }
+  }
+}

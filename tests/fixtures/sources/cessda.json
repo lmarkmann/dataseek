@@ -1,0 +1,771 @@
+{
+  "SearchTerms": {
+    "metadataLanguage": "en",
+    "queryTerm": "climate",
+    "limit": "10"
+  },
+  "ResultsCount": {
+    "from": 0,
+    "to": 10,
+    "retrieved": 10,
+    "available": 1308
+  },
+  "Results": [
+    {
+      "id": "519d27e0cd34d4f7a43635cdb3a787e072646ba4e03d12900ad5b055caf00481",
+      "abstract": "The survey was targeted at users and producers of climate services. It charted climate services available to Europeans as well as their use and development. The study was a part of the EU-MACS project funded by the European Commission (grant agreement ID: 730500).",
+      "classifications": [
+        {
+          "vocab": "OKM",
+          "vocabUri": "http://www.yso.fi/onto/okm-tieteenala/conceptscheme",
+          "id": "Natural_sciences",
+          "term": "Natural sciences"
+        },
+        {
+          "vocab": "CESSDA Topic Classification",
+          "vocabUri": "https://vocabularies.cessda.eu/urn/urn:ddi:int.cessda.cv:TopicClassification:4.2.3",
+          "id": "Other",
+          "term": "Other"
+        }
+      ],
+      "code": "FSD",
+      "creators": [
+        {
+          "name": "Gregow, Hilppa",
+          "affiliation": "Finnish Meteorological Institute. Weather and Climate Change Impact Research",
+          "identifiers": [
+            {
+              "id": "0000-0003-3805-2247",
+              "type": "ORCID",
+              "uri": "https://orcid.org/0000-0003-3805-2247",
+              "role": "PID"
+            }
+          ]
+        },
+        {
+          "name": "Harjanne, Atte",
+          "affiliation": "Finnish Meteorological Institute. Weather and Climate Change Impact Research"
+        },
+        {
+          "name": "Finnish Meteorological Institute. Weather and Climate Change Impact Research"
+        }
+      ],
+      "dataAccess": "Restricted",
+      "dataAccessFreeTexts": [
+        "The dataset is (B) available for research, teaching and study."
+      ],
+      "dataCollectionPeriodStartdate": "2017-03-26",
+      "dataCollectionPeriodEnddate": "2018-01-19",
+      "dataCollectionYear": 2017,
+      "dataKindFreeTexts": [
+        {
+          "dataKindFreeText": "Quantitative"
+        }
+      ],
+      "fileLanguages": [
+        "fi",
+        "en"
+      ],
+      "keywords": [
+        {
+          "vocab": "ELSST",
+          "vocabUri": "https://elsst.cessda.eu/id",
+          "id": "climate",
+          "term": "climate"
+        },
+        {
+          "vocab": "ELSST",
+          "vocabUri": "https://elsst.cessda.eu/id",
+          "id": "quality_control",
+          "term": "quality control"
+        },
+        {
+          "vocab": "ELSST",
+          "vocabUri": "https://elsst.cessda.eu/id",
+          "id": "science",
+          "term": "science"
+        },
+        {
+          "vocab": "ELSST",
+          "vocabUri": "https://elsst.cessda.eu/id",
+          "id": "technology_and_innovation",
+          "term": "technology and innovation"
+        }
+      ],
+      "pidStudies": [
+        {
+          "agency": "FSD",
+          "pid": "FSD3325"
+        },
+        {
+          "agency": "URN",
+          "pid": "urn:nbn:fi:fsd:T-FSD3325"
+        },
+        {
+          "agency": "DOI",
+          "pid": "10.60686/t-fsd3325"
+        }
+      ],
+      "publicationYear": "2019-09-03",
+      "publisher": {
+        "abbr": "FSD",
+        "publisher": "Finnish Social Science Data Archive"
+      },
+      "publisherFilter": {
+        "abbr": "FSD",
+        "publisher": "Finnish Social Science Data Archive FSD"
+      },
+      "relatedPublications": [
+        {
+          "title": "Cortekar, J., Lamich, K.; Otto, J., Pawelek, P. (2017) Review and analysis of climate service market conditions, Deliverable 1.1. EU-MACS European Market for Climate Services. http://eu-macs.eu/wp-content/uploads/2017/07/EU-MACS-D11_CLIMATE-SERVICE-MARKET-CONDITIONS.pdf",
+          "holdings": [],
+          "publicationDate": "2017"
+        },
+        {
+          "title": "Hoa, E., Perrels, A., Le, Thanh-Tam. (2018). From generating to using climate services - How the EU-MACS and MARCO projects help to unlock the market potential, Climate Services (2018) 86-88. https://doi.org/10.1016/j.cliser.2018.08.001",
+          "holdings": [
+            "https://doi.org/10.1016/j.cliser.2018.08.001"
+          ],
+          "publicationDate": "2018"
+        },
+        {
+          "title": "Perrels, A., Harjanne, A., Pilli-Sihvola, K., Coertekar, J., Lamich, K., Hamaker-Taylor, R., Stegmaier, P., Damm, A. (2018). A Structured Analysis of Obstacles to Uptake of Climate Services and Identification of Policies and Measures to Overcome Obstacles so as to Promote Uptake, Deliverable 5.1. EU-MACS European Market for Climate Services. http://eu-macs.eu/wp-content/uploads/2018/12/EUMACS_D51_final-1.pdf",
+          "holdings": [],
+          "publicationDate": "2018"
+        }
+      ],
+      "series": [
+        {
+          "names": [
+            "Individual datasets"
+          ],
+          "descriptions": [
+            "Individual datasets that do not belong to any series."
+          ],
+          "uris": [
+            "https://services.fsd.tuni.fi/catalogue/series/8?lang=en"
+          ]
+        }
+      ],
+      "studyAreaCountries": [
+        {
+          "abbr": "FI",
+          "country": "Finland",
+          "searchField": "Finland"
+        },
+        {
+          "abbr": "AT",
+          "country": "Austria",
+          "searchField": "Austria"
+        },
+        {
+          "abbr": "BE",
+          "country": "Belgium",
+          "searchField": "Belgium"
+        },
+        {
+          "abbr": "HR",
+          "country": "Croatia",
+          "searchField": "Croatia"
+        }
+      ],
+      "studyNumber": "oai:fsd.uta.fi:FSD3325",
+      "studyUrl": "https://urn.fi/urn:nbn:fi:fsd:T-FSD3325",
+      "typeOfModeOfCollections": [
+        {
+          "vocab": "DDI Mode of Collection",
+          "vocabUri": "https://vocabularies.cessda.eu/urn/urn:ddi:int.ddi.cv:ModeOfCollection:5.0.1",
+          "id": "SelfAdministeredQuestionnaire.CAWI",
+          "term": "Self-administered questionnaire: Web-based (CAWI)"
+        }
+      ],
+      "titleStudy": "European Climate Services User Survey (EU-MACS) 2017",
+      "typeOfTimeMethods": [
+        {
+          "vocab": "DDI Time Method",
+          "vocabUri": "https://vocabularies.cessda.eu/urn/urn:ddi:int.ddi.cv:TimeMethod:1.2.3",
+          "id": "CrossSection",
+          "term": "Cross-section"
+        }
+      ],
+      "typeOfSamplingProcedures": [
+        {
+          "vocab": "DDI Sampling Procedure",
+          "vocabUri": "https://vocabularies.cessda.eu/urn/urn:ddi:int.ddi.cv:SamplingProcedure:2.0.2",
+          "id": "Nonprobability.RespondentAssisted",
+          "term": "Non-probability: Respondent-assisted"
+        }
+      ],
+      "unitTypes": [
+        {
+          "vocab": "DDI Analysis Unit",
+          "vocabUri": "https://vocabularies.cessda.eu/urn/urn:ddi:int.ddi.cv:AnalysisUnit:2.1.3",
+          "id": "OrganizationOrInstitution",
+          "term": "Organization/Institution"
+        }
+      ],
+      "universe": {
+        "inclusion": "European users of climate services and experts on the topic selected from the networks of the people carrying out the study. They were selected based on their organisations using snowball sampling."
+      },
+      "lastModified": "2026-08-11T23:00:43Z",
+      "langAvailableIn": [
+        "fi",
+        "en"
+      ],
+      "studyXmlSourceUrl": "http://services.fsd.uta.fi/v0/oai?verb=GetRecord&identifier=oai%3Afsd.uta.fi%3AFSD3325&metadataPrefix=oai_ddi25"
+    },
+    {
+      "id": "dc86210e2c9520d27118fdda16835fdd30e48ea7b3e35aa24f90fb1eaf6a33fb",
+      "abstract": "The study was part of the ELASTINEN project funded by the Prime Minister's Office Finland whose aim was to produce information and seek solutions to improve weather and climate risk management.",
+      "classifications": [
+        {
+          "vocab": "OKM",
+          "vocabUri": "http://www.yso.fi/onto/okm-tieteenala/conceptscheme",
+          "id": "Social_sciences",
+          "term": "Social sciences"
+        },
+        {
+          "vocab": "CESSDA Topic Classification",
+          "vocabUri": "https://vocabularies.cessda.eu/urn/urn:ddi:int.cessda.cv:TopicClassification:4.2.3",
+          "id": "Businessindustrial_management_and_organisation",
+          "term": "Business/industrial management and organisation"
+        }
+      ],
+      "code": "FSD",
+      "creators": [
+        {
+          "name": "Gregow, Hilppa",
+          "affiliation": "Finnish Meteorological Institute. Climate Service Centre",
+          "identifiers": [
+            {
+              "id": "0000-0003-3805-2247",
+              "type": "ORCID",
+              "uri": "https://orcid.org/0000-0003-3805-2247",
+              "role": "PID"
+            }
+          ]
+        },
+        {
+          "name": "Haavisto, Riina",
+          "affiliation": "Finnish Meteorological Institute. Climate Service Centre",
+          "identifiers": [
+            {
+              "id": "0000-0002-1052-783X",
+              "type": "ORCID",
+              "uri": "https://orcid.org/0000-0002-1052-783X",
+              "role": "PID"
+            }
+          ]
+        },
+        {
+          "name": "Mäkelä, Antti",
+          "affiliation": "Finnish Meteorological Institute. Climate Service Centre",
+          "identifiers": [
+            {
+              "id": "0000-0002-2977-0952",
+              "type": "ORCID",
+              "uri": "https://orcid.org/0000-0002-2977-0952",
+              "role": "PID"
+            }
+          ]
+        },
+        {
+          "name": "Tuomenvirta, Heikki",
+          "affiliation": "Finnish Meteorological Institute. Climate Service Centre",
+          "identifiers": [
+            {
+              "id": "0009-0001-6349-4605",
+              "type": "ORCID",
+              "uri": "https://orcid.org/0009-0001-6349-4605",
+              "role": "PID"
+            }
+          ]
+        }
+      ],
+      "dataAccess": "Open",
+      "dataAccessFreeTexts": [
+        "The dataset is (A) openly available for all users without registration (CC BY 4.0)."
+      ],
+      "dataCollectionPeriodStartdate": "2015-11-30",
+      "dataCollectionPeriodEnddate": "2015-12-13",
+      "dataCollectionYear": 2015,
+      "dataKindFreeTexts": [
+        {
+          "dataKindFreeText": "Quantitative"
+        }
+      ],
+      "fileLanguages": [
+        "fi"
+      ],
+      "keywords": [
+        {
+          "vocab": "ELSST",
+          "vocabUri": "https://elsst.cessda.eu/id",
+          "id": "disasters",
+          "term": "disasters"
+        },
+        {
+          "vocab": "ELSST",
+          "vocabUri": "https://elsst.cessda.eu/id",
+          "id": "climate",
+          "term": "climate"
+        },
+        {
+          "vocab": "ELSST",
+          "vocabUri": "https://elsst.cessda.eu/id",
+          "id": "climate_change",
+          "term": "climate change"
+        },
+        {
+          "vocab": "ELSST",
+          "vocabUri": "https://elsst.cessda.eu/id",
+          "id": "environmental_changes",
+          "term": "environmental changes"
+        }
+      ],
+      "pidStudies": [
+        {
+          "agency": "FSD",
+          "pid": "FSD3105"
+        },
+        {
+          "agency": "URN",
+          "pid": "urn:nbn:fi:fsd:T-FSD3105"
+        },
+        {
+          "agency": "DOI",
+          "pid": "10.60686/t-fsd3105"
+        }
+      ],
+      "publicationYear": "2016-06-09",
+      "publisher": {
+        "abbr": "FSD",
+        "publisher": "Finnish Social Science Data Archive"
+      },
+      "publisherFilter": {
+        "abbr": "FSD",
+        "publisher": "Finnish Social Science Data Archive FSD"
+      },
+      "relatedPublications": [
+        {
+          "title": "Timperi, Marika (2018) Climate risk evaluation in large Finnish organizations. Batchelor's thesis of Business Administration. Financial Management, Lappeenranta University of Technology. https://urn.fi/URN:NBN:fi-fe2018102938996.",
+          "holdings": [
+            "https://urn.fi/URN:NBN:fi-fe2018102938996"
+          ],
+          "publicationDate": "2018"
+        }
+      ],
+      "series": [
+        {
+          "names": [
+            "Individual datasets"
+          ],
+          "descriptions": [
+            "Individual datasets that do not belong to any series."
+          ],
+          "uris": [
+            "https://services.fsd.tuni.fi/catalogue/series/8?lang=en"
+          ]
+        }
+      ],
+      "studyAreaCountries": [
+        {
+          "abbr": "FI",
+          "country": "Finland",
+          "searchField": "Finland"
+        }
+      ],
+      "studyNumber": "oai:fsd.uta.fi:FSD3105",
+      "studyUrl": "https://urn.fi/urn:nbn:fi:fsd:T-FSD3105",
+      "typeOfModeOfCollections": [
+        {
+          "vocab": "DDI Mode of Collection",
+          "vocabUri": "https://vocabularies.cessda.eu/urn/urn:ddi:int.ddi.cv:ModeOfCollection:5.0.1",
+          "id": "SelfAdministeredQuestionnaire.CAWI",
+          "term": "Self-administered questionnaire: Web-based (CAWI)"
+        }
+      ],
+      "titleStudy": "Weather and Climate Risk Management in Finnish Organisations 2015",
+      "typeOfTimeMethods": [
+        {
+          "vocab": "DDI Time Method",
+          "vocabUri": "https://vocabularies.cessda.eu/urn/urn:ddi:int.ddi.cv:TimeMethod:1.2.3",
+          "id": "CrossSection",
+          "term": "Cross-section"
+        }
+      ],
+      "typeOfSamplingProcedures": [
+        {
+          "vocab": "DDI Sampling Procedure",
+          "vocabUri": "https://vocabularies.cessda.eu/urn/urn:ddi:int.ddi.cv:SamplingProcedure:2.0.2",
+          "id": "TotalUniverseCompleteEnumeration",
+          "term": "Total universe/Complete enumeration"
+        }
+      ],
+      "unitTypes": [
+        {
+          "vocab": "DDI Analysis Unit",
+          "vocabUri": "https://vocabularies.cessda.eu/urn/urn:ddi:int.ddi.cv:AnalysisUnit:2.1.3",
+          "id": "OrganizationOrInstitution",
+          "term": "Organization/Institution"
+        }
+      ],
+      "universe": {
+        "inclusion": "Approximately 500 contact organisations of the research consortium"
+      },
+      "lastModified": "2026-07-29T23:00:07Z",
+      "langAvailableIn": [
+        "fi",
+        "en"
+      ],
+      "studyXmlSourceUrl": "http://services.fsd.uta.fi/v0/oai?verb=GetRecord&identifier=oai%3Afsd.uta.fi%3AFSD3105&metadataPrefix=oai_ddi25"
+    },
+    {
+      "id": "a1d17df866a5937e8e6d7d324ed0174366151b9f48920389ce8ac526f749e530",
+      "abstract": "The study was part of the ELASTINEN project funded by the Prime Minister's Office Finland whose aim was to produce information and seek solutions to improve weather and climate risk management.",
+      "classifications": [
+        {
+          "vocab": "OKM",
+          "vocabUri": "http://www.yso.fi/onto/okm-tieteenala/conceptscheme",
+          "id": "Social_sciences",
+          "term": "Social sciences"
+        }
+      ],
+      "code": "FSD",
+      "creators": [
+        {
+          "name": "Gregow, Hilppa",
+          "affiliation": "Finnish Meteorological Institute. Climate Service Centre",
+          "identifiers": [
+            {
+              "id": "0000-0003-3805-2247",
+              "type": "ORCID",
+              "uri": "https://orcid.org/0000-0003-3805-2247",
+              "role": "PID"
+            }
+          ]
+        },
+        {
+          "name": "Haavisto, Riina",
+          "affiliation": "Finnish Meteorological Institute. Climate Service Centre",
+          "identifiers": [
+            {
+              "id": "0000-0002-1052-783X",
+              "type": "ORCID",
+              "uri": "https://orcid.org/0000-0002-1052-783X",
+              "role": "PID"
+            }
+          ]
+        },
+        {
+          "name": "Mäkelä, Antti",
+          "affiliation": "Finnish Meteorological Institute. Climate Service Centre",
+          "identifiers": [
+            {
+              "id": "0000-0002-2977-0952",
+              "type": "ORCID",
+              "uri": "https://orcid.org/0000-0002-2977-0952",
+              "role": "PID"
+            }
+          ]
+        },
+        {
+          "name": "Tuomenvirta, Heikki",
+          "affiliation": "Finnish Meteorological Institute. Climate Service Centre",
+          "identifiers": [
+            {
+              "id": "0009-0001-6349-4605",
+              "type": "ORCID",
+              "uri": "https://orcid.org/0009-0001-6349-4605",
+              "role": "PID"
+            }
+          ]
+        }
+      ],
+      "dataAccess": "Open",
+      "dataAccessFreeTexts": [
+        "The dataset is (A) openly available for all users without registration (CC BY 4.0)."
+      ],
+      "dataCollectionPeriodStartdate": "2015-11-30",
+      "dataCollectionPeriodEnddate": "2015-12-13",
+      "dataCollectionYear": 2015,
+      "dataKindFreeTexts": [
+        {
+          "dataKindFreeText": "Quantitative"
+        }
+      ],
+      "fileLanguages": [
+        "fi"
+      ],
+      "keywords": [
+        {
+          "vocab": "ELSST",
+          "vocabUri": "https://elsst.cessda.eu/id",
+          "id": "disasters",
+          "term": "disasters"
+        },
+        {
+          "vocab": "ELSST",
+          "vocabUri": "https://elsst.cessda.eu/id",
+          "id": "climate",
+          "term": "climate"
+        },
+        {
+          "vocab": "ELSST",
+          "vocabUri": "https://elsst.cessda.eu/id",
+          "id": "climate_change",
+          "term": "climate change"
+        },
+        {
+          "vocab": "ELSST",
+          "vocabUri": "https://elsst.cessda.eu/id",
+          "id": "environmental_changes",
+          "term": "environmental changes"
+        }
+      ],
+      "pidStudies": [
+        {
+          "agency": "FSD",
+          "pid": "FSD3104"
+        },
+        {
+          "agency": "URN",
+          "pid": "urn:nbn:fi:fsd:T-FSD3104"
+        },
+        {
+          "agency": "DOI",
+          "pid": "10.60686/t-fsd3104"
+        }
+      ],
+      "publicationYear": "2016-06-16",
+      "publisher": {
+        "abbr": "FSD",
+        "publisher": "Finnish Social Science Data Archive"
+      },
+      "publisherFilter": {
+        "abbr": "FSD",
+        "publisher": "Finnish Social Science Data Archive FSD"
+      },
+      "relatedPublications": [
+        {
+          "title": "Lukkarinen, Jesse (2018). Impacts of strategic practices and awareness in largest Finnish organisations. LUT School of Business and Management. Kauppatieteiden kandidaatintutkielma.",
+          "holdings": [
+            "https://urn.fi/URN:NBN:fi-fe2018092436435"
+          ],
+          "publicationDate": "2018"
+        }
+      ],
+      "series": [
+        {
+          "names": [
+            "Individual datasets"
+          ],
+          "descriptions": [
+            "Individual datasets that do not belong to any series."
+          ],
+          "uris": [
+            "https://services.fsd.tuni.fi/catalogue/series/8?lang=en"
+          ]
+        }
+      ],
+      "studyAreaCountries": [
+        {
+          "abbr": "FI",
+          "country": "Finland",
+          "searchField": "Finland"
+        }
+      ],
+      "studyNumber": "oai:fsd.uta.fi:FSD3104",
+      "studyUrl": "https://urn.fi/urn:nbn:fi:fsd:T-FSD3104",
+      "typeOfModeOfCollections": [
+        {
+          "vocab": "DDI Mode of Collection",
+          "vocabUri": "https://vocabularies.cessda.eu/urn/urn:ddi:int.ddi.cv:ModeOfCollection:5.0.1",
+          "id": "SelfAdministeredQuestionnaire.CAWI",
+          "term": "Self-administered questionnaire: Web-based (CAWI)"
+        }
+      ],
+      "titleStudy": "Weather and Climate Risk Management in Finnish Municipalities 2015",
+      "typeOfTimeMethods": [
+        {
+          "vocab": "DDI Time Method",
+          "vocabUri": "https://vocabularies.cessda.eu/urn/urn:ddi:int.ddi.cv:TimeMethod:1.2.3",
+          "id": "CrossSection",
+          "term": "Cross-section"
+        }
+      ],
+      "typeOfSamplingProcedures": [
+        {
+          "vocab": "DDI Sampling Procedure",
+          "vocabUri": "https://vocabularies.cessda.eu/urn/urn:ddi:int.ddi.cv:SamplingProcedure:2.0.2",
+          "id": "TotalUniverseCompleteEnumeration",
+          "term": "Total universe/Complete enumeration"
+        }
+      ],
+      "unitTypes": [
+        {
+          "vocab": "DDI Analysis Unit",
+          "vocabUri": "https://vocabularies.cessda.eu/urn/urn:ddi:int.ddi.cv:AnalysisUnit:2.1.3",
+          "id": "PoliticalAdministrativeArea",
+          "term": "Political-administrative area"
+        }
+      ],
+      "universe": {
+        "inclusion": "Municipalities doing climate work in Finland, according to the listing of the Association of Finnish Local and Regional Authorities"
+      },
+      "lastModified": "2026-07-29T23:00:14Z",
+      "langAvailableIn": [
+        "fi",
+        "en"
+      ],
+      "studyXmlSourceUrl": "http://services.fsd.uta.fi/v0/oai?verb=GetRecord&identifier=oai%3Afsd.uta.fi%3AFSD3104&metadataPrefix=oai_ddi25"
+    },
+    {
+      "id": "bbfb30ebea6789e2c6d783481d213bed35442615d833305715cf9a34ec0d5dc2",
+      "abstract": "The Climate Change Narratives Survey 2020 is a nationally-representative survey (n=1,518) conducted in November and December 2020 on public perceptions of coronavirus and climate change.",
+      "classifications": [
+        {
+          "vocab": "",
+          "vocabUri": "",
+          "id": "",
+          "term": "Media, communications and language"
+        },
+        {
+          "vocab": "",
+          "vocabUri": "",
+          "id": "",
+          "term": "Politics"
+        },
+        {
+          "vocab": "",
+          "vocabUri": "",
+          "id": "",
+          "term": "Science and technology"
+        },
+        {
+          "vocab": "",
+          "vocabUri": "",
+          "id": "",
+          "term": "Transport and travel"
+        }
+      ],
+      "code": "UKDS",
+      "creators": [
+        {
+          "name": "Poortinga, W, Cardiff University"
+        },
+        {
+          "name": "Shaw, C, Climate Outreach"
+        },
+        {
+          "name": "Wang, S, Climate Outreach"
+        }
+      ],
+      "dataAccess": "Restricted",
+      "dataAccessFreeTexts": [
+        "The Data Collection is available for download to users registered with the UK Data Service."
+      ],
+      "dataCollectionPeriodStartdate": "2019-04-30T00:00:00Z",
+      "dataCollectionPeriodEnddate": "2022-06-29T00:00:00Z",
+      "dataCollectionYear": 2019,
+      "dataCollectionFreeTexts": [
+        {
+          "dataCollectionFreeText": "30 April 2019",
+          "event": "start"
+        },
+        {
+          "dataCollectionFreeText": "29 June 2022",
+          "event": "end"
+        }
+      ],
+      "dataKindFreeTexts": [
+        {
+          "dataKindFreeText": "Numeric"
+        },
+        {
+          "dataKindFreeText": "Text"
+        }
+      ],
+      "fileLanguages": [],
+      "funding": [
+        {
+          "grantNumber": "ES/S012257/1"
+        }
+      ],
+      "keywords": [
+        {
+          "vocab": "ELSST",
+          "vocabUri": "https://elsst.cessda.eu/id/8cca5a73-f052-4b21-9ce8-3d2e7647f0ab",
+          "id": "",
+          "term": "CLIMATE"
+        },
+        {
+          "vocab": "ELSST",
+          "vocabUri": "https://elsst.cessda.eu/id/cf7d9c00-73ad-46f2-baa5-a083e6bb3f35",
+          "id": "",
+          "term": "CLIMATE CHANGE"
+        },
+        {
+          "vocab": "ELSST",
+          "vocabUri": "https://elsst.cessda.eu/id/51866256-d5ec-435b-9bd8-147cb02c81ed",
+          "id": "",
+          "term": "PSYCHOLOGY"
+        },
+        {
+          "vocab": "ELSST",
+          "vocabUri": "https://elsst.cessda.eu/id/450c86d9-8224-4090-8b13-c430cbff3f28",
+          "id": "",
+          "term": "SOCIOLOGY"
+        }
+      ],
+      "pidStudies": [
+        {
+          "agency": "UKDA",
+          "pid": "856479"
+        },
+        {
+          "agency": "DOI",
+          "pid": "10.5255/UKDA-SN-856479"
+        }
+      ],
+      "publicationYear": "2023-05-24T00:00:00Z",
+      "publisher": {
+        "abbr": "Publisher not specified",
+        "publisher": "UK Data Service"
+      },
+      "publisherFilter": {
+        "abbr": "UKDS",
+        "publisher": "UK Data Service"
+      },
+      "studyAreaCountries": [
+        {
+          "country": "United Kingdom"
+        }
+      ],
+      "studyNumber": "856479",
+      "studyUrl": "https://doi.org/10.5255/UKDA-SN-856479",
+      "typeOfModeOfCollections": [
+        {
+          "vocab": "",
+          "vocabUri": "",
+          "id": "",
+          "term": "Data collection was conducted by the social research company DJS.  The survey was conducted online during November and December 2020, with participants recruited from online panels. A core representative British sample ( n=1,518) was collected, with quotas set for gender, age, region, and ethnicity."
+        }
+      ],
+      "titleStudy": "Centre for Climate Change and Social Transformations: Climate Change Narratives Survey, 2020",
+      "unitTypes": [
+        {
+          "vocab": "",
+          "vocabUri": "",
+          "id": "",
+          "term": "Individual"
+        }
+      ],
+      "lastModified": "2025-09-26T19:40:12Z",
+      "langAvailableIn": [
+        "en"
+      ],
+      "studyXmlSourceUrl": "https://oai.ukdataservice.ac.uk:8443/oai/provider?verb=GetRecord&identifier=856479&metadataPrefix=ddi"
+    }
+  ]
+}

@@ -29,14 +29,19 @@ pub fn search(
                 "booleanQuery": [{"key": "node_type", "value": node_type}],
             }))
             .json()?;
-        if body.get("hits").is_none() && body.get("found").is_none() {
-            return Err(SourceError::shape("no hits"));
-        }
-        found.extend(
-            items(&body, "/hits").iter().filter_map(record).take(remaining),
-        );
+        found.extend(parse(&body, remaining)?);
     }
     Ok(found)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
+    if body.get("hits").is_none() && body.get("found").is_none() {
+        return Err(SourceError::shape("no hits"));
+    }
+    Ok(items(body, "/hits").iter().filter_map(record).take(limit).collect())
 }
 
 fn record(hit: &Value) -> Option<Dataset> {
@@ -48,4 +53,37 @@ fn record(hit: &Value) -> Option<Dataset> {
     .describe(text(hit, "/description"));
     dataset.updated = number(hit, "/modified_on").and_then(date_from_epoch);
     dataset.valid()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("synapse.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Multi-omic Glial Programs in Brain Aging".into(),
+                url: "https://www.synapse.org/Synapse:syn75275226".into(),
+                description: Some(
+                    "#### **Title**: Aged brain multi-omic integration \
+                     captures immunometabolic and sex variation **Dataset \
+                     contact**: [Justin P. \
+                     Whalley](https://www.synapse.org/Profile:3335704)"
+                        .into()
+                ),
+                publisher: None,
+                doi: None,
+                license: None,
+                updated: Some("2026-06-08".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
 }

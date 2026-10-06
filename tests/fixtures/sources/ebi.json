@@ -1,0 +1,70 @@
+{
+  "hitCount": 7497,
+  "entries": [
+    {
+      "acc": "E-GEOD-22131",
+      "id": "E-GEOD-22131",
+      "source": "biostudies-arrayexpress",
+      "fields": {
+        "name": [
+          "High resolution analysis of genomic imprinting in the embryonic and adult mouse brain AND Sex-specific imprinting in the mouse brain"
+        ],
+        "description": [
+          "Genomic imprinting results in the preferential expression of the paternal, or maternal allele of certain genes.  We have performed a genome-wide characterization of imprinting in the mouse embryonic and adult brain using F1 hybrid mice generated from reciprocal crosses of CASTEiJ and C57BL/6J mice."
+        ],
+        "publication_date": [
+          "20100708"
+        ]
+      }
+    },
+    {
+      "acc": "E-GEOD-48934",
+      "id": "E-GEOD-48934",
+      "source": "biostudies-arrayexpress",
+      "fields": {
+        "name": [
+          "MicroRNA profiling of brain metastasis competent cell-derived exosomes"
+        ],
+        "description": [
+          "Objective of this work was to characterize the miRNA profile of exosomes isolated from brain-homing cell lines (MDA-MB-231BR, CTC1BMSM, and 70W) with their respective parental non-brain metastatic cell lines (MDA-MB-231P, CTC1P and MeWo). Exosomes derived from the six cell lines were isolated."
+        ],
+        "publication_date": [
+          "20130716"
+        ]
+      }
+    },
+    {
+      "acc": "E-GEOD-19709",
+      "id": "E-GEOD-19709",
+      "source": "biostudies-arrayexpress",
+      "fields": {
+        "name": [
+          "Transcriptional Response of Adult Mouse Brain to Hypoxia"
+        ],
+        "description": [
+          "Since normal brain function depends upon continuous oxygen delivery and short periods of hypoxia can precondition against subsequent ischemia, this study examined the effects of brief hypoxia on the whole genome transcriptional response in adult mouse brain."
+        ],
+        "publication_date": [
+          "20111230"
+        ]
+      }
+    },
+    {
+      "acc": "E-GEOD-5208",
+      "id": "E-GEOD-5208",
+      "source": "biostudies-arrayexpress",
+      "fields": {
+        "name": [
+          "Analysis of gene expression profiling of normal retina and brain cortices"
+        ],
+        "description": [
+          "Using a canine custom retinal cDNA microarray our aim is to identify normal gene expression profiling for retina and frontal, occipital and temporal brain cortices Total RNA was isolated using Trizol reagent (Invitrogen, Carlsbad, CA) and further purified by Rneasy mini kit (Qiagen, Valencia, CA)."
+        ],
+        "publication_date": [
+          "20100701"
+        ]
+      }
+    }
+  ],
+  "facets": []
+}

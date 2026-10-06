@@ -1,0 +1,208 @@
+{
+  "records": [
+    {
+      "id": "ygfjw7ym7j",
+      "title": "Harmonized Multi-Source Dataset of Agricultural Commodity Prices, Meteorological Variations, and Macroeconomic Indicators for Mali",
+      "description": "This dataset provides a comprehensive, multi-variable panel combining agricultural market commodity prices, meteorological factors, and macroeconomic indicators across major administrative regions and markets in Mali.",
+      "source": {
+        "id": "7377952c-6404-4428-bbfc-77242cfc301e",
+        "name": "Mendeley Data",
+        "external": false
+      },
+      "publication_date": "2026-10-06T14:41:14.902Z",
+      "url": "https://data.mendeley.com/datasets/ygfjw7ym7j",
+      "data_type": "dataset",
+      "access": "open",
+      "doi": [
+        "10.17632/ygfjw7ym7j"
+      ],
+      "contributors": [
+        {
+          "first_name": "issa",
+          "last_name": "coulibaly",
+          "orcid": null
+        }
+      ],
+      "funders": [],
+      "categories": [
+        "Meteorology",
+        "Agricultural Economics",
+        "Time Series Analysis",
+        "Inflation of Economic System"
+      ],
+      "journal_issn": []
+    },
+    {
+      "id": "y6n2csdfhh",
+      "title": "pan-cancer DC integrated scRNA datasets",
+      "description": "The integrated scRNA datasets of dendritic cells",
+      "source": {
+        "id": "7377952c-6404-4428-bbfc-77242cfc301e",
+        "name": "Mendeley Data",
+        "external": false
+      },
+      "publication_date": "2026-10-06T14:41:00.215Z",
+      "url": "https://data.mendeley.com/datasets/y6n2csdfhh",
+      "data_type": "dataset",
+      "access": "open",
+      "doi": [
+        "10.17632/y6n2csdfhh"
+      ],
+      "contributors": [
+        {
+          "first_name": "Danwen",
+          "last_name": "Qian",
+          "orcid": null
+        }
+      ],
+      "funders": [],
+      "categories": [
+        "RNA"
+      ],
+      "journal_issn": []
+    },
+    {
+      "id": "25p9spd3p9",
+      "title": "CFD-based optimization of a gas\u2013liquid feed-injection nozzle: the relevance of high-fidelity inlet modeling",
+      "description": "This dataset accompanies the article \"CFD-based optimization of a gas\u2013liquid feed-injection nozzle: the relevance of high-fidelity inlet modeling\" (submitted to Chemical Engineering Science).",
+      "source": {
+        "id": "7377952c-6404-4428-bbfc-77242cfc301e",
+        "name": "Mendeley Data",
+        "external": false
+      },
+      "publication_date": "2026-10-06T14:40:50.331Z",
+      "url": "https://data.mendeley.com/datasets/25p9spd3p9",
+      "data_type": "dataset",
+      "access": "open",
+      "doi": [
+        "10.17632/25p9spd3p9"
+      ],
+      "contributors": [
+        {
+          "first_name": "Higor",
+          "last_name": "Rodrigues",
+          "orcid": null
+        }
+      ],
+      "funders": [],
+      "categories": [
+        "Derivative-Free Optimization",
+        "Computational Fluid Dynamics"
+      ],
+      "journal_issn": []
+    },
+    {
+      "id": "hzhz3dwt84",
+      "title": "Reproducibility package for \"Where 5G Throughput Prediction Actually Fails: A Transition-Aware, Leakage-Audited Evaluation on Real Drive-Test Traces\"",
+      "description": "Reproducibility package for the paper \"Where 5G Throughput Prediction Actually Fails: A Transition-Aware, Leakage-Audited Evaluation on Real Drive-Test Traces\" (submitted to Future Internet, MDPI).",
+      "source": {
+        "id": "7377952c-6404-4428-bbfc-77242cfc301e",
+        "name": "Mendeley Data",
+        "external": false
+      },
+      "publication_date": "2026-10-06T14:40:29.947Z",
+      "url": "https://data.mendeley.com/datasets/hzhz3dwt84",
+      "data_type": "dataset",
+      "access": "open",
+      "doi": [
+        "10.17632/hzhz3dwt84"
+      ],
+      "contributors": [
+        {
+          "first_name": "Najem",
+          "last_name": "Sirhan",
+          "orcid": null
+        }
+      ],
+      "funders": [],
+      "categories": [
+        "Computer Science",
+        "Telecommunication",
+        "Machine Learning",
+        "Communication Network"
+      ],
+      "journal_issn": []
+    }
+  ],
+  "total_records": 156533,
+  "page": 1,
+  "page_size": 10,
+  "execution_time": 73,
+  "aggregations": {
+    "data_type_stats": {
+      "dataset": 156483,
+      "collection": 50
+    },
+    "access_type_stats": {
+      "open": 155338,
+      "restricted": 85,
+      "embargoed": 1110
+    },
+    "top_funders_stats": [
+      {
+        "id": "https://ror.org/003x0zc53",
+        "name": "Agencia Estatal de Investigaci\u00f3n",
+        "count": 5061
+      },
+      {
+        "id": "https://ror.org/01h0zpd94",
+        "name": "National Natural Science Foundation of China",
+        "count": 2324
+      },
+      {
+        "id": "https://ror.org/01cwqze88",
+        "name": "National Institutes of Health",
+        "count": 703
+      },
+      {
+        "id": "https://ror.org/03ha2q922",
+        "name": "National Science Center",
+        "count": 472
+      }
+    ],
+    "source_stats": [
+      {
+        "id": "MENDELEY_DATA",
+        "name": "Mendeley Data",
+        "count": 153770
+      },
+      {
+        "id": "f881433a-b1cd-40d2-ab9f-4fd501f2d14b",
+        "name": "Elsevier Data Repository",
+        "count": 1946
+      },
+      {
+        "id": "a191461c-0227-403f-a1e9-621e0e0429cc",
+        "name": "San Raffaele Open Research Data Repository",
+        "count": 185
+      },
+      {
+        "id": "b07018a5-fee6-4df1-9d43-ff0d81ad75ed",
+        "name": "Bicocca Open Archive Research Data",
+        "count": 159
+      }
+    ],
+    "top_institutions_stats": [
+      {
+        "id": "9d63ad1d-c391-5c35-a12e-cafe17017098",
+        "name": "Universidad Autonoma de Madrid",
+        "count": 5131
+      },
+      {
+        "id": "ecb64011-71f0-5223-b4e4-4d27d5f51d83",
+        "name": "Universidad Autonoma de Madrid Centro de Biologia Molecular Severo Ochoa",
+        "count": 3162
+      },
+      {
+        "id": "3bfef41a-d03e-5722-bd55-dd245235fa78",
+        "name": "Bina Nusantara University",
+        "count": 602
+      },
+      {
+        "id": "0ad97c43-5173-56e6-bbe6-46dad5323862",
+        "name": "Daffodil International University",
+        "count": 412
+      }
+    ]
+  }
+}

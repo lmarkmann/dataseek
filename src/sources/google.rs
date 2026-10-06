@@ -78,7 +78,7 @@ fn parse(page: &str, limit: usize) -> Result<Vec<Dataset>, SourceError> {
 fn record(item: &Value) -> Option<Dataset> {
     let url = text(item, "/2/2/6/2").or_else(|| {
         text(item, "/4")
-            .map(|u| u.split("#__sid").next().unwrap_or(&u).to_owned())
+            .map(|u| u.split("#__").next().unwrap_or(&u).to_owned())
     })?;
     let mut dataset = Dataset::new(&text(item, "/2/1/0")?, &url)
         .describe(text(item, "/2/27/0/1"))
@@ -89,7 +89,7 @@ fn record(item: &Value) -> Option<Dataset> {
     if let Some(page) = text(item, "/4") {
         dataset
             .aliases
-            .push(page.split("#__sid").next().unwrap_or(&page).to_owned());
+            .push(page.split("#__").next().unwrap_or(&page).to_owned());
     }
     dataset.valid()
 }
@@ -117,6 +117,7 @@ fn bytes_in(format: &str) -> Option<u64> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::sources::fixture;
 
     const PAGE: &str = r#"<script>AF_initDataCallback({key: 'ds:0', hash: '1', data:["sea ice",[[null,null,[null,["Arctic sea ice extent"],[null,"zenodo.org","Zenodo","https://zenodo.org","zenodo.org",null,[null,null,"https://zenodo.org/records/42"]],null,null,null,null,null,null,null,["zip(2048 bytes)"],null,null,null,null,null,null,null,null,null,null,"10.5281/zenodo.42",null,null,null,null,null,[[null,"<p>Daily extent</p>"]],null,null,null,null,"Polar Lab",null,null,null,null,null,null,"Feb 17, 2026"],"docid","https://zenodo.org/records/42#__sid=js0"],[null,null,[null,null]]],null,null,null,null,null,null,151,0], sideChannel: {}});</script>"#;
 
@@ -169,5 +170,43 @@ mod tests {
         assert_eq!(iso_date("Feb 17, 2026").as_deref(), Some("2026-02-17"));
         assert_eq!(iso_date("Sept 1, 2013").as_deref(), Some("2013-09-01"));
         assert_eq!(iso_date("sometime"), None);
+    }
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::text("google.html"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Sea Ice Index, Version 3".into(),
+                url: "https://nsidc.org/data/g02135/versions/3".into(),
+                description: Some(
+                    "Notice: Due to funding limitations, this data set was \
+                     recently changed to a \u{201c}Basic\u{201d} Level of \
+                     Service. Learn more about what this means for users and \
+                     how you can share your story here: Level of Service \
+                     Update for Data Products."
+                        .into()
+                ),
+                publisher: Some("National Snow and Ice Data Center".into()),
+                doi: Some("10.7265/n5k072f8".into()),
+                license: None,
+                updated: Some("2019-08-13".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![
+                    "https://nsidc.org/data/g02135/versions/3".into()
+                ],
+            }
+        );
+        assert_eq!(
+            hits[2].aliases,
+            vec![
+                "https://data.nasa.gov/dataset/\
+                 ease-grid-sea-ice-age-version-4-8b6b7"
+                    .to_owned()
+            ]
+        );
     }
 }

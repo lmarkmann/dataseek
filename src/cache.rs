@@ -100,7 +100,28 @@ impl Cache {
     }
 
     pub fn store<T: Serialize>(&self, kind: Kind, key: &str, value: &T) {
-        let entry = Entry { stored: now(), value };
+        self.write(kind, key, now(), value);
+    }
+
+    /// An entry written at the epoch, long past every TTL.
+    #[cfg(test)]
+    pub fn store_expired<T: Serialize>(
+        &self,
+        kind: Kind,
+        key: &str,
+        value: &T,
+    ) {
+        self.write(kind, key, 0, value);
+    }
+
+    fn write<T: Serialize>(
+        &self,
+        kind: Kind,
+        key: &str,
+        stored: u64,
+        value: &T,
+    ) {
+        let entry = Entry { stored, value };
         if let Ok(bytes) = serde_json::to_vec(&entry) {
             let _ = write_atomic(&self.path(kind, key), &bytes);
         }
@@ -209,6 +230,7 @@ fn now() -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::record::Dataset;
 
     #[test]
     fn entries_round_trip_and_age_into_stale() {
@@ -225,6 +247,30 @@ mod tests {
         assert!(
             cache.load::<Vec<i32>>(Kind::Catalog, "k", QUERY_TTL).is_none()
         );
+    }
+
+    #[test]
+    fn a_cached_catalog_keeps_every_field_of_its_records() {
+        let dir = tempfile::tempdir().unwrap();
+        let cache = Cache::new(dir.path().to_path_buf());
+        let full = Dataset {
+            title: "Sea ice extent".into(),
+            url: "https://x.org/ice".into(),
+            description: Some("Daily".into()),
+            publisher: Some("NSIDC".into()),
+            doi: Some("10.5067/x".into()),
+            license: Some("CC0".into()),
+            updated: Some("2026-01-02".into()),
+            size_bytes: Some(7),
+            popularity: Some(3),
+            aliases: vec!["10.5067/concept".into()],
+        };
+        let bare = Dataset::new("Bare", "https://x.org/bare");
+        let stored = vec![full, bare];
+        cache.store(Kind::Catalog, "nsidc", &stored);
+        let (loaded, _): (Vec<Dataset>, _) =
+            cache.load(Kind::Catalog, "nsidc", CATALOG_TTL).unwrap();
+        assert_eq!(loaded, stored);
     }
 
     #[test]

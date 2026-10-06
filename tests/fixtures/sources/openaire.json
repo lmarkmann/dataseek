@@ -1,0 +1,576 @@
+{
+  "header": {
+    "numFound": 125937,
+    "maxScore": 4.8102264,
+    "queryTime": 210,
+    "page": 1,
+    "pageSize": 10
+  },
+  "results": [
+    {
+      "authors": [
+        {
+          "fullName": "Arias, Sabrina B.",
+          "name": "Sabrina B.",
+          "surname": "Arias",
+          "rank": 1,
+          "pid": null
+        },
+        {
+          "fullName": "Blair, Christopher W.",
+          "name": "Christopher W.",
+          "surname": "Blair",
+          "rank": 2,
+          "pid": {
+            "id": {
+              "scheme": "orcid_pending",
+              "value": "0000-0001-5774-5976"
+            },
+            "provenance": null
+          }
+        }
+      ],
+      "openAccessColor": null,
+      "publiclyFunded": null,
+      "type": "dataset",
+      "language": {
+        "code": "und",
+        "label": "Undetermined"
+      },
+      "countries": null,
+      "subjects": [
+        {
+          "subject": {
+            "scheme": "keyword",
+            "value": "Climate; Climate Change; Public Opinion; Migration"
+          },
+          "provenance": null
+        },
+        {
+          "subject": {
+            "scheme": "keyword",
+            "value": "Social Sciences"
+          },
+          "provenance": null
+        }
+      ],
+      "mainTitle": "Replication Data for: In the Eye of the Storm: Hurricanes, Climate Migration, and Climate Attitudes",
+      "subTitle": null,
+      "descriptions": [
+        "Abstract: Climate disasters raise the salience of climate change's negative consequences, including climate-induced migration."
+      ],
+      "publicationDate": "2024-01-01",
+      "publisher": "Harvard Dataverse",
+      "embargoEndDate": "2024-04-30",
+      "sources": null,
+      "formats": null,
+      "contributors": null,
+      "coverages": null,
+      "bestAccessRight": {
+        "code": "c_abf2",
+        "label": "OPEN",
+        "scheme": "http://vocabularies.coar-repositories.org/documentation/access_rights/"
+      },
+      "container": null,
+      "documentationUrls": null,
+      "codeRepositoryUrl": null,
+      "programmingLanguage": null,
+      "contactPeople": null,
+      "contactGroups": null,
+      "tools": null,
+      "size": null,
+      "version": null,
+      "geoLocations": null,
+      "id": "doi_________::49947e5d1a303ddc1a24a0284b4eb671",
+      "originalIds": [
+        "50|datacite____::49947e5d1a303ddc1a24a0284b4eb671",
+        "10.7910/dvn/xptmgf"
+      ],
+      "pids": [
+        {
+          "scheme": "doi",
+          "value": "10.7910/dvn/xptmgf"
+        }
+      ],
+      "dateOfCollection": null,
+      "lastUpdateTimeStamp": null,
+      "indicators": {
+        "citationImpact": {
+          "citationCount": 1.0,
+          "influence": 2.1862934E-9,
+          "popularity": 2.5890183E-9,
+          "impulse": 1.0,
+          "citationClass": "C5",
+          "influenceClass": "C5",
+          "impulseClass": "C5",
+          "popularityClass": "C5"
+        }
+      },
+      "instances": [
+        {
+          "pids": [
+            {
+              "scheme": "doi",
+              "value": "10.7910/dvn/xptmgf"
+            }
+          ],
+          "license": "CC 0",
+          "type": "Dataset",
+          "urls": [
+            "https://dx.doi.org/10.7910/dvn/xptmgf"
+          ],
+          "publicationDate": "2024-01-01",
+          "refereed": "nonPeerReviewed"
+        }
+      ],
+      "isGreen": null,
+      "isInDiamondJournal": null
+    },
+    {
+      "authors": [
+        {
+          "fullName": "South African Environmental Observation Network",
+          "name": null,
+          "surname": null,
+          "rank": 1,
+          "pid": null
+        },
+        {
+          "fullName": "South African Weather Services",
+          "name": null,
+          "surname": null,
+          "rank": 2,
+          "pid": null
+        }
+      ],
+      "openAccessColor": null,
+      "publiclyFunded": null,
+      "type": "dataset",
+      "language": {
+        "code": "eng",
+        "label": "English"
+      },
+      "countries": null,
+      "subjects": [
+        {
+          "subject": {
+            "scheme": "keyword",
+            "value": "climate variability"
+          },
+          "provenance": null
+        },
+        {
+          "subject": {
+            "scheme": "keyword",
+            "value": "climate services infrastructure"
+          },
+          "provenance": null
+        },
+        {
+          "subject": {
+            "scheme": "keyword",
+            "value": "climate change"
+          },
+          "provenance": null
+        },
+        {
+          "subject": {
+            "scheme": "keyword",
+            "value": "climate risk"
+          },
+          "provenance": null
+        }
+      ],
+      "mainTitle": "Climate Risk Report of South Africa",
+      "subTitle": null,
+      "descriptions": [
+        "The Climate Risk Report was developed by the South African Environmental Observation Network (SAEON) in collaboration with the South African Weather Service (SAWS). The report was commissioned by the Presidential Climate Commission (PCC) and the African Climate Foundation."
+      ],
+      "publicationDate": "2025-01-01",
+      "publisher": null,
+      "embargoEndDate": null,
+      "sources": null,
+      "formats": null,
+      "contributors": null,
+      "coverages": null,
+      "bestAccessRight": null,
+      "container": null,
+      "documentationUrls": null,
+      "codeRepositoryUrl": null,
+      "programmingLanguage": null,
+      "contactPeople": null,
+      "contactGroups": null,
+      "tools": null,
+      "size": null,
+      "version": null,
+      "geoLocations": null,
+      "id": "doi_________::bcb17467d1e3b612a4004e6a67b52778",
+      "originalIds": [
+        "50|datacite____::bcb17467d1e3b612a4004e6a67b52778",
+        "10.15493/sarva.24092023"
+      ],
+      "pids": [
+        {
+          "scheme": "doi",
+          "value": "10.15493/sarva.24092023"
+        }
+      ],
+      "dateOfCollection": null,
+      "lastUpdateTimeStamp": null,
+      "indicators": {
+        "citationImpact": {
+          "citationCount": 0.0,
+          "influence": 2.1746283E-9,
+          "popularity": 2.2497804E-9,
+          "impulse": 0.0,
+          "citationClass": "C5",
+          "influenceClass": "C5",
+          "impulseClass": "C5",
+          "popularityClass": "C5"
+        }
+      },
+      "instances": [
+        {
+          "pids": [
+            {
+              "scheme": "doi",
+              "value": "10.15493/sarva.24092023"
+            }
+          ],
+          "type": "Dataset",
+          "urls": [
+            "https://dx.doi.org/10.15493/sarva.24092023"
+          ],
+          "publicationDate": "2025-01-01",
+          "refereed": "nonPeerReviewed"
+        }
+      ],
+      "isGreen": null,
+      "isInDiamondJournal": null
+    },
+    {
+      "authors": [
+        {
+          "fullName": "Pietschnig, Marianne",
+          "name": "Marianne",
+          "surname": "Pietschnig",
+          "rank": 1,
+          "pid": {
+            "id": {
+              "scheme": "orcid_pending",
+              "value": "0000-0002-7405-5536"
+            },
+            "provenance": null
+          }
+        }
+      ],
+      "openAccessColor": null,
+      "publiclyFunded": null,
+      "type": "dataset",
+      "language": {
+        "code": "eng",
+        "label": "English"
+      },
+      "countries": null,
+      "subjects": [
+        {
+          "subject": {
+            "scheme": "FOS",
+            "value": "01 natural sciences"
+          },
+          "provenance": null
+        },
+        {
+          "subject": {
+            "scheme": "FOS",
+            "value": "0105 earth and related environmental sciences"
+          },
+          "provenance": null
+        }
+      ],
+      "mainTitle": "Isca_experiments_for_South_American_Drying_Main",
+      "subTitle": null,
+      "descriptions": [
+        "This dataset contains all the experiments presented in Pietschnig et al. 2019: \"The presence of Africa and limited soil moisture contribute to future drying of South America\" (main text) The data was produced using the open-source model Isca (Vallies et al. 2018)."
+      ],
+      "publicationDate": "2019-09-10",
+      "publisher": "Zenodo",
+      "embargoEndDate": null,
+      "sources": null,
+      "formats": null,
+      "contributors": null,
+      "coverages": null,
+      "bestAccessRight": {
+        "code": "c_abf2",
+        "label": "OPEN",
+        "scheme": "http://vocabularies.coar-repositories.org/documentation/access_rights/"
+      },
+      "container": null,
+      "documentationUrls": null,
+      "codeRepositoryUrl": null,
+      "programmingLanguage": null,
+      "contactPeople": null,
+      "contactGroups": null,
+      "tools": null,
+      "size": null,
+      "version": null,
+      "geoLocations": null,
+      "id": "doi_dedup___::fc4e61b70f0f7c82790fd5f800be0243",
+      "originalIds": [
+        "50|datacite____::223d88018ded854cede92cc7645ea88a",
+        "10.5281/zenodo.3403681",
+        "oai:zenodo.org:3403681",
+        "50|od______2659::223d88018ded854cede92cc7645ea88a"
+      ],
+      "pids": [
+        {
+          "scheme": "doi",
+          "value": "10.5281/zenodo.3403681"
+        },
+        {
+          "scheme": "doi",
+          "value": "10.5281/zenodo.3403680"
+        }
+      ],
+      "dateOfCollection": null,
+      "lastUpdateTimeStamp": null,
+      "indicators": {
+        "citationImpact": {
+          "citationCount": 0.0,
+          "influence": 2.1746283E-9,
+          "popularity": 9.737294E-10,
+          "impulse": 0.0,
+          "citationClass": "C5",
+          "influenceClass": "C5",
+          "impulseClass": "C5",
+          "popularityClass": "C5"
+        },
+        "usageCounts": {
+          "downloads": 0,
+          "views": 7
+        }
+      },
+      "instances": [
+        {
+          "pids": [
+            {
+              "scheme": "doi",
+              "value": "10.5281/zenodo.3403681"
+            }
+          ],
+          "license": "CC BY",
+          "type": "Dataset",
+          "urls": [
+            "https://dx.doi.org/10.5281/zenodo.3403681"
+          ],
+          "publicationDate": "2019-09-10",
+          "refereed": "nonPeerReviewed"
+        },
+        {
+          "pids": [
+            {
+              "scheme": "doi",
+              "value": "10.5281/zenodo.3403681"
+            }
+          ],
+          "alternateIdentifiers": [
+            {
+              "scheme": "oai",
+              "value": "oai:zenodo.org:3403681"
+            }
+          ],
+          "license": "CC BY",
+          "type": "Dataset",
+          "urls": [
+            "http://dx.doi.org/10.5281/zenodo.3403681",
+            "https://zenodo.org/records/3403681"
+          ],
+          "publicationDate": "2019-09-10",
+          "refereed": "nonPeerReviewed"
+        },
+        {
+          "pids": [
+            {
+              "scheme": "doi",
+              "value": "10.5281/zenodo.3403680"
+            }
+          ],
+          "license": "CC BY",
+          "type": "Dataset",
+          "urls": [
+            "https://dx.doi.org/10.5281/zenodo.3403680"
+          ],
+          "publicationDate": "2019-09-10",
+          "refereed": "nonPeerReviewed"
+        }
+      ],
+      "isGreen": null,
+      "isInDiamondJournal": null
+    },
+    {
+      "authors": [
+        {
+          "fullName": "Iwai, T.",
+          "name": "T.",
+          "surname": "Iwai",
+          "rank": 1,
+          "pid": {
+            "id": {
+              "scheme": "orcid_pending",
+              "value": "0000-0002-8733-5369"
+            },
+            "provenance": null
+          }
+        },
+        {
+          "fullName": "Bortoluzzo, A.",
+          "name": "A.",
+          "surname": "Bortoluzzo",
+          "rank": 2,
+          "pid": {
+            "id": {
+              "scheme": "orcid_pending",
+              "value": "0000-0003-2872-031x"
+            },
+            "provenance": null
+          }
+        },
+        {
+          "fullName": "Nakata, L.",
+          "name": "L.",
+          "surname": "Nakata",
+          "rank": 3,
+          "pid": {
+            "id": {
+              "scheme": "orcid_pending",
+              "value": "0000-0003-3549-0663"
+            },
+            "provenance": null
+          }
+        },
+        {
+          "fullName": "Costa, J.",
+          "name": "J.",
+          "surname": "Costa",
+          "rank": 4,
+          "pid": {
+            "id": {
+              "scheme": "orcid_pending",
+              "value": "0000-0002-1475-7456"
+            },
+            "provenance": null
+          }
+        }
+      ],
+      "openAccessColor": null,
+      "publiclyFunded": null,
+      "type": "dataset",
+      "language": {
+        "code": "und",
+        "label": "Undetermined"
+      },
+      "countries": null,
+      "subjects": [
+        {
+          "subject": {
+            "scheme": "keyword",
+            "value": "FOS: Economics and business"
+          },
+          "provenance": null
+        },
+        {
+          "subject": {
+            "scheme": "keyword",
+            "value": "organizational climate"
+          },
+          "provenance": null
+        },
+        {
+          "subject": {
+            "scheme": "FOS",
+            "value": "0502 economics and business"
+          },
+          "provenance": null
+        },
+        {
+          "subject": {
+            "scheme": "FOS",
+            "value": "05 social sciences"
+          },
+          "provenance": null
+        }
+      ],
+      "mainTitle": "Replication Data for: Climate Strength: Its Role as a Moderator in the Relationship Between Climate and Turnover",
+      "subTitle": null,
+      "descriptions": [
+        "The effects of climate quality, defined as the shared perceptions of the work environment, on organizational outcomes is already well known and studied in the literature."
+      ],
+      "publicationDate": "2019-01-01",
+      "publisher": "Harvard Dataverse",
+      "embargoEndDate": "2019-09-02",
+      "sources": null,
+      "formats": null,
+      "contributors": null,
+      "coverages": null,
+      "bestAccessRight": {
+        "code": "c_abf2",
+        "label": "OPEN",
+        "scheme": "http://vocabularies.coar-repositories.org/documentation/access_rights/"
+      },
+      "container": null,
+      "documentationUrls": null,
+      "codeRepositoryUrl": null,
+      "programmingLanguage": null,
+      "contactPeople": null,
+      "contactGroups": null,
+      "tools": null,
+      "size": null,
+      "version": null,
+      "geoLocations": null,
+      "id": "doi_________::7a3ba647efb9560e2657bd49d588f906",
+      "originalIds": [
+        "50|datacite____::7a3ba647efb9560e2657bd49d588f906",
+        "10.7910/dvn/dya9tn"
+      ],
+      "pids": [
+        {
+          "scheme": "doi",
+          "value": "10.7910/dvn/dya9tn"
+        }
+      ],
+      "dateOfCollection": null,
+      "lastUpdateTimeStamp": null,
+      "indicators": {
+        "citationImpact": {
+          "citationCount": 0.0,
+          "influence": 2.1746283E-9,
+          "popularity": 9.737294E-10,
+          "impulse": 0.0,
+          "citationClass": "C5",
+          "influenceClass": "C5",
+          "impulseClass": "C5",
+          "popularityClass": "C5"
+        }
+      },
+      "instances": [
+        {
+          "pids": [
+            {
+              "scheme": "doi",
+              "value": "10.7910/dvn/dya9tn"
+            }
+          ],
+          "license": "CC 0",
+          "type": "Dataset",
+          "urls": [
+            "https://dx.doi.org/10.7910/dvn/dya9tn"
+          ],
+          "publicationDate": "2019-01-01",
+          "refereed": "nonPeerReviewed"
+        }
+      ],
+      "isGreen": null,
+      "isInDiamondJournal": null
+    }
+  ]
+}

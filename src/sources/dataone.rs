@@ -33,10 +33,17 @@ pub fn search(
         .query("rows", limit)
         .query("wt", "json")
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.pointer("/response/docs").is_none() {
         return Err(SourceError::shape("no response.docs"));
     }
-    Ok(items(&body, "/response/docs")
+    Ok(items(body, "/response/docs")
         .iter()
         .filter_map(record)
         .take(limit)
@@ -55,4 +62,42 @@ fn record(doc: &Value) -> Option<Dataset> {
         text(doc, "/origin/0").or_else(|| text(doc, "/datasource"));
     dataset.updated = day(text(doc, "/dateModified"));
     dataset.valid()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("dataone.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Sea Ice Trends and Climatologies from SMMR and \
+                        SSM/I-SSMIS, Version 1"
+                    .into(),
+                url: "https://search.dataone.org/view/sha256:\
+                      22074341b20fe79af9506247d014e528ece4db64e3e6ae49b1a29d1ebc7e0cb7"
+                    .into(),
+                description: Some(
+                    "NSIDC provides this data set to aid in the \
+                     investigations of the variability and trends of sea ice \
+                     cover. Ice cover in these data are indicated by sea ice \
+                     concentration: the percentage of the ocean surface \
+                     covered by ice."
+                        .into()
+                ),
+                publisher: Some("National Snow and Ice Data Center".into()),
+                doi: None,
+                license: None,
+                updated: Some("2024-09-12".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
 }

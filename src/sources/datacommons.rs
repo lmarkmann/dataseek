@@ -30,10 +30,17 @@ pub fn search(
         .query("nodes", query)
         .query("resolver", "indicator")
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.get("entities").is_none() {
         return Err(SourceError::shape("no entities array"));
     }
-    Ok(items(&body, "/entities/0/candidates")
+    Ok(items(body, "/entities/0/candidates")
         .iter()
         .filter(|c| {
             items(c, "/typeOf")
@@ -55,4 +62,32 @@ fn record(candidate: &Value) -> Option<Dataset> {
     .describe(Some(dcid));
     dataset.publisher = Some("Data Commons".to_owned());
     dataset.valid()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("datacommons.json"), 10).unwrap();
+        assert_eq!(hits.len(), 3);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "unemployment rate".into(),
+                url: "https://datacommons.org/browser/UnemploymentRate_Person"
+                    .into(),
+                description: Some("UnemploymentRate_Person".into()),
+                publisher: Some("Data Commons".into()),
+                doi: None,
+                license: None,
+                updated: None,
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
 }

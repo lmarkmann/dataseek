@@ -2,9 +2,9 @@
 //! reaches the DOI-minting repositories at once (Zenodo, Figshare, Dryad,
 //! Dataverse installations, ICPSR, UKDS, GESIS, Pangaea, ...).
 //!
-//! Two kinds of noise are handled here rather than left to the user: clients
-//! that mint one Dataset DOI per machine event (GBIF per user download, CCDC
-//! per crystal structure) are dropped, and every version DOI carries its
+//! Two kinds of noise are handled here rather than left to the user: DOIs
+//! minted per machine event (GBIF user downloads, CCDC crystal structures)
+//! are dropped, and every version DOI carries its
 //! concept DOI as an alias so `dedup` folds versions into one hit. The page
 //! asks for twice the limit to leave room for what is dropped.
 
@@ -14,10 +14,12 @@ use super::Ctx;
 use crate::http::{CONTACT, SourceError};
 use crate::record::{Dataset, day, doi, items, text};
 
-/// Clients whose Dataset DOIs are machine events, not datasets a person
-/// would look for. Counts measured 2026-10-06: gbif.gbif 4.73M, ccdc.csd
-/// 1.26M.
-const NOISE_CLIENTS: &[&str] = &["gbif.gbif", "ccdc.csd"];
+/// Dataset DOIs that are machine events, not datasets a person would look
+/// for: one per CCDC crystal structure (1.26M) and one per GBIF user
+/// download (most of gbif.gbif's 4.73M; its real datasets stay). Counts
+/// measured 2026-10-06.
+const NOISE_CLIENTS: &[&str] = &["ccdc.csd"];
+const GBIF_DOWNLOADS: &str = "10.15468/dl.";
 
 pub fn search(
     ctx: &Ctx<'_>,
@@ -33,14 +35,23 @@ pub fn search(
         .query("affiliation", "false")
         .query("mailto", CONTACT)
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.get("data").is_none() {
         return Err(SourceError::shape("no data array"));
     }
-    Ok(items(&body, "/data")
+    Ok(items(body, "/data")
         .iter()
         .filter(|row| {
-            text(row, "/relationships/client/data/id")
-                .is_none_or(|client| !NOISE_CLIENTS.contains(&client.as_str()))
+            let client = text(row, "/relationships/client/data/id");
+            let id = text(row, "/attributes/doi").unwrap_or_default();
+            client.is_none_or(|c| !NOISE_CLIENTS.contains(&c.as_str()))
+                && !id.to_lowercase().starts_with(GBIF_DOWNLOADS)
         })
         .filter_map(record)
         .take(limit)
@@ -78,4 +89,45 @@ fn record(row: &Value) -> Option<Dataset> {
         .filter_map(|r| text(r, "/relatedIdentifier").as_deref().and_then(doi))
         .collect();
     dataset.valid()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("datacite.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Crop Wild Relatives (CWRs) of Bangladesh: An \
+                        Integrated Database of Species Occurrence, \
+                        Distribution, Habitat and Herbarium Records"
+                    .into(),
+                url: "https://www.gbif.org/dataset/\
+                      c0eddfec-c87b-47c5-977a-dd2c7c7e5dec"
+                    .into(),
+                description: Some(
+                    "This dataset compiles occurrence records of crop wild \
+                     relatives (CWR) of cultivated crops in Bangladesh. \
+                     Cultivated crops occurring in Bangladesh were \
+                     identified and categorized based on information from \
+                     the Food and Agriculture Organization (FAO) FAOSTAT \
+                     database and Banglapedia."
+                        .into()
+                ),
+                publisher: Some("Jagannath University".into()),
+                doi: Some("10.15468/zrsahs".into()),
+                license: Some("cc-by-4.0".into()),
+                updated: Some("2026-10-06".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+        assert_eq!(hits[2].aliases, ["10.5281/zenodo.23111497"]);
+    }
 }

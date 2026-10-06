@@ -19,10 +19,17 @@ pub fn search(
         .get("https://ourworldindata.org/api/search")
         .query("q", query)
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.get("results").is_none() {
         return Err(SourceError::shape("no results array"));
     }
-    Ok(items(&body, "/results")
+    Ok(items(body, "/results")
         .iter()
         .filter(|r| {
             matches!(
@@ -46,4 +53,38 @@ fn record(row: &Value) -> Option<Dataset> {
     dataset.license = Some("CC-BY-4.0".to_owned());
     dataset.updated = day(text(row, "/updatedAt"));
     dataset.valid()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("owid.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Share using safely managed drinking water".into(),
+                url: "https://ourworldindata.org/grapher/\
+                      proportion-using-safely-managed-drinking-water"
+                    .into(),
+                description: Some(
+                    "Safely managed drinking water service means an \
+                     improved water source is located on the premises, \
+                     available when needed, and free from contamination."
+                        .into()
+                ),
+                publisher: Some("Our World in Data".into()),
+                doi: None,
+                license: Some("CC-BY-4.0".into()),
+                updated: Some("2026-05-11".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
 }

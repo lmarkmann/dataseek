@@ -21,10 +21,17 @@ pub fn search(
         .query("type", "dataset")
         .query("size", limit.clamp(1, 25))
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.pointer("/hits/hits").is_none() {
         return Err(SourceError::shape("no hits.hits"));
     }
-    Ok(items(&body, "/hits/hits")
+    Ok(items(body, "/hits/hits")
         .iter()
         .filter_map(record)
         .take(limit)
@@ -55,4 +62,40 @@ fn record(row: &Value) -> Option<Dataset> {
         dataset.aliases.push(concept);
     }
     dataset.valid()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("zenodo.json"), 10).unwrap();
+        assert_eq!(hits.len(), 3);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Monthly water storage levels, Victoria".into(),
+                url: "https://zenodo.org/records/23077368".into(),
+                description: Some(
+                    "The volume held in each of about 65 Victorian reservoirs \
+                     at the end of every month since January 2010, in \
+                     megalitres, one row per reservoir and month. Updated \
+                     monthly."
+                        .into()
+                ),
+                publisher: Some(
+                    "Department of Energy, Environment and Climate Action"
+                        .into()
+                ),
+                doi: Some("10.5281/zenodo.23077368".into()),
+                license: Some("cc-by-4.0".into()),
+                updated: Some("2026-10-01".into()),
+                size_bytes: Some(585 + 939_174 + 242_821),
+                popularity: Some(3),
+                aliases: vec!["10.5281/zenodo.23077367".into()],
+            }
+        );
+    }
 }

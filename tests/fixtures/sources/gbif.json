@@ -1,0 +1,118 @@
+{
+  "offset": 0,
+  "limit": 10,
+  "endOfRecords": false,
+  "count": 447,
+  "results": [
+    {
+      "key": "4579d9f1-f913-4d71-8581-e1dd2b812501",
+      "title": "Sea-ice meiofauna biodiversity from the Nansen Legacy cruise Q4 (cruise number: 2019711)",
+      "doi": "10.15468/gx9ujt",
+      "description": "The data was collected during the Nansen Legacy seasonal study (Q4, cruise number: 2019711) from 28.11 - 17.12 2019 onboard the research vessel RV Kronprins Haakon, along a transect in the northern Barents Sea from 76N to 82N.",
+      "type": "SAMPLING_EVENT",
+      "hostingOrganizationKey": "64795dcb-ad74-41b3-95e5-cc52ba754776",
+      "hostingOrganizationTitle": "GBIF Norway",
+      "hostingCountry": "NO",
+      "publishingCountry": "NO",
+      "publishingOrganizationKey": "028abbad-5db9-48a3-98dd-9ee456b60f0d",
+      "publishingOrganizationTitle": "The Nansen Legacy Project",
+      "publicationDate": "2023-09-21T12:00:00.000+00:00",
+      "modified": "2023-09-21T01:47:20.867+00:00",
+      "endorsingNodeKey": "4f829580-180d-46a9-9c87-ed8ec959b545",
+      "license": "http://creativecommons.org/licenses/by/4.0/legalcode",
+      "decades": [
+        2010
+      ],
+      "keywords": [
+        "northern Barents Sea",
+        "sea ice",
+        "sympagic",
+        "sea-ice meiofauna"
+      ],
+      "projectIdentifier": "AeN",
+      "recordCount": 147
+    },
+    {
+      "key": "ea261345-4e83-4f12-aa5f-f4b119d5a4ce",
+      "title": "Sea-ice meiofauna biodiversity from the Nansen Legacy cruise Q3 (cruise number: 2019706)",
+      "doi": "10.15468/vcxzs6",
+      "description": "The data was collected during the Nansen Legacy seasonal study (Q3, cruise number: 2019706) from 05-27 August 2019 onboard the research vessel RV Kronprins Haakon, along a transect in the northern Barents Sea from 76N to 82N.",
+      "type": "SAMPLING_EVENT",
+      "subtype": "OBSERVATION",
+      "hostingOrganizationKey": "64795dcb-ad74-41b3-95e5-cc52ba754776",
+      "hostingOrganizationTitle": "GBIF Norway",
+      "hostingCountry": "NO",
+      "publishingCountry": "NO",
+      "publishingOrganizationKey": "028abbad-5db9-48a3-98dd-9ee456b60f0d",
+      "publishingOrganizationTitle": "The Nansen Legacy Project",
+      "publicationDate": "2024-03-15T12:00:00.000+00:00",
+      "modified": "2024-03-15T12:49:13.932+00:00",
+      "endorsingNodeKey": "4f829580-180d-46a9-9c87-ed8ec959b545",
+      "license": "http://creativecommons.org/licenses/by/4.0/legalcode",
+      "decades": [
+        2010
+      ],
+      "keywords": [
+        "northern Barents Sea",
+        "sea ice",
+        "sympagic",
+        "sea-ice meiofauna"
+      ],
+      "projectIdentifier": "AeN",
+      "recordCount": 222
+    },
+    {
+      "key": "a22bfeb3-ea39-43cb-ac93-ee8f7f9ddc66",
+      "title": "Sea-ice meiofauna biodiversity from the Nansen Legacy cruise Q2 (cruise number: 2021704)",
+      "doi": "10.15468/8pmccy",
+      "description": "The data was collected during the Nansen Legacy seasonal study (Q2, cruise number: 2021704) from 27.04 - 20.05.2021 onboard the research vessel RV Kronprins Haakon, along a transect in the northern Barents Sea from 76N to 82N.",
+      "type": "SAMPLING_EVENT",
+      "hostingOrganizationKey": "64795dcb-ad74-41b3-95e5-cc52ba754776",
+      "hostingOrganizationTitle": "GBIF Norway",
+      "hostingCountry": "NO",
+      "publishingCountry": "NO",
+      "publishingOrganizationKey": "028abbad-5db9-48a3-98dd-9ee456b60f0d",
+      "publishingOrganizationTitle": "The Nansen Legacy Project",
+      "publicationDate": "2023-09-21T12:00:00.000+00:00",
+      "modified": "2023-09-21T02:22:04.616+00:00",
+      "endorsingNodeKey": "4f829580-180d-46a9-9c87-ed8ec959b545",
+      "license": "http://creativecommons.org/licenses/by/4.0/legalcode",
+      "decades": [
+        2020
+      ],
+      "keywords": [
+        "northern Barents Sea",
+        "sea ice",
+        "sympagic",
+        "sea-ice meiofauna"
+      ],
+      "projectIdentifier": "AeN",
+      "recordCount": 87
+    },
+    {
+      "key": "0e12c2cc-0d0e-4300-bcc8-6492ac6eb117",
+      "title": "Sea Ice Nematodes",
+      "doi": "10.15468/2panz4",
+      "description": "Sea Ice Nematodes",
+      "type": "OCCURRENCE",
+      "hostingOrganizationKey": "44862593-2fdd-4491-ab79-b500b8272aac",
+      "hostingOrganizationTitle": "Conservation of Arctic Flora and Fauna",
+      "hostingCountry": "ZZ",
+      "publishingCountry": "ZZ",
+      "publishingOrganizationKey": "44862593-2fdd-4491-ab79-b500b8272aac",
+      "publishingOrganizationTitle": "Conservation of Arctic Flora and Fauna",
+      "publicationDate": "2019-08-26T12:00:00.000+00:00",
+      "modified": "2021-12-08T08:26:33.476+00:00",
+      "endorsingNodeKey": "7f48e0c8-5c96-49ec-b972-30748e339115",
+      "networkKeys": [
+        "2b7c7b4f-4d4f-40d3-94de-c28b6fa054a6"
+      ],
+      "license": "http://creativecommons.org/licenses/by/4.0/legalcode",
+      "keywords": [
+        "Occurrence"
+      ],
+      "recordCount": 32
+    }
+  ],
+  "facets": []
+}

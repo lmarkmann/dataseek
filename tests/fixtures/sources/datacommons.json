@@ -1,0 +1,83 @@
+{
+  "entities": [
+    {
+      "node": "unemployment",
+      "candidates": [
+        {
+          "dcid": "dc/topic/UnemploymentRate",
+          "metadata": {
+            "score": "1.0000",
+            "sentence": "unemployment"
+          },
+          "typeOf": [
+            "Topic"
+          ],
+          "name": "Unemployment Rate",
+          "children": [
+            {
+              "dcid": "UnemploymentRate_Person",
+              "typeOf": [
+                "StatisticalVariable"
+              ],
+              "name": "Unemployment rate"
+            },
+            {
+              "dcid": "UnemploymentRate_Person_Female",
+              "typeOf": [
+                "StatisticalVariable"
+              ],
+              "name": "Female unemployment rate"
+            },
+            {
+              "dcid": "UnemploymentRate_Person_Male",
+              "typeOf": [
+                "StatisticalVariable"
+              ],
+              "name": "Male unemployment rate"
+            },
+            {
+              "dcid": "Count_Person_Unemployed",
+              "typeOf": [
+                "StatisticalVariable"
+              ],
+              "name": "Population: BLS Unemployed"
+            }
+          ]
+        },
+        {
+          "dcid": "UnemploymentRate_Person",
+          "metadata": {
+            "score": "0.8850",
+            "sentence": "unemployment rate"
+          },
+          "typeOf": [
+            "StatisticalVariable"
+          ],
+          "name": "unemployment rate"
+        },
+        {
+          "dcid": "UnemploymentRate_Person_15To65Years",
+          "metadata": {
+            "score": "0.8691",
+            "sentence": "Unemployment rate"
+          },
+          "typeOf": [
+            "StatisticalVariable"
+          ],
+          "name": "Unemployment rate"
+        },
+        {
+          "dcid": "Count_Person_Unemployed",
+          "metadata": {
+            "score": "0.7988",
+            "sentence": "Number of unemployed people"
+          },
+          "typeOf": [
+            "StatisticalVariable"
+          ],
+          "name": "Number of unemployed people"
+        }
+      ]
+    }
+  ]
+}

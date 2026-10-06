@@ -47,6 +47,7 @@ fn parse(page: &str) -> Vec<Dataset> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::sources::fixture;
 
     #[test]
     fn links_become_unique_entries() {
@@ -56,5 +57,31 @@ mod tests {
             <a href="/datasets/catalog/coco_captions">c</a>"#;
         let names: Vec<_> = parse(page).into_iter().map(|d| d.title).collect();
         assert_eq!(names, ["mnist", "coco_captions"]);
+    }
+
+    #[test]
+    fn records_map_from_a_recorded_list() {
+        let hits = parse(&fixture::text("tfds.html"));
+        assert_eq!(hits.len(), 5);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "longt5".into(),
+                url: "https://www.tensorflow.org/datasets/catalog/longt5"
+                    .into(),
+                description: Some("longt5".into()),
+                publisher: None,
+                doi: None,
+                license: None,
+                updated: None,
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+        assert_eq!(
+            hits[4].description.as_deref(),
+            Some("smartwatch gestures")
+        );
     }
 }

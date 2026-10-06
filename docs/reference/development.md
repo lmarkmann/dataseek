@@ -23,7 +23,7 @@ The clippy lints are configured in `Cargo.toml`, not in CI, so `cargo build`, th
 
 ## Tests
 
-Tests live in `tests/cli.rs` and use `assert_cmd` for the CLI surface. Output assertions use [insta](https://insta.rs) snapshots.
+The CLI surface is tested in `tests/cli.rs` with `assert_cmd`, and help output with [insta](https://insta.rs) snapshots. Everything below the CLI is tested in `#[cfg(test)]` modules beside the code: each source adapter against a recorded response, the search loop and the catalog fallback against fake adapters and a scratch cache, the HTTP client against a local socket, and the record, DOI and merge helpers with [proptest](https://proptest-rs.github.io/proptest/) properties as well as examples.
 
 After changing help text or any printed output, run:
 
@@ -34,7 +34,13 @@ just bless   # accept them all, unread
 
 CI runs the same nextest as `just test`. nextest does not run doctests, so CI and `just check` run `cargo test --doc --locked` beside it: the crate has a library target since `dsk` joined `dataseek` ([ADR 0010](../adr/0010-dsk-is-dataseek.md)).
 
-No test touches the network. `tests/cli.rs` gives every run its own home, config and cache directories and routes HTTP through a proxy on a closed port, which is exactly how an offline machine looks to dataseek. Adapters are tested on recorded response shapes in their own modules (Google Dataset Search, SDMX, the HTML catalogs); live behavior is what `dataseek bench` measures.
+No test touches the network. `tests/cli.rs` gives every run its own home, config and cache directories and routes HTTP through a proxy on a closed port, which is exactly how an offline machine looks to dataseek. The HTTP tests in `src/http.rs` talk to a listener on `127.0.0.1` that answers with canned responses. Live behavior is what `dataseek bench` measures.
+
+Every adapter splits its request (`search` or `list`) from a pure `parse`, and every `parse` has one test against a real response stored in `tests/fixtures/sources/<module>.{json,html,xml,txt}`. The test compares the first record field by field, as one `Dataset` literal, with values read off the fixture by hand. Never paste the test's own output in as the expectation: an expectation the code produced cannot catch the code being wrong, and a hand-written fixture built from the adapter's own JSON pointers cannot catch a pointer the real API never fills, which is how most adapter bugs so far were found. One table in `src/sources.rs` holds every live `parse` to the two rules in that module's header: an unrelated body is `SourceError::Shape`, never an empty list, and the result stops at `limit`.
+
+To re-record a fixture after a source changes, repeat the adapter's request with `xh` and the dataseek User-Agent (`dataseek/<version> (mailto:user@dataseek.dev)`), never with a key, trim arrays to a few rows with `jq 'walk(if type=="array" then .[:4] else . end)'`, shorten long descriptions to a real prefix, replace any individual's e-mail address with `contact@example.org`, and then re-derive the expected record by reading the new file. Sources that need a key (FRED, Roboflow) use the example response from their API docs, linked above the test.
+
+proptest writes the inputs that once failed to `proptest-regressions/`; they are committed so every run replays them first.
 
 Not every test can live in `tests/cli.rs`. That file runs the compiled binary, so it can assert on flags, exit codes, and stdout, but it cannot reach into the crate: the library's modules are private, so there is nothing for an integration test to import. Anything that needs a Rust value rather than a process is a `#[cfg(test)]` module beside the code, which is why `palette`, `ui`, `fs`, and `cli` each carry one.
 

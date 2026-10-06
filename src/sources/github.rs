@@ -23,10 +23,17 @@ pub fn search(
         call = call.header("Authorization", secret.authorization());
     }
     let body = call.json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.get("items").is_none() {
         return Err(SourceError::shape("no items array"));
     }
-    Ok(items(&body, "/items").iter().filter_map(record).take(limit).collect())
+    Ok(items(body, "/items").iter().filter_map(record).take(limit).collect())
 }
 
 fn record(repo: &Value) -> Option<Dataset> {
@@ -39,4 +46,36 @@ fn record(repo: &Value) -> Option<Dataset> {
     dataset.updated = day(text(repo, "/updated_at"));
     dataset.popularity = number(repo, "/stargazers_count");
     dataset.valid()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("github.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "mikejohnson51/climateR".into(),
+                url: "https://github.com/mikejohnson51/climateR".into(),
+                description: Some(
+                    "An R \u{1f4e6} for getting point and gridded climate \
+                     data by AOI"
+                        .into()
+                ),
+                publisher: Some("mikejohnson51".into()),
+                doi: None,
+                license: None,
+                updated: Some("2026-06-01".into()),
+                size_bytes: None,
+                popularity: Some(202),
+                aliases: vec![],
+            }
+        );
+        assert_eq!(hits[3].license.as_deref(), Some("CC-BY-4.0"));
+    }
 }

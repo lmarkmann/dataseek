@@ -20,14 +20,17 @@ pub fn search(
         .query("type", "dataset")
         .query("pageSize", limit.clamp(1, 100))
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.get("results").is_none() {
         return Err(SourceError::shape("no results array"));
     }
-    Ok(items(&body, "/results")
-        .iter()
-        .filter_map(record)
-        .take(limit)
-        .collect())
+    Ok(items(body, "/results").iter().filter_map(record).take(limit).collect())
 }
 
 fn record(row: &Value) -> Option<Dataset> {
@@ -55,4 +58,38 @@ fn record(row: &Value) -> Option<Dataset> {
         dataset.aliases.push(u);
     }
     dataset.valid()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("openaire.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Replication Data for: In the Eye of the Storm: \
+                        Hurricanes, Climate Migration, and Climate Attitudes"
+                    .into(),
+                url: "https://doi.org/10.7910/dvn/xptmgf".into(),
+                description: Some(
+                    "Abstract: Climate disasters raise the salience of \
+                     climate change's negative consequences, including \
+                     climate-induced migration."
+                        .into()
+                ),
+                publisher: Some("Harvard Dataverse".into()),
+                doi: Some("10.7910/dvn/xptmgf".into()),
+                license: Some("CC 0".into()),
+                updated: Some("2024-01-01".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec!["https://dx.doi.org/10.7910/dvn/xptmgf".into()],
+            }
+        );
+    }
 }

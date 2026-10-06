@@ -24,6 +24,13 @@ pub fn search(
         call = call.header("Authorization", secret.authorization());
     }
     let body = call.json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     let rows = body
         .as_array()
         .ok_or_else(|| SourceError::shape("expected a list of datasets"))?;
@@ -43,4 +50,37 @@ fn record(row: &Value) -> Option<Dataset> {
     dataset.size_bytes = number(row, "/totalBytes");
     dataset.popularity = number(row, "/downloadCount");
     dataset.valid()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("kaggle.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Climate change Indicators".into(),
+                url: "https://www.kaggle.com/datasets/\
+                      tarunrm09/climate-change-indicators"
+                    .into(),
+                description: Some(
+                    "Climate change Indicators suggesting the surface \
+                     temperature change annually"
+                        .into()
+                ),
+                publisher: Some("Tarun Mugesh".into()),
+                doi: None,
+                license: Some("CC0: Public Domain".into()),
+                updated: Some("2024-02-22".into()),
+                size_bytes: Some(34_794),
+                popularity: Some(20_272),
+                aliases: vec![],
+            }
+        );
+    }
 }

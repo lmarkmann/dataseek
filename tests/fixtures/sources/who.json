@@ -1,0 +1,25 @@
+{
+  "@odata.context": "https://ghoapi.azureedge.net/api/$metadata#Indicator",
+  "value": [
+    {
+      "IndicatorCode": "NCD_BMI_18C",
+      "IndicatorName": "Underweight among adults, BMI < 18.5 kg/m2 (crude estimate) (%)",
+      "Language": "EN"
+    },
+    {
+      "IndicatorCode": "MORT_100",
+      "IndicatorName": "Number of deaths in children aged <5 years, by cause",
+      "Language": "EN"
+    },
+    {
+      "IndicatorCode": "HCF_NO_ELECTRICITY",
+      "IndicatorName": "Percentage of health-care facilities with no access to any electricity supply (%)",
+      "Language": "EN"
+    },
+    {
+      "IndicatorCode": "HIV_0000000006",
+      "IndicatorName": "Number of people dying from HIV-related causes",
+      "Language": "EN"
+    }
+  ]
+}

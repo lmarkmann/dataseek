@@ -1,0 +1,27 @@
+{
+  "data": [
+    {
+      "name": "carrier_transport",
+      "title": "Carrier Transport",
+      "description": "\nAb-initio electronic transport database for inorganic materials."
+    },
+    {
+      "name": "defect_genome_pcfc_materials",
+      "title": "Defect Genome PCFC",
+      "description": "Defect Genome of Cubic Perovskites for Fuel Cell Applications."
+    },
+    {
+      "name": "esters",
+      "title": "Esters BiSe",
+      "description": "More accurate c-axis lattice parameter than what is currently on MP. The downside is that this calculation increases the error of the a-axis lattice parameter from 1.9% to 2.5%."
+    },
+    {
+      "name": "lsdi_nmr",
+      "title": "29Si Benchmark",
+      "description": "A collection of experimentally measured 29Si tensors collected from literature for the purpose of benchmarking computational NMR calculations."
+    }
+  ],
+  "has_more": false,
+  "total_count": 72,
+  "total_pages": 1
+}

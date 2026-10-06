@@ -1,0 +1,7 @@
+[files]
+# Recorded source responses: third-party text, kept as the source sent it.
+extend-exclude = ["tests/fixtures/"]
+
+[default]
+# Harvard Dataverse's own spelling, quoted from tests/fixtures/sources/dataverse.json.
+extend-ignore-re = ["Dateset contains past"]

@@ -1,0 +1,573 @@
+[
+  {
+    "collection_id": "af893e86-8e9f-41f1-a474-ef05359b1fb7",
+    "collection_url": "https://cellxgene.cziscience.com/collections/af893e86-8e9f-41f1-a474-ef05359b1fb7",
+    "collection_version_id": "c1b538fd-0f01-41c8-a504-6f44626916c2",
+    "consortia": [
+      "CZI Cell Science"
+    ],
+    "contact_email": "ruichen@bcm.edu",
+    "contact_name": "Rui Chen",
+    "created_at": "2026-06-09T23:02:06+00:00",
+    "curator_name": "Jennifer Yu-Sheng Chien",
+    "datasets": [
+      {
+        "assay": [
+          {
+            "label": "10x 3' v3",
+            "ontology_term_id": "EFO:0009922"
+          }
+        ],
+        "dataset_id": "ed419b4e-db9b-40f1-8593-68fdf8dfb076",
+        "dataset_version_id": "c8da6eeb-84d7-4379-a332-1bf6107859d6",
+        "disease": [
+          {
+            "label": "normal",
+            "ontology_term_id": "PATO:0000461"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "nucleus"
+        ],
+        "tissue": [
+          {
+            "label": "fovea centralis",
+            "ontology_term_id": "UBERON:0001786",
+            "tissue_type": "tissue"
+          },
+          {
+            "label": "macula lutea proper",
+            "ontology_term_id": "UBERON:0002822",
+            "tissue_type": "tissue"
+          },
+          {
+            "label": "peripheral region of retina",
+            "ontology_term_id": "UBERON:0013682",
+            "tissue_type": "tissue"
+          }
+        ]
+      },
+      {
+        "assay": [
+          {
+            "label": "10x 3' v3",
+            "ontology_term_id": "EFO:0009922"
+          }
+        ],
+        "dataset_id": "aad97cb5-f375-45ef-ae9d-178e7f5d5180",
+        "dataset_version_id": "9db639c3-5c9c-4b8f-b285-25ed5d335417",
+        "disease": [
+          {
+            "label": "normal",
+            "ontology_term_id": "PATO:0000461"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "nucleus"
+        ],
+        "tissue": [
+          {
+            "label": "fovea centralis",
+            "ontology_term_id": "UBERON:0001786",
+            "tissue_type": "tissue"
+          },
+          {
+            "label": "macula lutea proper",
+            "ontology_term_id": "UBERON:0002822",
+            "tissue_type": "tissue"
+          },
+          {
+            "label": "peripheral region of retina",
+            "ontology_term_id": "UBERON:0013682",
+            "tissue_type": "tissue"
+          }
+        ]
+      },
+      {
+        "assay": [
+          {
+            "label": "10x 3' v3",
+            "ontology_term_id": "EFO:0009922"
+          }
+        ],
+        "dataset_id": "8f10185b-e0b3-46a5-8706-7f1799225d79",
+        "dataset_version_id": "45e411d4-c103-4c28-84a9-cb5320f873ba",
+        "disease": [
+          {
+            "label": "normal",
+            "ontology_term_id": "PATO:0000461"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "nucleus"
+        ],
+        "tissue": [
+          {
+            "label": "fovea centralis",
+            "ontology_term_id": "UBERON:0001786",
+            "tissue_type": "tissue"
+          },
+          {
+            "label": "macula lutea proper",
+            "ontology_term_id": "UBERON:0002822",
+            "tissue_type": "tissue"
+          },
+          {
+            "label": "peripheral region of retina",
+            "ontology_term_id": "UBERON:0013682",
+            "tissue_type": "tissue"
+          }
+        ]
+      },
+      {
+        "assay": [
+          {
+            "label": "10x 3' v3",
+            "ontology_term_id": "EFO:0009922"
+          }
+        ],
+        "dataset_id": "359f7af4-87d4-4117-9d6c-ca4cfa1f3f0b",
+        "dataset_version_id": "e3c7aa91-5edd-416e-965e-17bef75462d4",
+        "disease": [
+          {
+            "label": "normal",
+            "ontology_term_id": "PATO:0000461"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "nucleus"
+        ],
+        "tissue": [
+          {
+            "label": "fovea centralis",
+            "ontology_term_id": "UBERON:0001786",
+            "tissue_type": "tissue"
+          },
+          {
+            "label": "macula lutea proper",
+            "ontology_term_id": "UBERON:0002822",
+            "tissue_type": "tissue"
+          },
+          {
+            "label": "peripheral region of retina",
+            "ontology_term_id": "UBERON:0013682",
+            "tissue_type": "tissue"
+          }
+        ]
+      }
+    ],
+    "description": "The retina is the innermost tissue of the eyes of human and most other vertebrates. It receives the information of the visual images like the film of a camera and then translates the images into neural signals.",
+    "doi": "10.1016/j.xgen.2023.100298",
+    "is_pre_analysis": false,
+    "links": [
+      {
+        "link_name": "",
+        "link_type": "OTHER",
+        "link_url": "https://retina-atac.cells.ucsc.edu/"
+      },
+      {
+        "link_name": "",
+        "link_type": "RAW_DATA",
+        "link_url": "https://explore.data.humancellatlas.org/projects/9c20a245-f2c0-43ae-82c9-2232ec6b594f"
+      },
+      {
+        "link_name": "GSE226108",
+        "link_type": "RAW_DATA",
+        "link_url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE226108"
+      }
+    ],
+    "name": "Single-cell transcriptomic atlas for adult human retina",
+    "published_at": "2021-10-29T22:14:24+00:00",
+    "publisher_metadata": {
+      "authors": [
+        {
+          "family": "Liang",
+          "given": "Qingnan"
+        },
+        {
+          "family": "Cheng",
+          "given": "Xuesen"
+        },
+        {
+          "family": "Wang",
+          "given": "Jun"
+        },
+        {
+          "family": "Owen",
+          "given": "Leah"
+        }
+      ],
+      "is_preprint": false,
+      "journal": "Cell Genomics",
+      "published_at": 1685577600.0,
+      "published_day": 1,
+      "published_month": 6,
+      "published_year": 2023
+    },
+    "revised_at": "2026-06-11T16:52:24+00:00",
+    "revising_in": null,
+    "revision_of": null,
+    "visibility": "PUBLIC"
+  },
+  {
+    "collection_id": "3a5dbf8a-9b3e-4309-b4c5-d8a024f83734",
+    "collection_url": "https://cellxgene.cziscience.com/collections/3a5dbf8a-9b3e-4309-b4c5-d8a024f83734",
+    "collection_version_id": "c656236c-fc37-4470-aef1-799af222a821",
+    "consortia": [
+      "LungMAP"
+    ],
+    "contact_email": "contact@example.org",
+    "contact_name": "Xin Sun",
+    "created_at": "2026-06-10T03:39:38+00:00",
+    "curator_name": "Jennifer Yu-Sheng Chien",
+    "datasets": [
+      {
+        "assay": [
+          {
+            "label": "10x 3' v3",
+            "ontology_term_id": "EFO:0009922"
+          }
+        ],
+        "dataset_id": "d68a8b48-abf0-4bd5-8834-155d34ec448a",
+        "dataset_version_id": "83bbeaaf-f5e0-42ac-be8a-dbc4e0c0d433",
+        "disease": [
+          {
+            "label": "bronchopulmonary dysplasia",
+            "ontology_term_id": "MONDO:0019091"
+          },
+          {
+            "label": "normal",
+            "ontology_term_id": "PATO:0000461"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "nucleus"
+        ],
+        "tissue": [
+          {
+            "label": "middle lobe of right lung",
+            "ontology_term_id": "UBERON:0002174",
+            "tissue_type": "tissue"
+          }
+        ]
+      }
+    ],
+    "description": "Bronchopulmonary dysplasia (BPD) is a chronic lung disease characterized by alveolar dysplasia in newborns that are typically born prematurely.",
+    "doi": null,
+    "is_pre_analysis": false,
+    "links": [
+      {
+        "link_name": "",
+        "link_type": "OTHER",
+        "link_url": "https://data-browser.lungmap.net/projects/1977dc47-8414-4263-a870-6b0f207d8ab3"
+      }
+    ],
+    "name": "Bronchopulmonary Dysplasia",
+    "published_at": "2025-02-03T17:14:54+00:00",
+    "publisher_metadata": null,
+    "revised_at": "2026-06-11T16:53:15+00:00",
+    "revising_in": null,
+    "revision_of": null,
+    "visibility": "PUBLIC"
+  },
+  {
+    "collection_id": "16876983-d454-43db-a8ec-77fafca9bf38",
+    "collection_url": "https://cellxgene.cziscience.com/collections/16876983-d454-43db-a8ec-77fafca9bf38",
+    "collection_version_id": "ea4e5a38-8adb-4ca3-94e0-3cb07c661091",
+    "consortia": [],
+    "contact_email": "ryan.corces@gladstone.ucsf.edu",
+    "contact_name": "Ryan Corces",
+    "created_at": "2026-06-10T02:12:51+00:00",
+    "curator_name": "Jennifer Yu-Sheng Chien",
+    "datasets": [
+      {
+        "assay": [
+          {
+            "label": "10x multiome",
+            "ontology_term_id": "EFO:0030059"
+          }
+        ],
+        "dataset_id": "e88a8e7c-0586-4690-8aa6-34efd7076f7a",
+        "dataset_version_id": "02e1d36f-3019-49c9-aa3d-3a7df7ae9fd8",
+        "disease": [
+          {
+            "label": "Parkinson disease",
+            "ontology_term_id": "MONDO:0005180"
+          },
+          {
+            "label": "normal",
+            "ontology_term_id": "PATO:0000461"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "nucleus"
+        ],
+        "tissue": [
+          {
+            "label": "cerebellum",
+            "ontology_term_id": "UBERON:0002037",
+            "tissue_type": "tissue"
+          },
+          {
+            "label": "cingulate gyrus",
+            "ontology_term_id": "UBERON:0002967",
+            "tissue_type": "tissue"
+          },
+          {
+            "label": "middle temporal gyrus",
+            "ontology_term_id": "UBERON:0002771",
+            "tissue_type": "tissue"
+          },
+          {
+            "label": "putamen",
+            "ontology_term_id": "UBERON:0001874",
+            "tissue_type": "tissue"
+          }
+        ]
+      },
+      {
+        "assay": [
+          {
+            "label": "10x multiome",
+            "ontology_term_id": "EFO:0030059"
+          }
+        ],
+        "dataset_id": "5fa72b3e-999e-4560-a105-391d109574da",
+        "dataset_version_id": "5451683b-f184-4bd5-8fb1-401bf1a467c6",
+        "disease": [
+          {
+            "label": "Parkinson disease",
+            "ontology_term_id": "MONDO:0005180"
+          },
+          {
+            "label": "normal",
+            "ontology_term_id": "PATO:0000461"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "nucleus"
+        ],
+        "tissue": [
+          {
+            "label": "cerebellum",
+            "ontology_term_id": "UBERON:0002037",
+            "tissue_type": "tissue"
+          },
+          {
+            "label": "cingulate gyrus",
+            "ontology_term_id": "UBERON:0002967",
+            "tissue_type": "tissue"
+          },
+          {
+            "label": "middle temporal gyrus",
+            "ontology_term_id": "UBERON:0002771",
+            "tissue_type": "tissue"
+          },
+          {
+            "label": "putamen",
+            "ontology_term_id": "UBERON:0001874",
+            "tissue_type": "tissue"
+          }
+        ]
+      }
+    ],
+    "description": "Complex diseases, by definition, are driven by a large number of genetic variants, many of which reside within the noncoding genome.",
+    "doi": "10.64898/2026.03.05.709922",
+    "is_pre_analysis": false,
+    "links": [],
+    "name": "Multi-Region Brain Single-Cell Atlas of Parkinson's Disease and Control Samples",
+    "published_at": "2026-04-30T17:25:28+00:00",
+    "publisher_metadata": {
+      "authors": [
+        {
+          "family": "Menon",
+          "given": "Shreya"
+        },
+        {
+          "family": "Turner",
+          "given": "Adam W."
+        },
+        {
+          "family": "Chang",
+          "given": "Serena H."
+        },
+        {
+          "family": "Johnson",
+          "given": "Alia W."
+        }
+      ],
+      "is_preprint": true,
+      "journal": "bioRxiv",
+      "published_at": 1772668800.0,
+      "published_day": 5,
+      "published_month": 3,
+      "published_year": 2026
+    },
+    "revised_at": "2026-06-11T16:53:15+00:00",
+    "revising_in": null,
+    "revision_of": null,
+    "visibility": "PUBLIC"
+  },
+  {
+    "collection_id": "ad10cef8-9c6c-488f-9b50-d252d49b6837",
+    "collection_url": "https://cellxgene.cziscience.com/collections/ad10cef8-9c6c-488f-9b50-d252d49b6837",
+    "collection_version_id": "6f05ce2a-2fca-424c-82b7-0226386e1951",
+    "consortia": [],
+    "contact_email": "jiyeon.choi2@nih.gov",
+    "contact_name": "Jiyeon Choi",
+    "created_at": "2026-06-10T02:39:24+00:00",
+    "curator_name": "Jennifer Yu-Sheng Chien",
+    "datasets": [
+      {
+        "assay": [
+          {
+            "label": "10x multiome",
+            "ontology_term_id": "EFO:0030059"
+          }
+        ],
+        "dataset_id": "92594117-6e7c-47bd-bd6b-65c52cea167b",
+        "dataset_version_id": "a1e971da-5c35-46fd-acc3-b742735ec7d9",
+        "disease": [
+          {
+            "label": "normal",
+            "ontology_term_id": "PATO:0000461"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "nucleus"
+        ],
+        "tissue": [
+          {
+            "label": "lung",
+            "ontology_term_id": "UBERON:0002048",
+            "tissue_type": "tissue"
+          }
+        ]
+      }
+    ],
+    "description": "Genome-wide association studies (GWAS) identified over fifty loci associated with lung cancer risk. However, underlying mechanisms and target genes are largely unknown, as most risk-associated variants might regulate gene expression in a context-specific manner.",
+    "doi": "10.1038/s41467-024-52356-9",
+    "is_pre_analysis": false,
+    "links": [
+      {
+        "link_name": "GSE241468",
+        "link_type": "RAW_DATA",
+        "link_url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE241468"
+      },
+      {
+        "link_name": "",
+        "link_type": "OTHER",
+        "link_url": "https://github.com/pumclyy/HLISCA"
+      },
+      {
+        "link_name": "",
+        "link_type": "OTHER",
+        "link_url": "https://zenodo.org/records/13306592"
+      }
+    ],
+    "name": "Context-aware single-cell multiomics approach identifies cell-type specific lung cancer susceptibility genes",
+    "published_at": "2026-01-07T20:01:55+00:00",
+    "publisher_metadata": {
+      "authors": [
+        {
+          "family": "Long",
+          "given": "Erping"
+        },
+        {
+          "family": "Yin",
+          "given": "Jinhu"
+        },
+        {
+          "family": "Shin",
+          "given": "Ju Hye"
+        },
+        {
+          "family": "Li",
+          "given": "Yuyan"
+        }
+      ],
+      "is_preprint": false,
+      "journal": "Nat Commun",
+      "published_at": 1726099200.0,
+      "published_day": 12,
+      "published_month": 9,
+      "published_year": 2024
+    },
+    "revised_at": "2026-06-11T16:53:41+00:00",
+    "revising_in": null,
+    "revision_of": null,
+    "visibility": "PUBLIC"
+  }
+]

@@ -49,7 +49,7 @@ pub mod internals {
     pub use crate::dedup::{merge, weigh};
     pub use crate::record::{Dataset, clean};
     pub use crate::sources::eurostat::parse as eurostat_toc;
-    pub use crate::sources::sdmx::parse as sdmx_dataflows;
+    pub use crate::sources::sdmx::flows as sdmx_dataflows;
 }
 
 use std::io::{self, Write};

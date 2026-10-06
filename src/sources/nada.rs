@@ -20,10 +20,18 @@ pub fn search(
         .query("sk", query)
         .query("ps", limit)
         .json()?;
+    parse(base, &body, limit)
+}
+
+pub(super) fn parse(
+    base: &str,
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.pointer("/result/rows").is_none() {
         return Err(SourceError::shape("no result.rows"));
     }
-    Ok(items(&body, "/result/rows")
+    Ok(items(body, "/result/rows")
         .iter()
         .filter_map(|row| record(base, row))
         .take(limit)
@@ -54,4 +62,41 @@ fn record(base: &str, row: &Value) -> Option<Dataset> {
     dataset.updated = day(text(row, "/changed"));
     dataset.popularity = number(row, "/total_downloads");
     dataset.valid()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(
+            "https://microdata.worldbank.org/index.php",
+            &fixture::json("nada.json"),
+            10,
+        )
+        .unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Impact Evaluation of Low-Cost In-Line Chlorination \
+                        Systems in Urban Dhaka on Water Quality and Child \
+                        Health 2015"
+                    .into(),
+                url: "https://microdata.worldbank.org/catalog/5730".into(),
+                description: Some("Bangladesh, 2015".into()),
+                publisher: Some(
+                    "Stephen P. Luby, Amy Pickering, Sonia Sultana".into()
+                ),
+                doi: None,
+                license: None,
+                updated: Some("2023-02-21".into()),
+                size_bytes: None,
+                popularity: Some(675),
+                aliases: vec![],
+            }
+        );
+    }
 }

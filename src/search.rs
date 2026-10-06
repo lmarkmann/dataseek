@@ -197,3 +197,211 @@ fn one(ctx: &Ctx<'_>, plan: &Plan, source: &'static Source) -> Outcome {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::{Adapter, Category, Need};
+
+    type Answer = Result<Vec<Dataset>, SourceError>;
+
+    fn found() -> Vec<Dataset> {
+        vec![Dataset::new("Rainfall", "https://x.org/rain")]
+    }
+
+    #[expect(clippy::unnecessary_wraps, reason = "the Live signature")]
+    fn answers(_: &Ctx<'_>, _: &str, _: usize) -> Answer {
+        Ok(found())
+    }
+
+    fn times_out(_: &Ctx<'_>, _: &str, _: usize) -> Answer {
+        Err(SourceError::Timeout)
+    }
+
+    fn not_found(_: &Ctx<'_>, _: &str, _: usize) -> Answer {
+        Err(SourceError::Status(404))
+    }
+
+    #[expect(
+        clippy::panic_in_result_fn,
+        reason = "being called at all is the failure"
+    )]
+    fn must_not_run(_: &Ctx<'_>, _: &str, _: usize) -> Answer {
+        panic!("the adapter ran when it should have been skipped");
+    }
+
+    #[expect(clippy::unnecessary_wraps, reason = "the Live signature")]
+    fn hangs(_: &Ctx<'_>, _: &str, _: usize) -> Answer {
+        std::thread::sleep(Duration::from_secs(5));
+        Ok(Vec::new())
+    }
+
+    const fn fake(id: &'static str, run: crate::sources::Live) -> Source {
+        Source {
+            id,
+            name: id,
+            category: Category::Research,
+            protocol: "test",
+            docs: "https://x.org",
+            key: None,
+            persist: true,
+            adapter: Adapter::Live(run),
+        }
+    }
+
+    static ANSWERS: Source = fake("answers", answers);
+    static TIMES_OUT: Source = fake("times-out", times_out);
+    static NOT_FOUND: Source = fake("not-found", not_found);
+    static UNTOUCHABLE: Source = fake("untouchable", must_not_run);
+    static KEYED: Source = Source {
+        key: Some((Key::Roboflow, Need::Required)),
+        ..fake("keyed", must_not_run)
+    };
+    static UNPERSISTED: Source =
+        Source { persist: false, ..fake("unpersisted", answers) };
+    static HANGS: Source = fake("hangs", hangs);
+
+    fn plan(source: &'static Source, forced: bool) -> Plan {
+        Plan {
+            query: "rain".into(),
+            sources: vec![source],
+            per_source: 10,
+            forced,
+        }
+    }
+
+    fn query_entry(source: &Source) -> String {
+        query_key(source.id, "rain", 10)
+    }
+
+    #[test]
+    fn a_missing_required_key_skips_the_source_unasked() {
+        let dir = tempfile::tempdir().unwrap();
+        let services = Services::scratch(dir.path());
+        let outcome = one(&services.ctx(false), &plan(&KEYED, true), &KEYED);
+        assert!(matches!(outcome.status, Status::NeedsKey(Key::Roboflow)));
+    }
+
+    #[test]
+    fn a_recent_outage_rests_the_source_unless_the_user_named_it() {
+        let dir = tempfile::tempdir().unwrap();
+        let services = Services::scratch(dir.path());
+        let ctx = services.ctx(false);
+        ctx.cache.mark_outage(UNTOUCHABLE.id);
+        let rested = one(&ctx, &plan(&UNTOUCHABLE, false), &UNTOUCHABLE);
+        assert!(
+            matches!(rested.status, Status::Resting(_)),
+            "{:?}",
+            rested.status
+        );
+
+        ctx.cache.mark_outage(ANSWERS.id);
+        let named = one(&ctx, &plan(&ANSWERS, true), &ANSWERS);
+        assert!(matches!(named.status, Status::Fetched), "{:?}", named.status);
+        assert!(
+            ctx.cache.recent_outage(ANSWERS.id).is_none(),
+            "a success left the outage mark"
+        );
+    }
+
+    #[test]
+    fn a_fresh_answer_is_served_from_cache_unless_refreshing() {
+        let dir = tempfile::tempdir().unwrap();
+        let services = Services::scratch(dir.path());
+        let cached = vec![Dataset::new("Snow", "https://x.org/snow")];
+        let ctx = services.ctx(false);
+        ctx.cache.store(Kind::Query, &query_entry(&UNTOUCHABLE), &cached);
+        let served = one(&ctx, &plan(&UNTOUCHABLE, true), &UNTOUCHABLE);
+        assert!(
+            matches!(served.status, Status::Cached),
+            "{:?}",
+            served.status
+        );
+        assert_eq!(served.datasets, cached);
+
+        ctx.cache.store(Kind::Query, &query_entry(&ANSWERS), &cached);
+        let refreshed =
+            one(&services.ctx(true), &plan(&ANSWERS, true), &ANSWERS);
+        assert!(matches!(refreshed.status, Status::Fetched));
+        assert_eq!(refreshed.datasets, found());
+    }
+
+    #[test]
+    fn a_failed_fetch_serves_the_expired_answer() {
+        let dir = tempfile::tempdir().unwrap();
+        let services = Services::scratch(dir.path());
+        let ctx = services.ctx(false);
+        ctx.cache.store_expired(
+            Kind::Query,
+            &query_entry(&TIMES_OUT),
+            &found(),
+        );
+        let outcome = one(&ctx, &plan(&TIMES_OUT, true), &TIMES_OUT);
+        assert!(
+            matches!(outcome.status, Status::Stale(SourceError::Timeout)),
+            "{:?}",
+            outcome.status
+        );
+        assert_eq!(outcome.datasets, found());
+    }
+
+    #[test]
+    fn only_outage_failures_rest_the_source_next_time() {
+        let dir = tempfile::tempdir().unwrap();
+        let services = Services::scratch(dir.path());
+        let ctx = services.ctx(false);
+        let down = one(&ctx, &plan(&TIMES_OUT, true), &TIMES_OUT);
+        assert!(matches!(down.status, Status::Failed(SourceError::Timeout)));
+        assert!(ctx.cache.recent_outage(TIMES_OUT.id).is_some());
+
+        let rejected = one(&ctx, &plan(&NOT_FOUND, true), &NOT_FOUND);
+        assert!(matches!(
+            rejected.status,
+            Status::Failed(SourceError::Status(404))
+        ));
+        assert!(ctx.cache.recent_outage(NOT_FOUND.id).is_none());
+    }
+
+    #[test]
+    fn an_unpersisted_source_writes_nothing_to_disk() {
+        let dir = tempfile::tempdir().unwrap();
+        let services = Services::scratch(dir.path());
+        let ctx = services.ctx(false);
+        let outcome = one(&ctx, &plan(&UNPERSISTED, true), &UNPERSISTED);
+        assert_eq!(outcome.datasets, found());
+        assert_eq!(ctx.cache.usage().files, 0);
+    }
+
+    fn run_one(
+        source: &'static Source,
+        deadline: Option<Duration>,
+    ) -> Outcome {
+        let dir = tempfile::tempdir().unwrap();
+        let services = Arc::new(Services::scratch(dir.path()));
+        let plan = Arc::new(plan(source, true));
+        let mut outcomes =
+            run(&services, false, &plan, &ProgressBar::hidden(), deadline);
+        assert_eq!(outcomes.len(), 1);
+        outcomes.remove(0)
+    }
+
+    #[test]
+    fn a_panicking_adapter_is_reported_as_crashed() {
+        let outcome = run_one(&UNTOUCHABLE, None);
+        assert_eq!(
+            outcome.status.label(),
+            "returned an unexpected shape: the adapter crashed"
+        );
+        assert!(!outcome.status.answered());
+    }
+
+    #[test]
+    fn an_adapter_past_the_deadline_is_still_running() {
+        let outcome = run_one(&HANGS, Some(Duration::from_millis(50)));
+        assert!(
+            matches!(outcome.status, Status::Running(_)),
+            "{:?}",
+            outcome.status
+        );
+    }
+}
