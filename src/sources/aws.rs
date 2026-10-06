@@ -5,7 +5,7 @@
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::Dataset;
+use crate::record::{Dataset, clean};
 
 pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
     let page = ctx.http.get("https://registry.opendata.aws/").slow().text()?;
@@ -32,7 +32,12 @@ fn parse(page: &str) -> Vec<Dataset> {
                 .split("<p>")
                 .skip(1)
                 .filter_map(|p| p.split_once("</p>").map(|(inner, _)| inner))
-                .find(|p| !p.contains("<span") && !p.contains("Details"));
+                .map(str::trim)
+                .find(|p| {
+                    let tags = p.starts_with("<span");
+                    let link = p.starts_with("<a ") && p.ends_with("</a>");
+                    !tags && !link && !clean(p).is_empty()
+                });
             Dataset::new(
                 title,
                 &format!("https://registry.opendata.aws/{id}/"),
@@ -52,6 +57,7 @@ fn between<'a>(text: &'a str, open: &str, close: &str) -> Option<&'a str> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::sources::fixture;
 
     #[test]
     fn dataset_blocks_parse_and_others_are_ignored() {
@@ -72,6 +78,43 @@ mod tests {
         assert_eq!(
             entries[0].description.as_deref(),
             Some("A corpus of web crawl data.")
+        );
+    }
+
+    #[test]
+    fn records_map_from_a_recorded_list() {
+        let hits = parse(&fixture::text("aws.html"));
+        assert_eq!(hits.len(), 3);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Common Crawl".into(),
+                url: "https://registry.opendata.aws/commoncrawl/".into(),
+                description: Some(
+                    "A corpus of web crawl data composed of over 300 billion \
+                     web pages."
+                        .into()
+                ),
+                publisher: None,
+                doi: None,
+                license: None,
+                updated: None,
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+        let described =
+            |i: usize| hits[i].description.clone().unwrap_or_default();
+        assert!(
+            described(1).starts_with("Disk images, memory dumps"),
+            "{}",
+            described(1)
+        );
+        assert!(
+            described(2).starts_with("The Gridded Altimeter Fields"),
+            "{}",
+            described(2)
         );
     }
 }
