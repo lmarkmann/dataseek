@@ -33,9 +33,8 @@ pub struct Out {
 
 impl Out {
     pub fn resolve(cli: &Cli) -> Self {
-        // --plain and --no-color are shorthands for --color=never; otherwise
-        // the explicit --color value wins. Auto consults the terminal and
-        // NO_COLOR via AutoStream below, so no env parsing is needed here.
+        // --plain and --no-color are shorthands for --color=never. Auto is
+        // left to AutoStream, which reads the terminal and NO_COLOR.
         let color = if cli.plain || cli.no_color {
             ColorChoice::Never
         } else {
@@ -50,10 +49,8 @@ impl Out {
         }
     }
 
-    /// stdout that emits ANSI per the resolved --color choice: `always` forces
-    /// color through a pipe, `never` strips it, `auto` follows the terminal
-    /// and NO_COLOR. `anstyle` escapes are filtered by this stream, so callers
-    /// can style unconditionally and let the choice decide.
+    /// stdout filtered per the resolved --color choice, so callers can style
+    /// unconditionally.
     pub fn stdout(&self) -> AutoStream<Stdout> {
         let out = std::io::stdout();
         match self.color {
@@ -63,27 +60,23 @@ impl Out {
         }
     }
 
-    /// A verbose diagnostic for humans: shown at `-v` and above, silent at
-    /// normal and quiet. Goes to stderr, never stdout, so it never pollutes a
-    /// pipe. Unlike the [`crate::ui`] layer, it still prints when stderr is
-    /// redirected to a file, which is the point of `-v 2> log`.
+    /// A diagnostic for `-v` and above, on stderr. Unlike [`crate::ui`] it
+    /// still prints when stderr is redirected, which is the point of
+    /// `-v 2> log`.
     pub fn note(&self, msg: &str) {
         if self.verbosity >= Verbosity::Verbose {
             let _ = writeln!(anstream::stderr(), "{msg}");
         }
     }
 
-    /// Would stdout carry color right now? Used for reporting, not for gating
-    /// output; the stream strips escapes on its own.
+    /// Would stdout carry color right now? For reporting only; the stream
+    /// strips escapes on its own.
     pub fn color_on_stdout(&self) -> bool {
         self.color_for(&std::io::stdout())
     }
 
-    /// Answer from the same authority the stream uses. Hand-rolling this as
-    /// `is_terminal() && NO_COLOR` gets it wrong in both directions, because
-    /// anstream also honors CLICOLOR_FORCE, CLICOLOR, TERM (unset or `dumb`),
-    /// and CI detection. Two color policies in one program disagree
-    /// eventually, and the one that reports is the one that ends up lying.
+    /// Asks anstream, the same authority the stream uses. A hand-rolled
+    /// `is_terminal() && NO_COLOR` misses CLICOLOR_FORCE, CLICOLOR, TERM and CI.
     fn color_for(&self, stream: &impl RawStream) -> bool {
         match self.color {
             ColorChoice::Always => true,
@@ -94,18 +87,16 @@ impl Out {
         }
     }
 
-    /// Should the stderr [`crate::ui`] layer draw at all? Rich means a human
-    /// is watching: stderr is a terminal and the run is neither
-    /// machine-readable nor silenced.
+    /// Should the stderr [`crate::ui`] layer draw? Only when stderr is a
+    /// terminal and the run is neither `--json` nor `--quiet`.
     pub fn stderr_is_rich(&self) -> bool {
         std::io::stderr().is_terminal()
             && !self.json
             && self.verbosity > Verbosity::Quiet
     }
 
-    /// Would stderr carry color? Narration and progress are styled, so this is
-    /// asked separately from [`Self::color_on_stdout`]: a run can pipe its
-    /// data and still be watched by a human.
+    /// Asked separately from [`Self::color_on_stdout`]: a run can pipe its data
+    /// and still be watched by a human.
     pub fn color_on_stderr(&self) -> bool {
         self.color_for(&std::io::stderr())
     }
@@ -116,9 +107,8 @@ mod tests {
     use super::*;
     use crate::cli::Command;
 
-    // Flag resolution is the one piece of pure logic in the crate, so it is
-    // the one piece testable without spawning the binary. Everything else
-    // about output needs a real terminal, which is what tests/cli.rs is for.
+    // Flag resolution is the pure logic; the rest of output needs a real
+    // process, which tests/cli.rs covers.
     fn out(build: impl FnOnce(&mut Cli)) -> Out {
         let mut cli = Cli {
             quiet: false,
@@ -138,15 +128,13 @@ mod tests {
         assert_eq!(out(|_| {}).verbosity, Verbosity::Normal);
         assert_eq!(out(|c| c.quiet = true).verbosity, Verbosity::Quiet);
         assert_eq!(out(|c| c.verbose = 1).verbosity, Verbosity::Verbose);
-        // Every count above zero is the same level; -vv is not a third one.
+        // -vv is not a third level.
         assert_eq!(out(|c| c.verbose = 3).verbosity, Verbosity::Verbose);
     }
 
     #[test]
     fn plain_and_no_color_are_shorthands_for_never() {
-        // Not a terminal under test, so Auto would be false anyway; Always is
-        // the value that proves the shorthand overrode the choice rather than
-        // the pipe deciding it.
+        // Always, because Auto is already false off a terminal.
         assert!(
             !out(|c| {
                 c.plain = true;
@@ -171,8 +159,8 @@ mod tests {
 
     #[test]
     fn the_ui_layer_is_off_whenever_output_is_machine_read_or_silenced() {
-        // stderr is not a terminal under test, so `rich` is false throughout;
-        // these pin the two flags that must switch it off even when it is one.
+        // stderr is never a terminal here; these pin the two flags that must
+        // switch the layer off even on one.
         assert!(!out(|c| c.json = true).stderr_is_rich());
         assert!(!out(|c| c.quiet = true).stderr_is_rich());
     }

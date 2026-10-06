@@ -12,18 +12,15 @@ pub enum Error {
     )]
     TerminalStdin,
 
-    // A field named `source` is the error source to thiserror without any
-    // attribute, so it already reaches the `Cause:` line in main::report.
-    // Interpolating it here as well would print it twice.
+    // thiserror treats a `source` field as the error source, so report() prints
+    // it as the Cause line; interpolating it here would print it twice.
     #[error(
         "cannot read {path}\n  Try:   check the path, or pipe input instead: cat FILE | dataseek count"
     )]
     Open { path: String, source: std::io::Error },
 
-    // read_to_string reports a UTF-8 failure as InvalidData, which the Open
-    // hint answers with two dead ends: the path is right, and piping the same
-    // bytes fails identically. Split it out so the hint names the actual
-    // constraint.
+    // read_to_string reports invalid UTF-8 as InvalidData; the Open hint would
+    // send the user down two dead ends.
     #[error(
         "cannot read {path}: not UTF-8 text\n  Try:   count works on text; pass a text file"
     )]
@@ -65,9 +62,7 @@ pub fn run(file: Option<&str>, out: &Out) -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Classify a failed read. Both call sites go through `read_to_string`, so
-/// both can fail either because the bytes are unreachable or because they are
-/// not text.
+/// Split a failed read into unreachable bytes and bytes that are not text.
 fn read_error(path: &str, source: std::io::Error) -> Error {
     if source.kind() == std::io::ErrorKind::InvalidData {
         Error::NotText { path: path.to_owned() }
@@ -84,9 +79,7 @@ fn read_input(file: Option<&str>) -> Result<(String, String), Error> {
                 return Err(Error::TerminalStdin);
             }
 
-            // stdin is the one read whose length we cannot know up front, so
-            // it is the honest place for a spinner: it shows only when a human
-            // is waiting on a slow pipe and vanishes the instant input closes.
+            // Length unknown, so a spinner rather than a bar.
             let progress = ui::spinner("reading stdin");
             let mut buf = String::new();
             let read = stdin.read_to_string(&mut buf);

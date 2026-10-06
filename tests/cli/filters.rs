@@ -2,8 +2,7 @@ const FILTERS: &[(&str, &str)] = &[
     (r"/(?:private/)?tmp/[^\s]+", "[TEMP_PATH]"),
     (r"/(?:private/)?var/folders/[^\s]+/T/[^\s]+", "[TEMP_PATH]"),
     (r"[A-Za-z]:\\[^\r\n]*\\Temp\\[^\s]+", "[TEMP_PATH]"),
-    // clap prints argv[0], which carries the suffix on Windows: `Usage:
-    // name.exe ...`.
+    // clap prints argv[0], which has the .exe suffix on Windows.
     (r"\.exe\b", ""),
     (r"\b\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?\b", "[VERSION]"),
     (
