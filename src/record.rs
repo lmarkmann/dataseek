@@ -47,8 +47,16 @@ impl Dataset {
 
     /// A record without a title or a link cannot be shown or opened, so the
     /// adapters drop it instead of passing noise on.
+    ///
+    /// The link is also the one field printed without passing through
+    /// [`clean`], so one carrying whitespace or a control character is
+    /// treated as no link at all.
     pub fn valid(self) -> Option<Self> {
-        (!self.title.is_empty() && self.url.starts_with("http"))
+        let link_is_plain =
+            self.url.chars().all(|c| !c.is_control() && !c.is_whitespace());
+        (!self.title.is_empty()
+            && self.url.starts_with("http")
+            && link_is_plain)
             .then_some(self)
     }
 
@@ -63,11 +71,14 @@ impl Dataset {
     }
 }
 
-/// HTML tags removed, the common entities decoded, whitespace collapsed.
+/// HTML tags removed, the common entities decoded, whitespace collapsed,
+/// and every control character (ESC, CSI, OSC, C1) replaced by a space, so a
+/// record from a remote source can never drive the terminal it is printed
+/// on.
 pub fn clean(text: &str) -> String {
     let mut plain = String::with_capacity(text.len());
     let mut in_tag = false;
-    for c in text.chars() {
+    for c in text.chars().map(|c| if c.is_control() { ' ' } else { c }) {
         match c {
             '<' => in_tag = true,
             '>' if in_tag => {
@@ -117,11 +128,19 @@ pub fn doi(raw: &str) -> Option<String> {
     plausible.then(|| candidate.to_owned())
 }
 
-/// The string at a JSON pointer, trimmed; numbers are rendered as text.
-/// `None` for absent, null, empty and non-scalar values.
+/// The string at a JSON pointer, trimmed, with control characters replaced
+/// by spaces (see [`clean`]); numbers are rendered as text. `None` for
+/// absent, null, empty and non-scalar values.
 pub fn text(value: &Value, pointer: &str) -> Option<String> {
     match value.pointer(pointer)? {
-        Value::String(s) if !s.trim().is_empty() => Some(s.trim().to_owned()),
+        Value::String(s) => {
+            let safe: String = s
+                .chars()
+                .map(|c| if c.is_control() { ' ' } else { c })
+                .collect();
+            let trimmed = safe.trim();
+            (!trimmed.is_empty()).then(|| trimmed.to_owned())
+        }
         Value::Number(n) => Some(n.to_string()),
         _ => None,
     }
@@ -300,6 +319,18 @@ mod tests {
             day(Some("Feb 17, 2026".into())).as_deref(),
             Some("Feb 17, 2026")
         );
+    }
+
+    #[test]
+    fn remote_text_cannot_carry_terminal_escapes() {
+        let hostile = "Title\u{1b}]8;;https://evil\u{7}x\u{1b}[2J\u{9b}31m";
+        assert!(!clean(hostile).chars().any(char::is_control));
+        let v = json!({"t": hostile});
+        assert!(!text(&v, "/t").unwrap().chars().any(char::is_control));
+        assert!(
+            Dataset::new("t", "https://x.org/\u{1b}[2J").valid().is_none()
+        );
+        assert!(Dataset::new("t", "https://x.org/a b").valid().is_none());
     }
 
     #[test]
