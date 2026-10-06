@@ -23,6 +23,7 @@ mod cmr;
 mod datacite;
 mod datacommons;
 mod datagov;
+mod dataone;
 mod dataverse;
 mod dbnomics;
 mod ebi;
@@ -30,6 +31,7 @@ mod europa;
 mod eurostat;
 mod figshare;
 mod fred;
+mod gbif;
 mod gee;
 mod github;
 mod google;
@@ -351,8 +353,8 @@ const fn via(
 }
 
 use Category::{
-    Aggregator, Code, Geospatial, Government, LifeSciences, MachineLearning,
-    Research, Statistics,
+    Aggregator, Code, Ecology, Geospatial, Government, LifeSciences,
+    MachineLearning, Research, Statistics,
 };
 
 const CKAN_DOCS: &str = "https://docs.ckan.org/en/latest/api/";
@@ -865,6 +867,23 @@ pub static SOURCES: &[Source] = &[
         "PANGAEA search",
         "https://wiki.pangaea.de/wiki/PANGAEA_search",
         pangaea::search,
+    ),
+    // Ecology.
+    live(
+        "gbif",
+        "GBIF",
+        Ecology,
+        "GBIF registry",
+        "https://techdocs.gbif.org/en/openapi/v1/registry",
+        gbif::search,
+    ),
+    live(
+        "dataone",
+        "DataONE",
+        Ecology,
+        "DataONE Solr",
+        "https://dataoneorg.github.io/api-documentation/",
+        dataone::search,
     ),
     // Life sciences.
     via(
