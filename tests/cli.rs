@@ -80,7 +80,8 @@ fn help_exits_zero_and_lists_commands() {
         .assert()
         .success()
         .stdout(predicate::str::contains("search"))
-        .stdout(predicate::str::contains("sources"));
+        .stdout(predicate::str::contains("sources"))
+        .stdout(predicate::str::contains("bench"));
 }
 
 // clap routes naked-invocation help to stderr; stdout stays empty so a pipeline

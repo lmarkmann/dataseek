@@ -6,6 +6,7 @@
 //! This file holds the entry point: SIGPIPE handling, argument parsing,
 //! dispatch, and the error printer.
 
+mod bench;
 mod cache;
 mod cache_cmd;
 mod catalog;
@@ -99,6 +100,9 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
             find::run_search(&request, out)?;
         }
         Command::Sources => listing::run(out)?,
+        Command::Bench { queries, selection } => {
+            bench::run(&queries, &selection, out)?;
+        }
         Command::Cache(action) => cache_cmd::run(action, out)?,
         Command::Doctor => doctor::run(out)?,
         // clap_complete::generate panics on a failed write. Generating into a

@@ -24,7 +24,8 @@ pub enum ColorChoice {
     after_help = "Examples:\n  \
         dataseek search sea surface temperature\n  \
         dataseek search imagenet -s huggingface,kaggle --json | jq '.results[0]'\n  \
-        dataseek sources\n\n\
+        dataseek sources\n  \
+        dataseek bench \"air quality\" \"gene expression\"\n\n\
         dsk is the same program under a shorter name: dsk search mnist",
     arg_required_else_help = true,
     disable_help_subcommand = true,
@@ -142,9 +143,27 @@ pub enum Command {
 
     /// List every source: what it covers, its protocol, its key, its docs.
     #[command(after_help = "Examples:\n  \
-        dataseek sources\n\n\
+        dataseek sources\n  \
         dataseek sources --json | jq -r '.[] | select(.key == \"missing\") | .id'")]
     Sources,
+
+    /// Time every source on real queries and measure their overlap.
+    #[command(after_help = "Examples:\n  \
+        dataseek bench\n  \
+        dataseek bench \"air quality\" \"protein structure\" --json > bench.json\n  \
+        dataseek bench mnist -s huggingface,kaggle,openml,uci\n\
+        \n\
+        Bench bypasses the cache and asks every chosen source once per query,\n\
+        so it sends queries x sources requests. Without queries it uses a\n\
+        fixed set chosen to touch every category.")]
+    Bench {
+        /// Queries to time; each is one argument (quote multi-word queries).
+        #[arg(value_name = "QUERY")]
+        queries: Vec<String>,
+
+        #[command(flatten)]
+        selection: Selection,
+    },
 
     /// Show, warm or clear the cache.
     #[command(subcommand)]
