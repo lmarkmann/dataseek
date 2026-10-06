@@ -1,6 +1,11 @@
 //! The CESSDA Data Catalogue: European social science archives (UKDS, GESIS,
 //! FSD, SND, ...) harvested into one search. The API refuses requests without
-//! a metadata language; English is asked for.
+//! a metadata language; English is asked for because it returns the most
+//! studies (CESSDA, October 2026).
+//!
+//! Results come in relevance order. `limit` goes up to 200 and answers 400
+//! above that. `offset + limit` may not pass 10,000, the index's result
+//! window, so a page of up to 100 never needs paging (CESSDA, October 2026).
 
 use serde_json::Value;
 
