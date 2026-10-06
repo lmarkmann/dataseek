@@ -30,6 +30,7 @@ mod openaire;
 mod openml;
 mod roboflow;
 mod socrata;
+mod stac;
 mod uci;
 mod zenodo;
 
@@ -59,6 +60,7 @@ pub enum Adapter {
     Nada(&'static str),
     Socrata(&'static str),
     Ebi(&'static ebi::Domain),
+    Stac(&'static stac::Catalog),
 }
 
 /// What a source mainly holds. The names are what `--category` accepts and
@@ -123,7 +125,7 @@ pub struct Source {
 
 impl Source {
     pub fn is_catalog(&self) -> bool {
-        matches!(self.adapter, Adapter::Catalog(_))
+        matches!(self.adapter, Adapter::Catalog(_) | Adapter::Stac(_))
     }
 
     /// The key this source cannot run without, when it is missing.
@@ -154,6 +156,9 @@ impl Source {
             Adapter::Catalog(list) => {
                 self.local(ctx, query, limit, || list(ctx))
             }
+            Adapter::Stac(catalog) => {
+                self.local(ctx, query, limit, || stac::list(ctx, catalog))
+            }
         }
     }
 
@@ -162,6 +167,7 @@ impl Source {
     pub fn warm(&self, ctx: &Ctx<'_>) -> Option<Result<usize, SourceError>> {
         let downloaded = match &self.adapter {
             Adapter::Catalog(list) => list(ctx),
+            Adapter::Stac(catalog) => stac::list(ctx, catalog),
             _ => return None,
         };
         Some(downloaded.map(|entries| {
@@ -316,8 +322,8 @@ const fn via(
 }
 
 use Category::{
-    Aggregator, Government, LifeSciences, MachineLearning, Research,
-    Statistics,
+    Aggregator, Geospatial, Government, LifeSciences, MachineLearning,
+    Research, Statistics,
 };
 
 const CKAN_DOCS: &str = "https://docs.ckan.org/en/latest/api/";
@@ -573,6 +579,39 @@ pub static SOURCES: &[Source] = &[
         "NADA",
         NADA_DOCS,
         Adapter::Nada("https://microdata.unhcr.org/index.php"),
+    ),
+    // Earth observation and geospatial.
+    via(
+        "planetary-computer",
+        "Microsoft Planetary Computer",
+        Geospatial,
+        "STAC",
+        "https://planetarycomputer.microsoft.com/docs/reference/stac/",
+        Adapter::Stac(&stac::PLANETARY_COMPUTER),
+    ),
+    via(
+        "earth-search",
+        "Earth Search (AWS)",
+        Geospatial,
+        "STAC",
+        "https://element84.com/earth-search/",
+        Adapter::Stac(&stac::EARTH_SEARCH),
+    ),
+    via(
+        "copernicus-dataspace",
+        "Copernicus Data Space",
+        Geospatial,
+        "STAC",
+        "https://documentation.dataspace.copernicus.eu/APIs/STAC.html",
+        Adapter::Stac(&stac::COPERNICUS_DATASPACE),
+    ),
+    via(
+        "copernicus-cds",
+        "Copernicus Climate Data Store",
+        Geospatial,
+        "STAC",
+        "https://cds.climate.copernicus.eu/how-to-api",
+        Adapter::Stac(&stac::COPERNICUS_CDS),
     ),
     // Life sciences.
     via(
