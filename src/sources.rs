@@ -19,6 +19,7 @@
 mod arcgis;
 mod aws;
 mod ckan;
+mod cmr;
 mod datacite;
 mod datacommons;
 mod datagov;
@@ -29,6 +30,7 @@ mod europa;
 mod eurostat;
 mod figshare;
 mod fred;
+mod gee;
 mod github;
 mod google;
 mod huggingface;
@@ -36,11 +38,13 @@ mod kaggle;
 mod mendeley;
 mod modelscope;
 mod nada;
+mod ncei;
 mod openaire;
 mod opendatasoft;
 mod openml;
 mod osf;
 mod owid;
+mod pangaea;
 mod roboflow;
 mod sdmx;
 mod socrata;
@@ -798,6 +802,14 @@ pub static SOURCES: &[Source] = &[
         who::list,
     ),
     // Earth observation and geospatial.
+    live(
+        "cmr",
+        "NASA Earthdata (CMR)",
+        Geospatial,
+        "CMR search",
+        "https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html",
+        cmr::search,
+    ),
     via(
         "planetary-computer",
         "Microsoft Planetary Computer",
@@ -829,6 +841,30 @@ pub static SOURCES: &[Source] = &[
         "STAC",
         "https://cds.climate.copernicus.eu/how-to-api",
         Adapter::Stac(&stac::COPERNICUS_CDS),
+    ),
+    listed(
+        "earth-engine",
+        "Google Earth Engine catalog",
+        Geospatial,
+        "catalog page",
+        "https://developers.google.com/earth-engine/datasets/catalog",
+        gee::list,
+    ),
+    live(
+        "ncei",
+        "NOAA NCEI",
+        Geospatial,
+        "NCEI Search Service",
+        "https://www.ncei.noaa.gov/support/access-search-service-api-user-documentation",
+        ncei::search,
+    ),
+    live(
+        "pangaea",
+        "PANGAEA",
+        Geospatial,
+        "PANGAEA search",
+        "https://wiki.pangaea.de/wiki/PANGAEA_search",
+        pangaea::search,
     ),
     // Life sciences.
     via(
