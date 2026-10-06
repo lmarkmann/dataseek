@@ -13,59 +13,65 @@ use crate::record::Dataset;
 pub struct Agency {
     pub dataflows: &'static str,
     pub publisher: &'static str,
-    /// The page for a dataflow, from its agency id and dataflow id.
-    pub page: fn(&str, &str) -> String,
+    /// The page for a dataflow, from its agency id and dataflow id; `None`
+    /// when the dataflow has no page of its own.
+    pub page: fn(&str, &str) -> Option<String>,
 }
 
 pub static IMF: Agency = Agency {
     dataflows: "https://api.imf.org/external/sdmx/2.1/dataflow",
     publisher: "International Monetary Fund",
     page: |agency, id| {
-        format!("https://data.imf.org/en/datasets/{agency}:{id}")
+        Some(format!("https://data.imf.org/en/datasets/{agency}:{id}"))
     },
 };
 pub static OECD: Agency = Agency {
     dataflows: "https://sdmx.oecd.org/public/rest/dataflow/all",
     publisher: "OECD",
     page: |agency, id| {
-        format!(
+        Some(format!(
             "https://data-explorer.oecd.org/vis?df[ds]=dsDisseminateFinalDMZ&df[id]={id}&df[ag]={agency}"
-        )
+        ))
     },
 };
+/// ECB.DISS dataflows are the published-series subsets of other dataflows
+/// and have no page on the portal (89 of 215 on 2026-10-06, all 404).
 pub static ECB: Agency = Agency {
     dataflows: "https://data-api.ecb.europa.eu/service/dataflow",
     publisher: "European Central Bank",
-    page: |_, id| format!("https://data.ecb.europa.eu/data/datasets/{id}"),
+    page: |agency, id| {
+        (agency != "ECB.DISS")
+            .then(|| format!("https://data.ecb.europa.eu/data/datasets/{id}"))
+    },
 };
 pub static BUNDESBANK: Agency = Agency {
     dataflows: "https://api.statistiken.bundesbank.de/rest/metadata/dataflow/BBK",
     publisher: "Deutsche Bundesbank",
     page: |agency, id| {
-        format!(
+        Some(format!(
             "https://api.statistiken.bundesbank.de/rest/metadata/dataflow/{agency}/{id}"
-        )
+        ))
     },
 };
 pub static BIS: Agency = Agency {
     dataflows: "https://stats.bis.org/api/v1/dataflow",
     publisher: "Bank for International Settlements",
     page: |agency, id| {
-        format!("https://stats.bis.org/api/v1/dataflow/{agency}/{id}")
+        Some(format!("https://stats.bis.org/api/v1/dataflow/{agency}/{id}"))
     },
 };
 pub static ILO: Agency = Agency {
     dataflows: "https://sdmx.ilo.org/rest/dataflow",
     publisher: "International Labour Organization",
     page: |agency, id| {
-        format!("https://sdmx.ilo.org/rest/dataflow/{agency}/{id}")
+        Some(format!("https://sdmx.ilo.org/rest/dataflow/{agency}/{id}"))
     },
 };
 pub static UNDATA: Agency = Agency {
     dataflows: "https://data.un.org/ws/rest/dataflow",
     publisher: "United Nations Statistics Division",
     page: |agency, id| {
-        format!("https://data.un.org/ws/rest/dataflow/{agency}/{id}")
+        Some(format!("https://data.un.org/ws/rest/dataflow/{agency}/{id}"))
     },
 };
 
@@ -79,18 +85,23 @@ pub fn list(
         .header("Accept", "application/vnd.sdmx.structure+xml;version=2.1")
         .slow()
         .text()?;
-    let flows = parse(&xml)?;
+    parse(agency, &xml)
+}
+
+pub(super) fn parse(
+    agency: &Agency,
+    xml: &str,
+) -> Result<Vec<Dataset>, SourceError> {
+    let flows = flows(xml)?;
     if flows.is_empty() {
         return Err(SourceError::shape("no Dataflow elements"));
     }
     Ok(flows
         .into_iter()
         .filter_map(|flow| {
-            let mut dataset = Dataset::new(
-                &flow.name,
-                &(agency.page)(&flow.agency, &flow.id),
-            )
-            .describe(flow.description.or(Some(flow.id)));
+            let page = (agency.page)(&flow.agency, &flow.id)?;
+            let mut dataset = Dataset::new(&flow.name, &page)
+                .describe(flow.description.or(Some(flow.id)));
             dataset.publisher = Some(agency.publisher.to_owned());
             dataset.valid()
         })
@@ -120,7 +131,7 @@ struct Open {
     text: String,
 }
 
-fn parse(xml: &str) -> Result<Vec<Flow>, SourceError> {
+fn flows(xml: &str) -> Result<Vec<Flow>, SourceError> {
     let mut reader = Reader::from_str(xml);
     let mut flows = Vec::new();
     let mut current: Option<Flow> = None;
@@ -218,6 +229,7 @@ fn attribute(element: &BytesStart<'_>, local: &str) -> Option<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::sources::fixture;
 
     #[test]
     fn dataflows_take_the_english_name() {
@@ -232,7 +244,7 @@ mod tests {
             <str:Dataflow id="BOP" agencyID="ECB"><com:Name>Balance of payments</com:Name></str:Dataflow>
           </str:Dataflows>
         </mes:Structure>"#;
-        let flows = parse(xml).unwrap();
+        let flows = flows(xml).unwrap();
         let names: Vec<_> = flows.iter().map(|f| f.name.as_str()).collect();
         assert_eq!(names, ["Exchange rates", "Balance of payments"]);
         assert_eq!(flows[0].agency, "ECB");
@@ -240,6 +252,28 @@ mod tests {
 
     #[test]
     fn broken_xml_is_a_shape_error() {
-        assert!(parse("<a><b></a>").is_err());
+        assert!(flows("<a><b></a>").is_err());
+    }
+
+    #[test]
+    fn dataflows_map_from_a_recorded_list() {
+        let datasets = parse(&ECB, &fixture::text("sdmx.xml")).unwrap();
+        let titles: Vec<&str> =
+            datasets.iter().map(|d| d.title.as_str()).collect();
+        assert_eq!(titles, ["AGR", "AMECO", "Exchange Rates"]);
+        assert_eq!(
+            datasets[0],
+            Dataset {
+                title: "AGR".into(),
+                url: "https://data.ecb.europa.eu/data/datasets/AGR".into(),
+                description: Some("AGR".into()),
+                publisher: Some("European Central Bank".into()),
+                ..Dataset::default()
+            }
+        );
+        assert_eq!(
+            datasets[2].url,
+            "https://data.ecb.europa.eu/data/datasets/EXR"
+        );
     }
 }
