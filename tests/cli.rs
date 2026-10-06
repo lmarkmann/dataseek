@@ -351,7 +351,7 @@ fn sources_without_their_required_key_are_skipped_not_failed() {
 // --offline never touches the network, so it must never mark a source as
 // down either: the next online search would skip it for ten minutes.
 #[test]
-fn offline_search_answers_from_the_cache_and_marks_no_outage() {
+fn offline_with_nothing_cached_says_so_and_marks_no_outage() {
     let mut cmd = bin();
     let cache = cmd.cache();
     let out = cmd
@@ -364,6 +364,100 @@ fn offline_search_answers_from_the_cache_and_marks_no_outage() {
     let outages =
         std::fs::read_dir(cache.join("outages")).map_or(0, Iterator::count);
     assert_eq!(outages, 0);
+}
+
+/// Write a cache entry the way the binary would, `age` seconds old.
+fn seed(cache: &Path, entry: &str, age: u64, value: &Value) {
+    let path = cache.join(entry);
+    std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+    let entry = json!({
+        "stored": now - age,
+        "version": env!("CARGO_PKG_VERSION"),
+        "value": value,
+    });
+    std::fs::write(path, entry.to_string()).unwrap();
+}
+
+/// A cached OpenML catalog of two rainfall datasets, the older one first.
+fn seed_rainfall(cache: &Path) {
+    let rainfall = json!([
+        {
+            "title": "Rainfall in Lisbon",
+            "url": "https://www.openml.org/d/1",
+            "updated": "2001-01-01",
+        },
+        {
+            "title": "Rainfall in Porto",
+            "url": "https://www.openml.org/d/2",
+            "updated": "2025-06-01",
+        },
+    ]);
+    seed(cache, "catalogs/openml.json", 0, &rainfall);
+}
+
+// The failed online search that suggests --offline marks every source down;
+// the --offline retry must still answer from the cache, without -s.
+#[test]
+fn offline_after_an_outage_answers_from_the_cache() {
+    let mut cmd = bin();
+    let cache = cmd.cache();
+    seed_rainfall(&cache);
+    seed(&cache, "outages/openml.json", 0, &Value::Null);
+    let out = cmd
+        .args(["search", "rainfall", "-c", "machine-learning", "--offline"])
+        .args(["--jq", ".results[].title"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    let titles = String::from_utf8(out.stdout).unwrap();
+    assert!(titles.contains("Rainfall in Lisbon"), "{titles}");
+    assert!(titles.contains("Rainfall in Porto"), "{titles}");
+}
+
+#[test]
+fn sort_newest_puts_the_latest_update_first() {
+    let mut cmd = bin();
+    seed_rainfall(&cmd.cache());
+    let out = cmd
+        .args(["search", "rainfall", "-s", "openml", "--offline"])
+        .args(["--sort", "newest", "--jq", ".results[].title"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    assert_eq!(
+        String::from_utf8(out.stdout).unwrap(),
+        "Rainfall in Porto\nRainfall in Lisbon\n"
+    );
+}
+
+#[test]
+fn every_source_resting_says_so_and_how_to_ask_anyway() {
+    let mut cmd = bin();
+    seed(&cmd.cache(), "outages/datacite.json", 0, &Value::Null);
+    let out = cmd
+        .args(["search", "climate", "-c", "aggregator"])
+        .args(["-x", "openaire,google,b2find"])
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(1));
+    let stderr = String::from_utf8(out.stderr).unwrap();
+    assert!(stderr.contains("resting"), "{stderr}");
+    assert!(stderr.contains("-s"), "{stderr}");
+}
+
+#[test]
+fn excluding_every_chosen_source_names_the_exclusion() {
+    let mut cmd = bin();
+    cmd.env("DATASEEK_EXCLUDE", "zenodo");
+    let out =
+        cmd.args(["search", "climate", "-s", "zenodo"]).output().unwrap();
+    assert_eq!(out.status.code(), Some(1));
+    let stderr = String::from_utf8(out.stderr).unwrap();
+    assert!(stderr.contains("DATASEEK_EXCLUDE"), "{stderr}");
 }
 
 #[test]

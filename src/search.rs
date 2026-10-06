@@ -26,7 +26,8 @@ pub struct Plan {
     pub query: String,
     pub sources: Vec<&'static Source>,
     pub per_source: usize,
-    /// The user named these sources, so recent outages do not skip them.
+    /// The user named these sources, or `--offline` costs no request, so
+    /// recent outages do not skip them.
     pub forced: bool,
 }
 

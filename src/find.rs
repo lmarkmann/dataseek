@@ -43,6 +43,14 @@ pub enum Error {
         "none of the chosen sources can run\n  Try:   `dataseek sources` shows which keys are missing"
     )]
     NothingRan,
+    #[error(
+        "every chosen source failed minutes ago and is resting, so none was asked\n  Try:   name them with -s to ask anyway, or add --offline to search what is cached"
+    )]
+    Resting,
+    #[error(
+        "no source is left after -s, -c and -x\n  Try:   `dataseek sources` lists the ids and categories; DATASEEK_EXCLUDE counts as -x"
+    )]
+    NoneSelected,
 }
 
 pub struct Request<'a> {
@@ -69,8 +77,11 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
             &selection.categories,
         ),
         per_source: usize::from(selection.per_source),
-        forced: !selection.only.is_empty(),
+        forced: offline || !selection.only.is_empty(),
     });
+    if plan.sources.is_empty() {
+        return Err(Error::NoneSelected.into());
+    }
 
     ui::stage(format!(
         "searching {} source{} for \"{query}\"{}",
@@ -91,7 +102,11 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
 
     notes(out, &outcomes);
     if !outcomes.iter().any(|o| o.status.attempted()) {
-        return Err(Error::NothingRan.into());
+        let resting =
+            outcomes.iter().any(|o| matches!(o.status, Status::Resting(_)));
+        return Err(
+            if resting { Error::Resting } else { Error::NothingRan }.into()
+        );
     }
     if !outcomes.iter().any(|o| o.status.answered()) {
         warn_failures(&outcomes);
