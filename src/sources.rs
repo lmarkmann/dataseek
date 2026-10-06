@@ -1047,6 +1047,25 @@ pub static SOURCES: &[Source] = &[
     ),
 ];
 
+/// Recorded source responses under `tests/fixtures/sources`, the oracle the
+/// adapter tests read their expected values from by hand.
+#[cfg(test)]
+pub mod fixture {
+    use std::path::Path;
+
+    pub fn text(name: &str) -> String {
+        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/sources")
+            .join(name);
+        std::fs::read_to_string(&path)
+            .unwrap_or_else(|e| panic!("{}: {e}", path.display()))
+    }
+
+    pub fn json(name: &str) -> serde_json::Value {
+        serde_json::from_str(&text(name)).unwrap()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
