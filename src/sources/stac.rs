@@ -14,11 +14,14 @@
 //!   Planetary Computer fills 27 of 138 collections, Earth Search 1 of 9,
 //!   Copernicus Data Space 159 of 427 and the Climate Data Store 140 of 144;
 //!   only the Climate Data Store sends `updated` (October 2026). Collections
-//!   that share a `sci:doi`, such as one product's COG and NetCDF variants,
-//!   merge into one hit.
+//!   that share a `sci:doi` (Planetary Computer's three Daymet regions, one
+//!   product's COG and NetCDF variants) keep no DOI, since dedup would merge
+//!   them into one hit.
 //! - Copernicus Data Space documents its STAC browser as the page for a
 //!   collection (Copernicus Data Space documentation, October 2026). Earth
 //!   Search has no collection page, so its link stays the collection's JSON.
+
+use std::collections::HashSet;
 
 use serde_json::Value;
 
@@ -68,7 +71,25 @@ pub fn list(
         entries.extend(page);
         next = after;
     }
+    drop_shared_dois(&mut entries);
     Ok(entries)
+}
+
+/// Dedup merges records that share a DOI, which would fold sibling
+/// collections (three regions of one product) into one hit.
+fn drop_shared_dois(entries: &mut [Dataset]) {
+    let mut seen = HashSet::new();
+    let mut shared = HashSet::new();
+    for doi in entries.iter().filter_map(|e| e.doi.clone()) {
+        if !seen.insert(doi.clone()) {
+            shared.insert(doi);
+        }
+    }
+    for entry in entries {
+        if entry.doi.as_ref().is_some_and(|doi| shared.contains(doi)) {
+            entry.doi = None;
+        }
+    }
 }
 
 /// One page of collections and the link to the next page, if any.
@@ -222,5 +243,23 @@ mod tests {
         assert_eq!(era5.updated.as_deref(), Some("2026-10-06"));
         assert_eq!(entries[0].license, None, "\"other\" is not a license");
         assert_eq!(entries[0].doi.as_deref(), Some("10.24381/cds.c14d9324"));
+    }
+
+    #[test]
+    fn sibling_collections_sharing_a_doi_stay_separate_hits() {
+        let (mut entries, _) = parse(
+            &COPERNICUS_DATASPACE,
+            &fixture::json("stac.dataspace.json"),
+        )
+        .unwrap();
+        assert_eq!(entries[0].doi, entries[1].doi);
+        let unique = entries[2].doi.clone();
+        assert!(unique.is_some());
+        drop_shared_dois(&mut entries);
+        assert_eq!(entries[0].doi, None);
+        assert_eq!(entries[1].doi, None);
+        assert_eq!(entries[2].doi, unique);
+        let lists = [("copernicus-dataspace", entries)];
+        assert_eq!(crate::dedup::merge(&lists).len(), 3);
     }
 }
