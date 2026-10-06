@@ -18,6 +18,7 @@
 
 mod ckan;
 mod datacite;
+mod dataverse;
 mod europa;
 mod figshare;
 mod huggingface;
@@ -51,6 +52,7 @@ pub enum Adapter {
     Live(Live),
     Catalog(Listing),
     Ckan(&'static ckan::Portal),
+    Dataverse(&'static str),
 }
 
 /// What a source mainly holds. The names are what `--category` accepts and
@@ -137,6 +139,9 @@ impl Source {
         match &self.adapter {
             Adapter::Live(run) => run(ctx, query, limit),
             Adapter::Ckan(portal) => ckan::search(ctx, portal, query, limit),
+            Adapter::Dataverse(base) => {
+                dataverse::search(ctx, base, query, limit)
+            }
             Adapter::Catalog(list) => {
                 self.local(ctx, query, limit, || list(ctx))
             }
@@ -304,6 +309,8 @@ const fn via(
 use Category::{Aggregator, Government, MachineLearning, Research};
 
 const CKAN_DOCS: &str = "https://docs.ckan.org/en/latest/api/";
+const DATAVERSE_DOCS: &str =
+    "https://guides.dataverse.org/en/latest/api/search.html";
 
 pub static SOURCES: &[Source] = &[
     // Aggregators and general search engines.
@@ -411,6 +418,46 @@ pub static SOURCES: &[Source] = &[
         "Figshare",
         "https://docs.figshare.com/",
         figshare::search,
+    ),
+    via(
+        "harvard-dataverse",
+        "Harvard Dataverse",
+        Research,
+        "Dataverse",
+        DATAVERSE_DOCS,
+        Adapter::Dataverse("https://dataverse.harvard.edu"),
+    ),
+    via(
+        "borealis",
+        "Borealis (Canada)",
+        Research,
+        "Dataverse",
+        DATAVERSE_DOCS,
+        Adapter::Dataverse("https://borealisdata.ca"),
+    ),
+    via(
+        "recherche-data-gouv",
+        "Recherche Data Gouv (France)",
+        Research,
+        "Dataverse",
+        DATAVERSE_DOCS,
+        Adapter::Dataverse("https://entrepot.recherche.data.gouv.fr"),
+    ),
+    via(
+        "dataverse-nl",
+        "DataverseNL",
+        Research,
+        "Dataverse",
+        DATAVERSE_DOCS,
+        Adapter::Dataverse("https://dataverse.nl"),
+    ),
+    via(
+        "dataverse-no",
+        "DataverseNO",
+        Research,
+        "Dataverse",
+        DATAVERSE_DOCS,
+        Adapter::Dataverse("https://dataverse.no"),
     ),
     // Government open data.
     live(
