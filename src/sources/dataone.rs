@@ -3,21 +3,22 @@
 //! for, in Solr's relevance order, and a page holds up to 10000 (DataONE,
 //! October 2026). The user's words are reduced to plain terms joined by AND,
 //! and the words AND, OR and NOT are dropped, because Solr reads them as
-//! operators and answers HTTP 400 when one lands between two others (DataONE,
-//! October 2026). The index is reached through search.dataone.org:
+//! operators and answers HTTP 400 when they stand as terms (DataONE, October
+//! 2026). The index is reached through search.dataone.org:
 //! cn.dataone.org renegotiates TLS on its `/cn/` paths to ask for an optional
 //! client certificate, which rustls refuses by design.
 //!
-//! The DOI is the series id on about half of the current records, written
-//! `doi:10.x/y` or `https://doi.org/10.x/y` (PANGAEA, Dryad, Dataverse, NSIDC,
-//! ...), or the id itself (KNB, Arctic Data Center); every other id or series
-//! id is a repository's own and is not a DOI (DataONE, October 2026).
+//! The DOI is the series id on about three in four of the current records,
+//! written `doi:10.x/y` or `https://doi.org/10.x/y` (PANGAEA, Dryad,
+//! Dataverse, NSIDC, ...), or the id itself (KNB, Arctic Data Center); every
+//! other id or series id is a repository's own and is not a DOI (DataONE,
+//! October 2026).
 //! `dateUploaded` is when the current version's content arrived, and content
 //! never changes after upload; `dateModified` is when its system metadata,
 //! such as access rules, last changed, so it is not asked for (DataONE,
 //! October 2026). `origin` lists the creators, there is no publisher field,
-//! and 4% of the records have no `origin` (DataONE, October 2026). DataONE
-//! states no rate limit and no caching terms for the query service, and
+//! and 6% of the records have no `origin` (DataONE, October 2026). DataONE
+//! publishes no rate limit and no caching terms for the query service, and
 //! each dataset carries its own license in its metadata, which the index
 //! does not hold (DataONE, October 2026).
 
