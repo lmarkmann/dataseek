@@ -39,7 +39,7 @@ pub fn search(
             .query("db", "gds")
             .query("id", ids.join(","))
             .json()?;
-    Ok(parse(&ids, &summaries, limit))
+    parse(&ids, &summaries, limit)
 }
 
 /// The esummary records for `ids`, in esearch's order.
@@ -47,12 +47,16 @@ pub(super) fn parse(
     ids: &[String],
     summaries: &Value,
     limit: usize,
-) -> Vec<Dataset> {
-    ids.iter()
+) -> Result<Vec<Dataset>, SourceError> {
+    if summaries.get("result").is_none() {
+        return Err(SourceError::shape("no esummary result"));
+    }
+    Ok(ids
+        .iter()
         .filter_map(|id| summaries.pointer(&format!("/result/{id}")))
         .filter_map(record)
         .take(limit)
-        .collect()
+        .collect())
 }
 
 fn polite<'a>(ctx: &Ctx<'_>, call: Call<'a>) -> Call<'a> {
@@ -83,4 +87,46 @@ fn record(summary: &Value) -> Option<Dataset> {
     });
     dataset.updated = day(text(summary, "/pdat").map(|d| d.replace('/', "-")));
     dataset.valid()
+}
+
+#[cfg(test)]
+mod tests {
+    use serde_json::json;
+
+    use super::*;
+    use crate::sources::fixture;
+
+    fn ids() -> Vec<String> {
+        ["200304969", "200279746", "200279384"].map(String::from).to_vec()
+    }
+
+    #[test]
+    fn records_map_from_a_recorded_summary() {
+        let hits = parse(&ids(), &fixture::json("ncbi.json"), 10).unwrap();
+        assert_eq!(hits.len(), 3);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "scRNA seq of LUSC genetically engineered mouse models"
+                    .into(),
+                url: "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE304969"
+                    .into(),
+                description: Some(
+                    "scRNA seq of PL(PTEN; LKB1) and PLA(PTEN:LKB1;ACKR3) LUSC \
+                     genetically engineereed mouse"
+                        .into()
+                ),
+                publisher: Some("Mus musculus, 4 samples".into()),
+                updated: Some("2026-10-05".into()),
+                ..Dataset::default()
+            }
+        );
+    }
+
+    #[test]
+    fn a_summary_without_results_is_a_shape_change() {
+        let changed =
+            parse(&ids(), &json!({"header": {"type": "esummary"}}), 10);
+        assert!(matches!(changed, Err(SourceError::Shape(_))), "{changed:?}");
+    }
 }
