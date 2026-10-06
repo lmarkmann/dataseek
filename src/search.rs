@@ -246,6 +246,7 @@ mod tests {
             docs: "https://x.org",
             key: None,
             persist: true,
+            opt_in: None,
             adapter: Adapter::Live(run),
         }
     }

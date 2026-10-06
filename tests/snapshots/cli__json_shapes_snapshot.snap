@@ -87,6 +87,16 @@ expression: "serde_json::to_string_pretty(&shapes).unwrap()"
         "ok": true
       },
       {
+        "detail": "asked only with -s google: it has no API, so dataseek reads its results page (ADR 0013)",
+        "label": "opt-in google",
+        "ok": true
+      },
+      {
+        "detail": "asked only with -s mendeley: its terms bar automated access without written permission",
+        "label": "opt-in mendeley",
+        "ok": true
+      },
+      {
         "detail": "0 files, 0 B of 31.5 MB",
         "label": "cache use",
         "ok": true
@@ -163,6 +173,7 @@ expression: "serde_json::to_string_pretty(&shapes).unwrap()"
       "key": "none",
       "key_env": null,
       "name": "DataCite",
+      "opt_in": null,
       "protocol": "DataCite REST",
       "search": "live"
     }

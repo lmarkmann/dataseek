@@ -9,13 +9,13 @@ Google Dataset Search was dataseek's only source in the lost Python version, and
 
 ## Decision
 
-Every source below is implemented to the same contract (`src/sources.rs`) and searched by default. A source is left out of a run only when it needs a key the user has not set, when it had an outage in the last ten minutes, or when the user narrows the run with `--source`, `--exclude` or `--category`. `dataseek bench` measures latency, answer rate, result count and overlap per source, and that measurement, not a tier list, is what a source is later demoted or dropped on.
+Every source below is implemented to the same contract (`src/sources.rs`) and searched by default, except the opt-in ones ([ADR 0013](0013-opt-in-sources.md)), which run only when `--source` names them. A source is left out of a run only when it needs a key the user has not set, when it had an outage in the last ten minutes, or when the user narrows the run with `--source`, `--exclude` or `--category`. `dataseek bench` measures latency, answer rate, result count and overlap per source, and that measurement, not a tier list, is what a source is later demoted or dropped on.
 
 `search` is `live` when the query goes to the source, `local` when the source publishes a complete list but no search endpoint, so its catalog is downloaded (cached for a week) and searched on disk.
 
 ## Consequences
 
-- One query fans out to about 75 hosts. The search deadline (ADR 0007) bounds the cost of the slowest; the cache bounds repeats.
+- One query fans out to about 74 hosts. The search deadline (ADR 0007) bounds the cost of the slowest; the cache bounds repeats.
 - Adding a source is one registry row plus, at most, one module. Removing one is the reverse; nothing else refers to a source by id.
 - Overlap is low (ADR 0006 evidence: 96% of merged hits came from exactly one source), so dropping a source loses results rather than duplicates. Reverting to tiers would cut recall in proportion.
 
@@ -34,7 +34,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 |---|---|---|---|---|---|
 | `datacite` | DataCite | DataCite REST | live |  | [docs](https://support.datacite.org/docs/api) |
 | `openaire` | OpenAIRE Graph | OpenAIRE Graph | live |  | [docs](https://graph.openaire.eu/docs/apis/graph-api/) |
-| `google` | Google Dataset Search | results page data | live |  | [docs](https://datasetsearch.research.google.com/help) |
+| `google` | Google Dataset Search | results page data | live | opt-in | [docs](https://datasetsearch.research.google.com/help) |
 | `b2find` | EUDAT B2FIND | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
 
 ### machine-learning
@@ -68,7 +68,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `dataverse-nl` | DataverseNL | Dataverse | live |  | [docs](https://guides.dataverse.org/en/latest/api/search.html) |
 | `dataverse-no` | DataverseNO | Dataverse | live |  | [docs](https://guides.dataverse.org/en/latest/api/search.html) |
 | `osf` | OSF (via SHARE) | SHARE trove | live |  | [docs](https://share.osf.io/trove/docs) |
-| `mendeley` | Mendeley Data | site search API | live |  | [docs](https://data.mendeley.com/api/docs/) |
+| `mendeley` | Mendeley Data | site search API | live | opt-in | [docs](https://data.mendeley.com/api/docs/) |
 
 ### government
 

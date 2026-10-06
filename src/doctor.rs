@@ -11,6 +11,7 @@ use crate::cache::{BUDGET_BYTES, Cache};
 use crate::credentials::{Credentials, Key};
 use crate::find::human_bytes;
 use crate::output::Out;
+use crate::sources::SOURCES;
 use crate::{palette, paths};
 
 #[derive(Serialize)]
@@ -91,6 +92,7 @@ fn gather(out: &Out) -> Result<Vec<Check>> {
         },
     ];
     checks.extend(keys(&dirs.config));
+    checks.extend(opt_ins());
     let usage = Cache::new(dirs.cache.clone()).usage();
     checks.push(Check {
         label: "cache use".to_owned(),
@@ -133,6 +135,17 @@ fn keys(config: &std::path::Path) -> Vec<Check> {
         });
     }
     checks
+}
+
+/// One line per source that is asked only when named, with the reason.
+fn opt_ins() -> impl Iterator<Item = Check> {
+    SOURCES.iter().filter_map(|s| {
+        s.opt_in.map(|reason| Check {
+            label: format!("opt-in {}", s.id),
+            detail: format!("asked only with -s {}: {reason}", s.id),
+            ok: true,
+        })
+    })
 }
 
 /// The readiness summary on stdout: JSON when asked for, a styled table

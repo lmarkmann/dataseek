@@ -123,7 +123,8 @@ pub struct Cli {
 /// Which sources to ask, shared by `search` and `bench`.
 #[derive(Args, Clone, Debug, Default)]
 pub struct Selection {
-    /// Only these sources, comma-separated (see `dataseek sources`).
+    /// Only these sources, comma-separated (see `dataseek sources`). Naming
+    /// a source is the only way to ask an opt-in one.
     #[arg(
         short = 's',
         long = "source",

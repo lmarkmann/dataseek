@@ -161,6 +161,8 @@ pub struct Source {
     pub key: Option<(Key, Need)>,
     /// False where the terms forbid storing results (Kaggle).
     pub persist: bool,
+    /// Why this source is asked only when `--source` names it.
+    pub opt_in: Option<&'static str>,
     pub adapter: Adapter,
 }
 
@@ -267,9 +269,9 @@ impl Source {
     }
 }
 
-/// The registry rows to ask: the named ones (or all), narrowed to the given
-/// categories, minus exclusions, in registry order. Ids were validated by
-/// clap.
+/// The registry rows to ask: the named ones (or all but the opt-in ones),
+/// narrowed to the given categories, minus exclusions, in registry order. An
+/// opt-in source is asked only when named. Ids were validated by clap.
 pub fn select(
     only: &[String],
     exclude: &[String],
@@ -277,7 +279,10 @@ pub fn select(
 ) -> Vec<&'static Source> {
     SOURCES
         .iter()
-        .filter(|s| only.is_empty() || only.iter().any(|id| id == s.id))
+        .filter(|s| {
+            let named = only.iter().any(|id| id == s.id);
+            named || (only.is_empty() && s.opt_in.is_none())
+        })
         .filter(|s| categories.is_empty() || categories.contains(&s.category))
         .filter(|s| !exclude.iter().any(|id| id == s.id))
         .collect()
@@ -336,6 +341,7 @@ const fn live(
         docs,
         key: None,
         persist: true,
+        opt_in: None,
         adapter: Adapter::Live(run),
     }
 }
@@ -356,12 +362,18 @@ const fn listed(
         docs,
         key: None,
         persist: true,
+        opt_in: None,
         adapter: Adapter::Catalog(list),
     }
 }
 
 const fn keyed(mut source: Source, key: Key, need: Need) -> Source {
     source.key = Some((key, need));
+    source
+}
+
+const fn opt_in(mut source: Source, reason: &'static str) -> Source {
+    source.opt_in = Some(reason);
     source
 }
 
@@ -381,6 +393,7 @@ const fn via(
         docs,
         key: None,
         persist: true,
+        opt_in: None,
         adapter,
     }
 }
@@ -418,13 +431,16 @@ pub static SOURCES: &[Source] = &[
         "https://graph.openaire.eu/docs/apis/graph-api/",
         openaire::search,
     ),
-    live(
-        "google",
-        "Google Dataset Search",
-        Aggregator,
-        "results page data",
-        "https://datasetsearch.research.google.com/help",
-        google::search,
+    opt_in(
+        live(
+            "google",
+            "Google Dataset Search",
+            Aggregator,
+            "results page data",
+            "https://datasetsearch.research.google.com/help",
+            google::search,
+        ),
+        "it has no API, so dataseek reads its results page (ADR 0013)",
     ),
     via(
         "b2find",
@@ -591,13 +607,16 @@ pub static SOURCES: &[Source] = &[
         "https://share.osf.io/trove/docs",
         osf::search,
     ),
-    live(
-        "mendeley",
-        "Mendeley Data",
-        Research,
-        "site search API",
-        "https://data.mendeley.com/api/docs/",
-        mendeley::search,
+    opt_in(
+        live(
+            "mendeley",
+            "Mendeley Data",
+            Research,
+            "site search API",
+            "https://data.mendeley.com/api/docs/",
+            mendeley::search,
+        ),
+        "its terms bar automated access without written permission",
     ),
     // Government open data.
     live(
@@ -1105,6 +1124,18 @@ mod tests {
     #[test]
     fn kaggle_is_registered_as_never_persisted() {
         assert!(!SOURCES.iter().find(|s| s.id == "kaggle").unwrap().persist);
+    }
+
+    #[test]
+    fn an_opt_in_source_is_asked_only_when_named() {
+        let everyone = select(&[], &[], &[]);
+        assert!(everyone.iter().all(|s| s.opt_in.is_none()));
+        for id in ["google", "mendeley"] {
+            assert!(everyone.iter().all(|s| s.id != id), "{id}");
+            assert_eq!(select(&[id.to_owned()], &[], &[]).len(), 1, "{id}");
+        }
+        let aggregators = select(&[], &[], &[Category::Aggregator]);
+        assert!(aggregators.iter().all(|s| s.id != "google"));
     }
 
     fn catalog(list: Listing) -> Source {
