@@ -317,6 +317,18 @@ fn errors_under_json_are_events_on_stderr() {
         insta::assert_snapshot!("json_error_event", stderr);
     });
 
+    // -v adds per-source notes, as events too.
+    let out = bin()
+        .args(["search", "climate", "-s", "datacite", "--json", "-v"])
+        .output()
+        .unwrap();
+    let events: Vec<Value> = String::from_utf8(out.stderr)
+        .unwrap()
+        .lines()
+        .map(|l| serde_json::from_str(l).unwrap())
+        .collect();
+    assert!(events.iter().any(|e| e["event"] == "note"), "{events:?}");
+
     // clap's own usage errors take the same shape.
     let out = bin().args(["--json", "no-such-command"]).output().unwrap();
     assert_eq!(out.status.code(), Some(2));
@@ -382,7 +394,8 @@ fn seed(cache: &Path, entry: &str, age: u64, value: &Value) {
     std::fs::write(path, entry.to_string()).unwrap();
 }
 
-/// A cached OpenML catalog of two rainfall datasets, the older one first.
+/// A cached OpenML catalog of two rainfall datasets; the newer one matches
+/// the query less closely.
 fn seed_rainfall(cache: &Path) {
     let rainfall = json!([
         {
@@ -391,7 +404,7 @@ fn seed_rainfall(cache: &Path) {
             "updated": "2001-01-01",
         },
         {
-            "title": "Rainfall in Porto",
+            "title": "Monthly rainfall in Porto",
             "url": "https://www.openml.org/d/2",
             "updated": "2025-06-01",
         },
@@ -415,22 +428,31 @@ fn offline_after_an_outage_answers_from_the_cache() {
     assert!(out.status.success(), "{out:?}");
     let titles = String::from_utf8(out.stdout).unwrap();
     assert!(titles.contains("Rainfall in Lisbon"), "{titles}");
-    assert!(titles.contains("Rainfall in Porto"), "{titles}");
+    assert!(titles.contains("rainfall in Porto"), "{titles}");
 }
 
 #[test]
 fn sort_newest_puts_the_latest_update_first() {
-    let mut cmd = bin();
-    seed_rainfall(&cmd.cache());
-    let out = cmd
-        .args(["search", "rainfall", "-s", "openml", "--offline"])
-        .args(["--sort", "newest", "--jq", ".results[].title"])
-        .output()
-        .unwrap();
-    assert!(out.status.success(), "{out:?}");
+    let titles = |sort: &str| {
+        let mut cmd = bin();
+        seed_rainfall(&cmd.cache());
+        let out = cmd
+            .args(["search", "rainfall", "-s", "openml", "--offline"])
+            .args(["--sort", sort, "--jq", ".results[].title"])
+            .output()
+            .unwrap();
+        assert!(out.status.success(), "{out:?}");
+        String::from_utf8(out.stdout).unwrap()
+    };
+    // The closer title match ranks first by relevance, the later date by
+    // newest, so the two orders disagree.
     assert_eq!(
-        String::from_utf8(out.stdout).unwrap(),
-        "Rainfall in Porto\nRainfall in Lisbon\n"
+        titles("relevance"),
+        "Rainfall in Lisbon\nMonthly rainfall in Porto\n"
+    );
+    assert_eq!(
+        titles("newest"),
+        "Monthly rainfall in Porto\nRainfall in Lisbon\n"
     );
 }
 
@@ -892,6 +914,9 @@ fn help_topics_explain_the_environment_and_exit_codes() {
 fn help_json_describes_the_surface() {
     let surface = json_of(&["help", "--json"]);
     assert_eq!(surface["schema"], "dataseek-surface/1");
+    // An agent's first probe, a bare call, gets the same object.
+    assert_eq!(json_of(&["--json"]), surface);
+    assert_eq!(stdout_text(&["--jq", ".schema"]), "dataseek-surface/1\n");
     assert_eq!(surface["version"], env!("CARGO_PKG_VERSION"));
     let names: Vec<&str> = surface["command"]["commands"]
         .as_array()
@@ -1022,6 +1047,22 @@ fn help_snapshot() {
 
 // The --json shapes are a contract (`schema` tags them); a change here is a
 // change for every script that reads them.
+/// `search --json` over the seeded catalog, timings zeroed.
+fn seeded_search_json() -> Value {
+    let mut cmd = bin();
+    seed_rainfall(&cmd.cache());
+    let out = cmd
+        .args(["search", "rainfall", "-s", "openml", "--offline", "--json"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    let mut report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    for source in report["sources"].as_array_mut().unwrap() {
+        source["ms"] = json!(0);
+    }
+    report
+}
+
 #[test]
 fn json_shapes_snapshot() {
     let sources = json_of(&["sources", "--json"]);
@@ -1036,6 +1077,10 @@ fn json_shapes_snapshot() {
             "schema": json_of(&["cache", "warm", "--dry-run", "--json"])["schema"],
         },
         "help exit-codes": json_of(&["help", "exit-codes", "--json"]),
+        "help search": {
+            "schema": json_of(&["help", "search", "--json"])["schema"],
+        },
+        "search": seeded_search_json(),
     });
     filters::with_snapshot_filters(|| {
         insta::assert_snapshot!(

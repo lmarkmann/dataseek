@@ -116,9 +116,12 @@ pub fn run(topic: Option<&str>, out: &Out) -> Result<()> {
             None => surface(),
             Some("environment") => env_json(),
             Some("exit-codes") => codes_json(),
-            Some(command) => built()
-                .find_subcommand(command)
-                .map_or(Value::Null, command_json),
+            Some(command) => json!({
+                "schema": "dataseek-command/1",
+                "command": built()
+                    .find_subcommand(command)
+                    .map_or(Value::Null, command_json),
+            }),
         };
         return out.json(&surface);
     }

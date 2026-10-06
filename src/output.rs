@@ -74,9 +74,19 @@ impl Out {
 
     /// A diagnostic for `-v` and above, on stderr. Unlike [`crate::ui`] it
     /// still prints when stderr is redirected, which is the point of
-    /// `-v 2> log`.
+    /// `-v 2> log`. Under `--json` it is a `note` event, so stderr stays
+    /// NDJSON.
     pub fn note(&self, msg: &str) {
-        if self.verbosity >= Verbosity::Verbose {
+        if self.verbosity < Verbosity::Verbose {
+            return;
+        }
+        if self.json {
+            crate::ui::event_line(&serde_json::json!({
+                "schema": crate::ui::EVENTS_SCHEMA,
+                "event": "note",
+                "message": msg,
+            }));
+        } else {
             let _ = writeln!(self.stderr(), "{msg}");
         }
     }

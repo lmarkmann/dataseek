@@ -200,7 +200,11 @@ fn print_clap(err: &clap::Error) -> ExitCode {
 
 fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
     let Some(command) = cli.command else {
-        return help::overview(out);
+        return if out.json {
+            help::run(None, out)
+        } else {
+            help::overview(out)
+        };
     };
     match command {
         Command::Search {
