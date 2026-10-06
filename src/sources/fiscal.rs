@@ -6,7 +6,7 @@ use serde_json::Value;
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::{Dataset, first_text, text};
+use crate::record::{Dataset, day, first_text, items, text};
 
 pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
     let body = ctx
@@ -35,6 +35,10 @@ pub(super) fn parse(body: &Value) -> Result<Vec<Dataset>, SourceError> {
             ));
             dataset.publisher = text(row, "/publisher")
                 .map(|office| format!("U.S. Treasury, {office}"));
+            dataset.updated = day(items(row, "/apis")
+                .iter()
+                .filter_map(|api| text(api, "/last_updated"))
+                .max());
             dataset.valid()
         })
         .collect())
@@ -65,7 +69,7 @@ mod tests {
                 publisher: Some("U.S. Treasury, Office of Accounting".into()),
                 doi: None,
                 license: None,
-                updated: None,
+                updated: Some("2026-09-04".into()),
                 size_bytes: None,
                 popularity: None,
                 aliases: vec![],
