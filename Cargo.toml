@@ -1,6 +1,6 @@
 [package]
 name = "dataseek"
-version = "0.4.1"
+version = "0.4.2"
 description = "Search for datasets from the terminal"
 edition = "2024"
 rust-version = "1.99"
