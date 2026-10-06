@@ -26,7 +26,7 @@ How each search interface takes a query, pages, ranks and limits, as found when 
 | NADA | GET `/api/catalog/search` | `sk` | any word, loose | relevance | no cap seen up to 1,000 (`ps`) |
 | NASA CMR | GET `/search/collections.umm_json` | `keyword` | all collection metadata | relevance | 2,000 |
 | NOAA NCEI | GET `/access/services/search/v1/datasets` | `text` | name and description, any word | relevance | not documented; the index holds 100 datasets (observed) |
-| PANGAEA | GET `/advanced/search.php` (internal, undocumented) | `q` (PANGAEA syntax, words ANDed) | full text | score per hit | 500; `offset` to 9,999 (observed) |
+| PANGAEA | GET `/advanced/search.php` (internal, undocumented) | `q` (PANGAEA syntax, all words must match) | full text | score per hit | 500; `offset` to 9,999 (observed) |
 | GBIF | GET `/v1/dataset/search` | `q` | full text | relevance | 1,000 |
 | DataONE | GET `/cn/v2/query/solr/` | Solr `q`, `fq` | Solr fields | Solr relevance | 10,000 (observed) |
 | NCBI GEO | GET `esearch.fcgi` then `esummary.fcgi` | `term` (Entrez syntax) | indexed fields, `[ETYP]` filters | Entrez default order, not an explicit relevance rank | 10,000 (`retmax`); `retstart` pages |
