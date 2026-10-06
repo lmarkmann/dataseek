@@ -22,6 +22,7 @@ mod dataverse;
 mod ebi;
 mod europa;
 mod figshare;
+mod google;
 mod huggingface;
 mod kaggle;
 mod modelscope;
@@ -361,6 +362,14 @@ pub static SOURCES: &[Source] = &[
         "OpenAIRE Graph",
         "https://graph.openaire.eu/docs/apis/graph-api/",
         openaire::search,
+    ),
+    live(
+        "google",
+        "Google Dataset Search",
+        Aggregator,
+        "results page data",
+        "https://datasetsearch.research.google.com/help",
+        google::search,
     ),
     via(
         "b2find",
