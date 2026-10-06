@@ -10,10 +10,12 @@
 //!
 //! A word with a colon is read as a `key:value` filter, and an unknown key or
 //! an unbalanced quote answers 400, so quote marks are dropped and a word with
-//! a colon is sent quoted (DANDI, October 2026). The listing carries no description or license: each takes
-//! one more request per version, which is why they stay empty. A published
-//! version has the DOI `10.48324/dandi.<id>/<version>`, the prefix being the
-//! one `/api/info/` reports (DANDI, October 2026).
+//! a colon is sent quoted (DANDI, October 2026).
+//!
+//! The listing carries no description or license: each takes one more request
+//! per version, which is why they stay empty. A published version has the DOI
+//! `10.48324/dandi.<id>/<version>`, the prefix being the one `/api/info/`
+//! reports (DANDI, October 2026).
 
 use serde_json::Value;
 
