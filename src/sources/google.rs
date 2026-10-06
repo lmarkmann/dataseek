@@ -73,8 +73,9 @@ fn parse(page: &str, limit: usize) -> Result<Vec<Dataset>, SourceError> {
 
 /// One result: `[_, _, record, docid, url]`; inside `record`, 1 is the
 /// title, 2 the provider block (`[_, host, name, home, domain, icon,
-/// [_, _, url]]`), 10 the file formats, 21 the DOI, 27 the description
-/// (HTML), 32 the provider name, 39 the last update ("Feb 17, 2026").
+/// [_, _, url]]`), 10 the file formats, 21 the DOI, 25 the publishers
+/// (`[[name, home, icon]]`), 27 the description (HTML), 32 the creators,
+/// 39 the last update ("Feb 17, 2026").
 fn record(item: &Value) -> Option<Dataset> {
     let url = text(item, "/2/2/6/2").or_else(|| {
         text(item, "/4")
@@ -83,7 +84,8 @@ fn record(item: &Value) -> Option<Dataset> {
     let mut dataset = Dataset::new(&text(item, "/2/1/0")?, &url)
         .describe(text(item, "/2/27/0/1"))
         .doi_from(text(item, "/2/21").as_deref().and_then(doi));
-    dataset.publisher = first_text(item, &["/2/32", "/2/2/2", "/2/2/1"]);
+    dataset.publisher =
+        first_text(item, &["/2/25/0/0", "/2/32", "/2/2/2", "/2/2/1"]);
     dataset.updated = text(item, "/2/39").map(|d| iso_date(&d).unwrap_or(d));
     dataset.size_bytes = text(item, "/2/10/0").as_deref().and_then(bytes_in);
     if let Some(page) = text(item, "/4") {
@@ -199,6 +201,16 @@ mod tests {
                     "https://nsidc.org/data/g02135/versions/3".into()
                 ],
             }
+        );
+        let publishers: Vec<_> =
+            hits[1..].iter().map(|h| h.publisher.as_deref()).collect();
+        assert_eq!(
+            publishers,
+            [
+                Some("Technical University of Denmark"),
+                Some("NASA"),
+                Some("willian oliveira"),
+            ]
         );
         assert_eq!(
             hits[2].aliases,
