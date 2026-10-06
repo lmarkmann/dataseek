@@ -27,10 +27,12 @@ mod github;
 mod google;
 mod huggingface;
 mod kaggle;
+mod mendeley;
 mod modelscope;
 mod nada;
 mod openaire;
 mod openml;
+mod osf;
 mod roboflow;
 mod sdmx;
 mod socrata;
@@ -530,6 +532,22 @@ pub static SOURCES: &[Source] = &[
         "Dataverse",
         DATAVERSE_DOCS,
         Adapter::Dataverse("https://dataverse.no"),
+    ),
+    live(
+        "osf",
+        "OSF (via SHARE)",
+        Research,
+        "SHARE trove",
+        "https://share.osf.io/trove/docs",
+        osf::search,
+    ),
+    live(
+        "mendeley",
+        "Mendeley Data",
+        Research,
+        "site search API",
+        "https://data.mendeley.com/api/docs/",
+        mendeley::search,
     ),
     // Government open data.
     live(
