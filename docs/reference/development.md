@@ -58,6 +58,8 @@ just bench catalog/search         # one group; the filter is a regex over names
 
 CI runs the same benches through CodSpeed's CPU simulation on every push to main and on pull requests that touch code ([ADR 0012](../adr/0012-benchmarks-criterion-local-codspeed-ci.md)). The simulation counts instructions instead of timing, so its numbers hold steady across runs but are not milliseconds; compare them only with other CodSpeed runs. `cargo codspeed` measures only on Linux. Local wall time is a rough guide: an A/A run on a busy Mac reported identical code up to 52% faster ([baseline](../bench/2026-10-06-baseline.md)). Measured results go in [`../bench/`](../bench/) with the machine they came from.
 
+`merge` takes ownership of the per-source lists, so the merge bench hands it a fresh copy made outside the measurement and cannot see a copy on the way in. That one is a test instead: `ranking_moves_the_records_instead_of_copying_them` in `src/find.rs` counts the bytes allocated between the search loop and printing with `allocation-counter`, which swaps in a counting allocator for the unit-test binary only, and fails if they reach the size of the records themselves.
+
 Startup is measured separately, on the release binary:
 
 ```sh

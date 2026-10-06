@@ -97,11 +97,9 @@ pub fn run(
                 push_unique(&mut row.errors, o.status.label());
             }
         }
-        let lists: Vec<_> = outcomes
-            .iter()
-            .map(|o| (o.source.id, o.datasets.clone()))
-            .collect();
-        for hit in merge(&lists) {
+        let lists =
+            outcomes.into_iter().map(|o| (o.source.id, o.datasets)).collect();
+        for hit in merge(lists) {
             for &id in &hit.sources {
                 let Some(row) = rows.get_mut(id) else { continue };
                 row.contributed = row.contributed.saturating_add(1);

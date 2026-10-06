@@ -73,6 +73,7 @@ ureq = { version = "3", features = ["json", "platform-verifier"] }
 internals = []
 
 [dev-dependencies]
+allocation-counter = "0.8"
 assert_cmd = "2"
 criterion = { version = "5", package = "codspeed-criterion-compat", default-features = false, features = ["cargo_bench_support"] }
 insta = { version = "1", features = ["filters"] }
