@@ -14,9 +14,9 @@
 //! The docs list `q` and `page`, counted from 1, and no page size; the SDK's
 //! `limit` defaults to 12 and its CLI says the API may ignore it. So `page`
 //! alone walks the results, until the limit is met or a page brings nothing
-//! new, in at most ten requests. A page that fails after the first keeps what
-//! the earlier ones brought. No rate limit is published; one over it answers
-//! 429 (Roboflow docs and roboflow-python, October 2026).
+//! new, in at most ten requests. A page that fails fails the search, so a
+//! cut-short list is never cached as the answer. No rate limit is published;
+//! one over it answers 429 (Roboflow docs and roboflow-python, October 2026).
 
 use serde_json::Value;
 
@@ -50,11 +50,7 @@ fn collect_pages(
 ) -> Result<Vec<Dataset>, SourceError> {
     let mut found: Vec<Dataset> = Vec::new();
     for page in 1..=MAX_PAGES {
-        let hits = match fetch(page).and_then(|body| parse(&body, limit)) {
-            Ok(hits) => hits,
-            Err(_) if !found.is_empty() => break,
-            Err(error) => return Err(error),
-        };
+        let hits = parse(&fetch(page)?, limit)?;
         let held = found.len();
         for hit in hits {
             if !found.iter().any(|seen| seen.url == hit.url) {
@@ -169,13 +165,12 @@ mod tests {
     }
 
     #[test]
-    fn a_page_that_fails_keeps_the_earlier_ones() {
-        let hits = collect_pages(50, |page| match page {
+    fn a_page_that_fails_fails_the_search() {
+        let later = collect_pages(50, |page| match page {
             1 => Ok(page_of(&["a", "b"])),
             _ => Err(SourceError::RateLimited),
-        })
-        .unwrap();
-        assert_eq!(hits.len(), 2);
+        });
+        assert!(matches!(later, Err(SourceError::RateLimited)));
 
         let first = collect_pages(50, |_| Err(SourceError::RateLimited));
         assert!(matches!(first, Err(SourceError::RateLimited)));
