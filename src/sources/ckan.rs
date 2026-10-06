@@ -142,11 +142,15 @@ fn record(portal: &Portal, row: &Value) -> Option<Dataset> {
         .filter(|_| {
             text(row, "/license_id").as_deref() != Some("notspecified")
         });
-    dataset.updated = day(text(row, "/last_modified")
-        .or_else(|| extra("modified"))
-        .or_else(|| extra("dcat_modified"))
-        .or_else(|| text(row, "/remote_last_updated"))
-        .or_else(|| text(row, "/metadata_modified")));
+    dataset.updated = [
+        text(row, "/last_modified"),
+        extra("modified"),
+        extra("dcat_modified"),
+        text(row, "/remote_last_updated"),
+        text(row, "/metadata_modified"),
+    ]
+    .into_iter()
+    .find_map(day);
     dataset.popularity = number(row, "/total_res_downloads");
     if let Some(source_page) = text(row, "/url")
         && source_page.starts_with("http")
