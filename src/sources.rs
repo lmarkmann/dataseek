@@ -80,6 +80,14 @@ use crate::record::Dataset;
 pub type Live = fn(&Ctx<'_>, &str, usize) -> Result<Vec<Dataset>, SourceError>;
 pub type Listing = fn(&Ctx<'_>) -> Result<Vec<Dataset>, SourceError>;
 
+/// What a source answered: the records, and the failure that sent a catalog
+/// search to an expired copy when it did, so the answer reads stale, not ok.
+#[derive(Debug)]
+pub struct Answer {
+    pub datasets: Vec<Dataset>,
+    pub stale: Option<SourceError>,
+}
+
 /// What an adapter gets to work with.
 pub struct Ctx<'a> {
     pub http: &'a Http,
@@ -189,8 +197,8 @@ impl Source {
         ctx: &Ctx<'_>,
         query: &str,
         limit: usize,
-    ) -> Result<Vec<Dataset>, SourceError> {
-        match &self.adapter {
+    ) -> Result<Answer, SourceError> {
+        let fresh = match &self.adapter {
             Adapter::Live(run) => run(ctx, query, limit),
             Adapter::Ckan(portal) => ckan::search(ctx, portal, query, limit),
             Adapter::Dataverse(base) => {
@@ -200,9 +208,10 @@ impl Source {
             Adapter::Socrata(base) => socrata::search(ctx, base, query, limit),
             Adapter::Ebi(domain) => ebi::search(ctx, domain, query, limit),
             Adapter::Catalog(_) | Adapter::Stac(_) | Adapter::Sdmx(_) => {
-                self.local(ctx, query, limit)
+                return self.local(ctx, query, limit);
             }
-        }
+        };
+        fresh.map(|datasets| Answer { datasets, stale: None })
     }
 
     /// Download and cache this source's catalog now; `None` for live
@@ -236,7 +245,8 @@ impl Source {
     }
 
     /// Search the cached catalog, downloading it when it is missing or
-    /// expired. A failed or empty download falls back to an expired copy.
+    /// expired. A failed or empty download falls back to an expired copy,
+    /// and the answer carries the failure so it reads stale.
     /// `--refresh` does not apply: catalogs have their own TTL and `cache
     /// warm`.
     fn local(
@@ -244,28 +254,31 @@ impl Source {
         ctx: &Ctx<'_>,
         query: &str,
         limit: usize,
-    ) -> Result<Vec<Dataset>, SourceError> {
+    ) -> Result<Answer, SourceError> {
         let cached = ctx.cache.load::<Vec<Dataset>>(
             Kind::Catalog,
             self.id,
             CATALOG_TTL,
         );
-        let entries = match cached {
-            Some((entries, Freshness::Fresh)) => entries,
-            stale => match self.download(ctx).unwrap_or_else(|| {
+        let (entries, stale) = match cached {
+            Some((entries, Freshness::Fresh)) => (entries, None),
+            expired => match self.download(ctx).unwrap_or_else(|| {
                 Err(SourceError::shape("a live source has no catalog"))
             }) {
                 Ok(entries) => {
                     ctx.cache.store(Kind::Catalog, self.id, &entries);
-                    entries
+                    (entries, None)
                 }
-                Err(error) => match stale {
-                    Some((entries, _)) => entries,
+                Err(error) => match expired {
+                    Some((entries, _)) => (entries, Some(error)),
                     None => return Err(error),
                 },
             },
         };
-        Ok(crate::catalog::search(&entries, query, limit))
+        Ok(Answer {
+            datasets: crate::catalog::search(&entries, query, limit),
+            stale,
+        })
     }
 }
 
@@ -1197,8 +1210,9 @@ mod tests {
         let rig = rig();
         let ctx = rig.services.ctx(true);
         ctx.cache.store(Kind::Catalog, "fake", &vec![entry("Rainfall")]);
-        let hits = catalog(untouchable).search(&ctx, "rain", 10).unwrap();
-        assert_eq!(hits, vec![entry("Rainfall")]);
+        let answer = catalog(untouchable).search(&ctx, "rain", 10).unwrap();
+        assert_eq!(answer.datasets, vec![entry("Rainfall")]);
+        assert!(answer.stale.is_none());
     }
 
     #[test]
@@ -1210,8 +1224,9 @@ mod tests {
             "fake",
             &vec![entry("Rainfall")],
         );
-        let hits = catalog(down).search(&ctx, "rain", 10).unwrap();
-        assert_eq!(hits, vec![entry("Rainfall")]);
+        let answer = catalog(down).search(&ctx, "rain", 10).unwrap();
+        assert_eq!(answer.datasets, vec![entry("Rainfall")]);
+        assert!(matches!(answer.stale, Some(SourceError::Timeout)));
 
         let empty = rig();
         let without =
@@ -1228,15 +1243,18 @@ mod tests {
             "fake",
             &vec![entry("Rainfall")],
         );
-        let hits = catalog(nothing).search(&ctx, "rain", 10).unwrap();
-        assert_eq!(hits, vec![entry("Rainfall")]);
+        let answer = catalog(nothing).search(&ctx, "rain", 10).unwrap();
+        assert_eq!(answer.datasets, vec![entry("Rainfall")]);
+        assert!(matches!(answer.stale, Some(SourceError::Shape(_))));
     }
 
     #[test]
     fn a_downloaded_catalog_is_stored_fresh() {
         let rig = rig();
         let ctx = rig.services.ctx(false);
-        assert_eq!(catalog(rain).search(&ctx, "snow", 10).unwrap().len(), 1);
+        let answer = catalog(rain).search(&ctx, "snow", 10).unwrap();
+        assert_eq!(answer.datasets.len(), 1);
+        assert!(answer.stale.is_none());
         let (stored, freshness) = cached(&ctx).unwrap();
         assert_eq!(stored, rain(&ctx).unwrap());
         assert_eq!(freshness, Freshness::Fresh);
