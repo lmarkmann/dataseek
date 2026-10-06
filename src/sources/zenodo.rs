@@ -4,9 +4,9 @@
 //! `--per-source` is at most 100, so a search reads up to four pages in the
 //! source's order and stops early when `links.next` is gone. The query is
 //! Lucene syntax, and one it cannot parse ("sea/ice", a lone "!", "a &&")
-//! answers HTTP 500, which would park the source as down; every operator
-//! character is escaped so a query is plain words (Zenodo, October 2026). The
-//! concept DOI travels as an alias so versions of one record merge.
+//! answers HTTP 500, which would park the source as down, so the search is
+//! repeated once with every operator character escaped (Zenodo, October
+//! 2026). The concept DOI travels as an alias so versions of one record merge.
 
 use serde_json::Value;
 
@@ -22,16 +22,36 @@ pub fn search(
     query: &str,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    let query = plain_words(query);
-    pages(limit, |size, page| {
-        ctx.http
-            .get("https://zenodo.org/api/records")
-            .query("q", &query)
-            .query("type", "dataset")
-            .query("size", size)
-            .query("page", page)
-            .json()
+    with_plain_retry(query, |query| {
+        pages(limit, |size, page| {
+            ctx.http
+                .get("https://zenodo.org/api/records")
+                .query("q", query)
+                .query("type", "dataset")
+                .query("size", size)
+                .query("page", page)
+                .json()
+        })
     })
+}
+
+/// Phrases and wildcards work as typed, so the query goes out as written
+/// first; only an HTTP 500 repeats it once with every operator escaped.
+fn with_plain_retry(
+    query: &str,
+    run: impl Fn(&str) -> Result<Vec<Dataset>, SourceError>,
+) -> Result<Vec<Dataset>, SourceError> {
+    match run(query) {
+        Err(SourceError::Status(500)) => {
+            let plain = plain_words(query);
+            if plain == query {
+                Err(SourceError::Status(500))
+            } else {
+                run(&plain)
+            }
+        }
+        found => found,
+    }
 }
 
 /// Pages of one size, fetched in order until `limit` records are in hand or
@@ -208,5 +228,40 @@ mod tests {
         ] {
             assert_eq!(plain_words(query), plain, "{query}");
         }
+    }
+
+    #[test]
+    fn a_query_is_escaped_only_after_zenodo_answers_500() {
+        let asked = std::cell::RefCell::new(Vec::new());
+        let run = |query: &str| {
+            asked.borrow_mut().push(query.to_owned());
+            if query.contains('\\') {
+                Ok(Vec::new())
+            } else {
+                Err(SourceError::Status(500))
+            }
+        };
+        assert!(with_plain_retry("sea/ice", run).is_ok());
+        assert_eq!(*asked.borrow(), ["sea/ice", r"sea\/ice"]);
+
+        asked.borrow_mut().clear();
+        let down = |query: &str| {
+            asked.borrow_mut().push(query.to_owned());
+            Err(SourceError::Status(500))
+        };
+        assert!(with_plain_retry("sea ice", down).is_err());
+        assert_eq!(asked.borrow().len(), 1, "nothing to escape, no retry");
+
+        asked.borrow_mut().clear();
+        let fine = |query: &str| {
+            asked.borrow_mut().push(query.to_owned());
+            Ok(Vec::new())
+        };
+        assert!(with_plain_retry("\"sea ice\"", fine).is_ok());
+        assert_eq!(
+            *asked.borrow(),
+            ["\"sea ice\""],
+            "a phrase goes out as typed"
+        );
     }
 }
