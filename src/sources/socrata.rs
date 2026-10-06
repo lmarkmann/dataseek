@@ -1,6 +1,18 @@
-//! Socrata's Discovery API: one endpoint per region that searches every
-//! public Socrata domain (US cities and states, data.nasa.gov,
-//! healthdata.gov, datos.gov.co, ...), including column names.
+//! Socrata's Discovery API: one endpoint per Socrata cloud that searches every
+//! public domain on it, including column names. The US endpoint holds US
+//! cities and states and also datos.gov.co; the EU one holds the Catalan,
+//! Lombard and Camden portals, among others (Socrata, October 2026).
+//!
+//! Results come in relevance order. `limit` defaults to 100 and goes up to
+//! 10,000 in one request, so a page of up to 100 never needs paging; deeper
+//! results need `scroll_id` once `offset + limit` passes 10,000. A request
+//! without an app token is throttled per IP address and answers 429 when
+//! that trips; dataseek sends no token (Socrata, October 2026).
+//!
+//! `only=dataset` keeps hosted tabular datasets. External datasets (`href`)
+//! and uploaded files (`file`) are left out: many `href` rows only point at
+//! a dataset another portal already serves. healthdata.gov lists only `href`
+//! rows, so it returns nothing (Socrata, October 2026).
 
 use serde_json::Value;
 
