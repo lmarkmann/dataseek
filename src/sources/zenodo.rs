@@ -1,7 +1,12 @@
 //! Zenodo's records search (InvenioRDM), limited to resource type dataset.
-//! Anonymous pages are capped at 25 and every client at 30 searches a minute
-//! (Zenodo, November 2025). The concept DOI travels as an alias so versions
-//! of one record merge.
+//! Anonymous pages are capped at 25 (a larger `size` answers HTTP 400) and
+//! the search endpoints at 30 requests a minute (Zenodo, October 2026).
+//! `--per-source` is at most 100, so a search reads up to four pages in the
+//! source's order and stops early when `links.next` is gone. The query is
+//! Lucene syntax, and one it cannot parse ("sea/ice", a lone "!", "a &&")
+//! answers HTTP 500, which would park the source as down; every operator
+//! character is escaped so a query is plain words (Zenodo, October 2026). The
+//! concept DOI travels as an alias so versions of one record merge.
 
 use serde_json::Value;
 
@@ -9,19 +14,54 @@ use super::Ctx;
 use crate::http::SourceError;
 use crate::record::{Dataset, day, items, number, text};
 
+const PAGE: usize = 25;
+const OPERATORS: &str = r#"+-=&|><!(){}[]^"~*?:\/"#;
+
 pub fn search(
     ctx: &Ctx<'_>,
     query: &str,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    let body = ctx
-        .http
-        .get("https://zenodo.org/api/records")
-        .query("q", query)
-        .query("type", "dataset")
-        .query("size", limit.clamp(1, 25))
-        .json()?;
-    parse(&body, limit)
+    let query = plain_words(query);
+    pages(limit, |size, page| {
+        ctx.http
+            .get("https://zenodo.org/api/records")
+            .query("q", &query)
+            .query("type", "dataset")
+            .query("size", size)
+            .query("page", page)
+            .json()
+    })
+}
+
+/// Pages of one size, fetched in order until `limit` records are in hand or
+/// the source has no next page. A failed page fails the search, so a cut-short
+/// list is never cached as the answer for this `limit`.
+fn pages(
+    limit: usize,
+    mut fetch: impl FnMut(usize, usize) -> Result<Value, SourceError>,
+) -> Result<Vec<Dataset>, SourceError> {
+    let size = limit.clamp(1, PAGE);
+    let mut found = Vec::new();
+    for page in 1..=limit.div_ceil(size) {
+        let body = fetch(size, page)?;
+        found.extend(parse(&body, limit.saturating_sub(found.len()))?);
+        if found.len() >= limit || body.pointer("/links/next").is_none() {
+            break;
+        }
+    }
+    Ok(found)
+}
+
+fn plain_words(query: &str) -> String {
+    let mut plain = String::with_capacity(query.len());
+    for c in query.chars() {
+        if OPERATORS.contains(c) {
+            plain.push('\\');
+        }
+        plain.push(c);
+    }
+    plain
 }
 
 pub(super) fn parse(
@@ -97,5 +137,76 @@ mod tests {
                 aliases: vec!["10.5281/zenodo.23077367".into()],
             }
         );
+    }
+
+    fn full_page() -> Value {
+        let mut body = fixture::json("zenodo.json");
+        let hit = body.pointer("/hits/hits/0").unwrap().clone();
+        *body.pointer_mut("/hits/hits").unwrap() =
+            Value::Array(vec![hit; PAGE]);
+        body
+    }
+
+    #[test]
+    fn pages_of_25_are_read_until_the_limit() {
+        let mut asked = Vec::new();
+        let hits = pages(60, |size, page| {
+            asked.push((size, page));
+            Ok(full_page())
+        })
+        .unwrap();
+        assert_eq!(asked, [(25, 1), (25, 2), (25, 3)]);
+        assert_eq!(hits.len(), 60);
+    }
+
+    #[test]
+    fn a_small_limit_asks_for_one_small_page() {
+        let mut asked = Vec::new();
+        let hits = pages(2, |size, page| {
+            asked.push((size, page));
+            Ok(full_page())
+        })
+        .unwrap();
+        assert_eq!(asked, [(2, 1)]);
+        assert_eq!(hits.len(), 2);
+    }
+
+    #[test]
+    fn the_last_page_ends_the_search() {
+        let mut body = full_page();
+        body.as_object_mut().unwrap().remove("links");
+        let mut asked = 0;
+        let hits = pages(100, |_, _| {
+            asked += 1;
+            Ok(body.clone())
+        })
+        .unwrap();
+        assert_eq!((asked, hits.len()), (1, 25));
+    }
+
+    #[test]
+    fn a_failed_page_fails_the_search() {
+        let result = pages(100, |_, page| {
+            if page == 1 {
+                Ok(full_page())
+            } else {
+                Err(SourceError::RateLimited)
+            }
+        });
+        assert!(matches!(result, Err(SourceError::RateLimited)));
+    }
+
+    #[test]
+    fn operator_characters_are_escaped() {
+        for (query, plain) in [
+            ("sea ice", "sea ice"),
+            ("sea/ice", r"sea\/ice"),
+            ("10.5281/zenodo.1", r"10.5281\/zenodo.1"),
+            ("a !", r"a \!"),
+            ("a\"b", r#"a\"b"#),
+            ("a &&", r"a \&\&"),
+        ] {
+            assert_eq!(plain_words(query), plain, "{query}");
+        }
     }
 }
