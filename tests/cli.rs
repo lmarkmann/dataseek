@@ -77,7 +77,17 @@ fn sandboxed(program: &Path, dir: &Path) -> std::process::Command {
         .env("KAGGLE_CONFIG_DIR", dir.join("kaggle"))
         .env("HTTPS_PROXY", "http://127.0.0.1:9")
         .env("HTTP_PROXY", "http://127.0.0.1:9");
-    for var in KEY_VARS.iter().chain(&OWN_VARS) {
+    // ureq prefers ALL_PROXY and honors NO_PROXY, so either would let a
+    // request past the closed port.
+    let proxy_vars = [
+        "ALL_PROXY",
+        "all_proxy",
+        "https_proxy",
+        "http_proxy",
+        "NO_PROXY",
+        "no_proxy",
+    ];
+    for var in KEY_VARS.iter().chain(&OWN_VARS).chain(&proxy_vars) {
         cmd.env_remove(var);
     }
     cmd
@@ -387,7 +397,7 @@ fn seed(cache: &Path, entry: &str, age: u64, value: &Value) {
         .unwrap()
         .as_secs();
     let entry = json!({
-        "stored": now - age,
+        "stored": now.saturating_sub(age),
         "version": env!("CARGO_PKG_VERSION"),
         "value": value,
     });
@@ -639,6 +649,16 @@ fn cache_clear_leaves_other_files_in_the_cache_dir() {
     assert!(!entry.exists());
 }
 
+/// The ids `cache warm` downloads: every source searched locally.
+fn catalog_ids() -> Vec<String> {
+    let report = json_of(&["sources", "--json"]);
+    let rows = report.get("sources").and_then(Value::as_array).unwrap();
+    rows.iter()
+        .filter(|r| r["search"] == "local")
+        .map(|r| r["id"].as_str().unwrap().to_owned())
+        .collect()
+}
+
 #[test]
 fn cache_warm_dry_run_lists_catalogs_and_downloads_none() {
     let mut cmd = bin();
@@ -646,20 +666,42 @@ fn cache_warm_dry_run_lists_catalogs_and_downloads_none() {
     let out = cmd.args(["cache", "warm", "--dry-run"]).output().unwrap();
     assert!(out.status.success());
     let text = String::from_utf8(out.stdout).unwrap();
+    assert_eq!(text.lines().count(), catalog_ids().len(), "{text}");
     assert!(text.lines().all(|l| l.ends_with("would download")), "{text}");
     assert!(!cache.exists(), "--dry-run created the cache");
 }
 
 // Some catalogs failing is a failed run: each named on stderr, the count as
-// the last line, exit 1.
+// the last line, exit 1. Under -q the Error line alone still names them.
 #[test]
 fn cache_warm_with_failures_says_how_many_and_exits_one() {
-    let out = bin().args(["cache", "warm"]).output().unwrap();
+    let ids = catalog_ids();
+    let out = bin().args(["cache", "warm", "-q"]).output().unwrap();
     assert_eq!(out.status.code(), Some(1));
     assert!(out.stdout.is_empty(), "failures went to stdout");
     let stderr = String::from_utf8(out.stderr).unwrap();
     let error = stderr.lines().find(|l| l.starts_with("Error:")).unwrap();
-    assert!(error.contains("catalogs failed to download"), "{stderr}");
+    let count = format!("{n} of {n} catalogs failed", n = ids.len());
+    assert!(error.contains(&count), "{stderr}");
+    for id in &ids {
+        assert!(error.contains(id.as_str()), "{id} not named: {stderr}");
+    }
+}
+
+#[test]
+fn cache_warm_into_an_unwritable_dir_fails_before_downloading() {
+    let mut cmd = bin();
+    let file = cmd.dir.path().join("not-a-dir");
+    std::fs::write(&file, "").unwrap();
+    let out = cmd
+        .args(["cache", "warm", "--cache-dir"])
+        .arg(&file)
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(1));
+    let stderr = String::from_utf8(out.stderr).unwrap();
+    assert!(stderr.contains("cannot write the cache"), "{stderr}");
+    assert!(!stderr.contains("downloading"), "{stderr}");
 }
 
 #[test]
@@ -1057,8 +1099,9 @@ fn seeded_search_json() -> Value {
         .unwrap();
     assert!(out.status.success(), "{out:?}");
     let mut report: Value = serde_json::from_slice(&out.stdout).unwrap();
-    for source in report["sources"].as_array_mut().unwrap() {
-        source["ms"] = json!(0);
+    let sources = report.get_mut("sources").and_then(Value::as_array_mut);
+    for source in sources.unwrap() {
+        source.as_object_mut().unwrap().insert("ms".into(), json!(0));
     }
     report
 }

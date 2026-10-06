@@ -15,9 +15,11 @@ use crate::{paths, ui};
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error(
-        "{failed} of {total} catalogs failed to download\n  Try:   run `dataseek cache warm` again later; searches still use what did download"
+        "{} of {total} catalogs failed to download: {}\n  Try:   run `dataseek cache warm` again later; searches still use what did download",
+        failed.len(),
+        failed.join(", ")
     )]
-    Partial { failed: usize, total: usize },
+    Partial { failed: Vec<&'static str>, total: usize },
 }
 
 pub fn run(action: CacheAction, out: &Out) -> Result<()> {
@@ -95,9 +97,12 @@ fn warm(out: &Out, dry_run: bool) -> Result<()> {
         }
     }
 
-    let failed =
-        results.iter().filter(|(_, r)| matches!(r, Some(Err(_)))).count();
-    if failed > 0 {
+    let failed: Vec<_> = results
+        .iter()
+        .filter(|(_, r)| matches!(r, Some(Err(_))))
+        .map(|(id, _)| *id)
+        .collect();
+    if !failed.is_empty() {
         return Err(Error::Partial { failed, total: results.len() }.into());
     }
     if !dry_run {
@@ -112,6 +117,14 @@ fn download<'a>(
     catalogs: &[&'a crate::sources::Source],
 ) -> Result<Downloads<'a>> {
     let services = Services::load()?;
+    // A cache that cannot be written would report every download as a
+    // success and keep none of them.
+    services.cache.check_writable().with_context(|| {
+        format!(
+            "cannot write the cache at {}\n  Try:   check its permissions, or pick another with --cache-dir",
+            services.cache.root().display()
+        )
+    })?;
     let ctx = services.ctx(true);
     ui::stage(format!("downloading {} catalogs", catalogs.len()));
     let progress = ui::bar(catalogs.len() as u64, "catalogs");

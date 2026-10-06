@@ -140,6 +140,12 @@ impl Cache {
         }
     }
 
+    pub fn check_writable(&self) -> anyhow::Result<()> {
+        let probe = self.path(Kind::Catalog, ".probe");
+        write_atomic(&probe, b"")?;
+        Ok(std::fs::remove_file(probe)?)
+    }
+
     pub fn mark_outage(&self, source: &str) {
         self.store(Kind::Outage, source, &());
     }
