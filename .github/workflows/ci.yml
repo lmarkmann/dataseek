@@ -1,11 +1,5 @@
+# One Linux job with clippy cross-checks for Windows and macOS: docs/adr/0002-one-linux-ci-job.md.
 name: ci
-
-# One Linux machine runs every check as a named step. The OS matrix this replaced
-# (ubuntu, macOS, Windows) guarded two things: path layouts, which etcetera resolves
-# as XDG on every Unix and differently only on Windows, and cfg boundaries that fail
-# to compile off Linux, which is how the unconditional SIGPIPE import once slipped
-# through. The second is caught below by clippy on the Windows and macOS targets from
-# this machine; a macOS or Windows runner on a private repo would cost 10x and 2x.
 
 on:
   pull_request:
@@ -41,14 +35,12 @@ jobs:
         with:
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - name: tools
-        uses: taiki-e/install-action@76c2e6406e52637deed7160d77bded76bd83e06e # v2.87.14
+        uses: taiki-e/install-action@4cef1412cce204788f482e778a0b9187f9626a29 # v2.87.21
         with:
-          tool: cargo-nextest,cargo-deny,cargo-shear,typos,zizmor
+          tool: cargo-nextest,cargo-deny,cargo-shear,typos,zizmor,actionlint
           fallback: none
       - name: fmt
         run: cargo fmt --all --check
-      # The doc comments in src/cli.rs are the --help text, so a typo there is a
-      # user-visible defect the other steps look straight past.
       - name: typos
         run: typos
       - name: clippy
@@ -58,7 +50,6 @@ jobs:
           rustup target add x86_64-pc-windows-msvc aarch64-apple-darwin
           cargo clippy --all-targets --all-features --locked --target x86_64-pc-windows-msvc
           cargo clippy --all-targets --all-features --locked --target aarch64-apple-darwin
-      # nextest skips doctests by design; this crate is a binary and has none.
       - name: test
         run: cargo nextest run --workspace --all-features --locked
       - name: deny
@@ -70,9 +61,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           zizmor --format=github .
-          go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
-      # Last: it installs a second toolchain, and everything above failing first
-      # is cheaper than waiting for it.
+          actionlint
+      # Last: it installs a second toolchain.
       - name: msrv
         run: |
           msrv=$(cargo metadata --no-deps --format-version 1 | jq -r '[.packages[].rust_version | select(.)] | sort_by(split(".") | map(tonumber)) | last')

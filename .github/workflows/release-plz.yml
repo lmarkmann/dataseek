@@ -1,17 +1,4 @@
-# `release` tags, cuts the GitHub release and publishes whatever is unreleased;
-# `release-pr` opens or updates the release PR and queues it for auto-merge.
-#
-# Two jobs on purpose (docs/release.md): GitHub cancels a *pending* run
-# in a concurrency group whenever a newer one queues, whatever cancel-in-progress
-# says. With release_always = false only the release PR's merge commit cuts the
-# tag, so a grouped `release` could be discarded while pending and the tag lost
-# with no failure. `release` therefore has no group; `release-pr` is serialized
-# because two runs writing the release branch race.
-#
-# Git-only: the crate is publish = false, so there is no id-token and no registry
-# token. The App token (lmarkmann-release) is what lets CI run on the release PR and
-# the merge trigger the next release run; GITHUB_TOKEN events trigger neither. See
-# docs/release.md.
+# Two jobs, the App token and the config path: docs/adr/0001-release-plz-owns-the-version.md.
 name: release-plz
 
 on:
@@ -27,6 +14,10 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: harden runner
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
       - name: token
         id: app
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
@@ -43,12 +34,13 @@ jobs:
       - name: toolchain
         run: rustup toolchain install
       - name: release
-        uses: release-plz/action@d6c56271d640b6c1b61d1e00593641c400a9f4bd # v0.5.138
+        uses: release-plz/action@b8d6b54b02889ff2ae2bb82e8b57c3a8fc1683a5 # v0.5.139
         with:
           command: release
+          version: 0.3.169
+          config: .github/release-plz.toml
         env:
-          # release-plz reads the GitHub token from this variable; its `token` input is
-          # the cargo registry token and must never carry a GitHub credential.
+          # The action's `token` input is the cargo registry token; GitHub's goes here.
           GITHUB_TOKEN: ${{ steps.app.outputs.token }}
 
   release-pr:
@@ -62,6 +54,10 @@ jobs:
       group: release-plz-pr-${{ github.ref }}
       cancel-in-progress: false
     steps:
+      - name: harden runner
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
       - name: token
         id: app
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
@@ -79,12 +75,13 @@ jobs:
         run: rustup toolchain install
       - name: release-pr
         id: pr
-        uses: release-plz/action@d6c56271d640b6c1b61d1e00593641c400a9f4bd # v0.5.138
+        uses: release-plz/action@b8d6b54b02889ff2ae2bb82e8b57c3a8fc1683a5 # v0.5.139
         with:
           command: release-pr
+          version: 0.3.169
+          config: .github/release-plz.toml
         env:
-          # release-plz reads the GitHub token from this variable; its `token` input is
-          # the cargo registry token and must never carry a GitHub credential.
+          # The action's `token` input is the cargo registry token; GitHub's goes here.
           GITHUB_TOKEN: ${{ steps.app.outputs.token }}
       - name: automerge
         if: steps.pr.outputs.prs_created == 'true'
