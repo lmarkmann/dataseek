@@ -441,7 +441,7 @@ pub static SOURCES: &[Source] = &[
             "Hugging Face Hub",
             MachineLearning,
             "Hub API",
-            "https://huggingface.co/docs/hub/api",
+            "https://huggingface.co/docs/huggingface_hub/package_reference/hf_api",
             huggingface::search,
         ),
         Key::HuggingFace,
@@ -657,7 +657,7 @@ pub static SOURCES: &[Source] = &[
         "Humanitarian Data Exchange",
         Government,
         "CKAN",
-        "https://data.humdata.org/faqs/devs",
+        "https://docs.humdata.org/build/hdx-apis/metadata-endpoints/package_search",
         Adapter::Ckan(&ckan::HDX),
     ),
     via(
@@ -681,7 +681,7 @@ pub static SOURCES: &[Source] = &[
         "OpenDataSoft hub",
         Government,
         "OpenDataSoft Explore",
-        "https://help.opendatasoft.com/apis/ods-explore-v2/",
+        "https://help.huwise.com/apis/ods-explore-v2/",
         opendatasoft::search,
     ),
     live(
@@ -746,7 +746,7 @@ pub static SOURCES: &[Source] = &[
         "IMF",
         Economics,
         "SDMX",
-        "https://portal.api.imf.org/",
+        "https://data.imf.org/en/Resource-Pages/IMF-API",
         Adapter::Sdmx(&sdmx::IMF),
     ),
     via(
@@ -754,7 +754,7 @@ pub static SOURCES: &[Source] = &[
         "OECD",
         Economics,
         "SDMX",
-        "https://sdmx.oecd.org/public/rest/",
+        "https://www.oecd.org/en/data/insights/data-explainers/2024/09/api.html",
         Adapter::Sdmx(&sdmx::OECD),
     ),
     via(
@@ -786,7 +786,7 @@ pub static SOURCES: &[Source] = &[
         "ILOSTAT",
         Economics,
         "SDMX",
-        "https://ilostat.ilo.org/resources/sdmx-tools/",
+        "https://www.ilo.org/resource/other/ilostat-sdmx-user-guide",
         Adapter::Sdmx(&sdmx::ILO),
     ),
     via(
@@ -813,8 +813,8 @@ pub static SOURCES: &[Source] = &[
         "owid",
         "Our World in Data",
         Statistics,
-        "site search API",
-        "https://docs.owid.io/projects/etl/api/",
+        "Search API",
+        "https://docs.owid.io/projects/etl/api/search-api/",
         owid::search,
     ),
     keyed(
@@ -834,7 +834,7 @@ pub static SOURCES: &[Source] = &[
         "Deutsche Bundesbank",
         Finance,
         "SDMX",
-        "https://www.bundesbank.de/en/statistics/time-series-databases/help-for-sdmx-web-service",
+        "https://statistiken.bundesbank.de/content/991208",
         Adapter::Sdmx(&sdmx::BUNDESBANK),
     ),
     listed(
@@ -850,7 +850,7 @@ pub static SOURCES: &[Source] = &[
         "U.S. Census Bureau API",
         Statistics,
         "DCAT data.json, listed",
-        "https://www.census.gov/data/developers/guidance/api-user-guide.html",
+        "https://census.gov/data/developers/updates/new-discovery-tool.html",
         census::list,
     ),
     listed(
@@ -1035,7 +1035,7 @@ pub static SOURCES: &[Source] = &[
         "Materials Project (MPContribs)",
         Physics,
         "MPContribs, listed",
-        "https://api.materialsproject.org/docs",
+        "https://contribs-api.materialsproject.org/",
         materials::list,
     ),
     listed(
@@ -1264,8 +1264,8 @@ mod tests {
                 huggingface::parse(b, &["temperature".to_owned()], n)
             }),
             ("ncbi", |b, n| {
-                let ids =
-                    ["200304969", "200279746", "200279384"].map(String::from);
+                let ids = ["200304969", "200279746", "200279384", "5662"]
+                    .map(String::from);
                 ncbi::parse(&ids, b, n)
             }),
         ]
