@@ -19,6 +19,7 @@
 mod ckan;
 mod datacite;
 mod dataverse;
+mod ebi;
 mod europa;
 mod figshare;
 mod huggingface;
@@ -57,6 +58,7 @@ pub enum Adapter {
     Dataverse(&'static str),
     Nada(&'static str),
     Socrata(&'static str),
+    Ebi(&'static ebi::Domain),
 }
 
 /// What a source mainly holds. The names are what `--category` accepts and
@@ -148,6 +150,7 @@ impl Source {
             }
             Adapter::Nada(base) => nada::search(ctx, base, query, limit),
             Adapter::Socrata(base) => socrata::search(ctx, base, query, limit),
+            Adapter::Ebi(domain) => ebi::search(ctx, domain, query, limit),
             Adapter::Catalog(list) => {
                 self.local(ctx, query, limit, || list(ctx))
             }
@@ -313,7 +316,8 @@ const fn via(
 }
 
 use Category::{
-    Aggregator, Government, MachineLearning, Research, Statistics,
+    Aggregator, Government, LifeSciences, MachineLearning, Research,
+    Statistics,
 };
 
 const CKAN_DOCS: &str = "https://docs.ckan.org/en/latest/api/";
@@ -322,6 +326,8 @@ const DATAVERSE_DOCS: &str =
 const NADA_DOCS: &str =
     "https://microdata.worldbank.org/api-documentation/catalog/index.html";
 const SOCRATA_DOCS: &str = "https://dev.socrata.com/docs/other/discovery";
+const EBI_DOCS: &str =
+    "https://www.ebi.ac.uk/ebisearch/documentation/rest-api";
 
 pub static SOURCES: &[Source] = &[
     // Aggregators and general search engines.
@@ -567,6 +573,23 @@ pub static SOURCES: &[Source] = &[
         "NADA",
         NADA_DOCS,
         Adapter::Nada("https://microdata.unhcr.org/index.php"),
+    ),
+    // Life sciences.
+    via(
+        "arrayexpress",
+        "ArrayExpress (EBI)",
+        LifeSciences,
+        "EBI Search",
+        EBI_DOCS,
+        Adapter::Ebi(&ebi::ARRAYEXPRESS),
+    ),
+    via(
+        "biostudies",
+        "BioStudies (EBI)",
+        LifeSciences,
+        "EBI Search",
+        EBI_DOCS,
+        Adapter::Ebi(&ebi::BIOSTUDIES),
     ),
 ];
 
