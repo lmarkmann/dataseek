@@ -508,6 +508,21 @@ fn cache_clear_dry_run_touches_nothing() {
     assert_eq!(real["dry_run"], false);
 }
 
+// --cache-dir can name a directory the user keeps other things in.
+#[test]
+fn cache_clear_leaves_other_files_in_the_cache_dir() {
+    let mut cmd = bin();
+    let dir = cmd.dir.path().join("mine");
+    let theirs = dir.join("thesis.tex");
+    let entry = dir.join("queries").join("k.json");
+    std::fs::create_dir_all(entry.parent().unwrap()).unwrap();
+    std::fs::write(&theirs, "keep").unwrap();
+    std::fs::write(&entry, "{}").unwrap();
+    cmd.args(["cache", "clear", "--cache-dir"]).arg(&dir).assert().success();
+    assert!(theirs.exists(), "cache clear deleted a file it did not write");
+    assert!(!entry.exists());
+}
+
 #[test]
 fn cache_warm_dry_run_lists_catalogs_and_downloads_none() {
     let mut cmd = bin();

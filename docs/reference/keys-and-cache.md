@@ -42,7 +42,7 @@ The cache directory is trimmed to 30 MB and 2,000 files after every search, olde
 dataseek cache info                 # path, size and budget
 dataseek cache warm                 # download every catalog now, no deadline
 dataseek cache clear --dry-run      # what clearing would delete
-dataseek cache clear                # delete everything
+dataseek cache clear                # delete every entry; other files in the directory stay
 dataseek search ... --refresh       # ask every live source again
 dataseek search ... --offline       # cached answers and catalogs only, no network
 dataseek search ... --timeout 0     # wait for every source, however slow

@@ -169,11 +169,19 @@ impl Cache {
         trim_files(self.files(), BUDGET_BYTES, BUDGET_FILES)
     }
 
+    /// Remove the entries, never the root: `--cache-dir` can point at a
+    /// directory that holds other files. The root goes only once empty.
     pub fn clear(&self) -> std::io::Result<()> {
-        match std::fs::remove_dir_all(&self.root) {
-            Err(e) if e.kind() != std::io::ErrorKind::NotFound => Err(e),
-            _ => Ok(()),
+        for kind in [Kind::Query, Kind::Catalog, Kind::Outage] {
+            match std::fs::remove_dir_all(self.root.join(kind.dir())) {
+                Err(e) if e.kind() != std::io::ErrorKind::NotFound => {
+                    return Err(e);
+                }
+                _ => {}
+            }
         }
+        let _ = std::fs::remove_dir(&self.root);
+        Ok(())
     }
 
     fn files(&self) -> Vec<CachedFile> {
