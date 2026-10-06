@@ -197,14 +197,8 @@ impl Source {
             Adapter::Nada(base) => nada::search(ctx, base, query, limit),
             Adapter::Socrata(base) => socrata::search(ctx, base, query, limit),
             Adapter::Ebi(domain) => ebi::search(ctx, domain, query, limit),
-            Adapter::Catalog(list) => {
-                self.local(ctx, query, limit, || list(ctx))
-            }
-            Adapter::Stac(catalog) => {
-                self.local(ctx, query, limit, || stac::list(ctx, catalog))
-            }
-            Adapter::Sdmx(agency) => {
-                self.local(ctx, query, limit, || sdmx::list(ctx, agency))
+            Adapter::Catalog(_) | Adapter::Stac(_) | Adapter::Sdmx(_) => {
+                self.local(ctx, query, limit)
             }
         }
     }
@@ -212,27 +206,42 @@ impl Source {
     /// Download and cache this source's catalog now; `None` for live
     /// sources, which have no catalog.
     pub fn warm(&self, ctx: &Ctx<'_>) -> Option<Result<usize, SourceError>> {
+        Some(self.download(ctx)?.map(|entries| {
+            ctx.cache.store(Kind::Catalog, self.id, &entries);
+            entries.len()
+        }))
+    }
+
+    /// The whole catalog, fetched now; `None` for live sources. An empty
+    /// catalog is a changed response, never a valid answer.
+    fn download(
+        &self,
+        ctx: &Ctx<'_>,
+    ) -> Option<Result<Vec<Dataset>, SourceError>> {
         let downloaded = match &self.adapter {
             Adapter::Catalog(list) => list(ctx),
             Adapter::Stac(catalog) => stac::list(ctx, catalog),
             Adapter::Sdmx(agency) => sdmx::list(ctx, agency),
             _ => return None,
         };
-        Some(downloaded.map(|entries| {
-            ctx.cache.store(Kind::Catalog, self.id, &entries);
-            entries.len()
+        Some(downloaded.and_then(|entries| {
+            if entries.is_empty() {
+                Err(SourceError::shape("the catalog came back empty"))
+            } else {
+                Ok(entries)
+            }
         }))
     }
 
     /// Search the cached catalog, downloading it when it is missing or
-    /// expired. A failed download falls back to an expired copy. `--refresh`
-    /// does not apply: catalogs have their own TTL and `cache warm`.
+    /// expired. A failed or empty download falls back to an expired copy.
+    /// `--refresh` does not apply: catalogs have their own TTL and `cache
+    /// warm`.
     fn local(
         &self,
         ctx: &Ctx<'_>,
         query: &str,
         limit: usize,
-        download: impl FnOnce() -> Result<Vec<Dataset>, SourceError>,
     ) -> Result<Vec<Dataset>, SourceError> {
         let cached = ctx.cache.load::<Vec<Dataset>>(
             Kind::Catalog,
@@ -241,15 +250,12 @@ impl Source {
         );
         let entries = match cached {
             Some((entries, Freshness::Fresh)) => entries,
-            stale => match download() {
-                Ok(entries) if !entries.is_empty() => {
+            stale => match self.download(ctx).unwrap_or_else(|| {
+                Err(SourceError::shape("a live source has no catalog"))
+            }) {
+                Ok(entries) => {
                     ctx.cache.store(Kind::Catalog, self.id, &entries);
                     entries
-                }
-                Ok(_) => {
-                    return Err(SourceError::shape(
-                        "the catalog came back empty",
-                    ));
                 }
                 Err(error) => match stale {
                     Some((entries, _)) => entries,
@@ -1070,5 +1076,121 @@ mod tests {
     #[test]
     fn kaggle_results_are_never_written_to_disk() {
         assert!(!SOURCES.iter().find(|s| s.id == "kaggle").unwrap().persist);
+    }
+
+    fn catalog(list: Listing) -> Source {
+        listed("fake", "Fake", Research, "test", "https://x.org", list)
+    }
+
+    fn entry(title: &str) -> Dataset {
+        Dataset::new(title, "https://x.org/d")
+    }
+
+    #[expect(clippy::unnecessary_wraps, reason = "the Listing signature")]
+    fn rain(_: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
+        Ok(vec![entry("Rainfall"), entry("Snow depth")])
+    }
+
+    #[expect(clippy::unnecessary_wraps, reason = "the Listing signature")]
+    fn nothing(_: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
+        Ok(Vec::new())
+    }
+
+    fn down(_: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
+        Err(SourceError::Timeout)
+    }
+
+    #[expect(
+        clippy::panic_in_result_fn,
+        reason = "an Err would be masked by the stale fallback"
+    )]
+    fn untouchable(_: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
+        panic!("a fresh catalog must not be downloaded again");
+    }
+
+    struct Rig {
+        _dir: tempfile::TempDir,
+        services: Services,
+    }
+
+    fn rig() -> Rig {
+        let dir = tempfile::tempdir().unwrap();
+        let services = Services {
+            http: Http::new(),
+            creds: Credentials::default(),
+            cache: Cache::new(dir.path().to_path_buf()),
+        };
+        Rig { _dir: dir, services }
+    }
+
+    fn cached(ctx: &Ctx<'_>) -> Option<(Vec<Dataset>, Freshness)> {
+        ctx.cache.load(Kind::Catalog, "fake", CATALOG_TTL)
+    }
+
+    #[test]
+    fn a_fresh_catalog_is_searched_without_downloading() {
+        let rig = rig();
+        let ctx = rig.services.ctx(true);
+        ctx.cache.store(Kind::Catalog, "fake", &vec![entry("Rainfall")]);
+        let hits = catalog(untouchable).search(&ctx, "rain", 10).unwrap();
+        assert_eq!(hits, vec![entry("Rainfall")]);
+    }
+
+    #[test]
+    fn a_failed_download_falls_back_to_the_expired_catalog() {
+        let primed = rig();
+        let ctx = primed.services.ctx(false);
+        ctx.cache.store_expired(
+            Kind::Catalog,
+            "fake",
+            &vec![entry("Rainfall")],
+        );
+        let hits = catalog(down).search(&ctx, "rain", 10).unwrap();
+        assert_eq!(hits, vec![entry("Rainfall")]);
+
+        let empty = rig();
+        let without =
+            catalog(down).search(&empty.services.ctx(false), "rain", 10);
+        assert!(matches!(without, Err(SourceError::Timeout)), "{without:?}");
+    }
+
+    #[test]
+    fn an_empty_download_falls_back_to_the_expired_catalog() {
+        let rig = rig();
+        let ctx = rig.services.ctx(false);
+        ctx.cache.store_expired(
+            Kind::Catalog,
+            "fake",
+            &vec![entry("Rainfall")],
+        );
+        let hits = catalog(nothing).search(&ctx, "rain", 10).unwrap();
+        assert_eq!(hits, vec![entry("Rainfall")]);
+    }
+
+    #[test]
+    fn a_downloaded_catalog_is_stored_fresh() {
+        let rig = rig();
+        let ctx = rig.services.ctx(false);
+        assert_eq!(catalog(rain).search(&ctx, "snow", 10).unwrap().len(), 1);
+        let (stored, freshness) = cached(&ctx).unwrap();
+        assert_eq!(stored, rain(&ctx).unwrap());
+        assert_eq!(freshness, Freshness::Fresh);
+    }
+
+    #[test]
+    fn warming_an_empty_catalog_fails_and_stores_nothing() {
+        let rig = rig();
+        let ctx = rig.services.ctx(false);
+        let warmed = catalog(nothing).warm(&ctx).unwrap();
+        assert!(matches!(warmed, Err(SourceError::Shape(_))), "{warmed:?}");
+        assert!(cached(&ctx).is_none(), "an empty catalog was cached");
+    }
+
+    #[test]
+    fn warming_stores_the_catalog_and_counts_it() {
+        let rig = rig();
+        let ctx = rig.services.ctx(false);
+        assert_eq!(catalog(rain).warm(&ctx).unwrap().unwrap(), 2);
+        assert_eq!(cached(&ctx).unwrap().0.len(), 2);
     }
 }

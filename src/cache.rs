@@ -100,7 +100,28 @@ impl Cache {
     }
 
     pub fn store<T: Serialize>(&self, kind: Kind, key: &str, value: &T) {
-        let entry = Entry { stored: now(), value };
+        self.write(kind, key, now(), value);
+    }
+
+    /// An entry written at the epoch, long past every TTL.
+    #[cfg(test)]
+    pub fn store_expired<T: Serialize>(
+        &self,
+        kind: Kind,
+        key: &str,
+        value: &T,
+    ) {
+        self.write(kind, key, 0, value);
+    }
+
+    fn write<T: Serialize>(
+        &self,
+        kind: Kind,
+        key: &str,
+        stored: u64,
+        value: &T,
+    ) {
+        let entry = Entry { stored, value };
         if let Ok(bytes) = serde_json::to_vec(&entry) {
             let _ = write_atomic(&self.path(kind, key), &bytes);
         }
