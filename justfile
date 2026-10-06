@@ -10,6 +10,7 @@ check:
     cargo fmt --all -- --check
     cargo clippy --all-targets --all-features --locked -- -D warnings
     cargo nextest run --all-features --locked
+    cargo test --doc --locked
 
 # Everything CI gates on, in the same order.
 ci: check cross shear msrv audit
