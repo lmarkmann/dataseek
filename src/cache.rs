@@ -55,6 +55,11 @@ pub enum Freshness {
 #[derive(Serialize, Deserialize)]
 struct Entry<T> {
     stored: u64,
+    /// The release that wrote it. Another release may parse a source
+    /// differently, so its entries count as stale: refetched when online,
+    /// still served when the fetch fails.
+    #[serde(default)]
+    version: String,
     value: T,
 }
 
@@ -91,7 +96,9 @@ impl Cache {
         let bytes = std::fs::read(self.path(kind, key)).ok()?;
         let entry: Entry<T> = serde_json::from_slice(&bytes).ok()?;
         let age = now().saturating_sub(entry.stored);
-        let freshness = if age < ttl.as_secs() {
+        let freshness = if age < ttl.as_secs()
+            && entry.version == env!("CARGO_PKG_VERSION")
+        {
             Freshness::Fresh
         } else {
             Freshness::Stale
@@ -121,7 +128,11 @@ impl Cache {
         stored: u64,
         value: &T,
     ) {
-        let entry = Entry { stored, value };
+        let entry = Entry {
+            stored,
+            version: env!("CARGO_PKG_VERSION").to_owned(),
+            value,
+        };
         if let Ok(bytes) = serde_json::to_vec(&entry) {
             let _ = write_atomic(&self.path(kind, key), &bytes);
         }
@@ -247,6 +258,27 @@ mod tests {
         assert!(
             cache.load::<Vec<i32>>(Kind::Catalog, "k", QUERY_TTL).is_none()
         );
+    }
+
+    // An upgrade that fixes an adapter must not keep serving what the old
+    // release parsed, yet an old answer beats none when the fetch fails.
+    #[test]
+    fn another_release_entries_are_stale_but_readable() {
+        let dir = tempfile::tempdir().unwrap();
+        let cache = Cache::new(dir.path().to_path_buf());
+        let path = cache.path(Kind::Query, "k");
+        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+        let now = now();
+        for written in [
+            format!(r#"{{"stored":{now},"version":"0.0.1","value":[1]}}"#),
+            format!(r#"{{"stored":{now},"value":[1]}}"#),
+        ] {
+            std::fs::write(&path, written).unwrap();
+            let (value, freshness): (Vec<i32>, _) =
+                cache.load(Kind::Query, "k", QUERY_TTL).unwrap();
+            assert_eq!(value, vec![1]);
+            assert_eq!(freshness, Freshness::Stale);
+        }
     }
 
     #[test]
