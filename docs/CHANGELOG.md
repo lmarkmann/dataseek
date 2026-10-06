@@ -2,6 +2,114 @@
 
 What shipped, newest first. release-plz writes each section from the conventional commits merged since the previous tag; see [`reference/release.md`](reference/release.md).
 
+## 0.6.0 - 2026-10-06
+
+### Added
+
+- Data Commons needs your own API key and is skipped without one
+- Google Dataset Search and Mendeley Data are asked only when named with -s
+- OpenAIRE results carry download counts and merge on a record's other DOIs, on the v3 API
+- Roboflow Universe returns more than one page of hits and keeps your key out of the URL
+- Data.europa.eu results carry the DOI, replies are a fifth the size, and a stray quote no longer fails the search
+- STAC results carry the collection's DOI and Data Space links open its browser page
+- Hugging Face results carry the DOI and size, and descriptions start with prose instead of the card heading
+- DANDI results carry the DOI and star count, skip empty dandisets and list starred ones first; a colon in the query no longer fails the search
+- Date ILOSTAT dataflows, drop IMF ones with no portal page
+- Kaggle searches read as many pages as the limit asks for
+- OpenNeuro results carry a description, DOI, license, size and download count
+- TensorFlow Datasets results show the categories they are listed under
+- Data.gov results carry monthly views and more DOIs
+- Materials Project results carry the full title, license and publisher
+
+### Changed
+
+- GitHub leaves its 403 quota handling to the HTTP client
+- Data.gov reads the landing page once when it looks for a DOI
+- Fiscal Data reads only the description fields the API sends
+
+### Docs
+
+- PANGAEA row says all words must match
+- Record each source's terms verdict and what it offers for filters and file lists
+- Search methods, limits and watch list match what the adapters now do
+- ADR 0004 rows follow the registry docs links
+- Registry rows point at the docs pages that exist today
+- NCEI header lists every character the search service rejects
+- DANDI header lines stay within 79 columns
+- WHO header counts 37 archived indicator stubs
+- ArcGIS Hub header spells the throttle header as the service sends it
+- Record NOMAD's name filters, paging, rate limit and metadata terms
+- DataONE header counts the DOIs and the records without a creator against the current index
+- Earth Engine adapter records the catalog page's size, what it lacks and why STAC is not used
+- Census header says what its link is and dates the key and attribution rules
+- DBnomics header says over 90 providers beside the dated count
+- CESSDA adapter records its page limit, result window and why it asks for English
+- Socrata adapter records its page limit, throttle and which asset types it keeps
+- Record how Synapse search pages, ranks and what it indexes
+- OpenML results are described by size because the list carries no text
+- DBnomics adapter records its page limit and what the search matches
+
+### Fixed
+
+- Eurostat sizes its description buffer with saturating arithmetic
+- A 403 with a spent quota reads as rate limited, not as rejected credentials
+- A catalog searched from an expired copy reads stale instead of ok
+- An offline search no longer clears a source's outage mark
+- A connect timeout you set no longer marks the source as down for ten minutes
+- OSF results name OSF as the publisher instead of the project's first author
+- PANGAEA drops leading wildcards when it retries a rejected query
+- OpenAIRE keeps phrases and operators it accepts and asks again as plain words only after a rejection
+- CKAN tries each date field in turn until one parses
+- Roboflow fails the search when a later page fails, so a short list is not cached
+- Eurostat datasets are found by their code again
+- Zenodo keeps phrase and wildcard queries and escapes them only after an HTTP 500
+- Data.europa.eu searches asking for more than 1000 results no longer fail
+- STAC collections that share a DOI stay separate results
+- EBI Search retries a rejected query only when escaping changes it
+- SDMX last-update stamps with an impossible day or month are ignored
+- PhysioNet results leave out software and models, merge on the concept DOI, and read the current list endpoint
+- World Bank indicators outside WDI link to their API record, not a missing page
+- AWS Open Data results no longer show a lone ellipsis as the description
+- NCEI results no longer carry the end of coverage as their update date, and a query its text parameter rejects is retried as plain words
+- PANGAEA results name PANGAEA as publisher instead of the authors, and a query its parser rejects is retried as plain words
+- Microdata searches (World Bank, IHSN, FAO, UNHCR) keep surveys whose title lacks the query word
+- Google Dataset Search results show the license Google names by code
+- DataCite returns matches by relevance instead of newest first, with download counts and unescaped descriptions, and retries a query its parser rejects
+- FRED results carry the series id in the title
+- Our World in Data returns up to 100 results and claims no license
+- TensorFlow Datasets names the missing All Datasets listing when the page changes
+- CKAN portals return plain descriptions, real publishers and dataset dates
+- CERN Open Data pages through results ten at a time and retries a query its parser rejects
+- GBIF licenses read as SPDX ids and the unspecified placeholder is dropped
+- DataONE results carry the DOI from the series id and a query with OR or NOT no longer fails
+- Zenodo returns up to 100 results per search, and a query with a slash or a lone ! no longer parks it as down
+- Eurostat results are described by their topic folders, not by their code
+- OpenDataSoft links open the publishing portal and drop the source-link text from descriptions
+- Materials Project projects stay findable by their short title
+- WHO search no longer lists archived indicator stubs that hold no data
+- ArrayExpress and BioStudies accept queries with slashes and brackets, and BioStudies shows abstracts and dates
+- ModelScope results carry their size and real update date, and an empty summary stays empty
+- OmicsDI leaves out Europe PMC papers and names each repository
+- Figshare shows when a dataset was last modified, and a search under 3 characters returns nothing instead of failing
+- GEO records stop using organism and sample count as publisher
+- Keep CELLxGENE collections of one paper as separate results
+- NASA CMR results take their DOI and date from the collection record
+- Data Commons uses only your own key and no longer shows a variable id as its description
+- A long query no longer parks Mendeley Data as down
+- GitHub's update date is the last push, and an exhausted quota reads as a rate limit
+
+### Other
+
+- Keep typos quiet about quoted titles, an SPDX id and test words
+- Record what the UCI list endpoint returns, checked in October 2026
+- Record the ArcGIS Hub limits and field meanings checked in October 2026
+
+### Performance
+
+- Eurostat builds each description with one allocation
+- Eurostat keeps one folder path and trims it by offset, so no row rebuilds it
+- Eurostat builds each topic path once per folder instead of once per dataset
+
 ## 0.5.0 - 2026-10-06
 
 ### Added
