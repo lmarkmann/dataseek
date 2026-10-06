@@ -2,6 +2,32 @@
 
 What shipped, newest first. release-plz writes each section from the conventional commits merged since the previous tag; see [`reference/release.md`](reference/release.md).
 
+## 0.5.0 - 2026-10-06
+
+### Added
+
+- A bare dsk shows an overview; help topics, --jq, --offline and tagged JSON
+
+### Docs
+
+- Help text and contract say what the code does
+- Drop leftover template wording
+
+### Fixed
+
+- A failed write to stderr no longer panics
+- Inspect no longer calls one unreachable page an offline machine
+- Cache warm names every failed catalog and refuses a cache it cannot write
+- --json keeps stderr NDJSON under -v, and help <command> and a bare call answer in JSON
+- --offline answers from the cache even after an outage, and an empty run says why
+- Cache clear removes its own entries, never other files in --cache-dir
+- --jq output carries no control characters from remote text
+- Cached answers from an older release are refetched, not served as fresh
+
+### Uncategorized
+
+- Merge remote-tracking branch 'origin/main' into cli-conformance
+
 ## 0.4.3 - 2026-10-06
 
 ### Docs
