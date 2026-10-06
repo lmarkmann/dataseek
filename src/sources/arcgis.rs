@@ -18,10 +18,17 @@ pub fn search(
         .query("q", query)
         .query("limit", limit)
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.get("features").is_none() {
         return Err(SourceError::shape("no features array"));
     }
-    Ok(items(&body, "/features")
+    Ok(items(body, "/features")
         .iter()
         .filter_map(record)
         .take(limit)

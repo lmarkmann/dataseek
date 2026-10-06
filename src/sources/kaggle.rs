@@ -24,6 +24,13 @@ pub fn search(
         call = call.header("Authorization", secret.authorization());
     }
     let body = call.json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     let rows = body
         .as_array()
         .ok_or_else(|| SourceError::shape("expected a list of datasets"))?;

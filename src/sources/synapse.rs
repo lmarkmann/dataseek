@@ -29,14 +29,19 @@ pub fn search(
                 "booleanQuery": [{"key": "node_type", "value": node_type}],
             }))
             .json()?;
-        if body.get("hits").is_none() && body.get("found").is_none() {
-            return Err(SourceError::shape("no hits"));
-        }
-        found.extend(
-            items(&body, "/hits").iter().filter_map(record).take(remaining),
-        );
+        found.extend(parse(&body, remaining)?);
     }
     Ok(found)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
+    if body.get("hits").is_none() && body.get("found").is_none() {
+        return Err(SourceError::shape("no hits"));
+    }
+    Ok(items(body, "/hits").iter().filter_map(record).take(limit).collect())
 }
 
 fn record(hit: &Value) -> Option<Dataset> {

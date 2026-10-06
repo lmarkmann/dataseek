@@ -20,10 +20,17 @@ pub fn search(
         .query("type", "dataset")
         .query("per_page", limit.clamp(1, 1000))
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.pointer("/data/items").is_none() {
         return Err(SourceError::shape("no data.items"));
     }
-    Ok(items(&body, "/data/items")
+    Ok(items(body, "/data/items")
         .iter()
         .filter_map(record)
         .take(limit)

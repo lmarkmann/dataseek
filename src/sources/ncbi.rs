@@ -39,12 +39,20 @@ pub fn search(
             .query("db", "gds")
             .query("id", ids.join(","))
             .json()?;
-    Ok(ids
-        .iter()
+    Ok(parse(&ids, &summaries, limit))
+}
+
+/// The esummary records for `ids`, in esearch's order.
+pub(super) fn parse(
+    ids: &[String],
+    summaries: &Value,
+    limit: usize,
+) -> Vec<Dataset> {
+    ids.iter()
         .filter_map(|id| summaries.pointer(&format!("/result/{id}")))
         .filter_map(record)
         .take(limit)
-        .collect())
+        .collect()
 }
 
 fn polite<'a>(ctx: &Ctx<'_>, call: Call<'a>) -> Call<'a> {

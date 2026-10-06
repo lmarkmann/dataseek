@@ -46,21 +46,31 @@ pub fn list(
     for _ in 0..50 {
         let Some(url) = next.take() else { break };
         let body = ctx.http.get(&url).slow().json()?;
-        if body.get("collections").is_none() {
-            return Err(SourceError::shape("no collections array"));
-        }
-        entries.extend(
-            items(&body, "/collections")
-                .iter()
-                .filter_map(|c| record(catalog, c)),
-        );
-        next = items(&body, "/links").iter().find_map(|link| {
-            (link.get("rel").and_then(Value::as_str) == Some("next"))
-                .then(|| text(link, "/href"))
-                .flatten()
-        });
+        let (page, after) = parse(catalog, &body)?;
+        entries.extend(page);
+        next = after;
     }
     Ok(entries)
+}
+
+/// One page of collections and the link to the next page, if any.
+pub(super) fn parse(
+    catalog: &Catalog,
+    body: &Value,
+) -> Result<(Vec<Dataset>, Option<String>), SourceError> {
+    if body.get("collections").is_none() {
+        return Err(SourceError::shape("no collections array"));
+    }
+    let entries = items(body, "/collections")
+        .iter()
+        .filter_map(|c| record(catalog, c))
+        .collect();
+    let next = items(body, "/links").iter().find_map(|link| {
+        (link.get("rel").and_then(Value::as_str) == Some("next"))
+            .then(|| text(link, "/href"))
+            .flatten()
+    });
+    Ok((entries, next))
 }
 
 fn record(catalog: &Catalog, collection: &Value) -> Option<Dataset> {

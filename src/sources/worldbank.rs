@@ -2,6 +2,8 @@
 //! searched locally; the indicator API has no search parameter. Descriptions
 //! are cut short to keep the cached catalog small.
 
+use serde_json::Value;
+
 use super::Ctx;
 use crate::http::SourceError;
 use crate::record::{Dataset, items, text};
@@ -14,7 +16,11 @@ pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
         .query("per_page", 40_000)
         .slow()
         .json()?;
-    let rows = items(&body, "/1");
+    parse(&body)
+}
+
+pub(super) fn parse(body: &Value) -> Result<Vec<Dataset>, SourceError> {
+    let rows = items(body, "/1");
     if rows.is_empty() {
         return Err(SourceError::shape("no indicator list"));
     }

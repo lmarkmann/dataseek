@@ -33,10 +33,17 @@ pub fn search(
         .query("affiliation", "false")
         .query("mailto", CONTACT)
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.get("data").is_none() {
         return Err(SourceError::shape("no data array"));
     }
-    Ok(items(&body, "/data")
+    Ok(items(body, "/data")
         .iter()
         .filter(|row| {
             text(row, "/relationships/client/data/id")

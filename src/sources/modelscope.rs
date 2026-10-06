@@ -19,10 +19,17 @@ pub fn search(
         .query("PageSize", limit.clamp(1, 100))
         .query("PageNumber", 1)
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.get("Data").is_none() {
         return Err(SourceError::shape("no Data array"));
     }
-    Ok(items(&body, "/Data").iter().filter_map(record).take(limit).collect())
+    Ok(items(body, "/Data").iter().filter_map(record).take(limit).collect())
 }
 
 fn record(row: &Value) -> Option<Dataset> {

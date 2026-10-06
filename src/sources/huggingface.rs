@@ -33,12 +33,21 @@ pub fn search(
         call = call.header("Authorization", secret.authorization());
     }
     let body = call.json()?;
+    parse(&body, &words, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    words: &[String],
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
+    let wide = words.len() > 1;
     let rows = body
         .as_array()
         .ok_or_else(|| SourceError::shape("expected a list of datasets"))?;
     Ok(rows
         .iter()
-        .filter(|row| !wide || mentions_all(row, &words))
+        .filter(|row| !wide || mentions_all(row, words))
         .filter_map(record)
         .take(limit)
         .collect())

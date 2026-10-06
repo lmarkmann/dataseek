@@ -20,14 +20,17 @@ pub fn search(
         .query("limit", limit.clamp(1, 200))
         .query("metadataLanguage", "en")
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.get("Results").is_none() {
         return Err(SourceError::shape("no Results array"));
     }
-    Ok(items(&body, "/Results")
-        .iter()
-        .filter_map(record)
-        .take(limit)
-        .collect())
+    Ok(items(body, "/Results").iter().filter_map(record).take(limit).collect())
 }
 
 fn record(row: &Value) -> Option<Dataset> {

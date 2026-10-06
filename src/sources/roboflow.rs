@@ -23,6 +23,13 @@ pub fn search(
         .query("q", query)
         .query("api_key", secret.token())
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     let hits = ["/results", "/data", "/projects", ""]
         .iter()
         .find_map(|p| body.pointer(p).and_then(Value::as_array))

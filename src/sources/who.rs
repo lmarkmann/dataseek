@@ -2,6 +2,8 @@
 //! locally. Links point at the indicator's OData data endpoint, the stable
 //! address WHO publishes for each code.
 
+use serde_json::Value;
+
 use super::Ctx;
 use crate::http::SourceError;
 use crate::record::{Dataset, items, text};
@@ -12,7 +14,11 @@ pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
         .get("https://ghoapi.azureedge.net/api/Indicator")
         .slow()
         .json()?;
-    Ok(items(&body, "/value")
+    Ok(parse(&body))
+}
+
+pub(super) fn parse(body: &Value) -> Vec<Dataset> {
+    items(body, "/value")
         .iter()
         .filter_map(|row| {
             let code = text(row, "/IndicatorCode")?;
@@ -23,5 +29,5 @@ pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
             dataset.publisher = Some("World Health Organization".to_owned());
             dataset.valid()
         })
-        .collect())
+        .collect()
 }

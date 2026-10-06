@@ -23,10 +23,17 @@ pub fn search(
         .query("page[size]", limit.clamp(1, 100))
         .query("acceptMediatype", "application/json")
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.get("data").is_none() {
         return Err(SourceError::shape("no data array"));
     }
-    Ok(items(&body, "/data").iter().filter_map(record).take(limit).collect())
+    Ok(items(body, "/data").iter().filter_map(record).take(limit).collect())
 }
 
 fn record(card: &Value) -> Option<Dataset> {

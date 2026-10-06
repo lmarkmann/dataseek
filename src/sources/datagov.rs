@@ -23,6 +23,13 @@ pub fn search(
         None => ctx.http.get("https://catalog.data.gov/search"),
     };
     let body = call.query("q", query).query("per_page", limit).json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     let rows = body
         .get("results")
         .and_then(Value::as_array)

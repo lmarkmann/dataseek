@@ -20,10 +20,18 @@ pub fn search(
         .query("sk", query)
         .query("ps", limit)
         .json()?;
+    parse(base, &body, limit)
+}
+
+pub(super) fn parse(
+    base: &str,
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.pointer("/result/rows").is_none() {
         return Err(SourceError::shape("no result.rows"));
     }
-    Ok(items(&body, "/result/rows")
+    Ok(items(body, "/result/rows")
         .iter()
         .filter_map(|row| record(base, row))
         .take(limit)

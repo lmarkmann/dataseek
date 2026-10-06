@@ -14,6 +14,10 @@ pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
         .get("https://physionet.org/api/v1/project/published/")
         .slow()
         .json()?;
+    parse(&body)
+}
+
+pub(super) fn parse(body: &Value) -> Result<Vec<Dataset>, SourceError> {
     let rows = body
         .as_array()
         .ok_or_else(|| SourceError::shape("expected a list of projects"))?;

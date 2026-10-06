@@ -18,14 +18,17 @@ pub fn search(
         .query("text", query)
         .query("limit", limit)
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.get("results").is_none() {
         return Err(SourceError::shape("no results array"));
     }
-    Ok(items(&body, "/results")
-        .iter()
-        .filter_map(record)
-        .take(limit)
-        .collect())
+    Ok(items(body, "/results").iter().filter_map(record).take(limit).collect())
 }
 
 fn record(row: &Value) -> Option<Dataset> {

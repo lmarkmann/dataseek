@@ -19,10 +19,17 @@ pub fn search(
         .query("keyword", query)
         .query("page_size", limit.clamp(1, 2000))
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.pointer("/feed/entry").is_none() {
         return Err(SourceError::shape("no feed.entry"));
     }
-    Ok(items(&body, "/feed/entry")
+    Ok(items(body, "/feed/entry")
         .iter()
         .filter_map(record)
         .take(limit)

@@ -23,14 +23,17 @@ pub fn search(
         .query("file_type", "json")
         .query("limit", limit.clamp(1, 1000))
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.get("seriess").is_none() {
         return Err(SourceError::shape("no seriess array"));
     }
-    Ok(items(&body, "/seriess")
-        .iter()
-        .filter_map(record)
-        .take(limit)
-        .collect())
+    Ok(items(body, "/seriess").iter().filter_map(record).take(limit).collect())
 }
 
 fn record(row: &Value) -> Option<Dataset> {

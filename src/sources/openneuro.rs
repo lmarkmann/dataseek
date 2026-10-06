@@ -21,10 +21,26 @@ pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
             .json_body(json!({"query": PAGE, "variables": {"after": after}}))
             .slow()
             .json()?;
-        let page = body
-            .pointer("/data/datasets")
-            .ok_or_else(|| SourceError::shape("no data.datasets"))?;
-        entries.extend(items(page, "/edges").iter().filter_map(|edge| {
+        let (page, next) = parse(&body)?;
+        entries.extend(page);
+        match next {
+            Some(cursor) => after = Value::String(cursor),
+            None => break,
+        }
+    }
+    Ok(entries)
+}
+
+/// One page of datasets and the cursor of the next page, if any.
+pub(super) fn parse(
+    body: &Value,
+) -> Result<(Vec<Dataset>, Option<String>), SourceError> {
+    let page = body
+        .pointer("/data/datasets")
+        .ok_or_else(|| SourceError::shape("no data.datasets"))?;
+    let entries = items(page, "/edges")
+        .iter()
+        .filter_map(|edge| {
             let id = text(edge, "/node/id")?;
             let name = text(edge, "/node/latestSnapshot/description/Name")
                 .unwrap_or_else(|| id.clone());
@@ -34,13 +50,12 @@ pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
             );
             dataset.updated = day(text(edge, "/node/latestSnapshot/created"));
             dataset.valid()
-        }));
-        let more =
-            page.pointer("/pageInfo/hasNextPage").and_then(Value::as_bool);
-        match (more, text(page, "/pageInfo/endCursor")) {
-            (Some(true), Some(cursor)) => after = Value::String(cursor),
-            _ => break,
-        }
-    }
-    Ok(entries)
+        })
+        .collect();
+    let more = page.pointer("/pageInfo/hasNextPage").and_then(Value::as_bool);
+    let next = match (more, text(page, "/pageInfo/endCursor")) {
+        (Some(true), Some(cursor)) => Some(cursor),
+        _ => None,
+    };
+    Ok((entries, next))
 }

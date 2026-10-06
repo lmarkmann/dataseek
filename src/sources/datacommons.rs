@@ -30,10 +30,17 @@ pub fn search(
         .query("nodes", query)
         .query("resolver", "indicator")
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.get("entities").is_none() {
         return Err(SourceError::shape("no entities array"));
     }
-    Ok(items(&body, "/entities/0/candidates")
+    Ok(items(body, "/entities/0/candidates")
         .iter()
         .filter(|c| {
             items(c, "/typeOf")

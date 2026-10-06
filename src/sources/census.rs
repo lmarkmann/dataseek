@@ -2,6 +2,8 @@
 //! census, CPS, ...), listed from the bureau's DCAT `data.json` and searched
 //! locally. Each dataset's link is its variables page on the API host.
 
+use serde_json::Value;
+
 use super::Ctx;
 use crate::http::SourceError;
 use crate::record::{Dataset, day, items, number, text};
@@ -9,7 +11,11 @@ use crate::record::{Dataset, day, items, number, text};
 pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
     let body =
         ctx.http.get("https://api.census.gov/data.json").slow().json()?;
-    let rows = items(&body, "/dataset");
+    parse(&body)
+}
+
+pub(super) fn parse(body: &Value) -> Result<Vec<Dataset>, SourceError> {
+    let rows = items(body, "/dataset");
     if rows.is_empty() {
         return Err(SourceError::shape("no dataset list in data.json"));
     }

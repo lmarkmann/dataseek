@@ -33,10 +33,17 @@ pub fn search(
         .query("rows", limit)
         .query("wt", "json")
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.pointer("/response/docs").is_none() {
         return Err(SourceError::shape("no response.docs"));
     }
-    Ok(items(&body, "/response/docs")
+    Ok(items(body, "/response/docs")
         .iter()
         .filter_map(record)
         .take(limit)

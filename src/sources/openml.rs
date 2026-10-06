@@ -4,6 +4,8 @@
 
 use std::collections::HashMap;
 
+use serde_json::Value;
+
 use super::Ctx;
 use crate::http::SourceError;
 use crate::record::{Dataset, items, number, text};
@@ -14,7 +16,11 @@ pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
         .get("https://www.openml.org/api/v1/json/data/list/limit/20000/status/active")
         .slow()
         .json()?;
-    let rows = items(&body, "/data/dataset");
+    parse(&body)
+}
+
+pub(super) fn parse(body: &Value) -> Result<Vec<Dataset>, SourceError> {
+    let rows = items(body, "/data/dataset");
     if rows.is_empty() {
         return Err(SourceError::shape("no data.dataset list"));
     }

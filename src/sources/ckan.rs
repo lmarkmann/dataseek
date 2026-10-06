@@ -51,10 +51,18 @@ pub fn search(
         .query("q", query)
         .query("rows", limit)
         .json()?;
+    parse(portal, &body, limit)
+}
+
+pub(super) fn parse(
+    portal: &Portal,
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.get("success").and_then(Value::as_bool) != Some(true) {
         return Err(SourceError::shape("CKAN did not report success"));
     }
-    Ok(items(&body, "/result/results")
+    Ok(items(body, "/result/results")
         .iter()
         .filter_map(|row| record(portal, row))
         .take(limit)

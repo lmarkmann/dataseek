@@ -38,10 +38,18 @@ pub fn search(
         .query("size", limit.clamp(1, 100))
         .query("fields", "name,description,publication_date")
         .json()?;
+    parse(domain, &body, limit)
+}
+
+pub(super) fn parse(
+    domain: &Domain,
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.get("entries").is_none() {
         return Err(SourceError::shape("no entries array"));
     }
-    Ok(items(&body, "/entries")
+    Ok(items(body, "/entries")
         .iter()
         .filter_map(|entry| record(domain, entry))
         .take(limit)

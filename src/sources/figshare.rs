@@ -22,6 +22,13 @@ pub fn search(
             "page_size": limit.clamp(1, 100),
         }))
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     let rows = body
         .as_array()
         .ok_or_else(|| SourceError::shape("expected a list of articles"))?;

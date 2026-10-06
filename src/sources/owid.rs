@@ -19,10 +19,17 @@ pub fn search(
         .get("https://ourworldindata.org/api/search")
         .query("q", query)
         .json()?;
+    parse(&body, limit)
+}
+
+pub(super) fn parse(
+    body: &Value,
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
     if body.get("results").is_none() {
         return Err(SourceError::shape("no results array"));
     }
-    Ok(items(&body, "/results")
+    Ok(items(body, "/results")
         .iter()
         .filter(|r| {
             matches!(

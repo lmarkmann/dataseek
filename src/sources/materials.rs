@@ -2,6 +2,8 @@
 //! keyless and searched locally. The core Materials Project API is a
 //! per-material database rather than a dataset catalog, so it is not used.
 
+use serde_json::Value;
+
 use super::Ctx;
 use crate::http::SourceError;
 use crate::record::{Dataset, items, text};
@@ -14,7 +16,11 @@ pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
         .query("_limit", 500)
         .slow()
         .json()?;
-    Ok(items(&body, "/data")
+    Ok(parse(&body))
+}
+
+pub(super) fn parse(body: &Value) -> Vec<Dataset> {
+    items(body, "/data")
         .iter()
         .filter_map(|row| {
             let name = text(row, "/name")?;
@@ -28,5 +34,5 @@ pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
             .describe(text(row, "/description"))
             .valid()
         })
-        .collect())
+        .collect()
 }
