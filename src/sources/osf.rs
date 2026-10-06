@@ -42,6 +42,7 @@ fn record(card: &Value) -> Option<Dataset> {
             .describe(text(card, "/description/0/@value"));
     dataset.publisher = text(card, "/creator/0/name/0/@value")
         .or_else(|| text(card, "/publisher/0/name/0/@value"));
+    dataset.license = text(card, "/rights/0/name/0/@value");
     dataset.updated = day(text(card, "/dateModified/0/@value"));
     dataset.valid()
 }
@@ -65,7 +66,7 @@ mod tests {
                 description: None,
                 publisher: Some("Bronislav Farka\u{10d}".into()),
                 doi: None,
-                license: None,
+                license: Some("CC-By Attribution 4.0 International".into()),
                 updated: Some("2026-06-23".into()),
                 size_bytes: None,
                 popularity: None,
