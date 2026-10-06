@@ -405,6 +405,8 @@ mod tests {
         assert_eq!(number(&v, "/a/s"), Some(42));
         assert_eq!(number(&v, "/a/f"), Some(7));
         assert_eq!(number(&v, "/a/fs"), Some(1197));
+        assert_eq!(number(&json!({"n": -2.5}), "/n"), None);
+        assert_eq!(number(&json!({"n": "-2.5"}), "/n"), None);
         assert_eq!(items(&v, "/a").len(), 0);
     }
 
@@ -437,6 +439,12 @@ mod tests {
             clean("England&rsquo;s &apos;map&apos; &#8211; &#x2014; &mdash;"),
             "England\u{2019}s 'map' \u{2013} \u{2014} \u{2014}"
         );
+        assert_eq!(
+            clean(
+                "a &gt; &quot;b&quot; &lsquo;c&rsquo; &ldquo;d&rdquo; e&ndash;f&hellip; &rarr;&nbsp;g"
+            ),
+            "a > \"b\" \u{2018}c\u{2019} \u{201c}d\u{201d} e\u{2013}f\u{2026} \u{2192} g"
+        );
         assert_eq!(clean("&amp;lt; stays &lt;"), "&lt; stays <");
         assert_eq!(clean("R&D &unknown; &#xZZ;"), "R&D &unknown; &#xZZ;");
         assert!(!clean("&#27;[2J&#x9b;").chars().any(char::is_control));
@@ -464,6 +472,7 @@ mod tests {
             Some("2010-07-08")
         );
         assert_eq!(day(Some("201007".into())).as_deref(), Some("201007"));
+        assert_eq!(day(Some("Feb 2026".into())).as_deref(), Some("Feb 2026"));
     }
 
     #[test]
