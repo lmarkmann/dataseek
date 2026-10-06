@@ -15,8 +15,9 @@
 //! 400 hits over four queries, October 2026).
 //!
 //! A query the service cannot parse (`ocean: temperature`, an unclosed quote
-//! or bracket, a leading AND) answers HTTP 500, which would park the source
-//! as down, so it is asked once more as plain words (October 2026). The terms
+//! or bracket, a leading AND, a word that starts with `*` or `?`) answers
+//! HTTP 500, which would park the source as down, so it is asked once more
+//! as plain words (October 2026). The terms
 //! allow PANGAEA to cut off clients whose requests "significantly" exceed the
 //! average of its other users, with no number given.
 
@@ -59,10 +60,12 @@ fn request(
 }
 
 /// The words of a query without the characters that make PANGAEA read a
-/// field prefix, phrase or group, and without the bare AND, OR and NOT.
+/// field prefix, phrase or group, without a wildcard that opens a word, and
+/// without the bare AND, OR and NOT.
 fn plain_words(query: &str) -> String {
     query
         .split(|c: char| c.is_whitespace() || SYNTAX.contains(&c))
+        .map(|word| word.trim_start_matches(['*', '?']))
         .filter(|word| !word.is_empty())
         .filter(|word| !matches!(*word, "AND" | "OR" | "NOT"))
         .collect::<Vec<_>>()
@@ -158,6 +161,8 @@ mod tests {
             ("foo/bar (x", "foo/bar x"),
             ("AND sea ice", "sea ice"),
             ("a:b", "a b"),
+            ("sea *ice", "sea ice"),
+            ("?sea se*a", "sea se*a"),
         ] {
             assert_eq!(plain_words(query), plain, "{query}");
         }
