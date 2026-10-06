@@ -2,6 +2,36 @@
 
 What shipped, newest first. release-plz writes each section from the conventional commits merged since the previous tag; see [`reference/release.md`](reference/release.md).
 
+## 0.4.2 - 2026-10-06
+
+### Fixed
+
+- Data.gov descriptions show text instead of raw Markdown
+- NCEI results name the organization the record gives
+- NASA CMR results name the archive center, not its provider code
+- OpenDataSoft results name the source portal when the publisher is blank
+- OSF results carry the project's DOI
+- OSF results show the project's size
+- OSF results show the project's license
+- Google Dataset Search results show the license when Google has one
+- Google Dataset Search results name the publisher, not the authors
+- GitHub results show the repository's size
+- GBIF results show when the dataset was last modified
+- Fiscal Data results show when the dataset was last updated
+- ArcGIS Hub results carry their view count
+- ArcGIS Hub results show the dataset's size
+- ECB results link to a page that opens for every dataflow
+- Earth Engine results show the catalog's description and provider
+- DBnomics results show the dataset's description
+- Census results show the dataset's CC0 license
+- CERN Open Data results show the dataset's size
+- CERN Open Data results show the record's license
+- PhysioNet results show the project's size
+- PhysioNet results show the project's license
+- CESSDA results carry the study's DOI
+- Synapse and STAC descriptions show text instead of raw Markdown
+- Socrata descriptions no longer carry zero-width spaces
+
 ## 0.4.1 - 2026-10-06
 
 ### Changed
