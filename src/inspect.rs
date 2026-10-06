@@ -102,9 +102,15 @@ fn find_dataset(value: Value) -> Option<Value> {
     }
 }
 
+/// `Dataset`, prefixed (`schema:Dataset`) or as the full address Zenodo
+/// writes (`https://schema.org/Dataset`).
 fn is_dataset(kind: Option<&Value>) -> bool {
     match kind {
-        Some(Value::String(t)) => t == "Dataset" || t.ends_with(":Dataset"),
+        Some(Value::String(t)) => {
+            t == "Dataset"
+                || t.ends_with(":Dataset")
+                || t.ends_with("schema.org/Dataset")
+        }
         Some(Value::Array(ts)) => ts.iter().any(|t| is_dataset(Some(t))),
         _ => false,
     }
@@ -188,8 +194,31 @@ fn names(value: Option<&Value>) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
+    use std::path::Path;
+
     use super::*;
     use serde_json::json;
+
+    /// Recorded responses under `tests/fixtures/inspect`, the oracle the
+    /// expected values below are read from by hand.
+    fn fixture(name: &str) -> String {
+        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/inspect")
+            .join(name);
+        std::fs::read_to_string(&path)
+            .unwrap_or_else(|e| panic!("{}: {e}", path.display()))
+    }
+
+    #[test]
+    fn a_zenodo_page_names_its_dataset_by_full_address() {
+        let page = fixture("zenodo.html");
+        let found = json_ld(&page).into_iter().find_map(find_dataset).unwrap();
+        assert_eq!(found["@type"], "https://schema.org/Dataset");
+        assert_eq!(
+            found["name"],
+            "Evaluation of the influence of rain on air surface temperature measurements"
+        );
+    }
 
     #[test]
     fn the_dataset_is_found_inside_a_graph() {
