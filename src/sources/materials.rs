@@ -12,7 +12,7 @@ use serde_json::Value;
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::{Dataset, first_text, items, text};
+use crate::record::{Dataset, items, text};
 
 pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
     let body = ctx
@@ -31,13 +31,20 @@ pub(super) fn parse(body: &Value) -> Vec<Dataset> {
 
 fn record(row: &Value) -> Option<Dataset> {
     let name = text(row, "/name")?;
-    let title = first_text(row, &["/long_title", "/title"])
-        .unwrap_or_else(|| name.clone());
+    let short = text(row, "/title").unwrap_or_else(|| name.clone());
+    let title = text(row, "/long_title").unwrap_or_else(|| short.clone());
+    let description = match text(row, "/description") {
+        Some(description) if title != short => {
+            Some(format!("{short}. {description}"))
+        }
+        None if title != short => Some(short),
+        description => description,
+    };
     let mut dataset = Dataset::new(
         &title,
         &format!("https://contribs.materialsproject.org/projects/{name}"),
     )
-    .describe(text(row, "/description"));
+    .describe(description);
     dataset.publisher = Some("Materials Project".to_owned());
     dataset.license = match text(row, "/license").as_deref() {
         Some("CCA4") => Some("CC-BY-4.0".to_owned()),
@@ -65,10 +72,10 @@ mod tests {
                       carrier_transport"
                     .into(),
                 description: Some(
-                    "Ab-initio electronic transport database for inorganic \
-                     materials. Complex multivariable BoltzTraP simulation \
-                     data is condensed down into tabular form of two main \
-                     motifs."
+                    "Carrier Transport. Ab-initio electronic transport \
+                     database for inorganic materials. Complex multivariable \
+                     BoltzTraP simulation data is condensed down into \
+                     tabular form of two main motifs."
                         .into()
                 ),
                 publisher: Some("Materials Project".into()),
@@ -90,6 +97,14 @@ mod tests {
             entries[4].description.as_deref(),
             Some("Scientific Analysis of nanoscience Data")
         );
+    }
+
+    #[test]
+    fn a_project_is_still_found_by_its_short_title() {
+        let entries = parse(&fixture::json("materials.json"));
+        let found = crate::catalog::search(&entries, "esters", 5);
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0].title, "Improved c-axis parameter for BiSe");
     }
 
     #[test]
