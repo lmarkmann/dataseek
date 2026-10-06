@@ -7,7 +7,8 @@
     "uids": [
       "200304969",
       "200279746",
-      "200279384"
+      "200279384",
+      "5662"
     ],
     "200304969": {
       "uid": "200304969",
@@ -140,6 +141,52 @@
       "ftplink": "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE279nnn/GSE279384/",
       "geo2r": "no",
       "bioproject": "PRJNA1172338"
+    },
+    "5662": {
+      "uid": "5662",
+      "accession": "GDS5662",
+      "gds": "5662",
+      "title": "Histone demethylase KDM3A-deficiency effect on estrogen-stimulated breast cancer cells in vitro",
+      "summary": "Analysis of estrogen receptor (ER)-positive breast cancer cell line MCF-7 depleted for KDM3A (histone lysine demethylase 3A) then treated with estrogen. Histone lysine methylation is an important regulator of transcription. Results provide insight into role of KDM3A in ER signaling in breast cancer.",
+      "gpl": "10558",
+      "gse": "68918",
+      "taxon": "Homo sapiens",
+      "entrytype": "GDS",
+      "gdstype": "Expression profiling by array",
+      "ptechtype": "",
+      "valtype": "transformed count",
+      "ssinfo": "genotype/variation;genotype/variation;agent;agent",
+      "subsetinfo": "2 agent, 2 genotype/variation",
+      "pdat": "2015/05/16",
+      "suppfile": "",
+      "samples": [
+        {
+          "accession": "GSM1686438",
+          "title": "siKDM3A-B + E2 Replicate 1"
+        },
+        {
+          "accession": "GSM1686442",
+          "title": "siKDM3A-B + E2 Replicate 2"
+        },
+        {
+          "accession": "GSM1686436",
+          "title": "siKDM3A-B - E2 Replicate 1"
+        }
+      ],
+      "relations": [],
+      "extrelations": [],
+      "n_samples": 11,
+      "seriestitle": "Identification of KDM3A regulated genes in the ER positive breast cancer cell line MCF-7",
+      "platformtitle": "Illumina HumanHT-12 V4.0 expression beadchip",
+      "platformtaxa": "Homo sapiens",
+      "samplestaxa": "Homo sapiens",
+      "pubmedids": [
+        "25488809"
+      ],
+      "projects": [],
+      "ftplink": "ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5662/",
+      "geo2r": "",
+      "bioproject": "PRJNA284106"
     }
   }
 }
