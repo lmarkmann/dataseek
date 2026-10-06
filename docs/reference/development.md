@@ -6,7 +6,7 @@
 just         # list recipes
 just check   # fmt --check + clippy -D warnings + nextest
 just test    # cargo nextest run
-just run count Cargo.toml
+just run doctor
 just build   # release build
 just ci      # everything CI gates on, before you push
 ```

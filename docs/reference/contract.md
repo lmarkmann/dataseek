@@ -33,7 +33,7 @@ None of the following is implemented here, because no command in the template ne
 
 Every byte of stdout goes through a handle from `src/output.rs`, including the two commands whose output is raw data, `completion` and `man`. Narration, spinners, and progress go through `src/ui.rs` on stderr.
 
-The UI layer no-ops unless **stderr** is a terminal, and whenever `--json` or `--quiet` is set. Keying it on stderr rather than stdout is the point rather than an implementation detail: `tool count file | wc -l` run by a person should still narrate, because someone is watching even though the data is piped. What must never happen is a spinner frame reaching stdout, and that is guaranteed by the layer only ever writing to stderr, not by guessing whether stdout is redirected.
+The UI layer no-ops unless **stderr** is a terminal, and whenever `--json` or `--quiet` is set. Keying it on stderr rather than stdout is the point rather than an implementation detail: `tool doctor | wc -l` run by a person should still narrate, because someone is watching even though the data is piped. What must never happen is a spinner frame reaching stdout, and that is guaranteed by the layer only ever writing to stderr, not by guessing whether stdout is redirected.
 
 This is why `Cargo.toml` denies `print_stdout` and `print_stderr`: a stray `println!` is a contract violation, not a style preference.
 

@@ -2,7 +2,6 @@
 //! printer.
 
 mod cli;
-mod count;
 mod doctor;
 mod fs;
 mod output;
@@ -21,7 +20,7 @@ use clap::{CommandFactory, Parser};
 use cli::{Cli, Command};
 use output::Out;
 
-/// Rust ignores SIGPIPE, so `dataseek count | head` would panic on the next
+/// Rust ignores SIGPIPE, so `dataseek man | head` would panic on the next
 /// write. Restore the default: die quietly with 141. Unix only; Windows reports
 /// a closed pipe as a write error, which [`report`] handles.
 #[cfg(unix)]
@@ -61,22 +60,21 @@ fn main() -> ExitCode {
     let out = Out::resolve(&cli);
     ui::init(&out);
 
-    match run(cli, &out) {
+    match run(&cli, &out) {
         Ok(()) => ExitCode::SUCCESS,
         Err(err) => report(&err),
     }
 }
 
-fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
-    match cli.command {
-        Command::Count { file } => count::run(file.as_deref(), out)?,
+fn run(cli: &Cli, out: &Out) -> anyhow::Result<()> {
+    match &cli.command {
         Command::Doctor => doctor::run(out)?,
         // clap_complete::generate panics on a failed write. Generating into a
         // Vec cannot fail, so the real write goes through the error path.
         Command::Completion { shell } => {
             let mut cmd = Cli::command();
             let mut script = Vec::new();
-            clap_complete::generate(shell, &mut cmd, "dataseek", &mut script);
+            clap_complete::generate(*shell, &mut cmd, "dataseek", &mut script);
             out.stdout().write_all(&script)?;
         }
         // Rendered on demand so the page cannot drift from the flags.

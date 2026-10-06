@@ -21,8 +21,6 @@ pub enum ColorChoice {
     version,
     about = env!("CARGO_PKG_DESCRIPTION"),
     after_help = "Examples:\n  \
-        dataseek count README.md\n  \
-        cat file | dataseek count --json | jq .lines\n  \
         dataseek doctor\n  \
         dataseek completion fish > ~/.config/fish/completions/dataseek.fish\n  \
         dataseek man | man -l -",
@@ -61,17 +59,6 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Command {
-    /// Count lines, words, and bytes of a file or stdin.
-    #[command(after_help = "Examples:\n  \
-        dataseek count README.md\n  \
-        cat file | dataseek count\n  \
-        dataseek count src/main.rs --json | jq .lines")]
-    Count {
-        /// File to read; omit or pass - to read stdin.
-        #[arg(value_name = "FILE")]
-        file: Option<String>,
-    },
-
     /// Check the environment and report readiness.
     Doctor,
 
