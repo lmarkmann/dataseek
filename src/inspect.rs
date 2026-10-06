@@ -22,7 +22,7 @@ pub enum Error {
     )]
     NoMarkup { url: String },
     #[error(
-        "cannot reach {url}; this machine looks offline\n  Try:   check the connection, then run it again"
+        "cannot reach {url}\n  Try:   check the address and the connection, then run it again"
     )]
     Unreachable {
         url: String,
