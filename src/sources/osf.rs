@@ -39,7 +39,13 @@ pub(super) fn parse(
 fn record(card: &Value) -> Option<Dataset> {
     let mut dataset =
         Dataset::new(&text(card, "/title/0/@value")?, &text(card, "/@id")?)
-            .describe(text(card, "/description/0/@value"));
+            .describe(text(card, "/description/0/@value"))
+            .doi_from(
+                items(card, "/identifier")
+                    .iter()
+                    .filter_map(|id| text(id, "/@value"))
+                    .find(|id| id.contains("doi.org/")),
+            );
     dataset.publisher = text(card, "/creator/0/name/0/@value")
         .or_else(|| text(card, "/publisher/0/name/0/@value"));
     dataset.license = text(card, "/rights/0/name/0/@value");
@@ -57,6 +63,7 @@ mod tests {
     fn records_map_from_a_recorded_search() {
         let hits = parse(&fixture::json("osf.json"), 10).unwrap();
         assert_eq!(hits.len(), 3);
+        assert_eq!(hits[1].doi.as_deref(), Some("10.17605/osf.io/zh3w9"));
         assert_eq!(
             hits[0],
             Dataset {
