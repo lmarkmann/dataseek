@@ -303,8 +303,15 @@ fn day_first(stamp: &str) -> Option<String> {
     let year = rest.split_whitespace().next()?;
     let digits =
         |s: &str, len| s.len() == len && s.bytes().all(|b| b.is_ascii_digit());
-    (digits(day, 2) && digits(month, 2) && digits(year, 4))
-        .then(|| format!("{year}-{month}-{day}"))
+    let within = |s: &str, max: u8| {
+        s.parse::<u8>().is_ok_and(|n| (1..=max).contains(&n))
+    };
+    (digits(day, 2)
+        && digits(month, 2)
+        && digits(year, 4)
+        && within(day, 31)
+        && within(month, 12))
+    .then(|| format!("{year}-{month}-{day}"))
 }
 
 fn attribute(element: &BytesStart<'_>, local: &str) -> Option<String> {
@@ -478,6 +485,8 @@ mod tests {
         assert_eq!(day_first("2026-10-03T07:10:53"), None);
         assert_eq!(day_first("3/10/2026"), None);
         assert_eq!(day_first("03/10"), None);
+        assert_eq!(day_first("99/99/2026 00:00:00"), None);
+        assert_eq!(day_first("00/10/2026"), None);
     }
 
     #[test]
