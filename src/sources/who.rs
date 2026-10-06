@@ -4,7 +4,7 @@
 //!
 //! The list carries stubs named "Archived, see ..." or "See ..." that only
 //! point at the indicator that replaced them; their data endpoint answers an
-//! empty list. 36 of the 3,099 indicators are stubs (GHO OData API, October
+//! empty list. 37 of the 3,099 indicators are stubs (GHO OData API, October
 //! 2026), and they are dropped.
 
 use serde_json::Value;
