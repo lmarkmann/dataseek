@@ -149,13 +149,14 @@ fn top_partner(row: &Row) -> Option<(&'static str, usize)> {
 }
 
 fn print(out: &Out, queries: &[String], rows: &[Row]) -> Result<()> {
-    let mut w = out.stdout();
     if out.json {
-        let report =
-            serde_json::json!({ "queries": queries, "sources": rows });
-        writeln!(w, "{}", serde_json::to_string(&report)?)?;
-        return Ok(());
+        return out.json(&serde_json::json!({
+            "schema": "dataseek-bench/1",
+            "queries": queries,
+            "sources": rows,
+        }));
     }
+    let mut w = out.stdout();
     if out.plain {
         for r in rows {
             let partner =

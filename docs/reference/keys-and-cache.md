@@ -20,6 +20,8 @@ datagov = "..."
 | Data Commons | `DATACOMMONS_API_KEY` | `datacommons` | the public trial key, quota-limited | https://apikeys.datacommons.org |
 | NCBI | `NCBI_API_KEY` | `ncbi` | 3 requests per second | https://account.ncbi.nlm.nih.gov/settings/ |
 
+An environment variable is visible to every process you run and to anything that dumps the environment (a crash report, `ps e`, a CI log); it suits CI and one-off runs. For a key that stays on a machine, prefer `credentials.toml` with permissions `600`.
+
 Kaggle's files are the ones its CLI writes (`kaggle auth login`, or the token from the settings page); `KAGGLE_CONFIG_DIR` moves them. `dataseek sources` shows each key's status and `dataseek doctor` where it was found; neither ever prints a key, and `doctor` fails a key file other users can read.
 
 A data.gov key: sign up at https://api.data.gov/signup/ with a name and an address, and the key arrives by email at once. It gives 1,000 requests an hour; the shared `DEMO_KEY` gives 30 an hour and 50 a day.
@@ -34,14 +36,16 @@ Every request carries the contact address `user@dataseek.dev` in its User-Agent 
 | catalogs | 7 days | the full lists of the `local` sources |
 | outage marks | 10 minutes | sources skipped after an outage unless named with `--source` |
 
-The cache directory is trimmed to 30 MB and 2,000 files after every search, oldest first.
+The cache directory is trimmed to 30 MB and 2,000 files after every search, oldest first. `--cache-dir DIR` or `DATASEEK_CACHE_DIR` moves it.
 
 ```sh
-dataseek cache info     # path, size and budget
-dataseek cache warm     # download every catalog now, no deadline
-dataseek cache clear    # delete everything
-dataseek search ... --refresh     # ask every live source again
-dataseek search ... --timeout 0   # wait for every source, however slow
+dataseek cache info                 # path, size and budget
+dataseek cache warm                 # download every catalog now, no deadline
+dataseek cache clear --dry-run      # what clearing would delete
+dataseek cache clear                # delete everything
+dataseek search ... --refresh       # ask every live source again
+dataseek search ... --offline       # cached answers and catalogs only, no network
+dataseek search ... --timeout 0     # wait for every source, however slow
 ```
 
-A fetch that fails serves the expired entry when one exists; `-v` and `--json` label it as stale. Why the numbers are what they are: [ADR 0007](../adr/0007-cache-budget-and-failure-handling.md).
+A fetch that fails serves the expired entry when one exists; `-v` and `--json` label it as stale. An entry written by another release counts as expired, because that release may have parsed the source differently: it is refetched when online and still served when the fetch fails. `--offline` sends no request at all, so it never marks a source as down. Why the numbers are what they are: [ADR 0007](../adr/0007-cache-budget-and-failure-handling.md).

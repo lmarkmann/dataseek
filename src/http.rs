@@ -11,9 +11,26 @@
 //! Bodies are decoded leniently: a stray invalid byte in a 30 MB catalog
 //! should cost one character, not the source.
 
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::time::Duration;
 
 use serde_json::Value;
+
+static OFFLINE: AtomicBool = AtomicBool::new(false);
+static CONNECT_SECS: AtomicU64 = AtomicU64::new(10);
+
+/// From now on every request fails at once with [`SourceError::Offline`],
+/// which the search loop answers from the cache and never records as an
+/// outage. Set once, from `main`, for `--offline`.
+pub fn go_offline() {
+    OFFLINE.store(true, Ordering::Relaxed);
+}
+
+/// How long a host gets to accept the connection, for clients built after
+/// this; `--connect-timeout`.
+pub fn connect_within(limit: Duration) {
+    CONNECT_SECS.store(limit.as_secs(), Ordering::Relaxed);
+}
 
 /// Contact address sent to every source. It is the project's, never a
 /// user's: whoever runs dataseek, the remote logs see this one.
@@ -41,6 +58,8 @@ pub enum SourceError {
     Blocked,
     #[error("returned an unexpected shape: {0}")]
     Shape(String),
+    #[error("not asked (--offline)")]
+    Offline,
 }
 
 impl SourceError {
@@ -50,9 +69,10 @@ impl SourceError {
         match self {
             Self::Unreachable(_) | Self::Timeout | Self::Blocked => true,
             Self::Status(code) => *code >= 500,
-            Self::RateLimited | Self::Unauthorized(_) | Self::Shape(_) => {
-                false
-            }
+            Self::RateLimited
+            | Self::Unauthorized(_)
+            | Self::Shape(_)
+            | Self::Offline => false,
         }
     }
 
@@ -74,6 +94,9 @@ impl Http {
                 env!("CARGO_PKG_VERSION")
             ))
             .timeout_global(Some(Duration::from_secs(20)))
+            .timeout_connect(Some(Duration::from_secs(
+                CONNECT_SECS.load(Ordering::Relaxed),
+            )))
             .tls_config(tls())
             .build()
             .into();
@@ -185,6 +208,9 @@ impl<'a> Call<'a> {
     }
 
     fn send(&self) -> Result<String, Retry> {
+        if OFFLINE.load(Ordering::Relaxed) {
+            return Err(Retry::Fail(SourceError::Offline));
+        }
         let result = match self.method {
             Method::Get => {
                 let mut request = self.http.agent.get(&self.url);

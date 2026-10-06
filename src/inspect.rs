@@ -10,7 +10,7 @@ use std::io::Write;
 use anyhow::Result;
 use serde_json::Value;
 
-use crate::http::Http;
+use crate::http::{Http, SourceError};
 use crate::output::Out;
 use crate::record::{clean, summary, text};
 use crate::ui;
@@ -21,15 +21,36 @@ pub enum Error {
         "{url} carries no schema.org Dataset markup\n  Try:   inspect the repository's landing page rather than a file or search page"
     )]
     NoMarkup { url: String },
-    #[error("cannot fetch {url}: {reason}")]
-    Fetch { url: String, reason: String },
+    #[error(
+        "cannot reach {url}; this machine looks offline\n  Try:   check the connection, then run it again"
+    )]
+    Unreachable {
+        url: String,
+        #[source]
+        source: SourceError,
+    },
+    #[error(
+        "inspect reads the page itself, so it needs the network\n  Try:   run it again without --offline"
+    )]
+    Offline,
+    #[error(
+        "cannot fetch {url}\n  Try:   open it in a browser to check that it is a dataset page"
+    )]
+    Fetch {
+        url: String,
+        #[source]
+        source: SourceError,
+    },
 }
 
 pub fn run(url: &str, out: &Out) -> Result<()> {
     let http = Http::new();
-    let fetch_error = |e: crate::http::SourceError| Error::Fetch {
-        url: url.to_owned(),
-        reason: e.to_string(),
+    let fetch_error = |e: SourceError| match e {
+        SourceError::Offline => Error::Offline,
+        SourceError::Unreachable(_) => {
+            Error::Unreachable { url: url.to_owned(), source: e }
+        }
+        _ => Error::Fetch { url: url.to_owned(), source: e },
     };
     let progress = ui::spinner(format!("reading {url}"));
     let found = if let Some(id) = huggingface_id(url) {
@@ -48,7 +69,7 @@ pub fn run(url: &str, out: &Out) -> Result<()> {
     };
     progress.finish_and_clear();
     let dataset = found?;
-    print(out, &dataset)
+    print(out, url, &dataset)
 }
 
 fn huggingface_id(url: &str) -> Option<String> {
@@ -89,12 +110,15 @@ fn is_dataset(kind: Option<&Value>) -> bool {
     }
 }
 
-fn print(out: &Out, dataset: &Value) -> Result<()> {
-    let mut w = out.stdout();
+fn print(out: &Out, page: &str, dataset: &Value) -> Result<()> {
     if out.json {
-        writeln!(w, "{}", serde_json::to_string(dataset)?)?;
-        return Ok(());
+        return out.json(&serde_json::json!({
+            "schema": "dataseek-inspect/1",
+            "url": page,
+            "dataset": dataset,
+        }));
     }
+    let mut w = out.stdout();
     let field = |label: &str, value: Option<String>| -> std::io::Result<()> {
         match value {
             Some(v) if !v.is_empty() => {
@@ -104,7 +128,7 @@ fn print(out: &Out, dataset: &Value) -> Result<()> {
         }
     };
     field("name", text(dataset, "/name"))?;
-    field("url", text(dataset, "/url"))?;
+    field("url", text(dataset, "/url").map(|u| out.link(&u)))?;
     field("identifier", names(dataset.get("identifier")))?;
     field("license", names(dataset.get("license")))?;
     field("creator", names(dataset.get("creator")))?;
@@ -129,7 +153,7 @@ fn print(out: &Out, dataset: &Value) -> Result<()> {
             let link =
                 text(&file, "/contentUrl").or_else(|| text(&file, "/url"))?;
             let format = text(&file, "/encodingFormat").unwrap_or_default();
-            Some(format!("{format} {link}").trim().to_owned())
+            Some(format!("{format} {}", out.link(&link)).trim().to_owned())
         })
         .collect();
     for (i, file) in files.iter().enumerate() {

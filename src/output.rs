@@ -1,7 +1,8 @@
-use std::io::{IsTerminal, Stdout, Write};
+use std::io::{IsTerminal, Stderr, Stdout, Write};
 
 use anstream::AutoStream;
 use anstream::stream::RawStream;
+use serde::Serialize;
 
 use crate::cli::{Cli, ColorChoice};
 
@@ -27,37 +28,48 @@ impl Verbosity {
 pub struct Out {
     pub verbosity: Verbosity,
     pub json: bool,
+    pub jq: Option<String>,
     pub plain: bool,
+    pub progress: bool,
     color: ColorChoice,
 }
 
 impl Out {
     pub fn resolve(cli: &Cli) -> Self {
-        // --plain and --no-color are shorthands for --color=never. Auto is
-        // left to AutoStream, which reads the terminal and NO_COLOR.
-        let color = if cli.plain || cli.no_color {
-            ColorChoice::Never
-        } else {
-            cli.color
-        };
-
         Self {
             verbosity: Verbosity::from_counts(cli.quiet, cli.verbose),
-            json: cli.json,
+            json: cli.json || cli.jq.is_some(),
+            jq: cli.jq.clone(),
             plain: cli.plain,
-            color,
+            progress: !cli.no_progress,
+            color: resolve_color(cli.color, cli.no_color, cli.plain),
         }
     }
 
     /// stdout filtered per the resolved --color choice, so callers can style
     /// unconditionally.
     pub fn stdout(&self) -> AutoStream<Stdout> {
-        let out = std::io::stdout();
-        match self.color {
-            ColorChoice::Always => AutoStream::always(out),
-            ColorChoice::Never => AutoStream::never(out),
-            ColorChoice::Auto => AutoStream::auto(out),
+        stream(std::io::stdout(), self.color)
+    }
+
+    pub fn stderr(&self) -> AutoStream<Stderr> {
+        stream(std::io::stderr(), self.color)
+    }
+
+    /// The one way a command prints `--json`: through `--jq` when given,
+    /// indented for a person at a terminal, one line for a pipe.
+    pub fn json(&self, value: &impl Serialize) -> anyhow::Result<()> {
+        let mut w = self.stdout();
+        if let Some(filter) = &self.jq {
+            for line in crate::jq::run(filter, &serde_json::to_vec(value)?)? {
+                writeln!(w, "{line}")?;
+            }
+        } else if std::io::stdout().is_terminal() {
+            writeln!(w, "{}", serde_json::to_string_pretty(value)?)?;
+        } else {
+            writeln!(w, "{}", serde_json::to_string(value)?)?;
         }
+        Ok(())
     }
 
     /// A diagnostic for `-v` and above, on stderr. Unlike [`crate::ui`] it
@@ -65,7 +77,7 @@ impl Out {
     /// `-v 2> log`.
     pub fn note(&self, msg: &str) {
         if self.verbosity >= Verbosity::Verbose {
-            let _ = writeln!(anstream::stderr(), "{msg}");
+            let _ = writeln!(self.stderr(), "{msg}");
         }
     }
 
@@ -87,18 +99,62 @@ impl Out {
         }
     }
 
-    /// Should the stderr [`crate::ui`] layer draw? Only when stderr is a
-    /// terminal and the run is neither `--json` nor `--quiet`.
-    pub fn stderr_is_rich(&self) -> bool {
-        std::io::stderr().is_terminal()
-            && !self.json
-            && self.verbosity > Verbosity::Quiet
-    }
-
     /// Asked separately from [`Self::color_on_stdout`]: a run can pipe its data
     /// and still be watched by a human.
     pub fn color_on_stderr(&self) -> bool {
         self.color_for(&std::io::stderr())
+    }
+
+    /// `url` as an OSC 8 hyperlink on a color terminal, plain text anywhere
+    /// else, so a pipe never carries the escape.
+    pub fn link(&self, url: &str) -> String {
+        if std::io::stdout().is_terminal() && self.color_on_stdout() {
+            format!("\u{1b}]8;;{url}\u{1b}\\{url}\u{1b}]8;;\u{1b}\\")
+        } else {
+            url.to_owned()
+        }
+    }
+}
+
+/// `--plain` and `--no-color` are shorthands for `--color=never`. Auto is
+/// left to AutoStream, which reads the terminal and NO_COLOR.
+pub fn resolve_color(
+    color: ColorChoice,
+    no_color: bool,
+    plain: bool,
+) -> ColorChoice {
+    if plain || no_color { ColorChoice::Never } else { color }
+}
+
+/// Columns a human line may use, or `None` when stdout is not a terminal and
+/// lines should stay whole. `COLUMNS` wins over the measured width.
+pub fn width() -> Option<usize> {
+    if !std::io::stdout().is_terminal() {
+        return None;
+    }
+    std::env::var("COLUMNS").ok().and_then(|c| c.parse().ok()).or_else(|| {
+        terminal_size::terminal_size().map(|(w, _)| usize::from(w.0))
+    })
+}
+
+fn stream<S: RawStream>(raw: S, color: ColorChoice) -> AutoStream<S> {
+    match color {
+        ColorChoice::Always => AutoStream::always(raw),
+        ColorChoice::Never => AutoStream::never(raw),
+        ColorChoice::Auto => AutoStream::auto(raw),
+    }
+}
+
+/// `text` cut to `width` columns with an ellipsis, counting chars. Wide
+/// glyphs make a line slightly long, never wrong.
+pub fn fit(text: &str, width: Option<usize>) -> String {
+    match width {
+        Some(w) if text.chars().count() > w => {
+            let kept: String =
+                text.chars().take(w.saturating_sub(1)).collect();
+            format!("{}\u{2026}", kept.trim_end())
+        }
+        _ => text.to_owned(),
     }
 }
 
@@ -114,10 +170,14 @@ mod tests {
             quiet: false,
             verbose: 0,
             json: false,
+            jq: None,
             color: ColorChoice::Auto,
             no_color: false,
             plain: false,
-            command: Command::Doctor,
+            no_progress: false,
+            cache_dir: None,
+            connect_timeout: 10,
+            command: Some(Command::Doctor),
         };
         build(&mut cli);
         Out::resolve(&cli)
@@ -158,10 +218,14 @@ mod tests {
     }
 
     #[test]
-    fn the_ui_layer_is_off_whenever_output_is_machine_read_or_silenced() {
-        // stderr is never a terminal here; these pin the two flags that must
-        // switch the layer off even on one.
-        assert!(!out(|c| c.json = true).stderr_is_rich());
-        assert!(!out(|c| c.quiet = true).stderr_is_rich());
+    fn jq_implies_json() {
+        assert!(out(|c| c.jq = Some(".".to_owned())).json);
+    }
+
+    #[test]
+    fn fit_cuts_long_lines_and_marks_the_cut() {
+        assert_eq!(fit("short", Some(10)), "short");
+        assert_eq!(fit("a long title here", Some(8)), "a long\u{2026}");
+        assert_eq!(fit("a long title here", None), "a long title here");
     }
 }
