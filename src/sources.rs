@@ -24,6 +24,7 @@ mod figshare;
 mod huggingface;
 mod kaggle;
 mod modelscope;
+mod nada;
 mod openaire;
 mod openml;
 mod roboflow;
@@ -53,6 +54,7 @@ pub enum Adapter {
     Catalog(Listing),
     Ckan(&'static ckan::Portal),
     Dataverse(&'static str),
+    Nada(&'static str),
 }
 
 /// What a source mainly holds. The names are what `--category` accepts and
@@ -142,6 +144,7 @@ impl Source {
             Adapter::Dataverse(base) => {
                 dataverse::search(ctx, base, query, limit)
             }
+            Adapter::Nada(base) => nada::search(ctx, base, query, limit),
             Adapter::Catalog(list) => {
                 self.local(ctx, query, limit, || list(ctx))
             }
@@ -306,11 +309,15 @@ const fn via(
     }
 }
 
-use Category::{Aggregator, Government, MachineLearning, Research};
+use Category::{
+    Aggregator, Government, MachineLearning, Research, Statistics,
+};
 
 const CKAN_DOCS: &str = "https://docs.ckan.org/en/latest/api/";
 const DATAVERSE_DOCS: &str =
     "https://guides.dataverse.org/en/latest/api/search.html";
+const NADA_DOCS: &str =
+    "https://microdata.worldbank.org/api-documentation/catalog/index.html";
 
 pub static SOURCES: &[Source] = &[
     // Aggregators and general search engines.
@@ -507,6 +514,39 @@ pub static SOURCES: &[Source] = &[
         "CKAN",
         "https://data.humdata.org/faqs/devs",
         Adapter::Ckan(&ckan::HDX),
+    ),
+    // Statistics.
+    via(
+        "worldbank-microdata",
+        "World Bank Microdata Library",
+        Statistics,
+        "NADA",
+        NADA_DOCS,
+        Adapter::Nada("https://microdata.worldbank.org/index.php"),
+    ),
+    via(
+        "ihsn",
+        "IHSN survey catalog",
+        Statistics,
+        "NADA",
+        NADA_DOCS,
+        Adapter::Nada("https://catalog.ihsn.org/index.php"),
+    ),
+    via(
+        "fao-microdata",
+        "FAO Microdata",
+        Statistics,
+        "NADA",
+        NADA_DOCS,
+        Adapter::Nada("https://microdata.fao.org/index.php"),
+    ),
+    via(
+        "unhcr-microdata",
+        "UNHCR Microdata Library",
+        Statistics,
+        "NADA",
+        NADA_DOCS,
+        Adapter::Nada("https://microdata.unhcr.org/index.php"),
     ),
 ];
 
