@@ -1,5 +1,12 @@
 //! The UCI Machine Learning Repository's full list (names only), searched
-//! locally. The list endpoint is the one the site itself uses.
+//! locally. The list endpoint is the one the `ucimlrepo` package uses (its
+//! README, October 2026), not the one the site's own pages call.
+//!
+//! It answers the whole list in one response (689 datasets, 33 KB, October
+//! 2026) and ignores `take` and `skip`, so nothing pages. Its `search`
+//! parameter matches names only. The abstract, DOI and update date exist only
+//! at `/api/dataset?id=`, one request per dataset, which a catalog download
+//! cannot afford.
 
 use serde_json::Value;
 
