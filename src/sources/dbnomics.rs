@@ -1,4 +1,4 @@
-//! DBnomics: official statistics from about 90 providers (IMF, OECD,
+//! DBnomics: official statistics from over 90 providers (IMF, OECD,
 //! Eurostat, ECB, BIS, ILO, national statistics offices) behind one search.
 //!
 //! The index lists 94 providers (DBnomics, October 2026). A page holds up to
