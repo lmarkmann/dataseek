@@ -64,10 +64,22 @@ fn evaluate(code: &str, input: Option<Val>) -> Result<Vec<String>, Error> {
         .run((ctx, input))
         .map(unwrap_valr)
         .map(|value| match value {
-            Ok(Val::TStr(text)) => Ok(jaq_json::bstr(&*text).to_string()),
-            Ok(other) => Ok(other.to_string()),
-            Err(e) => Err(Error::Run(e.to_string())),
+            Ok(Val::TStr(text)) => Ok(inert(&jaq_json::bstr(&*text))),
+            Ok(other) => Ok(inert(&other)),
+            Err(e) => Err(Error::Run(inert(&e))),
         })
+        .collect()
+}
+
+/// A raw string can carry text a remote page put there, so every control
+/// character except newline and tab becomes a space before it can reach a
+/// terminal.
+fn inert(text: &impl std::fmt::Display) -> String {
+    text.to_string()
+        .chars()
+        .map(
+            |c| if c.is_control() && c != '\n' && c != '\t' { ' ' } else { c },
+        )
         .collect()
 }
 
@@ -86,6 +98,13 @@ mod tests {
             [r#"{"id":"zenodo","n":1}"#]
         );
         assert_eq!(run(".sources | map(.n) | add", SOURCES).unwrap(), ["3"]);
+    }
+
+    // inspect passes a page's own JSON-LD through, so a title may carry ESC.
+    #[test]
+    fn raw_strings_cannot_drive_the_terminal() {
+        let page = br#"{"name":"rain\u001b[2J\u0007 data\nset"}"#;
+        assert_eq!(run(".name", page).unwrap(), ["rain [2J  data\nset"]);
     }
 
     #[test]
