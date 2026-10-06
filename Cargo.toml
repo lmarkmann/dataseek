@@ -60,8 +60,13 @@ ureq = { version = "3", default-features = false, features = ["json", "gzip", "n
 [target.'cfg(not(any(windows, target_os = "macos")))'.dependencies]
 ureq = { version = "3", features = ["json"] }
 
+[features]
+# Re-exports for benches/ only; see the internals module in src/lib.rs.
+internals = []
+
 [dev-dependencies]
 assert_cmd = "2"
+criterion = { version = "5", package = "codspeed-criterion-compat", default-features = false, features = ["cargo_bench_support"] }
 insta = { version = "1", features = ["filters"] }
 predicates = "3"
 
@@ -70,3 +75,15 @@ opt-level = 3
 lto = "thin"
 codegen-units = 1
 strip = "symbols"
+
+# Release as shipped, with line tables kept so CodSpeed flamegraphs resolve
+# symbols (ADR 0012).
+[profile.bench]
+inherits = "release"
+strip = "none"
+debug = "line-tables-only"
+
+[[bench]]
+name = "search"
+harness = false
+required-features = ["internals"]

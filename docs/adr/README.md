@@ -11,6 +11,7 @@ A decision that constrains future work lives here, once, and is cited from where
 | something parked as *not yet*, with the trigger that revisits it | [`watchlist.md`](watchlist.md) |
 | how to run, configure or extend something | [`../reference/`](../reference/) |
 | what reads across several dataset sources | [`../synthesis/`](../synthesis/) |
+| a speed measurement of the code, with its machine | [`../bench/`](../bench/) |
 | what shipped | [`../CHANGELOG.md`](../CHANGELOG.md) |
 | an invariant a caller must not break | the source comment, in one line |
 
@@ -33,3 +34,4 @@ A decision that constrains future work lives here, once, and is cited from where
 | [0009](0009-keys-and-contact-address.md) | Keys come from the environment or files, never flags | accepted |
 | [0010](0010-dsk-is-dataseek.md) | `dsk` is the same program under a short name | accepted |
 | [0011](0011-tls-stack-per-platform.md) | The TLS stack is chosen per platform | accepted |
+| [0012](0012-benchmarks-criterion-local-codspeed-ci.md) | Benchmarks run as Criterion locally and as CodSpeed's CPU simulation in CI | accepted |
