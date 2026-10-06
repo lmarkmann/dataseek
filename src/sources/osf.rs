@@ -5,7 +5,7 @@ use serde_json::Value;
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::{Dataset, day, items, text};
+use crate::record::{Dataset, day, items, number, text};
 
 const TYPES: &str =
     "https://osf.io/vocab/2022/Project,https://osf.io/vocab/2022/Registration";
@@ -44,6 +44,7 @@ fn record(card: &Value) -> Option<Dataset> {
         .or_else(|| text(card, "/publisher/0/name/0/@value"));
     dataset.license = text(card, "/rights/0/name/0/@value");
     dataset.updated = day(text(card, "/dateModified/0/@value"));
+    dataset.size_bytes = number(card, "/storageByteCount/0/@value");
     dataset.valid()
 }
 
@@ -68,7 +69,7 @@ mod tests {
                 doi: None,
                 license: Some("CC-By Attribution 4.0 International".into()),
                 updated: Some("2026-06-23".into()),
-                size_bytes: None,
+                size_bytes: Some(142_773),
                 popularity: None,
                 aliases: vec![],
             }
