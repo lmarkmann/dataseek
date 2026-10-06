@@ -18,7 +18,7 @@ use indicatif::ProgressBar;
 
 use crate::cache::{Freshness, Kind, QUERY_TTL, query_key};
 use crate::credentials::Key;
-use crate::http::SourceError;
+use crate::http::{self, SourceError};
 use crate::record::Dataset;
 use crate::sources::{Ctx, Services, Source};
 
@@ -181,7 +181,9 @@ fn one(ctx: &Ctx<'_>, plan: &Plan, source: &'static Source) -> Outcome {
 
     match source.search(ctx, &plan.query, plan.per_source) {
         Ok(datasets) => {
-            ctx.cache.clear_outage(source.id);
+            if !http::is_offline() {
+                ctx.cache.clear_outage(source.id);
+            }
             if cacheable {
                 ctx.cache.store(Kind::Query, &key, &datasets);
             }
@@ -223,6 +225,10 @@ mod tests {
         Err(SourceError::Status(404))
     }
 
+    fn list_times_out(_: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
+        Err(SourceError::Timeout)
+    }
+
     #[expect(
         clippy::panic_in_result_fn,
         reason = "being called at all is the failure"
@@ -262,6 +268,10 @@ mod tests {
     static UNPERSISTED: Source =
         Source { persist: false, ..fake("unpersisted", answers) };
     static HANGS: Source = fake("hangs", hangs);
+    static CATALOG_DOWN: Source = Source {
+        adapter: Adapter::Catalog(list_times_out),
+        ..fake("catalog-down", answers)
+    };
 
     fn plan(source: &'static Source, forced: bool) -> Plan {
         Plan {
@@ -372,6 +382,22 @@ mod tests {
         let outcome = one(&ctx, &plan(&UNPERSISTED, true), &UNPERSISTED);
         assert_eq!(outcome.datasets, found());
         assert_eq!(ctx.cache.usage().files, 0);
+    }
+
+    #[test]
+    fn an_offline_search_never_clears_an_outage_mark() {
+        crate::http::go_offline();
+        let dir = tempfile::tempdir().unwrap();
+        let services = Services::scratch(dir.path());
+        let ctx = services.ctx(false);
+        ctx.cache.store(Kind::Catalog, CATALOG_DOWN.id, &found());
+        ctx.cache.mark_outage(CATALOG_DOWN.id);
+        let outcome = one(&ctx, &plan(&CATALOG_DOWN, true), &CATALOG_DOWN);
+        assert!(outcome.status.answered(), "{:?}", outcome.status);
+        assert!(
+            ctx.cache.recent_outage(CATALOG_DOWN.id).is_some(),
+            "an offline run cleared the mark"
+        );
     }
 
     fn run_one(
