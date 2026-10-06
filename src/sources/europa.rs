@@ -39,7 +39,7 @@ pub fn search(
         .query("filters", "dataset")
         .query("includes", INCLUDES)
         .query("aggregation", "false")
-        .query("limit", limit)
+        .query("limit", limit.clamp(1, 1000))
         .json()?;
     parse(&body, limit)
 }
