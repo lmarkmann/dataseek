@@ -21,6 +21,7 @@ mod aws;
 mod cellxgene;
 mod ckan;
 mod cmr;
+mod dandi;
 mod datacite;
 mod datacommons;
 mod datagov;
@@ -47,9 +48,11 @@ mod omicsdi;
 mod openaire;
 mod opendatasoft;
 mod openml;
+mod openneuro;
 mod osf;
 mod owid;
 mod pangaea;
+mod physionet;
 mod roboflow;
 mod sdmx;
 mod socrata;
@@ -358,7 +361,7 @@ const fn via(
 
 use Category::{
     Aggregator, Code, Ecology, Geospatial, Government, LifeSciences,
-    MachineLearning, Research, Statistics,
+    MachineLearning, Neuroscience, Research, Statistics,
 };
 
 const CKAN_DOCS: &str = "https://docs.ckan.org/en/latest/api/";
@@ -941,6 +944,31 @@ pub static SOURCES: &[Source] = &[
         "Synapse REST",
         "https://rest-docs.synapse.org/",
         synapse::search,
+    ),
+    // Neuroscience and clinical.
+    listed(
+        "openneuro",
+        "OpenNeuro",
+        Neuroscience,
+        "GraphQL, listed",
+        "https://docs.openneuro.org/api.html",
+        openneuro::list,
+    ),
+    live(
+        "dandi",
+        "DANDI Archive",
+        Neuroscience,
+        "DANDI REST",
+        "https://api.dandiarchive.org/swagger/",
+        dandi::search,
+    ),
+    listed(
+        "physionet",
+        "PhysioNet",
+        Neuroscience,
+        "project list",
+        "https://physionet.org/about/",
+        physionet::list,
     ),
 ];
 
