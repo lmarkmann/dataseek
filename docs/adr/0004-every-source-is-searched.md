@@ -95,7 +95,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `unhcr-microdata` | UNHCR Microdata Library | NADA | live |  | [docs](https://microdata.worldbank.org/api-documentation/catalog/index.html) |
 | `eurostat` | Eurostat | Eurostat table of contents | local |  | [docs](https://ec.europa.eu/eurostat/web/user-guides/data-browser/api-data-access) |
 | `undata` | UNdata | SDMX | local |  | [docs](https://data.un.org/Host.aspx?Content=API) |
-| `datacommons` | Data Commons | Data Commons REST v2 | live | `$DATACOMMONS_API_KEY` (optional) | [docs](https://docs.datacommons.org/api/rest/v2/) |
+| `datacommons` | Data Commons | Data Commons REST v2 | live | `$DATACOMMONS_API_KEY` (required) | [docs](https://docs.datacommons.org/api/rest/v2/) |
 | `owid` | Our World in Data | Search API | live |  | [docs](https://docs.owid.io/projects/etl/api/search-api/) |
 | `census` | U.S. Census Bureau API | DCAT data.json, listed | local |  | [docs](https://census.gov/data/developers/updates/new-discovery-tool.html) |
 | `who` | WHO Global Health Observatory | OData, listed | local |  | [docs](https://www.who.int/data/gho/info/gho-odata-api) |

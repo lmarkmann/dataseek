@@ -2,7 +2,7 @@
 
 ## API keys
 
-No key is needed to search: 74 of the 76 sources answer without one. Keys raise rate limits or unlock two sources. Set a key as an environment variable, or put it in `credentials.toml` in the config directory (`dataseek doctor` prints the path) with permissions `600`:
+No key is needed for most sources: 73 of the 76 answer without one. Keys raise rate limits or unlock three sources. Set a key as an environment variable, or put it in `credentials.toml` in the config directory (`dataseek doctor` prints the path) with permissions `600`:
 
 ```toml
 fred = "..."
@@ -17,7 +17,7 @@ datagov = "..."
 | GitHub | `GITHUB_TOKEN` | `github` | 10 searches per minute | https://github.com/settings/tokens |
 | FRED | `FRED_API_KEY` | `fred` | source skipped | https://fredaccount.stlouisfed.org/apikeys |
 | Roboflow Universe | `ROBOFLOW_API_KEY` | `roboflow` | source skipped | https://app.roboflow.com/settings/api |
-| Data Commons | `DATACOMMONS_API_KEY` | `datacommons` | the public trial key, quota-limited | https://apikeys.datacommons.org |
+| Data Commons | `DATACOMMONS_API_KEY` | `datacommons` | source skipped | https://apikeys.datacommons.org |
 | NCBI | `NCBI_API_KEY` | `ncbi` | 3 requests per second | https://account.ncbi.nlm.nih.gov/settings/ |
 
 An environment variable is visible to every program started from that shell and to anything that dumps the environment (a crash report, `ps e`, a CI log); it suits CI and one-off runs. For a key that stays on a machine, prefer `credentials.toml` with permissions `600`.

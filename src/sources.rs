@@ -826,7 +826,7 @@ pub static SOURCES: &[Source] = &[
             datacommons::search,
         ),
         Key::DataCommons,
-        Need::Optional,
+        Need::Required,
     ),
     live(
         "owid",
@@ -1124,6 +1124,15 @@ mod tests {
     #[test]
     fn kaggle_is_registered_as_never_persisted() {
         assert!(!SOURCES.iter().find(|s| s.id == "kaggle").unwrap().persist);
+    }
+
+    #[test]
+    fn data_commons_needs_the_users_own_key() {
+        let source = SOURCES.iter().find(|s| s.id == "datacommons").unwrap();
+        assert!(matches!(
+            source.key,
+            Some((Key::DataCommons, Need::Required))
+        ));
     }
 
     #[test]
