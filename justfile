@@ -13,7 +13,7 @@ check:
     cargo test --doc --locked
 
 # Everything CI gates on, in the same order.
-ci: check cross shear msrv audit
+ci: check bench-startup cross shear msrv audit
     typos
 
 test *args:
@@ -58,6 +58,21 @@ cov *args:
 # Criterion on this machine: `just bench --save-baseline main`, change, `just bench --baseline main`.
 bench *args:
     cargo bench --features internals --bench search -- {{ args }}
+
+# Startup latency of the release binary against its budgets; fails on a breach, warns on a regression against this machine's baseline. `--bless` rewrites that baseline.
+bench-startup *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cargo build --release --locked
+    bin=target/release/dataseek
+    mkdir -p docs/bench
+    hyperfine -N --warmup 3 --runs 20 --export-json docs/bench/startup.json \
+        "$bin --version" \
+        "$bin --help" \
+        "$bin" \
+        "$bin completion fish" \
+        "$bin sources"
+    uv run --script scripts/bench_check.py docs/bench/startup.json {{ args }}
 
 # Mutate what the branch changed; a survivor is a line the tests run but never check.
 mutants *args:

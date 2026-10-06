@@ -39,8 +39,14 @@ jobs:
       - name: tools
         uses: taiki-e/install-action@4cef1412cce204788f482e778a0b9187f9626a29 # v2.87.21
         with:
-          tool: cargo-nextest,cargo-deny,cargo-shear,typos,zizmor
+          tool: cargo-nextest,cargo-deny,cargo-shear,typos,zizmor,hyperfine,just,uv
           fallback: none
+      # The CLI tests parse the fish completion script and render the man
+      # page, and fail on CI when either tool is missing.
+      - name: fish and mandoc
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends fish mandoc
       - name: fmt
         run: cargo fmt --all --check
       - name: typos
@@ -56,6 +62,16 @@ jobs:
         run: |
           cargo nextest run --workspace --all-features --locked
           cargo test --doc --workspace --locked
+      # Startup latency against the budgets, doubled on a runner: a breach
+      # fails, a regression against the committed baseline only warns.
+      - name: startup bench
+        run: just bench-startup
+      - name: startup bench artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: startup-bench
+          path: docs/bench/startup.json
+          if-no-files-found: warn
       - name: deny
         run: cargo deny check advisories licenses bans sources
       - name: shear
