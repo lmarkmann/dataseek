@@ -87,7 +87,9 @@ fn described(code: &str, folders: &str) -> Option<String> {
     if folders.is_empty() {
         return None;
     }
-    let mut text = String::with_capacity(code.len() + 2 + folders.len());
+    let mut text = String::with_capacity(
+        code.len().saturating_add(2).saturating_add(folders.len()),
+    );
     text.push_str(code);
     text.push_str(": ");
     text.push_str(folders);
