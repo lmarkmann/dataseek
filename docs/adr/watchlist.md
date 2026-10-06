@@ -38,7 +38,7 @@ Trigger: a repository users ask for that is in neither DataCite nor OpenAIRE, sm
 
 Common Crawl's schema.org `Dataset` extracts are the same signal Google Dataset Search indexes, published as offline dumps of tens of gigabytes. Usable only as a downloaded local index.
 
-Trigger: Google Dataset Search's page data stops parsing for good (ADR 0008), so dataseek needs its own copy of the signal.
+Trigger: Google Dataset Search's page data stops parsing for good (ADR 0013), so dataseek needs its own copy of the signal.
 
 ## DataForSEO's Google Dataset Search endpoint
 
@@ -54,12 +54,24 @@ Trigger: OpenAlex adds dataset records that DataCite lacks, measured by a bench 
 
 ## Mendeley Data over OAuth
 
-The documented Mendeley API needs OAuth but has no free-text dataset search (only DOI and ISSN filters), so an OAuth token would add nothing to what the site search already returns.
+The documented Digital Commons Data API now has `GET /search` with a `query` parameter (October 2026) but needs an OAuth client registered by e-mail, so it adds nothing a shipped tool can use. Its OAI-PMH repository (`https://data.mendeley.com/oai`) is open without registration, but at 50 records a page and at least 156,533 records (versions are separate records) a catalog adapter would take about 3,100 requests. The adapter stays opt-in (ADR 0013) because the site terms bar automated access without written permission.
 
-Trigger: Mendeley adds text search to the documented API, or the site search starts refusing anonymous callers.
+Trigger: Mendeley grants written permission for the site search, or publishes anonymous search on the documented host.
 
 ## Roboflow Universe response layout
 
-The Universe search endpoint is confirmed to need a key, but its response layout could not be observed without one; `roboflow.rs` reads the documented field names defensively.
+The Universe search endpoint needs a key, so its response could not be recorded. `roboflow.rs` reads the `results` list that Roboflow's SDK reads, sends the key as a Bearer header and walks `page`; the fixture is the documentation's example hit inside that list.
 
-Trigger: the first run with a `ROBOFLOW_API_KEY`; check `dataseek search helmet -s roboflow -v` and pin the layout in a test.
+Trigger: the first run with a `ROBOFLOW_API_KEY`. Record a real response into `tests/fixtures/sources/roboflow.json`, check that the Bearer header is accepted and that `page=2` returns different hits, and drop the list keys `/data`, `/projects` and the bare array if `results` holds.
+
+## OpenNeuro live search
+
+OpenNeuro is downloaded as a catalog: 20 GraphQL requests, 37 to 90 seconds cold, so the first search misses the 20 second deadline until `dataseek cache warm`. `advancedSearch(query: {keywords: [...], publicOnly: true}, first: N)` answers anonymously, ranked by relevance, in 0.9 seconds for 100 hits (October 2026), while the plain `search` field still returns null. Parked because switching `openneuro` from `listed` to `live` needs a new request, a re-recorded fixture and a `live_parsers` entry, which is a change of its own.
+
+Trigger: the next change to `openneuro.rs`, or `dataseek bench` showing OpenNeuro past the deadline on a cold cache.
+
+## World Bank Data360 search
+
+`POST https://data360api.worldbank.org/data360/searchv2` with `{"count":true,"search":"poverty headcount","top":20,"skip":0,"select":"series_description/idno, series_description/name, series_description/database_id"}` returns relevance-ranked indicators with a score and `@odata.count` (1,375 for that query), pages with `top` and `skip`, and is newer than the v2 indicator list (it carries the 2021 PPP series). Parked because the API is marked Beta, its documentation and terms could not be read, and adopting it means moving `worldbank` from `listed` to `live`.
+
+Trigger: published documentation and terms for the API, or the v2 indicator list going away.

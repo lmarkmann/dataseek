@@ -12,7 +12,7 @@ datagov = "..."
 | source | environment variable | file key | without it | get one |
 |---|---|---|---|---|
 | Hugging Face | `HF_TOKEN` | `huggingface` | 500 requests per 5 min per IP | https://huggingface.co/settings/tokens |
-| Kaggle | `KAGGLE_API_TOKEN`, or `~/.kaggle/access_token`, or `~/.kaggle/kaggle.json` | `kaggle` | anonymous first page of 20 | https://www.kaggle.com/settings/api |
+| Kaggle | `KAGGLE_API_TOKEN`, or `~/.kaggle/access_token`, or `~/.kaggle/kaggle.json` | `kaggle` | anonymous requests reach every page; a key changed nothing observable | https://www.kaggle.com/settings/api |
 | Data.gov | `DATAGOV_API_KEY` | `datagov` | catalog.data.gov's keyless search | https://api.data.gov/signup/ |
 | GitHub | `GITHUB_TOKEN` | `github` | 10 searches per minute | https://github.com/settings/tokens |
 | FRED | `FRED_API_KEY` | `fred` | source skipped | https://fredaccount.stlouisfed.org/apikeys |
