@@ -26,7 +26,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 
 ## The sources
 
-76 sources, grouped by `--category`. Keys are read from the environment or `credentials.toml` ([`../reference/keys-and-cache.md`](../reference/keys-and-cache.md)); an optional key raises a rate limit or unlocks a better endpoint, a required one is the only way in.
+76 sources, grouped by `--category`. Each source's terms verdict and the sentence it rests on are in [`../synthesis/terms.md`](../synthesis/terms.md); what each offers for filters and file lists is in [`../synthesis/capabilities.md`](../synthesis/capabilities.md). Keys are read from the environment or `credentials.toml` ([`../reference/keys-and-cache.md`](../reference/keys-and-cache.md)); an optional key raises a rate limit or unlocks a better endpoint, a required one is the only way in.
 
 ### aggregator
 
