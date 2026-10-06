@@ -20,11 +20,15 @@ mod arcgis;
 mod aws;
 mod ckan;
 mod datacite;
+mod datacommons;
 mod datagov;
 mod dataverse;
+mod dbnomics;
 mod ebi;
 mod europa;
+mod eurostat;
 mod figshare;
+mod fred;
 mod github;
 mod google;
 mod huggingface;
@@ -36,12 +40,15 @@ mod openaire;
 mod opendatasoft;
 mod openml;
 mod osf;
+mod owid;
 mod roboflow;
 mod sdmx;
 mod socrata;
 mod stac;
 mod tfds;
 mod uci;
+mod who;
+mod worldbank;
 mod zenodo;
 
 use std::fmt;
@@ -646,6 +653,22 @@ pub static SOURCES: &[Source] = &[
         arcgis::search,
     ),
     // Statistics.
+    live(
+        "dbnomics",
+        "DBnomics",
+        Statistics,
+        "DBnomics",
+        "https://api.db.nomics.world/v22/apidocs",
+        dbnomics::search,
+    ),
+    listed(
+        "worldbank",
+        "World Bank indicators",
+        Statistics,
+        "World Bank API, listed",
+        "https://datahelpdesk.worldbank.org/knowledgebase/articles/889392",
+        worldbank::list,
+    ),
     via(
         "worldbank-microdata",
         "World Bank Microdata Library",
@@ -702,6 +725,14 @@ pub static SOURCES: &[Source] = &[
         "https://data.ecb.europa.eu/help/api/overview",
         Adapter::Sdmx(&sdmx::ECB),
     ),
+    listed(
+        "eurostat",
+        "Eurostat",
+        Statistics,
+        "Eurostat table of contents",
+        "https://ec.europa.eu/eurostat/web/user-guides/data-browser/api-data-access",
+        eurostat::list,
+    ),
     via(
         "bis",
         "Bank for International Settlements",
@@ -725,6 +756,46 @@ pub static SOURCES: &[Source] = &[
         "SDMX",
         "https://data.un.org/Host.aspx?Content=API",
         Adapter::Sdmx(&sdmx::UNDATA),
+    ),
+    keyed(
+        live(
+            "datacommons",
+            "Data Commons",
+            Statistics,
+            "Data Commons REST v2",
+            "https://docs.datacommons.org/api/rest/v2/",
+            datacommons::search,
+        ),
+        Key::DataCommons,
+        Need::Optional,
+    ),
+    live(
+        "owid",
+        "Our World in Data",
+        Statistics,
+        "site search API",
+        "https://docs.owid.io/projects/etl/api/",
+        owid::search,
+    ),
+    keyed(
+        live(
+            "fred",
+            "FRED",
+            Statistics,
+            "FRED API",
+            "https://fred.stlouisfed.org/docs/api/fred/series_search.html",
+            fred::search,
+        ),
+        Key::Fred,
+        Need::Required,
+    ),
+    listed(
+        "who",
+        "WHO Global Health Observatory",
+        Statistics,
+        "OData, listed",
+        "https://www.who.int/data/gho/info/gho-odata-api",
+        who::list,
     ),
     // Earth observation and geospatial.
     via(
