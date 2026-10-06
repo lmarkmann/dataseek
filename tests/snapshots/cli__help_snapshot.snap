@@ -1,6 +1,5 @@
 ---
 source: tests/cli.rs
-assertion_line: 364
 expression: "String::from_utf8_lossy(&out.stdout)"
 ---
 Search for datasets from the terminal
@@ -8,8 +7,12 @@ Search for datasets from the terminal
 Usage: dataseek [OPTIONS] <COMMAND>
 
 Commands:
-  count       Count lines, words, and bytes of a file or stdin
-  doctor      Check the environment and report readiness
+  search      Search every source at once, merged and deduplicated [alias: s]
+  sources     List every source: what it covers, its protocol, its key, its docs
+  bench       Time every source on real queries and measure their overlap
+  inspect     Read a dataset page's schema.org Dataset or Croissant metadata
+  cache       Show, warm or clear the cache
+  doctor      Check the environment, keys and cache, and report readiness
   completion  Print a shell completion script to stdout
   man         Print the man page, in roff, to stdout
 
@@ -46,8 +49,10 @@ Options:
           Print version
 
 Examples:
-  dataseek count README.md
-  cat file | dataseek count --json | jq .lines
-  dataseek doctor
-  dataseek completion fish > ~/.config/fish/completions/dataseek.fish
-  dataseek man | man -l -
+  dataseek search sea surface temperature
+  dataseek search imagenet -s huggingface,kaggle --json | jq '.results[0]'
+  dataseek sources
+  dataseek bench "air quality" "gene expression"
+  dataseek inspect https://zenodo.org/records/1234567
+
+dsk is the same program under a shorter name: dsk search mnist

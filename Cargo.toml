@@ -39,13 +39,26 @@ clap_complete = "4"
 clap_mangen = "0.3"
 etcetera = "0.11"
 indicatif = "0.18"
+quick-xml = "0.42"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tempfile = "3"
 thiserror = "2"
+toml = "1"
 
 [target.'cfg(unix)'.dependencies]
 signal-hook = "0.4"
+
+# TLS per platform: the OS's own stack on Windows and macOS (SChannel,
+# Security.framework), rustls on everything else. ring, rustls' crypto, builds
+# C against the target's system headers, which the Linux CI runner does not
+# have for Windows or macOS, so this split is what lets ADR 0002's
+# cross-checks compile (ADR 0011). src/http.rs picks the matching provider.
+[target.'cfg(any(windows, target_os = "macos"))'.dependencies]
+ureq = { version = "3", default-features = false, features = ["json", "gzip", "native-tls"] }
+
+[target.'cfg(not(any(windows, target_os = "macos")))'.dependencies]
+ureq = { version = "3", features = ["json"] }
 
 [dev-dependencies]
 assert_cmd = "2"

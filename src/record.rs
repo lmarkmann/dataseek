@@ -1,0 +1,342 @@
+//! The one record shape every source adapter returns, plus the helpers that
+//! turn a source's JSON into it: pointer lookups that never panic, HTML
+//! stripped to a line of text, and DOIs normalized so deduplication can match
+//! them across sources. Adapters fill what they have and leave the rest `None`;
+//! they never invent a value to make a record look complete.
+
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+
+/// Descriptions are a teaser, not the abstract: the landing page has the rest.
+const SUMMARY_CHARS: usize = 320;
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct Dataset {
+    pub title: String,
+    pub url: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub publisher: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub doi: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub license: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub updated: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub size_bytes: Option<u64>,
+    /// Downloads, votes or stars, whatever the source counts. Comparable only
+    /// within one source.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub popularity: Option<u64>,
+    /// Other identifiers for the same dataset (a concept DOI, a mirror URL),
+    /// used only to merge duplicates.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub aliases: Vec<String>,
+}
+
+impl Dataset {
+    pub fn new(title: &str, url: &str) -> Self {
+        Self {
+            title: clean(title),
+            url: url.trim().to_owned(),
+            ..Self::default()
+        }
+    }
+
+    /// A record without a title or a link cannot be shown or opened, so the
+    /// adapters drop it instead of passing noise on.
+    ///
+    /// The link is also the one field printed without passing through
+    /// [`clean`], so one carrying whitespace or a control character is
+    /// treated as no link at all.
+    pub fn valid(self) -> Option<Self> {
+        let link_is_plain =
+            self.url.chars().all(|c| !c.is_control() && !c.is_whitespace());
+        (!self.title.is_empty()
+            && self.url.starts_with("http")
+            && link_is_plain)
+            .then_some(self)
+    }
+
+    pub fn describe(mut self, text: Option<String>) -> Self {
+        self.description = text.and_then(|t| summary(&t));
+        self
+    }
+
+    pub fn doi_from(mut self, raw: Option<String>) -> Self {
+        self.doi = raw.and_then(|r| doi(&r));
+        self
+    }
+}
+
+/// HTML tags removed, the common entities decoded, whitespace collapsed,
+/// and every control character (ESC, CSI, OSC, C1) replaced by a space, so a
+/// record from a remote source can never drive the terminal it is printed
+/// on.
+pub fn clean(text: &str) -> String {
+    let mut plain = String::with_capacity(text.len());
+    let mut in_tag = false;
+    for c in text.chars().map(|c| if c.is_control() { ' ' } else { c }) {
+        match c {
+            '<' => in_tag = true,
+            '>' if in_tag => {
+                in_tag = false;
+                plain.push(' ');
+            }
+            _ if !in_tag => plain.push(c),
+            _ => {}
+        }
+    }
+    let decoded = plain
+        .replace("&nbsp;", " ")
+        .replace("&quot;", "\"")
+        .replace("&#39;", "'")
+        .replace("&#x27;", "'")
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&amp;", "&");
+    decoded.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+/// [`clean`], cut to a teaser on a char boundary. `None` when nothing is left.
+pub fn summary(text: &str) -> Option<String> {
+    let plain = clean(text);
+    if plain.is_empty() {
+        return None;
+    }
+    if plain.chars().count() <= SUMMARY_CHARS {
+        return Some(plain);
+    }
+    let cut: String = plain.chars().take(SUMMARY_CHARS).collect();
+    let cut = cut.rsplit_once(' ').map_or(cut.as_str(), |(head, _)| head);
+    Some(format!("{}...", cut.trim_end_matches([',', '.', ';', ':'])))
+}
+
+/// A bare lowercase DOI (`10.5281/zenodo.1`) from any of the forms sources
+/// use: `doi:`, `https://doi.org/`, `http://dx.doi.org/`, or bare.
+pub fn doi(raw: &str) -> Option<String> {
+    let lower = raw.trim().to_lowercase();
+    let start = lower.find("10.")?;
+    let candidate = lower.get(start..)?.trim_end_matches(['/', '.']);
+    let (prefix, suffix) = candidate.split_once('/')?;
+    let registrant = prefix.strip_prefix("10.")?;
+    let plausible = registrant.len() >= 4
+        && registrant.chars().all(|c| c.is_ascii_digit() || c == '.')
+        && !suffix.is_empty();
+    plausible.then(|| candidate.to_owned())
+}
+
+/// The string at a JSON pointer, trimmed, with control characters replaced
+/// by spaces (see [`clean`]); numbers are rendered as text. `None` for
+/// absent, null, empty and non-scalar values.
+pub fn text(value: &Value, pointer: &str) -> Option<String> {
+    match value.pointer(pointer)? {
+        Value::String(s) => {
+            let safe: String = s
+                .chars()
+                .map(|c| if c.is_control() { ' ' } else { c })
+                .collect();
+            let trimmed = safe.trim();
+            (!trimmed.is_empty()).then(|| trimmed.to_owned())
+        }
+        Value::Number(n) => Some(n.to_string()),
+        _ => None,
+    }
+}
+
+/// The first of several pointers that holds text.
+pub fn first_text(value: &Value, pointers: &[&str]) -> Option<String> {
+    pointers.iter().find_map(|p| text(value, p))
+}
+
+/// A non-negative integer at a pointer, accepting numeric strings and
+/// truncating floats, which sources use interchangeably.
+pub fn number(value: &Value, pointer: &str) -> Option<u64> {
+    match value.pointer(pointer)? {
+        Value::Number(n) => n.as_u64().or_else(|| {
+            n.as_f64().filter(|f| f.is_finite() && *f >= 0.0).map(float_to_u64)
+        }),
+        Value::String(s) => s.trim().parse().ok(),
+        _ => None,
+    }
+}
+
+#[expect(
+    clippy::cast_possible_truncation,
+    clippy::cast_sign_loss,
+    reason = "callers pass finite non-negative values; truncation is the intent"
+)]
+fn float_to_u64(f: f64) -> u64 {
+    f as u64
+}
+
+/// The array at a pointer, or an empty slice when it is absent or not an
+/// array, so adapters can iterate without a branch.
+pub fn items<'a>(value: &'a Value, pointer: &str) -> &'a [Value] {
+    value.pointer(pointer).and_then(Value::as_array).map_or(&[], Vec::as_slice)
+}
+
+/// A string from a value that is either a plain string or a language map
+/// (`{"en": "...", "de": "..."}`), preferring English.
+pub fn localized(value: Option<&Value>) -> Option<String> {
+    match value? {
+        Value::String(s) if !s.trim().is_empty() => Some(s.trim().to_owned()),
+        Value::Object(map) => map
+            .get("en")
+            .and_then(Value::as_str)
+            .or_else(|| map.values().find_map(Value::as_str))
+            .map(|s| s.trim().to_owned())
+            .filter(|s| !s.is_empty()),
+        _ => None,
+    }
+}
+
+/// Unix seconds or milliseconds as an ISO date (`2024-01-31`).
+pub fn date_from_epoch(epoch: u64) -> Option<String> {
+    let seconds =
+        if epoch > 100_000_000_000 { epoch.checked_div(1000)? } else { epoch };
+    let days = i64::try_from(seconds.checked_div(86_400)?).ok()?;
+    let (y, m, d) = civil_from_days(days);
+    Some(format!("{y:04}-{m:02}-{d:02}"))
+}
+
+/// Howard Hinnant's days-to-civil algorithm, in checked arithmetic.
+fn civil_from_days(days: i64) -> (i64, i64, i64) {
+    let z = days.saturating_add(719_468);
+    let era = z.div_euclid(146_097);
+    let doe = z.rem_euclid(146_097);
+    let yoe = doe
+        .saturating_sub(doe / 1460)
+        .saturating_add(doe / 36_524)
+        .saturating_sub(doe / 146_096)
+        / 365;
+    let doy = doe.saturating_sub(
+        yoe.saturating_mul(365)
+            .saturating_add(yoe / 4)
+            .saturating_sub(yoe / 100),
+    );
+    let mp = doy.saturating_mul(5).saturating_add(2) / 153;
+    let d = doy
+        .saturating_sub(mp.saturating_mul(153).saturating_add(2) / 5)
+        .saturating_add(1);
+    let m = if mp < 10 { mp.saturating_add(3) } else { mp.saturating_sub(9) };
+    let y = yoe
+        .saturating_add(era.saturating_mul(400))
+        .saturating_add(i64::from(m <= 2));
+    (y, m, d)
+}
+
+/// The date part of an ISO timestamp, so every source prints dates alike.
+pub fn day(timestamp: Option<String>) -> Option<String> {
+    let t = timestamp?;
+    let head: String = t.chars().take(10).collect();
+    let looks_iso = head.len() == 10
+        && head.chars().enumerate().all(|(i, c)| {
+            if i == 4 || i == 7 { c == '-' } else { c.is_ascii_digit() }
+        });
+    Some(if looks_iso { head } else { t })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn clean_strips_markup_and_collapses_space() {
+        assert_eq!(
+            clean("<p>Rain &amp; snow</p>\n\n<b>daily</b>"),
+            "Rain & snow daily"
+        );
+    }
+
+    #[test]
+    fn summary_cuts_on_a_word_and_marks_the_cut() {
+        let long = "word ".repeat(200);
+        let cut = summary(&long).unwrap();
+        assert!(cut.ends_with("..."));
+        assert!(cut.chars().count() <= SUMMARY_CHARS + 3);
+        assert_eq!(summary("<p> </p>"), None);
+    }
+
+    #[test]
+    fn doi_accepts_every_spelling_and_rejects_lookalikes() {
+        for raw in [
+            "10.5281/ZENODO.1",
+            "doi:10.5281/zenodo.1",
+            "https://doi.org/10.5281/zenodo.1",
+            "http://dx.doi.org/10.5281/zenodo.1/",
+        ] {
+            assert_eq!(doi(raw).as_deref(), Some("10.5281/zenodo.1"), "{raw}");
+        }
+        assert_eq!(doi("version 10.2 of the data"), None);
+        assert_eq!(doi("10.12/x"), None);
+    }
+
+    #[test]
+    fn pointers_tolerate_missing_and_mixed_types() {
+        let v = json!({"a": {"b": " x ", "n": 3, "s": "42", "f": 7.9}});
+        assert_eq!(text(&v, "/a/b").as_deref(), Some("x"));
+        assert_eq!(text(&v, "/a/n").as_deref(), Some("3"));
+        assert_eq!(text(&v, "/a/zz"), None);
+        assert_eq!(number(&v, "/a/s"), Some(42));
+        assert_eq!(number(&v, "/a/f"), Some(7));
+        assert_eq!(items(&v, "/a").len(), 0);
+    }
+
+    #[test]
+    fn localized_prefers_english() {
+        let map = json!({"de": "Wasser", "en": "Water"});
+        assert_eq!(localized(Some(&map)).as_deref(), Some("Water"));
+        assert_eq!(
+            localized(Some(&json!({"fr": "Eau"}))).as_deref(),
+            Some("Eau")
+        );
+    }
+
+    #[test]
+    fn epochs_render_as_iso_days() {
+        assert_eq!(date_from_epoch(0).as_deref(), Some("1970-01-01"));
+        assert_eq!(
+            date_from_epoch(1_785_951_652_000).as_deref(),
+            Some("2026-08-05")
+        );
+        assert_eq!(
+            date_from_epoch(951_782_400).as_deref(),
+            Some("2000-02-29")
+        );
+    }
+
+    #[test]
+    fn day_keeps_only_the_date_of_iso_stamps() {
+        assert_eq!(
+            day(Some("2024-01-04T12:09:45Z".into())).as_deref(),
+            Some("2024-01-04")
+        );
+        assert_eq!(
+            day(Some("Feb 17, 2026".into())).as_deref(),
+            Some("Feb 17, 2026")
+        );
+    }
+
+    #[test]
+    fn remote_text_cannot_carry_terminal_escapes() {
+        let hostile = "Title\u{1b}]8;;https://evil\u{7}x\u{1b}[2J\u{9b}31m";
+        assert!(!clean(hostile).chars().any(char::is_control));
+        let v = json!({"t": hostile});
+        assert!(!text(&v, "/t").unwrap().chars().any(char::is_control));
+        assert!(
+            Dataset::new("t", "https://x.org/\u{1b}[2J").valid().is_none()
+        );
+        assert!(Dataset::new("t", "https://x.org/a b").valid().is_none());
+    }
+
+    #[test]
+    fn records_without_title_or_link_are_dropped() {
+        assert!(Dataset::new("t", "https://x").valid().is_some());
+        assert!(Dataset::new("", "https://x").valid().is_none());
+        assert!(Dataset::new("t", "ftp://x").valid().is_none());
+    }
+}

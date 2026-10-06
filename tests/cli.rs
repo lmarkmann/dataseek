@@ -1,5 +1,10 @@
 //! Tests of the CLI surface itself: flags, exit codes, pipe behavior, and the
 //! shape of stdout. These run the built binary, not the library functions.
+//!
+//! Every run gets its own home, config and cache directories, so a key or a
+//! cache on the developer's machine can never change an outcome, and no test
+//! reaches the network: searches go through a proxy on a closed port, which
+//! is how an offline machine looks to dataseek.
 
 // A panic in a helper here is the assertion failing, which is the point.
 // `clippy.toml` exempts `#[test]` bodies; these helpers sit outside one.
@@ -11,12 +16,52 @@ mod filters;
 use assert_cmd::Command;
 use predicates::prelude::*;
 
-fn bin() -> Command {
+const KEY_VARS: [&str; 8] = [
+    "HF_TOKEN",
+    "KAGGLE_API_TOKEN",
+    "DATAGOV_API_KEY",
+    "GITHUB_TOKEN",
+    "FRED_API_KEY",
+    "ROBOFLOW_API_KEY",
+    "DATACOMMONS_API_KEY",
+    "NCBI_API_KEY",
+];
+
+struct Sandbox {
+    _dir: tempfile::TempDir,
+    cmd: Command,
+}
+
+impl std::ops::Deref for Sandbox {
+    type Target = Command;
+    fn deref(&self) -> &Command {
+        &self.cmd
+    }
+}
+
+impl std::ops::DerefMut for Sandbox {
+    fn deref_mut(&mut self) -> &mut Command {
+        &mut self.cmd
+    }
+}
+
+fn bin() -> Sandbox {
+    let dir = tempfile::tempdir().unwrap();
     let mut cmd = Command::cargo_bin("dataseek").expect("dataseek binary");
     // wrap_help reads COLUMNS; pin it so the snapshot does not depend on the
     // runner's terminal.
-    cmd.env("COLUMNS", "100");
-    cmd
+    cmd.env("COLUMNS", "100")
+        .env("HOME", dir.path())
+        .env("XDG_CONFIG_HOME", dir.path().join("config"))
+        .env("XDG_CACHE_HOME", dir.path().join("cache"))
+        .env("XDG_STATE_HOME", dir.path().join("state"))
+        .env("KAGGLE_CONFIG_DIR", dir.path().join("kaggle"))
+        .env("HTTPS_PROXY", "http://127.0.0.1:9")
+        .env("HTTP_PROXY", "http://127.0.0.1:9");
+    for var in KEY_VARS {
+        cmd.env_remove(var);
+    }
+    Sandbox { _dir: dir, cmd }
 }
 
 #[test]
@@ -34,8 +79,9 @@ fn help_exits_zero_and_lists_commands() {
         .arg("--help")
         .assert()
         .success()
-        .stdout(predicate::str::contains("count"))
-        .stdout(predicate::str::contains("completion"));
+        .stdout(predicate::str::contains("search"))
+        .stdout(predicate::str::contains("sources"))
+        .stdout(predicate::str::contains("bench"));
 }
 
 // clap routes naked-invocation help to stderr; stdout stays empty so a pipeline
@@ -58,7 +104,6 @@ fn completion_emits_a_script_for_every_shell() {
         assert!(!out.stdout.is_empty(), "{shell} produced nothing");
         assert!(out.stderr.is_empty(), "{shell} wrote to stderr");
         assert!(!out.stdout.contains(&0x1b), "{shell} leaked ANSI");
-        // main.rs passes the binary name as a literal; tie it to the manifest.
         let script = String::from_utf8_lossy(&out.stdout);
         assert!(
             script.contains(env!("CARGO_PKG_NAME")),
@@ -68,38 +113,122 @@ fn completion_emits_a_script_for_every_shell() {
 }
 
 #[test]
+fn completions_offer_source_ids() {
+    let out = bin().args(["completion", "fish"]).output().unwrap();
+    let script = String::from_utf8_lossy(&out.stdout);
+    assert!(
+        script.contains("huggingface"),
+        "source ids missing:\n{script:.400}"
+    );
+}
+
+#[test]
 fn a_bad_flag_value_exits_two() {
     bin()
-        .args(["count", "--color=chartreuse", "Cargo.toml"])
+        .args(["sources", "--color=chartreuse"])
         .assert()
         .code(2)
         .stdout(predicate::str::is_empty());
 }
 
 #[test]
+fn an_unknown_source_id_is_a_usage_error() {
+    bin()
+        .args(["search", "climate", "--source", "not-a-source"])
+        .assert()
+        .code(2)
+        .stdout(predicate::str::is_empty())
+        .stderr(predicate::str::contains("possible values"));
+}
+
+#[test]
+fn search_needs_a_query() {
+    bin().arg("search").assert().code(2);
+}
+
+#[test]
 fn quiet_conflicts_with_verbose() {
-    bin().args(["count", "-q", "-v", "Cargo.toml"]).assert().code(2);
+    bin().args(["sources", "-q", "-v"]).assert().code(2);
 }
 
 #[test]
-fn verbose_notes_go_to_stderr_and_leave_stdout_alone() {
-    let plain = bin().args(["count", "Cargo.toml"]).output().unwrap();
-    let noisy = bin().args(["count", "Cargo.toml", "-v"]).output().unwrap();
-
-    assert_eq!(plain.stdout, noisy.stdout, "-v changed the data on stdout");
-    assert!(plain.stderr.is_empty(), "a normal run narrated");
-    let notes = String::from_utf8_lossy(&noisy.stderr);
-    assert!(notes.contains("bytes from Cargo.toml"), "{notes}");
+fn offline_search_fails_with_a_hint_and_clean_stdout() {
+    let out = bin()
+        .args(["search", "climate", "-s", "datacite,zenodo"])
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(1), "an offline search must exit 1");
+    assert!(out.stdout.is_empty(), "an error put bytes on stdout");
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    let error = stderr.find("Error:").expect("no Error: line");
+    let hint = stderr.find("  Try:").expect("no Try: line");
+    assert!(error < hint, "wrong order:\n{stderr}");
 }
 
 #[test]
-fn plain_count_is_tab_separated() {
-    let out = bin().args(["count", "--plain", "Cargo.toml"]).output().unwrap();
-    let line = String::from_utf8_lossy(&out.stdout);
-    let fields: Vec<_> = line.trim_end().split('\t').collect();
-    assert_eq!(fields.len(), 3, "expected three tab-separated fields: {line}");
-    for field in fields {
-        assert!(field.parse::<usize>().is_ok(), "not a number: {field}");
+fn verbose_search_reports_each_source_on_stderr() {
+    let out = bin()
+        .args(["search", "climate", "-s", "datacite,zenodo", "-v"])
+        .output()
+        .unwrap();
+    assert_eq!(out.stdout.len(), 0);
+    let notes = String::from_utf8_lossy(&out.stderr);
+    assert!(notes.contains("datacite") && notes.contains("zenodo"), "{notes}");
+    assert!(notes.contains("unreachable"), "{notes}");
+}
+
+#[test]
+fn sources_without_their_required_key_are_skipped_not_failed() {
+    let out = bin()
+        .args(["search", "helmet", "-s", "roboflow", "-v"])
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(1));
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    assert!(stderr.contains("needs $ROBOFLOW_API_KEY"), "{stderr}");
+    assert!(stderr.contains("dataseek sources"), "{stderr}");
+}
+
+#[test]
+fn sources_json_lists_every_source_with_docs() {
+    let out = bin().args(["sources", "--json"]).output().unwrap();
+    assert!(out.status.success());
+    let rows: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
+    let rows = rows.as_array().unwrap();
+    assert_ne!(rows.len(), 0);
+    for row in rows {
+        assert!(row["docs"].as_str().unwrap().starts_with("https://"));
+    }
+    let roboflow = rows.iter().find(|r| r["id"] == "roboflow").unwrap();
+    assert_eq!(roboflow["key"], "missing");
+    let hf = rows.iter().find(|r| r["id"] == "huggingface").unwrap();
+    assert_eq!(hf["key"], "optional");
+}
+
+#[test]
+fn a_key_from_the_environment_is_reported_but_never_printed() {
+    let secret = "do-not-print-this-value";
+    let mut cmd = bin();
+    cmd.env("ROBOFLOW_API_KEY", secret);
+    let sources = cmd.args(["sources", "--json"]).output().unwrap();
+    let text = String::from_utf8_lossy(&sources.stdout);
+    assert!(text.contains("\"key\":\"set\""), "{text:.300}");
+    assert!(!text.contains(secret));
+
+    let mut cmd = bin();
+    cmd.env("ROBOFLOW_API_KEY", secret);
+    let doctor = cmd.args(["doctor", "--json"]).output().unwrap();
+    let text = String::from_utf8_lossy(&doctor.stdout);
+    assert!(text.contains("$ROBOFLOW_API_KEY"), "{text}");
+    assert!(!text.contains(secret));
+}
+
+#[test]
+fn plain_sources_are_tab_separated() {
+    let out = bin().args(["sources", "--plain"]).output().unwrap();
+    let text = String::from_utf8_lossy(&out.stdout);
+    for line in text.lines() {
+        assert_eq!(line.split('\t').count(), 6, "not six fields: {line}");
     }
 }
 
@@ -127,7 +256,7 @@ fn unknown_subcommand_exits_two_with_clean_stdout() {
 
 #[test]
 fn piped_output_has_no_ansi() {
-    let out = bin().args(["count", "Cargo.toml"]).output().unwrap();
+    let out = bin().arg("sources").output().unwrap();
     assert!(out.status.success());
     assert!(
         !out.stdout.contains(&0x1b),
@@ -136,74 +265,28 @@ fn piped_output_has_no_ansi() {
 }
 
 #[test]
-fn count_reads_stdin() {
-    bin()
-        .arg("count")
-        .write_stdin("alpha beta\ngamma\n")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("2 lines"))
-        .stdout(predicate::str::contains("3 words"));
+fn cache_info_reports_the_budget() {
+    let out = bin().args(["cache", "info", "--json"]).output().unwrap();
+    assert!(out.status.success());
+    let info: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(info["files"], 0);
+    assert_eq!(info["budget_bytes"], 30 * 1024 * 1024);
 }
 
 #[test]
-fn json_output_is_valid() {
+fn cache_clear_succeeds_on_an_empty_cache() {
+    bin().args(["cache", "clear"]).assert().success();
+}
+
+#[test]
+fn inspect_reports_an_unreachable_page() {
     let out = bin()
-        .args(["count", "--json"])
-        .write_stdin("one two\n")
-        .output()
-        .unwrap();
-    let parsed: serde_json::Value =
-        serde_json::from_slice(&out.stdout).unwrap();
-    assert_eq!(parsed["words"], 2);
-    assert_eq!(parsed["lines"], 1);
-}
-
-#[test]
-fn missing_file_error_prints_each_part_once() {
-    let out = bin().args(["count", "does-not-exist.txt"]).output().unwrap();
-    assert_eq!(out.status.code(), Some(1), "a runtime failure exits 1, not 2");
-    assert!(out.stdout.is_empty(), "an error put bytes on stdout");
-
-    let stderr = String::from_utf8_lossy(&out.stderr);
-    let error = stderr.find("Error:").expect("no Error: line");
-    let hint = stderr.find("  Try:").expect("no Try: line");
-    let cause = stderr.find("  Cause:").expect("no Cause: line");
-    assert!(error < hint && hint < cause, "wrong order:\n{stderr}");
-
-    // A message that interpolates its own {source} would repeat the cause that
-    // report() already prints. The wording is OS-specific, so read it back.
-    let cause_text = stderr[cause..]
-        .lines()
-        .next()
-        .and_then(|line| line.trim_start().strip_prefix("Cause:"))
-        .expect("no Cause: line")
-        .trim();
-    assert!(!cause_text.is_empty(), "empty cause:\n{stderr}");
-    assert_eq!(
-        stderr.matches(cause_text).count(),
-        1,
-        "the cause was printed more than once:\n{stderr}"
-    );
-    assert_eq!(
-        stderr.matches("Cause:").count(),
-        1,
-        "more than one Cause: line:\n{stderr}"
-    );
-}
-
-#[test]
-fn binary_input_says_it_is_not_text() {
-    // The built binary is a convenient non-UTF-8 file.
-    let out = bin()
-        .args(["count", env!("CARGO_BIN_EXE_dataseek")])
+        .args(["inspect", "https://example.org/dataset"])
         .output()
         .unwrap();
     assert_eq!(out.status.code(), Some(1));
-    let stderr = String::from_utf8_lossy(&out.stderr);
-    assert!(stderr.contains("not UTF-8 text"), "{stderr}");
-    // Checking the path or piping it instead cannot help for non-text bytes.
-    assert!(!stderr.contains("check the path"), "{stderr}");
+    assert_eq!(out.stdout.len(), 0);
+    assert!(String::from_utf8_lossy(&out.stderr).contains("cannot fetch"));
 }
 
 #[test]
@@ -224,6 +307,24 @@ fn doctor_reports_ready_with_clean_pipe() {
         "doctor narrated into a pipe: {}",
         String::from_utf8_lossy(&out.stderr)
     );
+}
+
+#[cfg(unix)]
+#[test]
+fn doctor_flags_a_key_file_other_users_can_read() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let mut cmd = bin();
+    let kaggle = tempfile::tempdir().unwrap();
+    let token = kaggle.path().join("access_token");
+    std::fs::write(&token, "secret-token").unwrap();
+    std::fs::set_permissions(&token, std::fs::Permissions::from_mode(0o644))
+        .unwrap();
+    cmd.env("KAGGLE_CONFIG_DIR", kaggle.path());
+    let out = cmd.arg("doctor").output().unwrap();
+    let text = String::from_utf8_lossy(&out.stdout);
+    assert!(text.contains("chmod 600"), "{text}");
+    assert!(!text.contains("secret-token"));
 }
 
 // A vanished consumer must not produce a panic or an error message. Asserts
@@ -315,20 +416,20 @@ fn man_renders_roff_with_the_manifest_version() {
 }
 
 fn stdout_of(args: &[&str]) -> Vec<u8> {
-    bin().args(args).arg("Cargo.toml").output().unwrap().stdout
+    bin().arg("sources").args(args).output().unwrap().stdout
 }
 
 #[test]
 fn color_never_and_no_color_suppress_ansi() {
-    assert!(!stdout_of(&["count", "--color=never"]).contains(&0x1b));
-    assert!(!stdout_of(&["count", "--no-color"]).contains(&0x1b));
+    assert!(!stdout_of(&["--color=never"]).contains(&0x1b));
+    assert!(!stdout_of(&["--no-color"]).contains(&0x1b));
 }
 
 #[test]
 fn color_always_forces_ansi_through_a_pipe() {
     // Captured stdout is not a TTY; --color=always must color it anyway.
     assert!(
-        stdout_of(&["count", "--color=always"]).contains(&0x1b),
+        stdout_of(&["--color=always"]).contains(&0x1b),
         "--color=always should emit ANSI even when piped"
     );
 }

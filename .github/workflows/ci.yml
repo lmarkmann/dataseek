@@ -53,7 +53,9 @@ jobs:
           cargo clippy --all-targets --all-features --locked --target x86_64-pc-windows-msvc
           cargo clippy --all-targets --all-features --locked --target aarch64-apple-darwin
       - name: test
-        run: cargo nextest run --workspace --all-features --locked
+        run: |
+          cargo nextest run --workspace --all-features --locked
+          cargo test --doc --workspace --locked
       - name: deny
         run: cargo deny check advisories licenses bans sources
       - name: shear
