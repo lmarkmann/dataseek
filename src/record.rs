@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 /// Descriptions are a teaser, not the abstract: the landing page has the rest.
-const SUMMARY_CHARS: usize = 320;
+pub const SUMMARY_CHARS: usize = 320;
 
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Dataset {

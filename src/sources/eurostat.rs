@@ -20,7 +20,7 @@ use std::collections::HashSet;
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::Dataset;
+use crate::record::{Dataset, SUMMARY_CHARS, clean, summary};
 
 const TOC: &str =
     "https://ec.europa.eu/eurostat/api/dissemination/catalogue/toc/txt";
@@ -40,6 +40,8 @@ pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
 pub fn parse(toc: &str) -> Vec<Dataset> {
     let mut seen = HashSet::new();
     let mut folders: Vec<&str> = Vec::new();
+    let mut theme = String::new();
+    let mut moved = false;
     toc.lines()
         .skip(1)
         .filter_map(|line| {
@@ -47,32 +49,52 @@ pub fn parse(toc: &str) -> Vec<Dataset> {
                 line.split('\t').map(|c| c.trim().trim_matches('"'));
             let (indented, code, kind) =
                 (cells.next()?, cells.next()?.trim(), cells.next()?.trim());
-            let depth = indented.chars().take_while(|c| *c == ' ').count() / 4;
-            folders.truncate(depth);
+            let depth =
+                indented.bytes().take_while(|b| *b == b' ').count() / 4;
+            if folders.len() > depth {
+                folders.truncate(depth);
+                moved = true;
+            }
             let title = indented.trim();
             if kind == "folder" {
                 folders.push(title);
+                moved = true;
                 return None;
             }
             if !matches!(kind, "dataset" | "table") || !seen.insert(code) {
                 return None;
             }
-            let theme = folders
-                .iter()
-                .skip(1)
-                .copied()
-                .collect::<Vec<_>>()
-                .join(" > ");
+            if moved {
+                theme =
+                    clean(&folders.get(1..).unwrap_or_default().join(" > "));
+                moved = false;
+            }
             let mut dataset = Dataset::new(
                 title,
                 &format!("{DATA_BROWSER}/{code}/default/table"),
-            )
-            .describe((!theme.is_empty()).then(|| format!("{code}: {theme}")));
+            );
+            dataset.description = described(code, &theme);
             dataset.publisher = Some("Eurostat".to_owned());
             dataset.updated = cells.next().and_then(european_date);
             dataset.valid()
         })
         .collect()
+}
+
+/// The code, then the topic folders. The folders were cleaned once when they
+/// last changed and a Eurostat code is plain, so the clean and cut that
+/// `describe` does run only when the code is not or the text is long.
+fn described(code: &str, theme: &str) -> Option<String> {
+    if theme.is_empty() {
+        return None;
+    }
+    let text = format!("{code}: {theme}");
+    let plain = code.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_');
+    if plain && text.len() <= SUMMARY_CHARS {
+        Some(text)
+    } else {
+        summary(&text)
+    }
 }
 
 /// `"29.09.2026"` as `"2026-09-29"`.
