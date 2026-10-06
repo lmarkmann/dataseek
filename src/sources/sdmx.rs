@@ -98,7 +98,7 @@ pub fn list(
 }
 
 #[derive(Default)]
-struct Flow {
+pub struct Flow {
     id: String,
     agency: String,
     name: String,
@@ -120,7 +120,7 @@ struct Open {
     text: String,
 }
 
-fn parse(xml: &str) -> Result<Vec<Flow>, SourceError> {
+pub fn parse(xml: &str) -> Result<Vec<Flow>, SourceError> {
     let mut reader = Reader::from_str(xml);
     let mut flows = Vec::new();
     let mut current: Option<Flow> = None;

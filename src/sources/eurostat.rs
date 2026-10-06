@@ -25,7 +25,7 @@ pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
     Ok(entries)
 }
 
-fn parse(toc: &str) -> Vec<Dataset> {
+pub fn parse(toc: &str) -> Vec<Dataset> {
     let mut seen = HashSet::new();
     toc.lines()
         .skip(1)

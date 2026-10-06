@@ -2,9 +2,21 @@
 //!
 //! The crate is a library only so that one program can ship under two names:
 //! `src/main.rs` builds `dataseek` and `src/bin/dsk.rs` builds `dsk`, and both
-//! call [`main`]. Nothing here is a public API; every module is private.
+//! call [`main`]. Nothing here is a public API; every module is private, and
+//! the `internals` feature exposes only what `benches/` measures.
 //! This file holds the entry point: SIGPIPE handling, argument parsing,
 //! dispatch, and the error printer.
+
+#![cfg_attr(
+    feature = "internals",
+    allow(
+        missing_docs,
+        clippy::must_use_candidate,
+        clippy::return_self_not_must_use,
+        clippy::missing_errors_doc,
+        reason = "public-API lints; internals makes private items reachable for benches only"
+    )
+)]
 
 mod bench;
 mod cache;
@@ -26,6 +38,19 @@ mod record;
 mod search;
 mod sources;
 mod ui;
+
+/// What `benches/search.rs` measures. Not an API: it follows the code it
+/// points at.
+#[cfg(feature = "internals")]
+#[doc(hidden)]
+pub mod internals {
+    pub use crate::cache::{Cache, Kind};
+    pub use crate::catalog::search as catalog_search;
+    pub use crate::dedup::{merge, weigh};
+    pub use crate::record::{Dataset, clean};
+    pub use crate::sources::eurostat::parse as eurostat_toc;
+    pub use crate::sources::sdmx::parse as sdmx_dataflows;
+}
 
 use std::io::{self, Write};
 use std::process::ExitCode;

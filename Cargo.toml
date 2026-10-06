@@ -60,6 +60,10 @@ ureq = { version = "3", default-features = false, features = ["json", "gzip", "n
 [target.'cfg(not(any(windows, target_os = "macos")))'.dependencies]
 ureq = { version = "3", features = ["json"] }
 
+[features]
+# Re-exports for benches/ only; see the internals module in src/lib.rs.
+internals = []
+
 [dev-dependencies]
 assert_cmd = "2"
 insta = { version = "1", features = ["filters"] }
