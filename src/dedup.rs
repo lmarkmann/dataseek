@@ -207,6 +207,7 @@ pub fn weigh(hits: Vec<Hit>, query: &str) -> Vec<Hit> {
     if terms.is_empty() {
         return hits;
     }
+    let needles = crate::catalog::needles(&terms);
     let mut kept: Vec<Hit> = hits
         .into_iter()
         .filter_map(|mut hit| {
@@ -215,7 +216,7 @@ pub fn weigh(hits: Vec<Hit>, query: &str) -> Vec<Hit> {
                 hit.dataset.title,
                 hit.dataset.description.as_deref().unwrap_or("")
             );
-            let found = crate::catalog::matched(&text, &terms);
+            let found = crate::catalog::matched(&text, &needles);
             if found == 0 && hit.dataset.description.is_some() {
                 return None;
             }
