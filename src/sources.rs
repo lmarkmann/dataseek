@@ -16,12 +16,14 @@
 //! response to [`SourceError::Shape`] rather than an empty list, and never put
 //! a credential into a URL or message that could be printed.
 
+mod aws;
 mod ckan;
 mod datacite;
 mod dataverse;
 mod ebi;
 mod europa;
 mod figshare;
+mod github;
 mod google;
 mod huggingface;
 mod kaggle;
@@ -33,6 +35,7 @@ mod roboflow;
 mod sdmx;
 mod socrata;
 mod stac;
+mod tfds;
 mod uci;
 mod zenodo;
 
@@ -332,7 +335,7 @@ const fn via(
 }
 
 use Category::{
-    Aggregator, Geospatial, Government, LifeSciences, MachineLearning,
+    Aggregator, Code, Geospatial, Government, LifeSciences, MachineLearning,
     Research, Statistics,
 };
 
@@ -442,6 +445,34 @@ pub static SOURCES: &[Source] = &[
         "site API",
         "https://www.modelscope.cn/docs",
         modelscope::search,
+    ),
+    listed(
+        "aws",
+        "Registry of Open Data on AWS",
+        MachineLearning,
+        "registry page",
+        "https://github.com/awslabs/open-data-registry",
+        aws::list,
+    ),
+    listed(
+        "tfds",
+        "TensorFlow Datasets",
+        MachineLearning,
+        "catalog page",
+        "https://www.tensorflow.org/datasets/catalog/overview",
+        tfds::list,
+    ),
+    keyed(
+        live(
+            "github",
+            "GitHub (topic:dataset)",
+            Code,
+            "GitHub search",
+            "https://docs.github.com/en/rest/search/search",
+            github::search,
+        ),
+        Key::GitHub,
+        Need::Optional,
     ),
     // Research repositories.
     live(
