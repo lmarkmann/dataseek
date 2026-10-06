@@ -5,7 +5,9 @@
 //! Two records are the same dataset when they share any identity key: a DOI
 //! (including concept DOIs carried as aliases, which folds DataCite's
 //! per-version records), a normalized landing URL, or a normalized title from
-//! the same publisher. Merging is transitive. Fusion scores a hit as the sum
+//! the same publisher. A title key only ever joins records from different
+//! sources: within one source, two records with one name are two datasets
+//! (Data Commons variables, DataCite re-uploads). Merging is transitive. Fusion scores a hit as the sum
 //! over its sources of `1 / (K + rank)`, so a dataset two sources both rank
 //! highly beats one that a single source ranks first; within one source only
 //! the best rank counts, so a source cannot outvote others with duplicates.
@@ -36,8 +38,17 @@ pub fn merge(lists: &[(&'static str, Vec<Dataset>)]) -> Vec<Hit> {
     for (source, datasets) in lists {
         for (rank, dataset) in datasets.iter().enumerate() {
             let keys = identity_keys(dataset);
-            let mut targets: Vec<usize> =
-                keys.iter().filter_map(|k| owner.get(k).copied()).collect();
+            let mut targets: Vec<usize> = keys
+                .iter()
+                .filter_map(|k| {
+                    let index = owner.get(k).copied()?;
+                    let same_source = hits
+                        .get(index)
+                        .and_then(Option::as_ref)
+                        .is_some_and(|hit| hit.has(source));
+                    (!k.starts_with("title:") || !same_source).then_some(index)
+                })
+                .collect();
             targets.sort_unstable();
             targets.dedup();
 
@@ -87,6 +98,10 @@ impl Building {
             best_rank: vec![(source, rank)],
             keys: keys.to_vec(),
         }
+    }
+
+    fn has(&self, source: &str) -> bool {
+        self.best_rank.iter().any(|(s, _)| *s == source)
     }
 
     fn add(
@@ -359,6 +374,19 @@ mod tests {
         ]);
         assert_eq!(hits[0].dataset.title, "Filler");
         assert_eq!(hits.last().unwrap().dataset.title, "Solo");
+    }
+
+    #[test]
+    fn a_shared_title_merges_across_sources_but_not_within_one() {
+        let mut a = ds("Unemployment rate by sex", "https://dc.org/a");
+        a.publisher = Some("Data Commons".into());
+        let mut b = ds("Unemployment rate by sex", "https://dc.org/b");
+        b.publisher = Some("Data Commons".into());
+        let mut c = ds("Unemployment rate by sex", "https://mirror.org/c");
+        c.publisher = Some("Data Commons".into());
+        let hits = merge(&[("datacommons", vec![a, b]), ("mirror", vec![c])]);
+        assert_eq!(hits.len(), 2);
+        assert_eq!(hits[0].sources, vec!["datacommons", "mirror"]);
     }
 
     #[test]

@@ -50,7 +50,7 @@ fn record(candidate: &Value) -> Option<Dataset> {
     let name = text(candidate, "/name").unwrap_or_else(|| dcid.clone());
     let mut dataset = Dataset::new(
         &name,
-        &format!("https://datacommons.org/tools/statvar#sv={dcid}"),
+        &format!("https://datacommons.org/browser/{dcid}"),
     )
     .describe(Some(dcid));
     dataset.publisher = Some("Data Commons".to_owned());
