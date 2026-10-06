@@ -29,6 +29,7 @@ mod nada;
 mod openaire;
 mod openml;
 mod roboflow;
+mod sdmx;
 mod socrata;
 mod stac;
 mod uci;
@@ -61,6 +62,7 @@ pub enum Adapter {
     Socrata(&'static str),
     Ebi(&'static ebi::Domain),
     Stac(&'static stac::Catalog),
+    Sdmx(&'static sdmx::Agency),
 }
 
 /// What a source mainly holds. The names are what `--category` accepts and
@@ -125,7 +127,10 @@ pub struct Source {
 
 impl Source {
     pub fn is_catalog(&self) -> bool {
-        matches!(self.adapter, Adapter::Catalog(_) | Adapter::Stac(_))
+        matches!(
+            self.adapter,
+            Adapter::Catalog(_) | Adapter::Stac(_) | Adapter::Sdmx(_)
+        )
     }
 
     /// The key this source cannot run without, when it is missing.
@@ -159,6 +164,9 @@ impl Source {
             Adapter::Stac(catalog) => {
                 self.local(ctx, query, limit, || stac::list(ctx, catalog))
             }
+            Adapter::Sdmx(agency) => {
+                self.local(ctx, query, limit, || sdmx::list(ctx, agency))
+            }
         }
     }
 
@@ -168,6 +176,7 @@ impl Source {
         let downloaded = match &self.adapter {
             Adapter::Catalog(list) => list(ctx),
             Adapter::Stac(catalog) => stac::list(ctx, catalog),
+            Adapter::Sdmx(agency) => sdmx::list(ctx, agency),
             _ => return None,
         };
         Some(downloaded.map(|entries| {
@@ -579,6 +588,54 @@ pub static SOURCES: &[Source] = &[
         "NADA",
         NADA_DOCS,
         Adapter::Nada("https://microdata.unhcr.org/index.php"),
+    ),
+    via(
+        "imf",
+        "IMF",
+        Statistics,
+        "SDMX",
+        "https://portal.api.imf.org/",
+        Adapter::Sdmx(&sdmx::IMF),
+    ),
+    via(
+        "oecd",
+        "OECD",
+        Statistics,
+        "SDMX",
+        "https://sdmx.oecd.org/public/rest/",
+        Adapter::Sdmx(&sdmx::OECD),
+    ),
+    via(
+        "ecb",
+        "European Central Bank",
+        Statistics,
+        "SDMX",
+        "https://data.ecb.europa.eu/help/api/overview",
+        Adapter::Sdmx(&sdmx::ECB),
+    ),
+    via(
+        "bis",
+        "Bank for International Settlements",
+        Statistics,
+        "SDMX",
+        "https://stats.bis.org/api-doc/v2/",
+        Adapter::Sdmx(&sdmx::BIS),
+    ),
+    via(
+        "ilo",
+        "ILOSTAT",
+        Statistics,
+        "SDMX",
+        "https://ilostat.ilo.org/resources/sdmx-tools/",
+        Adapter::Sdmx(&sdmx::ILO),
+    ),
+    via(
+        "undata",
+        "UNdata",
+        Statistics,
+        "SDMX",
+        "https://data.un.org/Host.aspx?Content=API",
+        Adapter::Sdmx(&sdmx::UNDATA),
     ),
     // Earth observation and geospatial.
     via(
