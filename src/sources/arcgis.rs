@@ -48,6 +48,7 @@ fn record(feature: &Value) -> Option<Dataset> {
     dataset.license = text(props, "/license")
         .filter(|l| !matches!(l.as_str(), "custom" | "none"));
     dataset.updated = number(props, "/modified").and_then(date_from_epoch);
+    dataset.size_bytes = number(props, "/size");
     dataset.valid()
 }
 
@@ -76,7 +77,7 @@ mod tests {
                 doi: None,
                 license: None,
                 updated: Some("2026-09-21".into()),
-                size_bytes: None,
+                size_bytes: Some(3_740_026),
                 popularity: None,
                 aliases: vec![],
             }
