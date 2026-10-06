@@ -8,11 +8,10 @@
 //! a terminal the bars are hidden `ProgressBar`s, so callers never branch.
 
 use std::fmt::Display;
-use std::io::IsTerminal;
+use std::io::{IsTerminal, Write};
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::time::Duration;
 
-use anstream::eprintln;
 use clap::builder::styling::Style;
 use indicatif::{ProgressBar, ProgressStyle};
 
@@ -82,7 +81,9 @@ fn paint(style: Style, body: impl Display) -> String {
 fn say(event: &str, indent: &str, mark: &str, msg: impl Display) {
     match mode() {
         Mode::Off => {}
-        Mode::Lines | Mode::Live => eprintln!("{indent}{mark} {msg}"),
+        Mode::Lines | Mode::Live => {
+            let _ = writeln!(anstream::stderr(), "{indent}{mark} {msg}");
+        }
         Mode::Events => event_line(&serde_json::json!({
             "schema": EVENTS_SCHEMA,
             "event": event,
@@ -92,9 +93,10 @@ fn say(event: &str, indent: &str, mark: &str, msg: impl Display) {
 }
 
 /// Write one event as a line of JSON on stderr. Also used by the error
-/// printer, which runs whatever the mode is.
+/// printer, which runs whatever the mode is. A failed write is dropped:
+/// stderr is where it would be reported.
 pub fn event_line(event: &serde_json::Value) {
-    eprintln!("{event}");
+    let _ = writeln!(anstream::stderr(), "{event}");
 }
 
 /// Open a stage of work: `> <msg>`.
