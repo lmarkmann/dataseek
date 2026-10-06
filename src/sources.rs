@@ -16,9 +16,11 @@
 //! response to [`SourceError::Shape`] rather than an empty list, and never put
 //! a credential into a URL or message that could be printed.
 
+mod arcgis;
 mod aws;
 mod ckan;
 mod datacite;
+mod datagov;
 mod dataverse;
 mod ebi;
 mod europa;
@@ -31,6 +33,7 @@ mod mendeley;
 mod modelscope;
 mod nada;
 mod openaire;
+mod opendatasoft;
 mod openml;
 mod osf;
 mod roboflow;
@@ -558,6 +561,18 @@ pub static SOURCES: &[Source] = &[
         "https://dataeuropa.gitlab.io/data-provider-manual/api-documentation/",
         europa::search,
     ),
+    keyed(
+        live(
+            "datagov",
+            "Data.gov",
+            Government,
+            "Data.gov Catalog API",
+            "https://resources.data.gov/catalog-api/",
+            datagov::search,
+        ),
+        Key::DataGov,
+        Need::Optional,
+    ),
     via(
         "data-gov-uk",
         "data.gov.uk",
@@ -613,6 +628,22 @@ pub static SOURCES: &[Source] = &[
         "Socrata Discovery",
         SOCRATA_DOCS,
         Adapter::Socrata("https://api.eu.socrata.com"),
+    ),
+    live(
+        "opendatasoft",
+        "OpenDataSoft hub",
+        Government,
+        "OpenDataSoft Explore",
+        "https://help.opendatasoft.com/apis/ods-explore-v2/",
+        opendatasoft::search,
+    ),
+    live(
+        "arcgis",
+        "ArcGIS Hub",
+        Government,
+        "OGC API Records",
+        "https://hub.arcgis.com/api/search/v1",
+        arcgis::search,
     ),
     // Statistics.
     via(
