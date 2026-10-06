@@ -6,7 +6,9 @@ use serde_json::{Value, json};
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::{Dataset, date_from_epoch, items, number, text};
+use crate::record::{
+    Dataset, date_from_epoch, from_markdown, items, number, text,
+};
 
 pub fn search(
     ctx: &Ctx<'_>,
@@ -50,7 +52,7 @@ fn record(hit: &Value) -> Option<Dataset> {
         &text(hit, "/name")?,
         &format!("https://www.synapse.org/Synapse:{id}"),
     )
-    .describe(text(hit, "/description"));
+    .describe(text(hit, "/description").map(|d| from_markdown(&d)));
     dataset.updated = number(hit, "/modified_on").and_then(date_from_epoch);
     dataset.valid()
 }
@@ -70,10 +72,9 @@ mod tests {
                 title: "Multi-omic Glial Programs in Brain Aging".into(),
                 url: "https://www.synapse.org/Synapse:syn75275226".into(),
                 description: Some(
-                    "#### **Title**: Aged brain multi-omic integration \
-                     captures immunometabolic and sex variation **Dataset \
-                     contact**: [Justin P. \
-                     Whalley](https://www.synapse.org/Profile:3335704)"
+                    "Title: Aged brain multi-omic integration captures \
+                     immunometabolic and sex variation Dataset contact: \
+                     Justin P. Whalley"
                         .into()
                 ),
                 publisher: None,

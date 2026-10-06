@@ -4,6 +4,7 @@
 //! them across sources. Adapters fill what they have and leave the rest `None`;
 //! they never invent a value to make a record look complete.
 
+use pulldown_cmark::{Event, Options, Parser, Tag, TagEnd};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -98,6 +99,40 @@ pub fn clean(text: &str) -> String {
         }
     }
     decode_entities(&plain).split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+/// Markdown as the text its rendered page shows: link and emphasis text kept,
+/// images and markup dropped, a space between blocks. For fields a source
+/// documents as Markdown; HTML inside it is left for [`clean`] to strip.
+pub fn from_markdown(text: &str) -> String {
+    let mut plain = String::with_capacity(text.len());
+    let mut in_image = false;
+    let options = Options::ENABLE_TABLES | Options::ENABLE_STRIKETHROUGH;
+    for event in Parser::new_ext(text, options) {
+        match event {
+            Event::Start(Tag::Image { .. }) => in_image = true,
+            Event::End(TagEnd::Image) => in_image = false,
+            Event::Text(t)
+            | Event::Code(t)
+            | Event::Html(t)
+            | Event::InlineHtml(t)
+                if !in_image =>
+            {
+                plain.push_str(&t);
+            }
+            Event::End(
+                TagEnd::Emphasis
+                | TagEnd::Strong
+                | TagEnd::Strikethrough
+                | TagEnd::Link,
+            ) => {}
+            Event::End(_) | Event::SoftBreak | Event::HardBreak => {
+                plain.push(' ');
+            }
+            _ => {}
+        }
+    }
+    plain
 }
 
 /// HTML entities decoded in one pass, so `&amp;lt;` stays the text `&lt;`.
@@ -521,6 +556,20 @@ mod tests {
             Dataset::new("t", "https://x.org/\u{1b}[2J").valid().is_none()
         );
         assert!(Dataset::new("t", "https://x.org/a b").valid().is_none());
+    }
+
+    #[test]
+    fn markdown_keeps_the_text_a_reader_sees() {
+        let md = "#### **Title**: Aged brain\n\n**Dataset contact**:  \
+                  [J. Whalley](https://www.synapse.org/Profile:1)\n\n\
+                  ![badge](https://x.org/b.svg)\n\n- one\n- `two`\n\n\
+                  | a | b |\n|---|---|\n| 1 | 2 |\n\n\
+                  sentinel_2_l2a, <b>bold</b>, aged <5";
+        assert_eq!(
+            clean(&from_markdown(md)),
+            "Title: Aged brain Dataset contact: J. Whalley one two \
+             a b 1 2 sentinel_2_l2a, bold , aged <5"
+        );
     }
 
     #[test]
