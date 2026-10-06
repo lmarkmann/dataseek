@@ -20,7 +20,7 @@ dsk search mnist -s huggingface,kaggle      # only these sources
 dsk search inflation -c economics,finance   # only these categories
 dsk search census --json | jq -r '.results[].url'
 dsk sources                                 # every source, its protocol, key and docs
-dsk inspect https://zenodo.org/records/1234567   # a page's schema.org or Croissant metadata
+dsk inspect https://zenodo.org/records/13135140  # a page's metadata and the files it lists
 dsk bench                                   # latency and overlap of every source
 dsk cache warm                              # download the catalogs searched locally
 ```

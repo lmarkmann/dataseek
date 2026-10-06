@@ -721,16 +721,36 @@ fn inspect_reports_an_unreachable_page() {
     assert!(error < cause && cause < hint, "{stderr}");
 }
 
-/// A page whose JSON-LD describes one dataset.
-#[cfg(target_os = "linux")]
+/// A page whose JSON-LD describes one dataset and the file it offers.
 const DATASET_PAGE: &str = r#"<html><head>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "Dataset", "name": "Rainfall",
+ "distribution": [{"@type": "DataDownload", "name": "rain.csv",
+  "encodingFormat": "text/csv", "contentSize": "2 MB",
+  "contentUrl": "https://example.org/rain.csv"}]}
+</script>
+</head></html>"#;
+
+/// The same dataset with no file list.
+const BARE_PAGE: &str = r#"<html><head>
 <script type="application/ld+json">
 {"@context": "https://schema.org", "@type": "Dataset", "name": "Rainfall"}
 </script>
 </head></html>"#;
 
+/// A local server answering every request with `page`; its address.
+fn serve_page(page: &'static str) -> String {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let url = format!("http://{}/", listener.local_addr().unwrap());
+    std::thread::spawn(move || {
+        for stream in listener.incoming().flatten() {
+            let _ = answer(stream, page);
+        }
+    });
+    url
+}
+
 /// Read one request head and answer it with `page` as HTML.
-#[cfg(target_os = "linux")]
 fn answer(
     mut stream: impl std::io::Read + std::io::Write,
     page: &str,
@@ -748,6 +768,52 @@ fn answer(
         page.len()
     )?;
     stream.flush()
+}
+
+/// `inspect` on a local page, with no proxy in the way.
+fn inspect_page(page: &'static str, args: &[&str]) -> std::process::Output {
+    bin()
+        .env_remove("HTTPS_PROXY")
+        .env_remove("HTTP_PROXY")
+        .arg("inspect")
+        .arg(serve_page(page))
+        .args(args)
+        .output()
+        .unwrap()
+}
+
+#[test]
+fn inspect_lists_the_files_a_page_describes() {
+    let out = inspect_page(DATASET_PAGE, &["--json"]);
+    assert!(out.status.success(), "{out:?}");
+    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(
+        report["dataset"]["files"],
+        json!([{
+            "name": "rain.csv",
+            "format": "text/csv",
+            "size_bytes": 2_000_000,
+            "url": "https://example.org/rain.csv",
+        }])
+    );
+
+    let out = inspect_page(DATASET_PAGE, &[]);
+    let text = String::from_utf8(out.stdout).unwrap();
+    let line = format!(
+        "{:<12} rain.csv  text/csv  2.0 MB  https://example.org/rain.csv",
+        "files"
+    );
+    assert!(text.lines().any(|l| l == line), "{text}");
+}
+
+#[test]
+fn inspect_says_when_a_page_lists_no_files() {
+    let out = inspect_page(BARE_PAGE, &["--json"]);
+    assert!(out.status.success(), "{out:?}");
+    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(report["dataset"]["files"], json!([]));
+    let stderr = String::from_utf8(out.stderr).unwrap();
+    assert!(stderr.contains("the page's metadata lists no files"), "{stderr}");
 }
 
 /// On Linux the roots come from the system store, which `SSL_CERT_FILE`

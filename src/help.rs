@@ -40,7 +40,7 @@ const GROUPS: [(&str, &[(&str, &str)]); 3] = [
         &[
             ("search, s", "search every source at once"),
             ("sources", "list sources and their keys"),
-            ("inspect", "read a dataset page's metadata"),
+            ("inspect", "read a dataset page's metadata and files"),
             ("bench", "time and compare sources"),
         ],
     ),
