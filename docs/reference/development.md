@@ -40,6 +40,18 @@ Not every test can live in `tests/cli.rs`. That file runs the compiled binary, s
 
 The unit test in `src/cli.rs` is the one worth knowing about. It calls clap's `debug_assert()` on the built command, which walks the whole definition and rejects the mistakes that compile perfectly: a short flag used twice, a `default_value` that is not among the possible values, an arg that conflicts with itself. Left uncaught, those panic inside clap the first time a user reaches the broken path, which is precisely the runtime panic `panic = "deny"` cannot see, because the panic is in the dependency and not in this crate. Add a flag, and this test is what tells you the flag is well formed before a user does.
 
+## Benchmarks
+
+```sh
+just bench --save-baseline main   # Criterion wall time on this machine, saved as "main"
+just bench --baseline main        # after a change: the difference, with an interval
+just bench catalog/search         # one group; the filter is a regex over names
+```
+
+`benches/search.rs` measures the CPU stages of a search at three input sizes each: SDMX and Eurostat catalog parsing, loading a cached catalog, local catalog search, merging 76 source lists, and cleaning remote text. The library is private, so the bench reaches these through `dataseek::internals`, which exists only with the `internals` feature. `just bench` turns the feature on; a bare `cargo bench` skips the target.
+
+CI runs the same benches through CodSpeed's CPU simulation on every push to main and on pull requests that touch code ([ADR 0012](../adr/0012-benchmarks-criterion-local-codspeed-ci.md)). The simulation counts instructions instead of timing, so its numbers hold steady across runs but are not milliseconds; compare them only with other CodSpeed runs. `cargo codspeed` measures only on Linux. Local wall time is a rough guide: an A/A run on a busy Mac reported identical code up to 52% faster ([baseline](../bench/2026-10-06-baseline.md)). Measured results go in [`../bench/`](../bench/) with the machine they came from.
+
 ## Dependencies
 
 ```sh
