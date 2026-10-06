@@ -244,7 +244,8 @@ fn civil_from_days(days: i64) -> (i64, i64, i64) {
     (y, m, d)
 }
 
-/// The date part of an ISO timestamp, so every source prints dates alike.
+/// The date part of an ISO timestamp, or a compact `20220124` spelled out,
+/// so every source prints dates alike.
 pub fn day(timestamp: Option<String>) -> Option<String> {
     let t = timestamp?;
     let head: String = t.chars().take(10).collect();
@@ -252,7 +253,17 @@ pub fn day(timestamp: Option<String>) -> Option<String> {
         && head.chars().enumerate().all(|(i, c)| {
             if i == 4 || i == 7 { c == '-' } else { c.is_ascii_digit() }
         });
-    Some(if looks_iso { head } else { t })
+    if looks_iso {
+        return Some(head);
+    }
+    match (t.get(0..4), t.get(4..6), t.get(6..8)) {
+        (Some(y), Some(m), Some(d))
+            if t.len() == 8 && t.chars().all(|c| c.is_ascii_digit()) =>
+        {
+            Some(format!("{y}-{m}-{d}"))
+        }
+        _ => Some(t),
+    }
 }
 
 #[cfg(test)]
@@ -389,6 +400,11 @@ mod tests {
             day(Some("Feb 17, 2026".into())).as_deref(),
             Some("Feb 17, 2026")
         );
+        assert_eq!(
+            day(Some("20100708".into())).as_deref(),
+            Some("2010-07-08")
+        );
+        assert_eq!(day(Some("201007".into())).as_deref(), Some("201007"));
     }
 
     #[test]
