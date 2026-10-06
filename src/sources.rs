@@ -1,0 +1,423 @@
+//! The registry of every dataset source dataseek searches, and the dispatch
+//! from a registry entry to its adapter.
+//!
+//! A source is one row in [`SOURCES`]: an id users type (`--source zenodo`),
+//! what it holds, the shared protocol it speaks, where its API is documented,
+//! which key it needs, and its [`Adapter`]. Protocol adapters (CKAN,
+//! Dataverse, NADA, Socrata, STAC, SDMX, EBI Search) are written once and
+//! configured per row; everything else has its own module under `sources/`.
+//!
+//! Adapters come in two kinds. Live adapters send the query to the source and
+//! return its ranking. Catalog adapters download the source's whole list
+//! (cached for [`crate::cache::CATALOG_TTL`]) and search it locally through
+//! [`crate::catalog`], because the source has no search endpoint. Rules for
+//! every adapter: return at most `limit` records in the source's own order,
+//! drop records without a title or link ([`Dataset::valid`]), map a changed
+//! response to [`SourceError::Shape`] rather than an empty list, and never put
+//! a credential into a URL or message that could be printed.
+
+mod datacite;
+mod europa;
+mod figshare;
+mod huggingface;
+mod kaggle;
+mod modelscope;
+mod openaire;
+mod openml;
+mod roboflow;
+mod uci;
+mod zenodo;
+
+use std::fmt;
+
+use crate::cache::{CATALOG_TTL, Cache, Freshness, Kind};
+use crate::credentials::{Credentials, Key};
+use crate::http::{Http, SourceError};
+use crate::record::Dataset;
+
+pub type Live = fn(&Ctx<'_>, &str, usize) -> Result<Vec<Dataset>, SourceError>;
+pub type Listing = fn(&Ctx<'_>) -> Result<Vec<Dataset>, SourceError>;
+
+/// What an adapter gets to work with.
+pub struct Ctx<'a> {
+    pub http: &'a Http,
+    pub creds: &'a Credentials,
+    pub cache: &'a Cache,
+    pub refresh: bool,
+}
+
+pub enum Adapter {
+    Live(Live),
+    Catalog(Listing),
+}
+
+/// What a source mainly holds. The names are what `--category` accepts and
+/// what `sources` prints.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, clap::ValueEnum)]
+pub enum Category {
+    /// Search engines and DOI registries spanning many repositories.
+    Aggregator,
+    /// Machine learning hubs and benchmark collections.
+    MachineLearning,
+    /// General research data repositories.
+    Research,
+    /// Government open-data portals.
+    Government,
+    /// Official and general statistics.
+    Statistics,
+    /// Earth observation, climate and geospatial catalogs.
+    Geospatial,
+    /// Genomics, proteomics and biomedical archives.
+    LifeSciences,
+    /// Neuroimaging, neurophysiology and clinical signals.
+    Neuroscience,
+    /// Biodiversity and environmental science.
+    Ecology,
+    /// Survey and social science archives.
+    SocialScience,
+    /// Particle physics and materials science.
+    Physics,
+    /// Code hosting.
+    Code,
+}
+
+impl fmt::Display for Category {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use clap::ValueEnum;
+        match self.to_possible_value() {
+            Some(value) => f.write_str(value.get_name()),
+            None => Ok(()),
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Need {
+    /// The source refuses requests without the key; it is skipped otherwise.
+    Required,
+    /// The key raises a rate limit or unlocks a better endpoint.
+    Optional,
+}
+
+pub struct Source {
+    pub id: &'static str,
+    pub name: &'static str,
+    pub category: Category,
+    pub protocol: &'static str,
+    pub docs: &'static str,
+    pub key: Option<(Key, Need)>,
+    /// False where the terms forbid storing results (Kaggle).
+    pub persist: bool,
+    pub adapter: Adapter,
+}
+
+impl Source {
+    pub fn is_catalog(&self) -> bool {
+        matches!(self.adapter, Adapter::Catalog(_))
+    }
+
+    /// The key this source cannot run without, when it is missing.
+    pub fn missing_key(&self, creds: &Credentials) -> Option<Key> {
+        match self.key {
+            Some((key, Need::Required)) if creds.get(key).is_none() => {
+                Some(key)
+            }
+            _ => None,
+        }
+    }
+
+    pub fn search(
+        &self,
+        ctx: &Ctx<'_>,
+        query: &str,
+        limit: usize,
+    ) -> Result<Vec<Dataset>, SourceError> {
+        match &self.adapter {
+            Adapter::Live(run) => run(ctx, query, limit),
+            Adapter::Catalog(list) => {
+                self.local(ctx, query, limit, || list(ctx))
+            }
+        }
+    }
+
+    /// Download and cache this source's catalog now; `None` for live
+    /// sources, which have no catalog.
+    pub fn warm(&self, ctx: &Ctx<'_>) -> Option<Result<usize, SourceError>> {
+        let downloaded = match &self.adapter {
+            Adapter::Catalog(list) => list(ctx),
+            Adapter::Live(_) => return None,
+        };
+        Some(downloaded.map(|entries| {
+            ctx.cache.store(Kind::Catalog, self.id, &entries);
+            entries.len()
+        }))
+    }
+
+    /// Search the cached catalog, downloading it when it is missing or
+    /// expired. A failed download falls back to an expired copy. `--refresh`
+    /// does not apply: catalogs have their own TTL and `cache warm`.
+    fn local(
+        &self,
+        ctx: &Ctx<'_>,
+        query: &str,
+        limit: usize,
+        download: impl FnOnce() -> Result<Vec<Dataset>, SourceError>,
+    ) -> Result<Vec<Dataset>, SourceError> {
+        let cached = ctx.cache.load::<Vec<Dataset>>(
+            Kind::Catalog,
+            self.id,
+            CATALOG_TTL,
+        );
+        let entries = match cached {
+            Some((entries, Freshness::Fresh)) => entries,
+            stale => match download() {
+                Ok(entries) if !entries.is_empty() => {
+                    ctx.cache.store(Kind::Catalog, self.id, &entries);
+                    entries
+                }
+                Ok(_) => {
+                    return Err(SourceError::shape(
+                        "the catalog came back empty",
+                    ));
+                }
+                Err(error) => match stale {
+                    Some((entries, _)) => entries,
+                    None => return Err(error),
+                },
+            },
+        };
+        Ok(crate::catalog::search(&entries, query, limit))
+    }
+}
+
+/// The registry rows to ask: the named ones (or all), narrowed to the given
+/// categories, minus exclusions, in registry order. Ids were validated by
+/// clap.
+pub fn select(
+    only: &[String],
+    exclude: &[String],
+    categories: &[Category],
+) -> Vec<&'static Source> {
+    SOURCES
+        .iter()
+        .filter(|s| only.is_empty() || only.iter().any(|id| id == s.id))
+        .filter(|s| categories.is_empty() || categories.contains(&s.category))
+        .filter(|s| !exclude.iter().any(|id| id == s.id))
+        .collect()
+}
+
+/// What every command that talks to sources needs, built once per run.
+pub struct Services {
+    pub http: Http,
+    pub creds: Credentials,
+    pub cache: Cache,
+}
+
+impl Services {
+    pub fn load() -> anyhow::Result<Self> {
+        let dirs = crate::paths::resolve()?;
+        Ok(Self {
+            http: Http::new(),
+            creds: Credentials::load(&dirs.config),
+            cache: Cache::new(dirs.cache),
+        })
+    }
+
+    pub fn ctx(&self, refresh: bool) -> Ctx<'_> {
+        Ctx {
+            http: &self.http,
+            creds: &self.creds,
+            cache: &self.cache,
+            refresh,
+        }
+    }
+}
+
+const fn live(
+    id: &'static str,
+    name: &'static str,
+    category: Category,
+    protocol: &'static str,
+    docs: &'static str,
+    run: Live,
+) -> Source {
+    Source {
+        id,
+        name,
+        category,
+        protocol,
+        docs,
+        key: None,
+        persist: true,
+        adapter: Adapter::Live(run),
+    }
+}
+
+const fn listed(
+    id: &'static str,
+    name: &'static str,
+    category: Category,
+    protocol: &'static str,
+    docs: &'static str,
+    list: Listing,
+) -> Source {
+    Source {
+        id,
+        name,
+        category,
+        protocol,
+        docs,
+        key: None,
+        persist: true,
+        adapter: Adapter::Catalog(list),
+    }
+}
+
+const fn keyed(mut source: Source, key: Key, need: Need) -> Source {
+    source.key = Some((key, need));
+    source
+}
+
+use Category::{Aggregator, Government, MachineLearning, Research};
+
+pub static SOURCES: &[Source] = &[
+    // Aggregators and general search engines.
+    live(
+        "datacite",
+        "DataCite",
+        Aggregator,
+        "DataCite REST",
+        "https://support.datacite.org/docs/api",
+        datacite::search,
+    ),
+    live(
+        "openaire",
+        "OpenAIRE Graph",
+        Aggregator,
+        "OpenAIRE Graph",
+        "https://graph.openaire.eu/docs/apis/graph-api/",
+        openaire::search,
+    ),
+    // Machine learning.
+    keyed(
+        live(
+            "huggingface",
+            "Hugging Face Hub",
+            MachineLearning,
+            "Hub API",
+            "https://huggingface.co/docs/hub/api",
+            huggingface::search,
+        ),
+        Key::HuggingFace,
+        Need::Optional,
+    ),
+    Source {
+        persist: false,
+        ..keyed(
+            live(
+                "kaggle",
+                "Kaggle",
+                MachineLearning,
+                "Kaggle API",
+                "https://www.kaggle.com/docs/api",
+                kaggle::search,
+            ),
+            Key::Kaggle,
+            Need::Optional,
+        )
+    },
+    listed(
+        "openml",
+        "OpenML",
+        MachineLearning,
+        "OpenML REST, listed",
+        "https://docs.openml.org/ecosystem/Rest/",
+        openml::list,
+    ),
+    listed(
+        "uci",
+        "UCI Machine Learning Repository",
+        MachineLearning,
+        "list endpoint",
+        "https://github.com/uci-ml-repo/ucimlrepo",
+        uci::list,
+    ),
+    keyed(
+        live(
+            "roboflow",
+            "Roboflow Universe",
+            MachineLearning,
+            "Universe API",
+            "https://docs.roboflow.com/datasets/universe/universe/universe-search",
+            roboflow::search,
+        ),
+        Key::Roboflow,
+        Need::Required,
+    ),
+    live(
+        "modelscope",
+        "ModelScope",
+        MachineLearning,
+        "site API",
+        "https://www.modelscope.cn/docs",
+        modelscope::search,
+    ),
+    // Research repositories.
+    live(
+        "zenodo",
+        "Zenodo",
+        Research,
+        "InvenioRDM",
+        "https://developers.zenodo.org/",
+        zenodo::search,
+    ),
+    live(
+        "figshare",
+        "Figshare",
+        Research,
+        "Figshare",
+        "https://docs.figshare.com/",
+        figshare::search,
+    ),
+    // Government open data.
+    live(
+        "europa",
+        "data.europa.eu",
+        Government,
+        "DCAT-AP (piveau)",
+        "https://dataeuropa.gitlab.io/data-provider-manual/api-documentation/",
+        europa::search,
+    ),
+];
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn ids_are_unique_lowercase_and_typeable() {
+        let mut seen = std::collections::HashSet::new();
+        for source in SOURCES {
+            assert!(seen.insert(source.id), "duplicate id {}", source.id);
+            assert!(
+                source.id.chars().all(|c| c.is_ascii_lowercase()
+                    || c.is_ascii_digit()
+                    || c == '-'),
+                "{} is not a plain lowercase id",
+                source.id
+            );
+        }
+    }
+
+    #[test]
+    fn every_source_links_its_documentation() {
+        for source in SOURCES {
+            assert!(source.docs.starts_with("https://"), "{}", source.id);
+        }
+    }
+
+    #[test]
+    fn kaggle_results_are_never_written_to_disk() {
+        assert!(!SOURCES.iter().find(|s| s.id == "kaggle").unwrap().persist);
+    }
+}

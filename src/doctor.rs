@@ -7,12 +7,15 @@ use anyhow::Result;
 use clap::builder::styling::Style;
 use serde::Serialize;
 
+use crate::cache::{BUDGET_BYTES, Cache};
+use crate::credentials::{Credentials, Key};
+use crate::find::human_bytes;
 use crate::output::Out;
 use crate::{palette, paths, ui};
 
 #[derive(Serialize)]
 struct Check {
-    label: &'static str,
+    label: String,
     detail: String,
     ok: bool,
 }
@@ -46,14 +49,14 @@ fn gather(out: &Out) -> Result<Vec<Check>> {
         }
     };
 
-    let checks = vec![
+    let mut checks = vec![
         Check {
-            label: "version",
+            label: "version".to_owned(),
             detail: env!("CARGO_PKG_VERSION").to_owned(),
             ok: true,
         },
         Check {
-            label: "config",
+            label: "config".to_owned(),
             detail: format!(
                 "{} ({})",
                 dirs.config.display(),
@@ -62,7 +65,7 @@ fn gather(out: &Out) -> Result<Vec<Check>> {
             ok: true,
         },
         Check {
-            label: "cache",
+            label: "cache".to_owned(),
             detail: format!(
                 "{} ({})",
                 dirs.cache.display(),
@@ -71,7 +74,7 @@ fn gather(out: &Out) -> Result<Vec<Check>> {
             ok: true,
         },
         Check {
-            label: "state",
+            label: "state".to_owned(),
             detail: format!(
                 "{} ({})",
                 dirs.state.display(),
@@ -80,7 +83,7 @@ fn gather(out: &Out) -> Result<Vec<Check>> {
             ok: true,
         },
         Check {
-            label: "color",
+            label: "color".to_owned(),
             // Informational, not a verdict. The reasons stay unlisted because
             // anstream's rules (NO_COLOR, CLICOLOR, TERM, CI, ...) keep moving.
             detail: if out.color_on_stdout() {
@@ -91,7 +94,7 @@ fn gather(out: &Out) -> Result<Vec<Check>> {
             ok: true,
         },
         Check {
-            label: "unicode",
+            label: "unicode".to_owned(),
             detail: if out.plain {
                 "ascii (--plain)".to_owned()
             } else {
@@ -100,8 +103,49 @@ fn gather(out: &Out) -> Result<Vec<Check>> {
             ok: true,
         },
     ];
+    checks.extend(keys(&dirs.config));
+    let usage = Cache::new(dirs.cache.clone()).usage();
+    checks.push(Check {
+        label: "cache use".to_owned(),
+        detail: format!(
+            "{} files, {} of {}",
+            usage.files,
+            human_bytes(usage.bytes),
+            human_bytes(BUDGET_BYTES)
+        ),
+        ok: usage.bytes <= BUDGET_BYTES,
+    });
 
     Ok(checks)
+}
+
+/// One line per API key: where it was found, or where to get one. A missing
+/// key is never a failure, since sources without one run anonymously or are
+/// skipped; a key file other users can read is.
+fn keys(config: &std::path::Path) -> Vec<Check> {
+    let creds = Credentials::load(config);
+    let mut checks: Vec<Check> = Key::ALL
+        .iter()
+        .map(|&key| Check {
+            label: format!("key {}", key.env_var()),
+            detail: match creds.origin(key) {
+                Some(origin) => format!("set ({origin})"),
+                None => format!("not set, get one at {}", key.signup()),
+            },
+            ok: true,
+        })
+        .collect();
+    for path in &creds.loose_files {
+        checks.push(Check {
+            label: "key file".to_owned(),
+            detail: format!(
+                "{} is readable by other users; run chmod 600 on it",
+                path.display()
+            ),
+            ok: false,
+        });
+    }
+    checks
 }
 
 /// The readiness summary on stdout: JSON when asked for, a styled table
@@ -139,7 +183,7 @@ fn report(out: &Out, checks: &[Check]) -> Result<()> {
         };
         writeln!(
             w,
-            "  {style}{mark}{style:#} {:<8} {dim}{}{dim:#}",
+            "  {style}{mark}{style:#} {:<24} {dim}{}{dim:#}",
             check.label, check.detail
         )?;
     }

@@ -9,9 +9,6 @@ use anyhow::{Context, Result};
 use std::io::Write;
 
 /// Write `bytes` to `path` atomically, creating parent directories as needed.
-// No command writes yet. `#[expect]` would misfire under `cargo test`, where
-// the test below uses it.
-#[allow(dead_code)]
 pub fn write_atomic(path: &Path, bytes: &[u8]) -> Result<()> {
     let dir = match path.parent() {
         Some(p) if !p.as_os_str().is_empty() => p,

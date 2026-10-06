@@ -6,12 +6,23 @@
 //! This file holds the entry point: SIGPIPE handling, argument parsing,
 //! dispatch, and the error printer.
 
+mod cache;
+mod cache_cmd;
+mod catalog;
 mod cli;
+mod credentials;
+mod dedup;
 mod doctor;
+mod find;
 mod fs;
+mod http;
+mod listing;
 mod output;
 mod palette;
 mod paths;
+mod record;
+mod search;
+mod sources;
 mod ui;
 
 use std::io::{self, Write};
@@ -69,14 +80,26 @@ pub fn main() -> ExitCode {
     let out = Out::resolve(&cli);
     ui::init(&out);
 
-    match run(&cli, &out) {
+    match run(cli, &out) {
         Ok(()) => ExitCode::SUCCESS,
         Err(err) => report(&err),
     }
 }
 
-fn run(cli: &Cli, out: &Out) -> anyhow::Result<()> {
-    match &cli.command {
+fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
+    match cli.command {
+        Command::Search { query, selection, limit, refresh, timeout } => {
+            let request = find::Request {
+                words: &query,
+                selection: &selection,
+                limit,
+                refresh,
+                timeout: (timeout > 0).then_some(timeout),
+            };
+            find::run_search(&request, out)?;
+        }
+        Command::Sources => listing::run(out)?,
+        Command::Cache(action) => cache_cmd::run(action, out)?,
         Command::Doctor => doctor::run(out)?,
         // clap_complete::generate panics on a failed write. Generating into a
         // Vec cannot fail, so the real write goes through the error path.
@@ -84,7 +107,7 @@ fn run(cli: &Cli, out: &Out) -> anyhow::Result<()> {
             let mut cmd = Cli::command();
             let mut script = Vec::new();
             clap_complete::generate(
-                *shell,
+                shell,
                 &mut cmd,
                 invoked_name(),
                 &mut script,

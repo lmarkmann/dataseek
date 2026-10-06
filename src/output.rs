@@ -63,7 +63,6 @@ impl Out {
     /// A diagnostic for `-v` and above, on stderr. Unlike [`crate::ui`] it
     /// still prints when stderr is redirected, which is the point of
     /// `-v 2> log`.
-    #[expect(dead_code, reason = "used by search, the next command to land")]
     pub fn note(&self, msg: &str) {
         if self.verbosity >= Verbosity::Verbose {
             let _ = writeln!(anstream::stderr(), "{msg}");
