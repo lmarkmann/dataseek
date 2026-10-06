@@ -97,15 +97,58 @@ pub fn clean(text: &str) -> String {
             _ => {}
         }
     }
-    let decoded = plain
-        .replace("&nbsp;", " ")
-        .replace("&quot;", "\"")
-        .replace("&#39;", "'")
-        .replace("&#x27;", "'")
-        .replace("&lt;", "<")
-        .replace("&gt;", ">")
-        .replace("&amp;", "&");
-    decoded.split_whitespace().collect::<Vec<_>>().join(" ")
+    decode_entities(&plain).split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+/// HTML entities decoded in one pass, so `&amp;lt;` stays the text `&lt;`.
+/// Unknown names and numeric codes for control characters stay as written.
+fn decode_entities(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    let mut rest = text;
+    while let Some((head, tail)) = rest.split_once('&') {
+        out.push_str(head);
+        let decoded = tail
+            .split_once(';')
+            .filter(|(name, _)| name.len() <= 8)
+            .and_then(|(name, after)| Some((entity(name)?, after)));
+        if let Some((c, after)) = decoded {
+            out.push(c);
+            rest = after;
+        } else {
+            out.push('&');
+            rest = tail;
+        }
+    }
+    out.push_str(rest);
+    out
+}
+
+fn entity(name: &str) -> Option<char> {
+    let named = match name {
+        "amp" => '&',
+        "lt" => '<',
+        "gt" => '>',
+        "quot" => '"',
+        "apos" => '\'',
+        "nbsp" => ' ',
+        "lsquo" => '\u{2018}',
+        "rsquo" => '\u{2019}',
+        "ldquo" => '\u{201c}',
+        "rdquo" => '\u{201d}',
+        "ndash" => '\u{2013}',
+        "mdash" => '\u{2014}',
+        "hellip" => '\u{2026}',
+        "rarr" => '\u{2192}',
+        _ => {
+            let code = name.strip_prefix('#')?;
+            let number = match code.strip_prefix(['x', 'X']) {
+                Some(hex) => u32::from_str_radix(hex, 16).ok()?,
+                None => code.parse().ok()?,
+            };
+            return char::from_u32(number).filter(|c| !c.is_control());
+        }
+    };
+    Some(named)
 }
 
 /// [`clean`], cut to a teaser on a char boundary. `None` when nothing is left.
@@ -381,6 +424,17 @@ mod tests {
             date_from_epoch(951_782_400).as_deref(),
             Some("2000-02-29")
         );
+    }
+
+    #[test]
+    fn named_and_numeric_entities_decode_but_never_to_controls() {
+        assert_eq!(
+            clean("England&rsquo;s &apos;map&apos; &#8211; &#x2014; &mdash;"),
+            "England\u{2019}s 'map' \u{2013} \u{2014} \u{2014}"
+        );
+        assert_eq!(clean("&amp;lt; stays &lt;"), "&lt; stays <");
+        assert_eq!(clean("R&D &unknown; &#xZZ;"), "R&D &unknown; &#xZZ;");
+        assert!(!clean("&#27;[2J&#x9b;").chars().any(char::is_control));
     }
 
     #[test]

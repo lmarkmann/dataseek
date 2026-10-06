@@ -92,3 +92,57 @@ fn record(portal: &Portal, row: &Value) -> Option<Dataset> {
     }
     dataset.valid()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits =
+            parse(&DATA_GOV_UK, &fixture::json("ckan.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Climate resilience documents".into(),
+                url: "https://www.data.gov.uk/dataset/\
+                      climate-resilience-documents"
+                    .into(),
+                description: Some(
+                    "This dataset includes links to policies, strategies and \
+                     documents relevant to climate resilience on a wide \
+                     range of geographic scales. The project was undertaken \
+                     with the guidance of Leeds City Council and Leeds \
+                     Climate Commission and contains a large amount of Leeds \
+                     specific policies and data."
+                        .into()
+                ),
+                publisher: Some("Data Mill North".into()),
+                doi: None,
+                license: None,
+                updated: Some("2026-09-25".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![
+                    "https://datamillnorth.org/dataset/\
+                     climate-resilience-documents-vdwno"
+                        .into()
+                ],
+            }
+        );
+        assert_eq!(
+            hits[3].license.as_deref(),
+            Some("UK Open Government Licence (OGL)")
+        );
+        assert_eq!(
+            hits[2].description.as_deref(),
+            Some(
+                "The ' Climate Just' Map Tool shows the geography of \
+                 England\u{2019}s vulnerability to climate change at a \
+                 neighbourhood scale."
+            )
+        );
+    }
+}
