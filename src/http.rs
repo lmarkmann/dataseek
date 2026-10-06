@@ -277,22 +277,174 @@ fn looks_like_challenge(body: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
+    use std::io::{BufRead, BufReader, Write};
+    use std::net::TcpListener;
+    use std::thread::JoinHandle;
+    use std::time::Instant;
+
     use super::*;
 
     #[test]
     fn only_host_failures_count_as_outages() {
-        assert!(SourceError::Timeout.is_outage());
-        assert!(SourceError::Status(503).is_outage());
-        assert!(!SourceError::Status(404).is_outage());
-        assert!(!SourceError::Unauthorized(401).is_outage());
-        assert!(!SourceError::RateLimited.is_outage());
+        for (error, outage) in [
+            (SourceError::Unreachable("dns".into()), true),
+            (SourceError::Timeout, true),
+            (SourceError::Blocked, true),
+            (SourceError::Status(503), true),
+            (SourceError::Status(500), true),
+            (SourceError::Status(404), false),
+            (SourceError::Unauthorized(401), false),
+            (SourceError::RateLimited, false),
+            (SourceError::shape("no hits"), false),
+        ] {
+            assert_eq!(error.is_outage(), outage, "{error:?}");
+        }
+    }
+
+    /// A local server that answers each connection with the next canned
+    /// response and hands back the request heads it saw.
+    fn serve(responses: Vec<Vec<u8>>) -> (String, JoinHandle<Vec<String>>) {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let url = format!("http://{}/search", listener.local_addr().unwrap());
+        let handle = std::thread::spawn(move || {
+            responses
+                .into_iter()
+                .map(|response| {
+                    let (mut stream, _) = listener.accept().unwrap();
+                    let mut head = String::new();
+                    let mut reader = BufReader::new(&stream);
+                    loop {
+                        let mut line = String::new();
+                        reader.read_line(&mut line).unwrap();
+                        if line.trim().is_empty() {
+                            break;
+                        }
+                        head.push_str(&line);
+                    }
+                    stream.write_all(&response).unwrap();
+                    head
+                })
+                .collect()
+        });
+        (url, handle)
+    }
+
+    fn response(status: &str, headers: &[&str], body: &[u8]) -> Vec<u8> {
+        let mut out = format!(
+            "HTTP/1.1 {status}\r\nContent-Length: {}\r\nConnection: close\r\n",
+            body.len()
+        );
+        for header in headers {
+            out.push_str(header);
+            out.push_str("\r\n");
+        }
+        out.push_str("\r\n");
+        let mut bytes = out.into_bytes();
+        bytes.extend_from_slice(body);
+        bytes
     }
 
     #[test]
-    fn cloudflare_interstitials_are_recognized() {
-        assert!(looks_like_challenge(
-            "<html><title>Just a moment...</title></html>"
-        ));
-        assert!(!looks_like_challenge("{\"message\":\"Unauthorized\"}"));
+    fn a_short_retry_after_is_waited_out_once() {
+        let (url, server) = serve(vec![
+            response("429 Too Many Requests", &["Retry-After: 0"], b""),
+            response("200 OK", &[], b"results"),
+        ]);
+        assert_eq!(Http::new().get(&url).text().unwrap(), "results");
+        assert_eq!(server.join().unwrap().len(), 2);
+    }
+
+    #[test]
+    fn a_long_retry_after_is_reported_instead_of_slept() {
+        let (url, server) = serve(vec![response(
+            "429 Too Many Requests",
+            &["Retry-After: 60"],
+            b"",
+        )]);
+        let started = Instant::now();
+        let outcome = Http::new().get(&url).text();
+        assert!(
+            matches!(outcome, Err(SourceError::RateLimited)),
+            "{outcome:?}"
+        );
+        assert!(started.elapsed() < Duration::from_secs(5));
+        assert_eq!(server.join().unwrap().len(), 1);
+    }
+
+    #[test]
+    fn statuses_map_to_the_failure_taxonomy() {
+        let cloudflare = b"<html><title>Just a moment...</title></html>";
+        for (status, body, expected) in [
+            ("403 Forbidden", &cloudflare[..], SourceError::Blocked),
+            (
+                "403 Forbidden",
+                b"<div id=\"cf-chl-widget\">",
+                SourceError::Blocked,
+            ),
+            (
+                "401 Unauthorized",
+                b"{\"message\":\"bad key\"}",
+                SourceError::Unauthorized(401),
+            ),
+            ("403 Forbidden", b"denied", SourceError::Unauthorized(403)),
+            ("503 Service Unavailable", b"", SourceError::Status(503)),
+            ("404 Not Found", b"", SourceError::Status(404)),
+        ] {
+            let (url, server) = serve(vec![response(status, &[], body)]);
+            let outcome = Http::new().get(&url).text().unwrap_err();
+            assert_eq!(outcome.to_string(), expected.to_string(), "{status}");
+            server.join().unwrap();
+        }
+    }
+
+    #[test]
+    fn an_invalid_byte_costs_one_character_not_the_body() {
+        let (url, server) =
+            serve(vec![response("200 OK", &[], b"caf\xff au lait")]);
+        assert_eq!(
+            Http::new().get(&url).text().unwrap(),
+            "caf\u{fffd} au lait"
+        );
+        server.join().unwrap();
+    }
+
+    #[test]
+    fn a_page_that_is_not_json_is_a_shape_change() {
+        let (url, server) =
+            serve(vec![response("200 OK", &[], b"<html>maintenance</html>")]);
+        let outcome = Http::new().get(&url).json();
+        assert!(matches!(outcome, Err(SourceError::Shape(_))), "{outcome:?}");
+        server.join().unwrap();
+    }
+
+    #[test]
+    fn requests_name_dataseek_and_its_contact_and_carry_the_query() {
+        let (url, server) = serve(vec![response("200 OK", &[], b"{}")]);
+        Http::new().get(&url).query("q", "sea ice").json().unwrap();
+        let head = server.join().unwrap().remove(0).to_lowercase();
+        assert!(head.starts_with("get /search?q=sea"), "{head}");
+        assert!(
+            head.contains(&format!(
+                "user-agent: dataseek/{} (mailto:{CONTACT})",
+                env!("CARGO_PKG_VERSION")
+            )),
+            "{head}"
+        );
+        assert!(head.contains("accept: application/json"), "{head}");
+    }
+
+    #[test]
+    fn a_closed_port_is_unreachable() {
+        let port = TcpListener::bind("127.0.0.1:0")
+            .unwrap()
+            .local_addr()
+            .unwrap()
+            .port();
+        let outcome =
+            Http::new().get(&format!("http://127.0.0.1:{port}/")).text();
+        assert!(
+            matches!(outcome, Err(SourceError::Unreachable(_))),
+            "{outcome:?}"
+        );
     }
 }
