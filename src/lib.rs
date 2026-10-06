@@ -17,6 +17,7 @@ mod doctor;
 mod find;
 mod fs;
 mod http;
+mod inspect;
 mod listing;
 mod output;
 mod palette;
@@ -103,6 +104,7 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
         Command::Bench { queries, selection } => {
             bench::run(&queries, &selection, out)?;
         }
+        Command::Inspect { url } => inspect::run(&url, out)?,
         Command::Cache(action) => cache_cmd::run(action, out)?,
         Command::Doctor => doctor::run(out)?,
         // clap_complete::generate panics on a failed write. Generating into a

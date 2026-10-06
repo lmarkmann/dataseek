@@ -77,10 +77,6 @@ pub fn warn(msg: impl Display) {
 }
 
 /// A spinner for work of unknown length. Hidden and thread-free when off.
-#[cfg_attr(
-    not(test),
-    expect(dead_code, reason = "for work of unknown length; inspect uses it")
-)]
 pub fn spinner(msg: impl Into<String>) -> ProgressBar {
     if !rich() {
         return ProgressBar::hidden();
@@ -115,7 +111,6 @@ pub fn bar(len: u64, msg: impl Into<String>) -> ProgressBar {
 }
 
 // Built here so the tests can parse them without a terminal.
-#[cfg_attr(not(test), expect(dead_code, reason = "only spinner reads it"))]
 fn spinner_template() -> String {
     if color() {
         format!("  {{spinner:.{}}} {{msg}}", palette::accent_token())

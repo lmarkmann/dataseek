@@ -279,6 +279,17 @@ fn cache_clear_succeeds_on_an_empty_cache() {
 }
 
 #[test]
+fn inspect_reports_an_unreachable_page() {
+    let out = bin()
+        .args(["inspect", "https://example.org/dataset"])
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(1));
+    assert_eq!(out.stdout.len(), 0);
+    assert!(String::from_utf8_lossy(&out.stderr).contains("cannot fetch"));
+}
+
+#[test]
 fn doctor_reports_ready_with_clean_pipe() {
     let out = bin().arg("doctor").output().unwrap();
     assert!(out.status.success());

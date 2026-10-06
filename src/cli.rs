@@ -25,7 +25,8 @@ pub enum ColorChoice {
         dataseek search sea surface temperature\n  \
         dataseek search imagenet -s huggingface,kaggle --json | jq '.results[0]'\n  \
         dataseek sources\n  \
-        dataseek bench \"air quality\" \"gene expression\"\n\n\
+        dataseek bench \"air quality\" \"gene expression\"\n  \
+        dataseek inspect https://zenodo.org/records/1234567\n\n\
         dsk is the same program under a shorter name: dsk search mnist",
     arg_required_else_help = true,
     disable_help_subcommand = true,
@@ -163,6 +164,16 @@ pub enum Command {
 
         #[command(flatten)]
         selection: Selection,
+    },
+
+    /// Read a dataset page's schema.org Dataset or Croissant metadata.
+    #[command(after_help = "Examples:\n  \
+        dataseek inspect https://zenodo.org/records/1234567\n  \
+        dataseek inspect https://huggingface.co/datasets/stanfordnlp/imdb --json")]
+    Inspect {
+        /// The dataset's landing page.
+        #[arg(value_name = "URL")]
+        url: String,
     },
 
     /// Show, warm or clear the cache.
