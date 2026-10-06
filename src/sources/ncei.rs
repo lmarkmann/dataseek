@@ -41,7 +41,7 @@ fn record(row: &Value) -> Option<Dataset> {
     let mut dataset = Dataset::new(&text(row, "/name")?, &landing)
         .describe(text(row, "/description"))
         .doi_from(text(row, "/doiLink"));
-    dataset.publisher = Some("NOAA NCEI".to_owned());
+    dataset.publisher = text(row, "/organization/name");
     dataset.updated = text(row, "/endDate");
     dataset.valid()
 }
@@ -71,7 +71,10 @@ mod tests {
                      temporal resolution of 1 day."
                         .into()
                 ),
-                publisher: Some("NOAA NCEI".into()),
+                publisher: Some(
+                    "NOAA National Centers for Environmental Information"
+                        .into()
+                ),
                 doi: Some("10.7289/v5sq8xb5".into()),
                 license: None,
                 updated: Some("2026-10-06".into()),
