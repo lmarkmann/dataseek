@@ -1,6 +1,6 @@
 # ADR 0011: The TLS stack is chosen per platform
 
-- Status: accepted
+- Status: superseded by [ADR NNNN](NNNN-system-trust-store-on-every-platform.md), which keeps the split and moves Linux to the system's roots
 - Date: 2026-10-06
 
 ## Context

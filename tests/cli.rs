@@ -721,6 +721,99 @@ fn inspect_reports_an_unreachable_page() {
     assert!(error < cause && cause < hint, "{stderr}");
 }
 
+/// A page whose JSON-LD describes one dataset.
+#[cfg(target_os = "linux")]
+const DATASET_PAGE: &str = r#"<html><head>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "Dataset", "name": "Rainfall"}
+</script>
+</head></html>"#;
+
+/// Read one request head and answer it with `page` as HTML.
+#[cfg(target_os = "linux")]
+fn answer(
+    mut stream: impl std::io::Read + std::io::Write,
+    page: &str,
+) -> std::io::Result<()> {
+    use std::io::BufRead;
+
+    for line in std::io::BufReader::new(&mut stream).lines() {
+        if line?.is_empty() {
+            break;
+        }
+    }
+    write!(
+        stream,
+        "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{page}",
+        page.len()
+    )?;
+    stream.flush()
+}
+
+/// On Linux the roots come from the system store, which `SSL_CERT_FILE`
+/// replaces: a page served under a private root, as a TLS-inspecting proxy
+/// serves every page, is trusted once that root is installed.
+#[cfg(target_os = "linux")]
+#[test]
+fn linux_trusts_the_root_certificates_the_system_names() {
+    use std::sync::Arc;
+
+    use rcgen::{
+        BasicConstraints, CertificateParams, CertifiedIssuer, IsCa, KeyPair,
+    };
+    use rustls::pki_types::PrivatePkcs8KeyDer;
+
+    let mut root = CertificateParams::new(Vec::new()).unwrap();
+    root.is_ca = IsCa::Ca(BasicConstraints::Unconstrained);
+    let root =
+        CertifiedIssuer::self_signed(root, KeyPair::generate().unwrap())
+            .unwrap();
+    let key = KeyPair::generate().unwrap();
+    let leaf = CertificateParams::new(vec!["127.0.0.1".to_owned()])
+        .unwrap()
+        .signed_by(&key, &root)
+        .unwrap();
+    let provider = Arc::new(rustls::crypto::ring::default_provider());
+    let config = Arc::new(
+        rustls::ServerConfig::builder_with_provider(provider)
+            .with_safe_default_protocol_versions()
+            .unwrap()
+            .with_no_client_auth()
+            .with_single_cert(
+                vec![leaf.der().clone()],
+                PrivatePkcs8KeyDer::from(key.serialize_der()).into(),
+            )
+            .unwrap(),
+    );
+
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let url = format!("https://{}/", listener.local_addr().unwrap());
+    std::thread::spawn(move || {
+        for tcp in listener.incoming().flatten() {
+            let tls = rustls::ServerConnection::new(Arc::clone(&config));
+            let _ = answer(
+                rustls::StreamOwned::new(tls.unwrap(), tcp),
+                DATASET_PAGE,
+            );
+        }
+    });
+
+    let mut cmd = bin();
+    let roots = cmd.dir.path().join("roots.pem");
+    std::fs::write(&roots, root.pem()).unwrap();
+    let out = cmd
+        .env("SSL_CERT_FILE", &roots)
+        .env_remove("SSL_CERT_DIR")
+        .env_remove("HTTPS_PROXY")
+        .env_remove("HTTP_PROXY")
+        .args(["inspect", &url, "--json"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
+    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(report["dataset"]["name"], "Rainfall");
+}
+
 #[test]
 fn doctor_reports_ready_with_clean_pipe() {
     let out = bin().arg("doctor").output().unwrap();

@@ -195,6 +195,14 @@ fn environment() -> BTreeMap<String, String> {
         ),
         ("NO_PROXY", "hosts that skip the proxy"),
         (
+            "SSL_CERT_FILE",
+            "Linux: PEM file of root certificates trusted instead of the system's",
+        ),
+        (
+            "SSL_CERT_DIR",
+            "Linux: directories of root certificates trusted instead of the system's",
+        ),
+        (
             "XDG_CONFIG_HOME",
             "parent of the config directory (credentials.toml)",
         ),

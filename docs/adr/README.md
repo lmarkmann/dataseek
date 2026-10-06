@@ -33,5 +33,6 @@ A decision that constrains future work lives here, once, and is cited from where
 | [0008](0008-google-dataset-search-from-page-data.md) | Google Dataset Search is read from its results page data | accepted |
 | [0009](0009-keys-and-contact-address.md) | Keys come from the environment or files, never flags | accepted |
 | [0010](0010-dsk-is-dataseek.md) | `dsk` is the same program under a short name | accepted |
-| [0011](0011-tls-stack-per-platform.md) | The TLS stack is chosen per platform | accepted |
+| [0011](0011-tls-stack-per-platform.md) | The TLS stack is chosen per platform | superseded by NNNN |
 | [0012](0012-benchmarks-criterion-local-codspeed-ci.md) | Benchmarks run as Criterion locally and as CodSpeed's CPU simulation in CI | accepted |
+| [NNNN](NNNN-system-trust-store-on-every-platform.md) | Every platform trusts the system's root certificates | accepted |

@@ -112,20 +112,16 @@ impl Http {
     }
 }
 
-/// The OS's TLS stack and trust store on Windows and macOS, rustls with the
-/// bundled Mozilla roots elsewhere; `Cargo.toml` enables the matching ureq
-/// feature per platform.
-#[cfg(any(windows, target_os = "macos"))]
+/// The OS's trust store everywhere, so a root certificate installed for a
+/// TLS-inspecting proxy is trusted: through the OS's own TLS stack on Windows
+/// and macOS, through rustls and rustls-platform-verifier elsewhere.
+/// `Cargo.toml` enables the matching ureq features per platform.
 fn tls() -> ureq::tls::TlsConfig {
-    ureq::tls::TlsConfig::builder()
-        .provider(ureq::tls::TlsProvider::NativeTls)
-        .root_certs(ureq::tls::RootCerts::PlatformVerifier)
-        .build()
-}
-
-#[cfg(not(any(windows, target_os = "macos")))]
-fn tls() -> ureq::tls::TlsConfig {
-    ureq::tls::TlsConfig::default()
+    let builder = ureq::tls::TlsConfig::builder()
+        .root_certs(ureq::tls::RootCerts::PlatformVerifier);
+    #[cfg(any(windows, target_os = "macos"))]
+    let builder = builder.provider(ureq::tls::TlsProvider::NativeTls);
+    builder.build()
 }
 
 #[derive(Clone, Copy)]
