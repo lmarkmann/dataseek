@@ -256,14 +256,19 @@ impl<'a> Call<'a> {
         };
         let mut response = result.map_err(|e| Retry::Fail(transport(&e)))?;
         let status = response.status().as_u16();
-        if status == 429 {
+        if status == 429 || (status == 403 && quota_spent(response.headers()))
+        {
             let wait = response
                 .headers()
                 .get("retry-after")
                 .and_then(|v| v.to_str().ok())
                 .and_then(|v| v.trim().parse::<u64>().ok())
-                .map_or(Duration::from_secs(1), Duration::from_secs);
-            return Err(Retry::After(wait));
+                .map(Duration::from_secs);
+            return Err(match (status, wait) {
+                (_, Some(wait)) => Retry::After(wait),
+                (429, None) => Retry::After(Duration::from_secs(1)),
+                _ => Retry::Fail(SourceError::RateLimited),
+            });
         }
         let body = response
             .body_mut()
@@ -310,6 +315,13 @@ fn transport(error: &ureq::Error) -> SourceError {
         ureq::Error::Timeout(_) => SourceError::Timeout,
         other => SourceError::Unreachable(other.to_string()),
     }
+}
+
+/// GitHub and other hosts answer an exhausted quota with 403 rather than
+/// 429, marked by a spent `x-ratelimit-remaining` or a `retry-after`.
+fn quota_spent(headers: &ureq::http::HeaderMap) -> bool {
+    headers.get("x-ratelimit-remaining").is_some_and(|v| v.as_bytes() == b"0")
+        || headers.contains_key("retry-after")
 }
 
 /// Cloudflare and similar bot walls answer 403 with an HTML interstitial.
@@ -426,6 +438,32 @@ mod tests {
         );
         assert!(started.elapsed() < Duration::from_secs(5));
         assert_eq!(server.join().unwrap().len(), 1);
+    }
+
+    #[test]
+    fn a_403_with_a_spent_quota_is_rate_limited_and_any_other_403_is_not() {
+        for (headers, expected_limited) in [
+            (vec!["X-RateLimit-Remaining: 0"], true),
+            (vec!["Retry-After: 60"], true),
+            (vec!["X-RateLimit-Remaining: 12"], false),
+            (vec![], false),
+        ] {
+            let (url, server) =
+                serve(vec![response("403 Forbidden", &headers, b"")]);
+            let outcome = Http::new().get(&url).text();
+            assert_eq!(
+                matches!(outcome, Err(SourceError::RateLimited)),
+                expected_limited,
+                "{headers:?}: {outcome:?}"
+            );
+            if !expected_limited {
+                assert!(
+                    matches!(outcome, Err(SourceError::Unauthorized(403))),
+                    "{headers:?}: {outcome:?}"
+                );
+            }
+            server.join().unwrap();
+        }
     }
 
     #[test]
