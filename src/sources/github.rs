@@ -8,8 +8,8 @@
 //! docs say 4,000). A query over 256 characters is rejected (GitHub, October
 //! 2026).
 //!
-//! An exhausted quota answers 403 as well as 429 (GitHub, October 2026), and
-//! a rejected token answers 401, so a 403 here is a rate limit.
+//! An exhausted quota answers 403 with `x-ratelimit-remaining: 0` as well as
+//! 429 (GitHub, October 2026); the HTTP client reports both as a rate limit.
 //! `updated_at` moves when a repository is starred, so `pushed_at`, the last
 //! push, is the update date (probed October 2026).
 
@@ -34,15 +34,8 @@ pub fn search(
     if let Some(secret) = ctx.creds.get(Key::GitHub) {
         call = call.header("Authorization", secret.authorization());
     }
-    let body = call.json().map_err(rate_limited)?;
+    let body = call.json()?;
     parse(&body, limit)
-}
-
-fn rate_limited(error: SourceError) -> SourceError {
-    match error {
-        SourceError::Unauthorized(403) => SourceError::RateLimited,
-        other => other,
-    }
 }
 
 pub(super) fn parse(
@@ -105,21 +98,5 @@ mod tests {
         let hits = parse(&fixture::json("github.json"), 10).unwrap();
         assert_eq!(hits[3].title, "RolnickLab/climart");
         assert_eq!(hits[3].updated.as_deref(), Some("2022-11-29"));
-    }
-
-    #[test]
-    fn only_a_403_counts_as_the_quota() {
-        assert!(matches!(
-            rate_limited(SourceError::Unauthorized(403)),
-            SourceError::RateLimited
-        ));
-        assert!(matches!(
-            rate_limited(SourceError::Unauthorized(401)),
-            SourceError::Unauthorized(401)
-        ));
-        assert!(matches!(
-            rate_limited(SourceError::Status(422)),
-            SourceError::Status(422)
-        ));
     }
 }
