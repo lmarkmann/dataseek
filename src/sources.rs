@@ -300,6 +300,16 @@ impl Services {
         })
     }
 
+    /// Offline services for tests: no keys, an empty cache under `dir`.
+    #[cfg(test)]
+    pub fn scratch(dir: &std::path::Path) -> Self {
+        Self {
+            http: Http::new(),
+            creds: Credentials::default(),
+            cache: Cache::new(dir.to_path_buf()),
+        }
+    }
+
     pub fn ctx(&self, refresh: bool) -> Ctx<'_> {
         Ctx {
             http: &self.http,
@@ -1134,11 +1144,7 @@ mod tests {
 
     fn rig() -> Rig {
         let dir = tempfile::tempdir().unwrap();
-        let services = Services {
-            http: Http::new(),
-            creds: Credentials::default(),
-            cache: Cache::new(dir.path().to_path_buf()),
-        };
+        let services = Services::scratch(dir.path());
         Rig { _dir: dir, services }
     }
 
