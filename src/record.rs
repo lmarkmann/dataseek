@@ -134,10 +134,7 @@ pub fn doi(raw: &str) -> Option<String> {
 pub fn text(value: &Value, pointer: &str) -> Option<String> {
     match value.pointer(pointer)? {
         Value::String(s) => {
-            let safe: String = s
-                .chars()
-                .map(|c| if c.is_control() { ' ' } else { c })
-                .collect();
+            let safe: String = without_controls(s).collect();
             let trimmed = safe.trim();
             (!trimmed.is_empty()).then(|| trimmed.to_owned())
         }
@@ -182,15 +179,20 @@ pub fn items<'a>(value: &'a Value, pointer: &str) -> &'a [Value] {
 /// (`{"en": "...", "de": "..."}`), preferring English.
 pub fn localized(value: Option<&Value>) -> Option<String> {
     match value? {
-        Value::String(s) if !s.trim().is_empty() => Some(s.trim().to_owned()),
+        Value::String(s) => Some(s.as_str()),
         Value::Object(map) => map
             .get("en")
             .and_then(Value::as_str)
-            .or_else(|| map.values().find_map(Value::as_str))
-            .map(|s| s.trim().to_owned())
-            .filter(|s| !s.is_empty()),
+            .or_else(|| map.values().find_map(Value::as_str)),
         _ => None,
     }
+    .map(|s| without_controls(s).collect::<String>().trim().to_owned())
+    .filter(|s| !s.is_empty())
+}
+
+/// Every control character (ESC, CSI, OSC, C1) replaced by a space.
+fn without_controls(text: &str) -> impl Iterator<Item = char> + '_ {
+    text.chars().map(|c| if c.is_control() { ' ' } else { c })
 }
 
 /// Unix seconds or milliseconds as an ISO date (`2024-01-31`).
@@ -327,6 +329,12 @@ mod tests {
         assert!(!clean(hostile).chars().any(char::is_control));
         let v = json!({"t": hostile});
         assert!(!text(&v, "/t").unwrap().chars().any(char::is_control));
+        for map in
+            [json!(hostile), json!({"en": hostile}), json!({"de": hostile})]
+        {
+            let shown = localized(Some(&map)).unwrap();
+            assert!(!shown.chars().any(char::is_control), "{shown:?}");
+        }
         assert!(
             Dataset::new("t", "https://x.org/\u{1b}[2J").valid().is_none()
         );
