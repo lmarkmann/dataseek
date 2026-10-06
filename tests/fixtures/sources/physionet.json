@@ -1,0 +1,104 @@
+[
+  {
+    "public_project_uuid": "5df79f41-857f-4e97-95d3-6e2cf0f2fe3b",
+    "slug": "slpdb",
+    "version": "1.0.0",
+    "core_doi": null,
+    "version_doi": "10.13026/C23K5S",
+    "is_latest_version": true,
+    "short_description": "Recordings of multiple physiologic signals during sleep, collected from 18 subjects monitored at Boston's Beth Israel Hospital Sleep Laboratory.",
+    "publish_date": "1999-08-03",
+    "title": "MIT-BIH Polysomnographic Database",
+    "abstract": "<p>The MIT-BIH Polysomnographic Database is a collection of recordings of multiple physiologic signals during sleep.</p>",
+    "license": {
+      "name": "Open Data Commons Attribution License v1.0"
+    },
+    "dua": null,
+    "main_storage_size": 663056564,
+    "compressed_storage_size": 663076626,
+    "resource_type": "Database",
+    "access_policy": "Open",
+    "topics": [
+      "sleep",
+      "eeg",
+      "ecg",
+      "multiparameter"
+    ],
+    "source_url": "https://physionet.org/content/slpdb/1.0.0/"
+  },
+  {
+    "public_project_uuid": "05c8b51b-9a45-4e90-bf96-6cce6d6c7773",
+    "slug": "stdb",
+    "version": "1.0.0",
+    "core_doi": null,
+    "version_doi": "10.13026/C2ZW2H",
+    "is_latest_version": true,
+    "short_description": "Twenty eight ECG recordings of varying lengths, most of which were recorded during exercise stress tests and which exhibit transient ST depression.",
+    "publish_date": "1999-08-03",
+    "title": "MIT-BIH ST Change Database",
+    "abstract": "<p>This database includes 28 ECG recordings of varying lengths, most of which were recorded during exercise stress tests and which exhibit transient ST depression. The last five records (323 through 327) are excerpts of long-term ECG recordings and exhibit ST elevation.</p>",
+    "license": {
+      "name": "Open Data Commons Attribution License v1.0"
+    },
+    "dua": null,
+    "main_storage_size": 44053054,
+    "compressed_storage_size": 44075460,
+    "resource_type": "Database",
+    "access_policy": "Open",
+    "topics": [
+      "ecg",
+      "stress",
+      "exercise"
+    ],
+    "source_url": "https://physionet.org/content/stdb/1.0.0/"
+  },
+  {
+    "public_project_uuid": "38bf8d6d-5c80-473d-87cf-926a254f5c12",
+    "slug": "cdb",
+    "version": "1.0.0",
+    "core_doi": null,
+    "version_doi": "10.13026/C2QP41",
+    "is_latest_version": true,
+    "short_description": "",
+    "publish_date": "1999-08-03",
+    "title": "MIT-BIH ECG Compression Test Database",
+    "abstract": "<p>This database contains 168 short ECG recordings (20.48 seconds each) selected to pose a variety of challenges for ECG compressors, in particular for lossy compression methods.</p>",
+    "license": {
+      "name": "Open Data Commons Attribution License v1.0"
+    },
+    "dua": null,
+    "main_storage_size": 2693849,
+    "compressed_storage_size": 2821283,
+    "resource_type": "Database",
+    "access_policy": "Open",
+    "topics": [
+      "ecg"
+    ],
+    "source_url": "https://physionet.org/content/cdb/1.0.0/"
+  },
+  {
+    "public_project_uuid": "1a2b0bb3-2f8e-4d97-9b96-c496aa829ae4",
+    "slug": "taichidb",
+    "version": "1.0.0",
+    "core_doi": "10.13026/9v35-xa84",
+    "version_doi": "10.13026/C2W01J",
+    "is_latest_version": false,
+    "short_description": "",
+    "publish_date": "2017-05-11",
+    "title": "Tai Chi, Physiological Complexity, and Healthy Aging - Gait",
+    "abstract": "<p>The &quot;Tai Chi, Physiological Complexity, and Healthy Aging&mdash;Gait&quot; database contains two-channel gait recordings of 87 older adults from the Greater Boston area.</p>",
+    "license": {
+      "name": "Open Data Commons Attribution License v1.0"
+    },
+    "dua": null,
+    "main_storage_size": 527662636,
+    "compressed_storage_size": 527753482,
+    "resource_type": "Database",
+    "access_policy": "Open",
+    "topics": [
+      "stability",
+      "gait"
+    ],
+    "source_url": "https://physionet.org/content/taichidb/1.0.0/"
+  }
+]

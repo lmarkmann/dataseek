@@ -36,8 +36,39 @@ pub(super) fn parse(body: &Value) -> Result<Vec<Dataset>, SourceError> {
             )
             .describe(text(row, "/abstract"))
             .doi_from(first_text(row, &["/version_doi", "/core_doi"]));
-            dataset.updated = day(text(row, "/publish_datetime"));
+            dataset.updated = day(text(row, "/publish_date"));
             dataset.valid()
         })
         .collect())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_list() {
+        let entries = parse(&fixture::json("physionet.json")).unwrap();
+        assert_eq!(entries.len(), 3);
+        assert_eq!(
+            entries[0],
+            Dataset {
+                title: "MIT-BIH Polysomnographic Database".into(),
+                url: "https://physionet.org/content/slpdb/1.0.0/".into(),
+                description: Some(
+                    "The MIT-BIH Polysomnographic Database is a collection of \
+                     recordings of multiple physiologic signals during sleep."
+                        .into()
+                ),
+                publisher: None,
+                doi: Some("10.13026/c23k5s".into()),
+                license: None,
+                updated: Some("1999-08-03".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
 }
