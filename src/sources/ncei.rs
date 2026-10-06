@@ -148,7 +148,7 @@ mod tests {
             ("snow/ice", "snow ice"),
             ("\"sea surface\"", "sea surface"),
             ("sea*", "sea"),
-            ("caf\u{e9}", "caf"),
+            ("na\u{ef}ve", "na ve"),
             ("\u{65e5}\u{672c}\u{6d77}", ""),
         ] {
             assert_eq!(plain_words(query), plain, "{query}");

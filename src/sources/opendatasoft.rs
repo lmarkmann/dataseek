@@ -166,7 +166,7 @@ mod tests {
         assert_eq!(hits[5].doi.as_deref(), Some("10.57745/hou0ef"));
         assert_eq!(
             hits[5].publisher.as_deref(),
-            Some("Gindrat-Keller, Cl\u{e9}ment")
+            Some("Gindrat-Keller, Clément")
         );
         assert_eq!(hits[3].doi, None, "a catalogue URL is not a DOI");
     }

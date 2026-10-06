@@ -9,7 +9,7 @@
 //!
 //! A page holds at most 500 hits and `count` is capped there, so one request
 //! covers any `--per-source` (PANGAEA, October 2026). Hits come by relevance
-//! score and words are ANDed. The fragment has no license or date, and its
+//! score and every word must match. The fragment has no license or date, and its
 //! size is a count of data points or datasets, not bytes. Seven in ten hits
 //! have no abstract because PANGAEA holds none for older datasets (285 of
 //! 400 hits over four queries, October 2026).
