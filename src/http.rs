@@ -400,11 +400,8 @@ mod tests {
     #[test]
     fn an_invalid_byte_costs_one_character_not_the_body() {
         let (url, server) =
-            serve(vec![response("200 OK", &[], b"caf\xff au lait")]);
-        assert_eq!(
-            Http::new().get(&url).text().unwrap(),
-            "caf\u{fffd} au lait"
-        );
+            serve(vec![response("200 OK", &[], b"sea\xff ice")]);
+        assert_eq!(Http::new().get(&url).text().unwrap(), "sea\u{fffd} ice");
         server.join().unwrap();
     }
 
