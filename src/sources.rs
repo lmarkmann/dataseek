@@ -18,6 +18,7 @@
 
 mod arcgis;
 mod aws;
+mod cellxgene;
 mod ckan;
 mod cmr;
 mod datacite;
@@ -40,7 +41,9 @@ mod kaggle;
 mod mendeley;
 mod modelscope;
 mod nada;
+mod ncbi;
 mod ncei;
+mod omicsdi;
 mod openaire;
 mod opendatasoft;
 mod openml;
@@ -51,6 +54,7 @@ mod roboflow;
 mod sdmx;
 mod socrata;
 mod stac;
+mod synapse;
 mod tfds;
 mod uci;
 mod who;
@@ -886,6 +890,18 @@ pub static SOURCES: &[Source] = &[
         dataone::search,
     ),
     // Life sciences.
+    keyed(
+        live(
+            "geo",
+            "NCBI GEO",
+            LifeSciences,
+            "E-utilities",
+            "https://www.ncbi.nlm.nih.gov/books/NBK25501/",
+            ncbi::search,
+        ),
+        Key::Ncbi,
+        Need::Optional,
+    ),
     via(
         "arrayexpress",
         "ArrayExpress (EBI)",
@@ -901,6 +917,30 @@ pub static SOURCES: &[Source] = &[
         "EBI Search",
         EBI_DOCS,
         Adapter::Ebi(&ebi::BIOSTUDIES),
+    ),
+    live(
+        "omicsdi",
+        "OmicsDI",
+        LifeSciences,
+        "OmicsDI",
+        "https://www.omicsdi.org/ws/",
+        omicsdi::search,
+    ),
+    listed(
+        "cellxgene",
+        "CZ CELLxGENE",
+        LifeSciences,
+        "Curation API, listed",
+        "https://api.cellxgene.cziscience.com/curation/ui/",
+        cellxgene::list,
+    ),
+    live(
+        "synapse",
+        "Synapse",
+        LifeSciences,
+        "Synapse REST",
+        "https://rest-docs.synapse.org/",
+        synapse::search,
     ),
 ];
 
