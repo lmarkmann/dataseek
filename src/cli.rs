@@ -36,8 +36,6 @@ pub struct Cli {
     pub quiet: bool,
 
     /// Explain what is happening on stderr.
-    // Counted rather than a plain flag so a clone can add levels without
-    // changing the flag's shape; today every count above zero is the same.
     #[arg(short = 'v', long, global = true, action = clap::ArgAction::Count)]
     pub verbose: u8,
 
@@ -96,11 +94,8 @@ mod tests {
 
     use super::Cli;
 
-    // clap's own recommended test. It walks the built command and panics on a
-    // malformed definition: a short flag used twice, a default_value that is
-    // not among the possible values, an arg that conflicts with itself. None
-    // of those are compile errors, so without this they first appear when a
-    // user happens to touch the broken path.
+    // Catches malformed definitions (duplicate short flags, bad defaults) that
+    // are not compile errors.
     #[test]
     fn the_definition_is_well_formed() {
         Cli::command().debug_assert();

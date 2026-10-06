@@ -1,16 +1,9 @@
-//! The human layer: staged narration, spinners, and progress bars. Every part
-//! of it draws to stderr and is a no-op unless a human is watching.
+//! The human layer: staged narration, spinners, and progress bars, all on
+//! stderr and all no-ops unless a human is watching.
 //!
-//! The invariant that keeps pipes clean: stdout is the data channel
-//! (`--json | jq`, `count | wc`). Progress that leaked into it would corrupt
-//! every downstream consumer, so the whole layer is gated off unless stderr is
-//! a terminal and neither `--json` nor `--quiet` is set. `indicatif` does the
-//! drawing; a hidden `ProgressBar` keeps the gating branch-free, so callers
-//! write `ui::spinner(..)` and never `if rich { .. }`.
-//!
-//! Colors come from [`crate::palette`]; narration embeds anstyle escapes
-//! directly, and the spinner and bar take the palette's token, which indicatif
-//! parses for names, `#rrggbb`, and 256-color indices alike. Both are exact.
+//! stdout is the data channel, so the layer is gated off unless stderr is a
+//! terminal and neither `--json` nor `--quiet` is set. Off, the bars are hidden
+//! `ProgressBar`s, so callers never branch on it.
 
 use std::fmt::Display;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -27,10 +20,8 @@ static RICH: AtomicBool = AtomicBool::new(false);
 static UNICODE: AtomicBool = AtomicBool::new(true);
 static COLOR: AtomicBool = AtomicBool::new(false);
 
-/// Wire the layer from the resolved output context once, in `main`. Takes the
-/// context rather than three bools: they are all the same type, so transposing
-/// two compiles cleanly and silently breaks `--plain`, and clippy's
-/// `fn_params_excessive_bools` only fires above three.
+/// Wire the layer once, in `main`. Takes the context rather than three bools,
+/// which would transpose without a compile error.
 pub fn init(out: &Out) {
     RICH.store(out.stderr_is_rich(), Ordering::Relaxed);
     UNICODE.store(!out.plain, Ordering::Relaxed);
@@ -60,7 +51,7 @@ fn paint(style: Style, body: impl Display) -> String {
     if color() { format!("{style}{body}{style:#}") } else { body.to_string() }
 }
 
-/// Open a stage of work: `> <msg>`. The running "here is what I am doing now".
+/// Open a stage of work: `> <msg>`.
 pub fn stage(msg: impl Display) {
     if rich() {
         let mark = if unicode() { "▸" } else { ">" };
@@ -68,7 +59,7 @@ pub fn stage(msg: impl Display) {
     }
 }
 
-/// Report a resolved fact under the current stage: `  + <msg>`.
+/// Report a resolved fact under the stage: `  + <msg>`.
 pub fn ok(msg: impl Display) {
     if rich() {
         let mark = if unicode() { "✓" } else { "+" };
@@ -76,8 +67,8 @@ pub fn ok(msg: impl Display) {
     }
 }
 
-/// Flag a soft problem under the current stage: `  ! <msg>`. Not an error; the
-/// command still succeeds. Hard failures go through the error path in `main`.
+/// Flag a soft problem under the stage: `  ! <msg>`. Hard failures go through
+/// `main::report`.
 pub fn warn(msg: impl Display) {
     if rich() {
         let mark = if unicode() { "⚠" } else { "!" };
@@ -85,9 +76,7 @@ pub fn warn(msg: impl Display) {
     }
 }
 
-/// A spinner for indeterminate work (a scan, a blocking read). Finish it with
-/// `.finish_and_clear()` or just drop it. Hidden and thread-free when off, so
-/// it costs nothing in a pipe.
+/// A spinner for work of unknown length. Hidden and thread-free when off.
 pub fn spinner(msg: impl Into<String>) -> ProgressBar {
     if !rich() {
         return ProgressBar::hidden();
@@ -105,9 +94,7 @@ pub fn spinner(msg: impl Into<String>) -> ProgressBar {
     pb
 }
 
-/// A determinate bar over `len` units of work. Call `.inc(1)` per unit. Use it
-/// only when the total is genuinely known; show a [`spinner`] otherwise rather
-/// than fake a percentage.
+/// A bar over `len` known units; use a [`spinner`] when the total is unknown.
 pub fn bar(len: u64, msg: impl Into<String>) -> ProgressBar {
     if !rich() {
         return ProgressBar::hidden();
@@ -123,8 +110,7 @@ pub fn bar(len: u64, msg: impl Into<String>) -> ProgressBar {
     pb
 }
 
-// Template strings are built here, not inline, so the tests below can parse
-// them without a terminal and catch a typo before it ever ships.
+// Built here so the tests can parse them without a terminal.
 fn spinner_template() -> String {
     if color() {
         format!("  {{spinner:.{}}} {{msg}}", palette::accent_token())
@@ -150,20 +136,15 @@ mod tests {
 
     use super::*;
 
-    // The three gates are process globals, so these tests are not independent.
-    // nextest gives each test its own process and would not notice, but `cargo
-    // insta test` defaults to plain `cargo test`, which runs them as threads,
-    // and that command runs inside `just rename` after the tree has already
-    // been rewritten. A spurious failure there aborts the one supported clone
-    // path halfway through.
+    // The gates are process globals. nextest isolates tests, but plain `cargo
+    // test` runs them as threads, so serialize.
     static UI: Mutex<()> = Mutex::new(());
 
     fn locked() -> MutexGuard<'static, ()> {
         UI.lock().unwrap_or_else(std::sync::PoisonError::into_inner)
     }
 
-    // The contract that protects pipes: with the layer off (the default, and
-    // what a non-TTY run resolves to), every bar is a no-op.
+    // Off is what a non-TTY run resolves to; every bar must be a no-op.
     #[test]
     fn bars_are_hidden_when_the_layer_is_off() {
         let _guard = locked();
@@ -172,10 +153,8 @@ mod tests {
         assert!(bar(10, "counting").is_hidden());
     }
 
-    // A template that fails to parse degrades to indicatif's default style at
-    // runtime rather than panicking, so this test is what actually catches a
-    // typo: both must parse, colored or not, for whatever token the colorway
-    // resolves the accent to.
+    // A bad template falls back to indicatif's default at runtime, so this is
+    // the only thing that catches a typo.
     #[test]
     fn templates_parse_in_both_color_modes() {
         let _guard = locked();

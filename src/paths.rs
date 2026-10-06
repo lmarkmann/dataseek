@@ -1,15 +1,9 @@
-//! Where the tool keeps its files, by platform convention. Three separate
-//! directories, never dotfiles sprayed into `$HOME`: config the user edits,
-//! cache the tool can delete and rebuild, state that persists between runs.
+//! Where the tool keeps its files: config the user edits, cache it can rebuild,
+//! and state that persists between runs.
 //!
-//! Resolution uses etcetera's base strategy: XDG on Unix, so
-//! `~/.config/<app>`, `~/.cache/<app>` and `~/.local/state/<app>` including on
-//! macOS, and the Windows known folders (`%APPDATA%`, `%LOCALAPPDATA%`) on
-//! Windows. Only macOS differs between the base and native strategies, so
-//! `choose_native_strategy` is the switch for Apple-native locations and
-//! changes nothing on Windows. Paths are resolved, not created; create a
-//! directory the first time you write to it (see [`crate::fs::write_atomic`],
-//! which does so for you).
+//! Uses etcetera's base strategy: XDG paths on Unix (macOS included), known
+//! folders on Windows. Paths are resolved, not created;
+//! [`crate::fs::write_atomic`] creates parents on write.
 
 use std::path::PathBuf;
 
@@ -36,10 +30,8 @@ pub fn resolve() -> Result<Paths> {
     Ok(Paths {
         config: base.config_dir().join(APP),
         cache: base.cache_dir().join(APP),
-        // state_dir is None on Windows, where the strategy also aliases
-        // config_dir to data_dir. Falling back to data_dir alone would hand
-        // back one directory under two names, so a clone that wipes state to
-        // reset would take the user's config with it. Nest instead.
+        // state_dir is None on Windows, where config_dir aliases data_dir.
+        // Nest so wiping state cannot take the config with it.
         state: match base.state_dir() {
             Some(dir) => dir.join(APP),
             None => base.data_dir().join(APP).join("state"),

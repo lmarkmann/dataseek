@@ -1,9 +1,5 @@
-//! `doctor`: report readiness at a glance. The support command every good CLI
-//! grows (yoink, brew, gh). It is also the template's worked example of the
-//! whole UI stack: stderr narration and a progress sweep through
-//! [`crate::ui`], stdout summary styled through [`crate::palette`],
-//! directories from [`crate::paths`]. Replace these checks with ones your tool
-//! actually needs (a reachable server, a found dependency, a valid token).
+//! `doctor`: report readiness at a glance. Narrates the sweep on stderr through
+//! [`crate::ui`] and prints the styled summary on stdout.
 
 use std::io::Write;
 
@@ -25,7 +21,6 @@ pub fn run(out: &Out) -> Result<()> {
     ui::stage("inspecting environment");
     let checks = gather(out)?;
 
-    // Narrate the sweep on stderr; the bar and lines vanish in a pipe.
     let progress = ui::bar(checks.len() as u64, "checks");
     for check in &checks {
         if check.ok {
@@ -40,12 +35,10 @@ pub fn run(out: &Out) -> Result<()> {
     report(out, &checks)
 }
 
-/// The checks themselves. This is the part you replace: swap these for a
-/// reachable host, a binary on `PATH`, a readable config file.
 fn gather(out: &Out) -> Result<Vec<Check>> {
-    let p = paths::resolve()?;
+    let dirs = paths::resolve()?;
 
-    let exists = |path: &std::path::Path| {
+    let existence = |path: &std::path::Path| {
         if path.exists() {
             "exists".to_owned()
         } else {
@@ -61,28 +54,35 @@ fn gather(out: &Out) -> Result<Vec<Check>> {
         },
         Check {
             label: "config",
-            detail: format!("{} ({})", p.config.display(), exists(&p.config)),
+            detail: format!(
+                "{} ({})",
+                dirs.config.display(),
+                existence(&dirs.config)
+            ),
             ok: true,
         },
         Check {
             label: "cache",
-            detail: format!("{} ({})", p.cache.display(), exists(&p.cache)),
+            detail: format!(
+                "{} ({})",
+                dirs.cache.display(),
+                existence(&dirs.cache)
+            ),
             ok: true,
         },
         Check {
             label: "state",
-            detail: format!("{} ({})", p.state.display(), exists(&p.state)),
+            detail: format!(
+                "{} ({})",
+                dirs.state.display(),
+                existence(&dirs.state)
+            ),
             ok: true,
         },
         Check {
             label: "color",
-            // Informational, not a verdict: color off in a pipe is correct,
-            // not a problem. Real checks you add (a reachable host, a found
-            // binary) set ok:false to drive the warn path and the closing
-            // summary. Deliberately not enumerating the reasons: anstream
-            // weighs a terminal check, NO_COLOR, CLICOLOR, CLICOLOR_FORCE,
-            // TERM and CI, and a list here would go stale the next time it
-            // learns another.
+            // Informational, not a verdict. The reasons stay unlisted because
+            // anstream's rules (NO_COLOR, CLICOLOR, TERM, CI, ...) keep moving.
             detail: if out.color_on_stdout() {
                 "enabled".to_owned()
             } else {
@@ -109,9 +109,6 @@ fn gather(out: &Out) -> Result<Vec<Check>> {
 fn report(out: &Out, checks: &[Check]) -> Result<()> {
     let all_ok = checks.iter().all(|c| c.ok);
 
-    // The summary is data, so the global --json flag applies here too: a
-    // script running `doctor --json` gets a parseable report, not a styled
-    // table.
     if out.json {
         let report = serde_json::json!({
             "name": env!("CARGO_PKG_NAME"),

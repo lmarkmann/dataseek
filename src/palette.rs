@@ -1,20 +1,7 @@
-//! The colorway: the one place every color in the tool is defined.
-//!
-//! Re-theme the whole CLI by editing the role constants below. Nothing else
-//! hardcodes a color; help text, stdout styling, and the stderr progress layer
-//! all read these roles. Roles are semantic (`accent`, `success`, `danger`),
-//! never literal ("cyan"), so swapping a color is never a hunt for the right
-//! shade at each call site.
-//!
-//! Colors are `anstyle` values (re-exported through clap, so no extra
-//! dependency). A role can be a portable named ANSI color via `ansi(..)` or a
-//! 24-bit hex via `rgb(0x7a, 0xa2, 0xf7)`. Both render exactly everywhere,
-//! including the indicatif progress layer, which parses its color token with
-//! `console::Style::from_dotted_str` and understands names, `#rrggbb`, and a
-//! bare 256-color index alike. To apply a role to text, lean on anstyle's
-//! inline form: `write!(w, "{s}{value}{s:#}", s = palette::success())`, where
-//! `{s:#}` emits the reset. `anstream` strips these escapes when the stream is
-//! not a terminal.
+//! The colorway: every color in the tool is defined here, as semantic roles
+//! (`accent`, `success`, ...) read by help text, stdout styling and the stderr
+//! progress layer. Re-theme by editing the constants; a role is either a named
+//! ANSI color via `ansi(..)` or 24-bit via `rgb(..)`.
 
 use clap::builder::styling::{AnsiColor, Color, RgbColor, Style, Styles};
 
@@ -22,20 +9,16 @@ const fn ansi(c: AnsiColor) -> Color {
     Color::Ansi(c)
 }
 
-#[expect(
-    dead_code,
-    reason = "colorway knob: swap a role to rgb(..) to re-theme"
-)]
+#[expect(dead_code, reason = "available for a 24-bit role")]
 const fn rgb(r: u8, g: u8, b: u8) -> Color {
     Color::Rgb(RgbColor(r, g, b))
 }
 
-// The colorway. Edit these five lines to recolor the whole tool.
-const ACCENT: Color = ansi(AnsiColor::Blue); // headers, the signature hue
-const SUCCESS: Color = ansi(AnsiColor::Green); // values, "it worked"
-const WARNING: Color = ansi(AnsiColor::Yellow); // soft alerts, placeholders
-const DANGER: Color = ansi(AnsiColor::Red); // errors, destructive prompts
-const MUTED: Color = ansi(AnsiColor::BrightBlack); // secondary detail
+const ACCENT: Color = ansi(AnsiColor::Blue);
+const SUCCESS: Color = ansi(AnsiColor::Green);
+const WARNING: Color = ansi(AnsiColor::Yellow);
+const DANGER: Color = ansi(AnsiColor::Red);
+const MUTED: Color = ansi(AnsiColor::BrightBlack);
 
 /// Headers and the tool's signature accent.
 pub fn accent() -> Style {
@@ -74,10 +57,8 @@ pub fn help() -> Styles {
         .invalid(warning())
 }
 
-/// The accent as an indicatif progress-template color token. indicatif hands
-/// the token to `console::Style::from_dotted_str`, which understands named
-/// colors, `#rrggbb` truecolor, and a bare 256-color index, so every role
-/// shape renders exactly and the bar matches help and stdout.
+/// The accent as an indicatif template token, which accepts names, `#rrggbb`
+/// and 256-color indices.
 pub fn accent_token() -> String {
     token_for(ACCENT)
 }
@@ -113,9 +94,7 @@ mod tests {
         assert_eq!(ansi_name(AnsiColor::BrightCyan), "cyan");
     }
 
-    // Every shape a role can take has to survive console's parser, which is
-    // what indicatif runs the token through; one it rejects drops the color
-    // silently.
+    // A token console's parser rejects drops the color silently.
     #[test]
     fn every_role_shape_produces_a_token_console_accepts() {
         use clap::builder::styling::Ansi256Color;

@@ -13,10 +13,8 @@ use predicates::prelude::*;
 
 fn bin() -> Command {
     let mut cmd = Command::cargo_bin("dataseek").expect("dataseek binary");
-    // clap's wrap_help reads COLUMNS, so help output is a function of the
-    // terminal width of whoever ran the tests. Without pinning it, the
-    // snapshot fails for anyone whose shell or CI image exports a different
-    // value, for no reason connected to the CLI.
+    // wrap_help reads COLUMNS; pin it so the snapshot does not depend on the
+    // runner's terminal.
     cmd.env("COLUMNS", "100");
     cmd
 }
@@ -40,9 +38,8 @@ fn help_exits_zero_and_lists_commands() {
         .stdout(predicate::str::contains("completion"));
 }
 
-// Naked invocation is a success, not a usage error, so it exits 0. clap routes
-// this variant of help to stderr, which is worth pinning: stdout stays empty,
-// so `tool | consumer` in a pipeline gets nothing rather than a help page.
+// clap routes naked-invocation help to stderr; stdout stays empty so a pipeline
+// gets nothing rather than a help page.
 #[test]
 fn naked_invocation_prints_help_to_stderr_and_exits_zero() {
     bin()
@@ -61,9 +58,7 @@ fn completion_emits_a_script_for_every_shell() {
         assert!(!out.stdout.is_empty(), "{shell} produced nothing");
         assert!(out.stderr.is_empty(), "{shell} wrote to stderr");
         assert!(!out.stdout.contains(&0x1b), "{shell} leaked ANSI");
-        // main.rs passes the binary name to clap_complete as a literal.
-        // Nothing else ties that string back to the manifest, so this is the
-        // only check that a rename which missed it would fail.
+        // main.rs passes the binary name as a literal; tie it to the manifest.
         let script = String::from_utf8_lossy(&out.stdout);
         assert!(
             script.contains(env!("CARGO_PKG_NAME")),
@@ -176,11 +171,8 @@ fn missing_file_error_prints_each_part_once() {
     let cause = stderr.find("  Cause:").expect("no Cause: line");
     assert!(error < hint && hint < cause, "wrong order:\n{stderr}");
 
-    // The chain walk in report() is what prints the cause. A message that also
-    // interpolates its own {source} prints it a second time, which is what
-    // this counts. Read the cause text out of the line rather than hardcoding
-    // it: the OS supplies the wording, so it is "No such file or directory" on
-    // Unix and "The system cannot find the file specified." on Windows.
+    // A message that interpolates its own {source} would repeat the cause that
+    // report() already prints. The wording is OS-specific, so read it back.
     let cause_text = stderr[cause..]
         .lines()
         .next()
@@ -202,8 +194,7 @@ fn missing_file_error_prints_each_part_once() {
 
 #[test]
 fn binary_input_says_it_is_not_text() {
-    // The binary this suite just built is the most convenient non-UTF-8 file
-    // around.
+    // The built binary is a convenient non-UTF-8 file.
     let out = bin()
         .args(["count", env!("CARGO_BIN_EXE_dataseek")])
         .output()
@@ -211,8 +202,7 @@ fn binary_input_says_it_is_not_text() {
     assert_eq!(out.status.code(), Some(1));
     let stderr = String::from_utf8_lossy(&out.stderr);
     assert!(stderr.contains("not UTF-8 text"), "{stderr}");
-    // The old hint sent the user to check the path or pipe it instead; both
-    // are dead ends for bytes that are simply not text.
+    // Checking the path or piping it instead cannot help for non-text bytes.
     assert!(!stderr.contains("check the path"), "{stderr}");
 }
 
@@ -226,11 +216,9 @@ fn doctor_reports_ready_with_clean_pipe() {
     );
     let text = String::from_utf8_lossy(&out.stdout);
     assert!(text.contains(&format!("dataseek {}", env!("CARGO_PKG_VERSION"))));
-    // "Ready." exactly: "Ready, with notes above." also contains "Ready".
+    // Exactly "Ready.", since "Ready, with notes above." also contains "Ready".
     assert!(text.contains("Ready."), "{text}");
-    // The narration invariant, mechanically: piped stdout means no human is
-    // watching, so ui::stage/ok and the progress bar must all have been
-    // no-ops.
+    // Piped stdout means no human is watching, so the ui layer must be silent.
     assert!(
         out.stderr.is_empty(),
         "doctor narrated into a pipe: {}",
@@ -238,17 +226,11 @@ fn doctor_reports_ready_with_clean_pipe() {
     );
 }
 
-// A consumer that goes away first must not produce a panic or an error
-// message. Two mechanisms deliver that and this asserts the outcome rather
-// than either one: SIGPIPE reset to the default in main (death by signal 13),
-// and the broken-pipe arm of report() (a quiet exit 0). Measured: gutting
-// restore_sigpipe leaves this green, because the second arm covers the same
-// case. Both are worth keeping, since only the signal stops a long write
-// mid-stream.
-//
-// `tool | head` will not provoke this in the template as shipped: the largest
-// output is well under the pipe buffer, so no write ever fails. Closing the
-// read end is the reliable way in.
+// A vanished consumer must not produce a panic or an error message. Asserts
+// the outcome: SIGPIPE death (13) or report()'s quiet exit 0; gutting
+// restore_sigpipe leaves it green, but only the signal stops a long write.
+// Output is smaller than the pipe buffer, so `| head` never fails a write;
+// closing the read end does.
 #[cfg(unix)]
 #[test]
 fn a_closed_stdout_dies_quietly() {
@@ -306,8 +288,8 @@ fn the_three_directories_are_distinct_and_app_scoped() {
 
     let (config, cache, state) =
         (detail("config"), detail("cache"), detail("state"));
-    // On Windows the base strategy aliases config_dir to data_dir and has no
-    // state_dir, so these collapse onto one directory unless paths.rs nests.
+    // Windows aliases config_dir to data_dir and has no state_dir, so these
+    // collapse unless paths.rs nests.
     assert_ne!(config, state, "config and state are the same directory");
     assert_ne!(config, cache, "config and cache are the same directory");
     for (label, path) in
@@ -325,9 +307,7 @@ fn man_renders_roff_with_the_manifest_version() {
     let out = bin().arg("man").output().unwrap();
     assert!(out.status.success());
     let roff = String::from_utf8_lossy(&out.stdout);
-    // .TH is the roff title macro, so its presence means a real page rather
-    // than help text; the version proves the page reads Cargo.toml like
-    // --version does, instead of carrying a second hardcoded number.
+    // .TH means a real page, not help text; the version ties it to Cargo.toml.
     assert!(roff.starts_with(".ie"), "not roff output: {roff:.40}");
     assert!(roff.contains(".TH"));
     assert!(roff.contains(env!("CARGO_PKG_VERSION")));
@@ -346,17 +326,14 @@ fn color_never_and_no_color_suppress_ansi() {
 
 #[test]
 fn color_always_forces_ansi_through_a_pipe() {
-    // assert_cmd captures stdout (not a TTY); --color=always must still color,
-    // matching ripgrep/fd so `tool --color=always | less -R` stays colored.
+    // Captured stdout is not a TTY; --color=always must color it anyway.
     assert!(
         stdout_of(&["count", "--color=always"]).contains(&0x1b),
         "--color=always should emit ANSI even when piped"
     );
 }
 
-// Snapshot of the full --help surface. Run `cargo insta review` to update
-// after changing the CLI, and `cargo insta accept` once you have renamed the
-// crate.
+// Snapshot of the full --help surface; update with `cargo insta review`.
 #[test]
 fn help_snapshot() {
     let out = bin().arg("--help").output().unwrap();
