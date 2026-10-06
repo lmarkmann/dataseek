@@ -7,7 +7,7 @@
 //! past the 10,000th match answers HTTP 500 (probed October 2026). `license`
 //! is an SPDX id, with `none` and `custom` for items that set nothing usable
 //! (Hub aggregations, October 2026). Responses carry an
-//! `X-RateLimit-Limit-Portal_search_throttler` header of 10 with a reset of 1;
+//! `X-RateLimit-Limit-PORTAL_SEARCH_THROTTLER` header of 10 with a reset of 1;
 //! the docs state no limit (October 2026). `size` is bytes and `modified` is
 //! epoch milliseconds (ArcGIS REST item reference, October 2026).
 
