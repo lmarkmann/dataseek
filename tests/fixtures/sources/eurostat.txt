@@ -5,6 +5,19 @@
 "            Balance of payments"	"ei_bp"	"folder"	" "	" "	" "	" "	
 "                Current account - quarterly data"	"ei_bpm6ca_q"	"table"	"02.10.2026"	"02.10.2026"	"1991-Q1"	"2026-Q2"	314789
 "                Financial account - quarterly data"	"ei_bpm6fa_q"	"table"	"02.10.2026"	"01.10.2026"	"1991-Q1"	"2026-Q2"	55918
+"    Population and social conditions"	"popul"	"folder"	" "	" "	" "	" "	
+"        Labour market"	"labour"	"folder"	" "	" "	" "	" "	
+"            Employment and unemployment (Labour force survey)"	"employ"	"folder"	" "	" "	" "	" "	
+"                LFS main indicators"	"lfsi"	"folder"	" "	" "	" "	" "	
+"                    Unemployment - LFS adjusted series"	"une"	"folder"	" "	" "	" "	" "	
 "                        Unemployment by sex and age - monthly data"	"une_rt_m"	"dataset"	"02.10.2026"	"04.09.2026"	"1983-01"	"2026-08"	757612
+"                Labour force survey (LFS) series - detailed annual data"	"lfsa"	"folder"	" "	" "	" "	" "	
+"                    Employees"	"lfsa_emppaid"	"folder"	" "	" "	" "	" "	
 "                        Employees by economic activity (NACE Rev. 2) (2008-2026)"	"lfsa_eegan2"	"dataset"	"10.09.2026"	"17.04.2026"	"2008"	"2025"	822061
+"Cross cutting topics"	"data"	"folder"	" "	" "	" "	" "	
+"    Cross cutting topics"	"cc"	"folder"	" "	" "	" "	" "	
+"        Skills-related statistics"	"sks"	"folder"	" "	" "	" "	" "	
+"            Skills demand - indirect measures"	"sks_dim"	"folder"	" "	" "	" "	" "	
+"                Employment - labour force survey"	"sks_dimlf"	"folder"	" "	" "	" "	" "	
+"                    Employees"	"sks_dimlf_ey"	"folder"	" "	" "	" "	" "	
 "                        Employees by economic activity (NACE Rev. 2) (2008-2026)"	"lfsa_eegan2"	"dataset"	"10.09.2026"	"17.04.2026"	"2008"	"2025"	822061

@@ -1,6 +1,15 @@
 //! NOMAD's published datasets (computational materials science), paged out
 //! of the datasets endpoint and searched locally: the endpoint filters by
-//! exact name only.
+//! exact name (`dataset_name`) or name prefix (`prefix`), never by words.
+//!
+//! There are 2,121 datasets, so `page_size=1000` takes three requests that
+//! follow `next_page_after_value`, and the loop gives up after 20. NOMAD says
+//! many endpoints enforce a maximum page size; this one accepted 100,000. The
+//! listing has no description, and `dataset_modified_time` equals
+//! `dataset_create_time` wherever it is present, so the creation time is the
+//! update date. Requests are limited per IP address, "as low as 30 requests
+//! per second or 10 concurrent requests" (NOMAD documentation), and metadata
+//! may be reused under CC0 (NOMAD terms of use). All as of October 2026.
 
 use serde_json::Value;
 
@@ -71,6 +80,33 @@ mod tests {
                 doi: Some("10.17172/nomad/2020.05.20-1".into()),
                 license: None,
                 updated: Some("2020-05-20".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
+
+    #[test]
+    fn the_last_page_names_no_cursor() {
+        let (entries, next) = parse(&fixture::json("nomad.last.json"));
+        assert_eq!(next, None);
+        assert_eq!(entries.len(), 2);
+        assert_eq!(
+            entries[1],
+            Dataset {
+                title: "Mercury intrusion porosimetry as a quantitative tool \
+                        for the shape estimation of supraparticles generated \
+                        via spray-drying"
+                    .into(),
+                url: "https://nomad-lab.eu/prod/v1/gui/dataset/id/\
+                      EIkdAcj0R0yiggOQu5ALAA"
+                    .into(),
+                description: None,
+                publisher: None,
+                doi: Some("10.17172/nomad.pnez-s893".into()),
+                license: None,
+                updated: Some("2026-06-04".into()),
                 size_bytes: None,
                 popularity: None,
                 aliases: vec![],

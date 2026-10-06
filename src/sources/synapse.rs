@@ -1,6 +1,15 @@
 //! Synapse (Sage Bionetworks) entity search, asked twice: once for entities
 //! typed `dataset`, then for `project`s, where most Synapse data still lives.
 //! Datasets first, projects fill the rest of the limit.
+//!
+//! The docs give `size` a default of 10 and no maximum; the server returned a
+//! full page of 1,000 hits, so one request per type fills the 100 the CLI
+//! allows and `start` is not needed (Synapse REST docs and live API, October
+//! 2026). Without a token only public entities come back, and a search
+//! answers 201. Several `queryTerm` words match any of them, ranked by
+//! relevance, not all of them. The index also holds tables, views, dataset
+//! collections (50), files and folders, which are not asked for (live API,
+//! October 2026).
 
 use serde_json::{Value, json};
 

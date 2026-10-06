@@ -9,10 +9,17 @@
         {
           "node": {
             "id": "ds000001",
+            "analytics": {
+              "downloads": 2523
+            },
             "latestSnapshot": {
               "created": "2020-05-14T14:56:55.000Z",
+              "size": 2416199965,
+              "readme": "This dataset was obtained from the OpenfMRI project (http://www.openfmri.org).\nAccession #: ds000001\nDescription: Balloon Analog Risk Task\n\nPlease cite the following references if you use these data:",
               "description": {
-                "Name": "Balloon Analog Risk-taking Task"
+                "Name": "Balloon Analog Risk-taking Task",
+                "DatasetDOI": "10.18112/openneuro.ds000001.v1.0.0",
+                "License": "CC0"
               }
             }
           }
@@ -20,10 +27,17 @@
         {
           "node": {
             "id": "ds000002",
+            "analytics": {
+              "downloads": 2944
+            },
             "latestSnapshot": {
               "created": "2018-07-14T01:23:36.000Z",
+              "size": 2896661859,
+              "readme": "This dataset was obtained from the OpenfMRI project (http://www.openfmri.org).\nAccession #: ds002\nDescription: Classification learning\n\nPlease cite the following references if you use these data:",
               "description": {
-                "Name": "Classification learning"
+                "Name": "Classification learning",
+                "DatasetDOI": null,
+                "License": "This dataset is made available under the Public Domain Dedication and License \nv1.0, whose full text can be found at \nhttp://www.opendatacommons.org/licenses/pddl/1.0/. \nWe hope that all users will follow the ODC Attribution/Share-Alike \nCommunity Norms (http://www.opendatacommons.org/norms/odc-by-sa/); \nin particular, while not legally required, we hope that all users \nof the data will acknowledge the OpenfMRI project and NSF Grant \nOCI-1131441 (R. Poldrack, PI) in any publications."
               }
             }
           }
@@ -31,10 +45,17 @@
         {
           "node": {
             "id": "ds000003",
+            "analytics": {
+              "downloads": 848
+            },
             "latestSnapshot": {
               "created": "2020-05-14T15:01:29.000Z",
+              "size": 410092142,
+              "readme": "This dataset was obtained from the OpenfMRI project (http://www.openfmri.org).\nAccession #: ds003\nDescription: Rhyme judgment\n\nRelease history:\n10/06/2011: initial release\n3/21/2013: Updated release with QA information\n2/18/2016: Updated orientation information in nifti headers for improved left-right determination",
               "description": {
-                "Name": "Rhyme judgment"
+                "Name": "Rhyme judgment",
+                "DatasetDOI": "10.18112/openneuro.ds000003.v1.0.0",
+                "License": "CC0"
               }
             }
           }
@@ -42,10 +63,17 @@
         {
           "node": {
             "id": "ds000005",
+            "analytics": {
+              "downloads": 1026
+            },
             "latestSnapshot": {
               "created": "2018-07-14T01:26:48.000Z",
+              "size": 1898145323,
+              "readme": "This dataset was obtained from the OpenfMRI project (http://www.openfmri.org).\nAccession #: ds005\nDescription: Mixed-gambles task\n\nPlease cite the following references if you use these data:",
               "description": {
-                "Name": "Mixed-gambles task"
+                "Name": "Mixed-gambles task",
+                "DatasetDOI": null,
+                "License": "This dataset is made available under the Public Domain Dedication and License \nv1.0, whose full text can be found at \nhttp://www.opendatacommons.org/licenses/pddl/1.0/. \nWe hope that all users will follow the ODC Attribution/Share-Alike \nCommunity Norms (http://www.opendatacommons.org/norms/odc-by-sa/); \nin particular, while not legally required, we hope that all users \nof the data will acknowledge the OpenfMRI project and NSF Grant \nOCI-1131441 (R. Poldrack, PI) in any publications."
               }
             }
           }

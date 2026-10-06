@@ -13,7 +13,7 @@ The version lives only in `Cargo.toml`. Clap reads it via `#[command(version)]`,
 - `--json`, `--jq EXPR`, `--color=auto|always|never`, `--no-color`, `--plain`, `--no-progress`
 - `--cache-dir DIR` and `--connect-timeout SECS`, each with a `DATASEEK_*` variable
 
-`search` reads `-x`, `--per-source`, `-n` and `--timeout` from `DATASEEK_EXCLUDE`, `DATASEEK_PER_SOURCE`, `DATASEEK_LIMIT` and `DATASEEK_TIMEOUT` too. A flag beats its variable, which beats the default; `dataseek help environment` lists them all.
+`search` reads `-x`, `--per-source`, `-n` and `--timeout` from `DATASEEK_EXCLUDE`, `DATASEEK_PER_SOURCE`, `DATASEEK_LIMIT` and `DATASEEK_TIMEOUT` too. A flag beats its variable, which beats the default; `dataseek help environment` lists them all. A source marked `opt-in` in `dataseek sources` runs only when `-s` names it ([ADR 0013](../adr/0013-opt-in-sources.md)).
 
 `-v` is verbose, never version. `--color` follows the ecosystem standard used by git, ripgrep, and fd:
 

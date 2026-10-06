@@ -310,5 +310,197 @@
         ]
       }
     ]
+  },
+  {
+    "dataset_id": "015-BFS-2014Q3-046",
+    "title": "Treasury Bulletin",
+    "long_description": "The Treasury Bulletin dataset contains a mix of narrative, charts, and tables regarding U.S. Treasury financial operations and special reports. The dataset includes a variety of data pertaining to Fiscal Service operations, ownership of federal securities, U.S",
+    "short_description": "Machine readable data of select Treasury Bulletin tables. These tables include those located within the Fiscal Service Operations (FFO-5 and FFO-6), ownership of federal securities, U.S. currency and coin outstanding and in circulation, foreign currency positi",
+    "notes_and_known_limitations": "Statistical data is compiled from sources within Treasury departmental offices and bureaus, as well as various other Federal program agencies.\n\nThe FFO-5 - Internal Revenue Receipts by State and FFO-6 - Customs and Border Protection Collection of Duties, Taxes",
+    "publisher": "Office of Accounting",
+    "update_frequency": "Quarterly",
+    "metadata_complete": 1,
+    "dataset_path": "treasury-bulletin",
+    "pdf_path": null,
+    "master_static_filename": "TreasuryBulletin_all_tables",
+    "popularity_rank": 22,
+    "apis": [
+      {
+        "api_id": 206,
+        "table_name": "PDO-1 - Offerings of Regular Weekly Treasury Bills",
+        "table_description": "The Offerings of Regular Weekly Treasury Bills table presents the results of weekly auctions of 4, 8, 13, 17, and 26 week bills. Treasury bills mature each Thursday. Issues of 4 and 13 week bills are reopenings of 26 week bills. High rates on accepted tenders ",
+        "update_frequency": "Quarterly",
+        "row_definition": "Each row represents Treasury bills issued by maturity with high rates on accepted tenders and the dollar value of total bids are presented, with the dollar value of awards made on both competitive and noncompetitive basis.",
+        "last_updated": "2026-09-02",
+        "earliest_date": "2021-03-01",
+        "latest_date": "2026-09-01",
+        "row_count": 1464,
+        "api_sort_order_nbr": 1,
+        "endpoint_txt": "/services/api/fiscal_service/v1/accounting/tb/pdo1_offerings_regular_weekly_treasury_bills",
+        "static_filename": "TB_PDO1OfferingsRegularWeeklyTreasuryBills",
+        "api_notes_and_limitations": null,
+        "fields": [
+          {
+            "column_name": "record_date",
+            "definition": "The date that data was published.",
+            "table_name": "PDO-1 - Offerings of Regular Weekly Treasury Bills",
+            "pretty_name": "Record Date",
+            "data_type": "DATE",
+            "is_required": 1,
+            "sort_order_nbr": 1
+          },
+          {
+            "column_name": "issue_date",
+            "definition": "The date that the Treasury bills were issued.",
+            "table_name": "PDO-1 - Offerings of Regular Weekly Treasury Bills",
+            "pretty_name": "Issue Date",
+            "data_type": "DATE",
+            "is_required": 1,
+            "sort_order_nbr": 2
+          },
+          {
+            "column_name": "maturity_date",
+            "definition": "The date of maturity for the Treasury Bills listed.",
+            "table_name": "PDO-1 - Offerings of Regular Weekly Treasury Bills",
+            "pretty_name": "Maturity Date",
+            "data_type": "DATE",
+            "is_required": 1,
+            "sort_order_nbr": 3
+          }
+        ]
+      },
+      {
+        "api_id": 207,
+        "table_name": "PDO-2 - Offerings of Marketable Securities Other than Regular Weekly Treasury Bills",
+        "table_description": "The Offerings of Marketable Securities Other than Regular Weekly Treasury Bills table lists the results of auctions of marketable securities, other than weekly bills, in chronological order over the past 2 years. Issues of cash management bills also are presen",
+        "update_frequency": "Quarterly",
+        "row_definition": "Each row represents the auctions results of marketable securities with amounts tendered and accepted amounts, yields, discount margin, and equivalent price.",
+        "last_updated": "2026-09-02",
+        "earliest_date": "2021-03-01",
+        "latest_date": "2026-09-01",
+        "row_count": 1032,
+        "api_sort_order_nbr": 2,
+        "endpoint_txt": "/services/api/fiscal_service/v1/accounting/tb/pdo2_offerings_marketable_securities_other_regular_weekly_treasury_bills",
+        "static_filename": "TB_PDO2OfferingsOtherRegularWeeklyTreasuryBills",
+        "api_notes_and_limitations": null,
+        "fields": [
+          {
+            "column_name": "record_date",
+            "definition": "The date that data was published.",
+            "table_name": "PDO-2 - Offerings of Marketable Securities Other than Regular Weekly Treasury Bills",
+            "pretty_name": "Record Date",
+            "data_type": "DATE",
+            "is_required": 1,
+            "sort_order_nbr": 1
+          },
+          {
+            "column_name": "auction_date",
+            "definition": "The date of the marketable securities auction.",
+            "table_name": "PDO-2 - Offerings of Marketable Securities Other than Regular Weekly Treasury Bills",
+            "pretty_name": "Auction Date",
+            "data_type": "DATE",
+            "is_required": 1,
+            "sort_order_nbr": 2
+          },
+          {
+            "column_name": "issue_date",
+            "definition": "The date the markatable securities were issued.",
+            "table_name": "PDO-2 - Offerings of Marketable Securities Other than Regular Weekly Treasury Bills",
+            "pretty_name": "Issue Date",
+            "data_type": "DATE",
+            "is_required": 1,
+            "sort_order_nbr": 3
+          }
+        ]
+      },
+      {
+        "api_id": 217,
+        "table_name": "FFO-5 - Internal Revenue Receipts by State",
+        "table_description": "The Internal Revenue Receipts by State table summarizes internal revenue receipts by states and by type of tax. Amounts reported are collections made in a fiscal year. They span several tax liability years because they consist of prepayments (estimated tax pay",
+        "update_frequency": "Annually",
+        "row_definition": "Each row represents internal revenue receipts by state within each tax category.",
+        "last_updated": "2025-12-04",
+        "earliest_date": "2021-12-01",
+        "latest_date": "2025-12-01",
+        "row_count": 280,
+        "api_sort_order_nbr": 12,
+        "endpoint_txt": "/services/api/fiscal_service/v1/accounting/tb/ffo5_internal_revenue_by_state",
+        "static_filename": "TB_FFO5InternalRevenueReceiptsState",
+        "api_notes_and_limitations": null,
+        "fields": [
+          {
+            "column_name": "record_date",
+            "definition": "The date that data was published.",
+            "table_name": "FFO-5 - Internal Revenue Receipts by State",
+            "pretty_name": "Record Date",
+            "data_type": "DATE",
+            "is_required": 1,
+            "sort_order_nbr": 1
+          },
+          {
+            "column_name": "revenue_fiscal_year",
+            "definition": "The fiscal year of the collection of revenue.",
+            "table_name": "FFO-5 - Internal Revenue Receipts by State",
+            "pretty_name": "Revenue Fiscal Year",
+            "data_type": "YEAR",
+            "is_required": 1,
+            "sort_order_nbr": 2
+          },
+          {
+            "column_name": "state_nm",
+            "definition": "The name of the state where revenue was collected.",
+            "table_name": "FFO-5 - Internal Revenue Receipts by State",
+            "pretty_name": "State Name",
+            "data_type": "STRING",
+            "is_required": 1,
+            "sort_order_nbr": 3
+          }
+        ]
+      },
+      {
+        "api_id": 218,
+        "table_name": "FFO-6 - Customs and Border Protection Collection of Duties, Taxes, and Fees by Districts and Ports",
+        "table_description": "The Customs and Border Protection Collection of Duties, Taxes, and Fees by Districts and Ports table includes customs collection of duties, taxes, and fees by districts and ports. Reported by U.S. Customs and Border Protection.",
+        "update_frequency": "Annually",
+        "row_definition": "Each row represents the customs collection of duties, taxes, and fees categorized by districts and ports.",
+        "last_updated": "2025-12-04",
+        "earliest_date": "2021-12-01",
+        "latest_date": "2025-12-01",
+        "row_count": 2980,
+        "api_sort_order_nbr": 13,
+        "endpoint_txt": "/services/api/fiscal_service/v1/accounting/tb/ffo6_customs_border_protection_collections",
+        "static_filename": "TB_FFO6CustomsBorderProtectionCollections",
+        "api_notes_and_limitations": null,
+        "fields": [
+          {
+            "column_name": "record_date",
+            "definition": "The date that data was published.",
+            "table_name": "FFO-6 - Customs and Border Protection Collection of Duties, Taxes, and Fees by Districts and Ports",
+            "pretty_name": "Record Date",
+            "data_type": "DATE",
+            "is_required": 1,
+            "sort_order_nbr": 1
+          },
+          {
+            "column_name": "collection_fiscal_year",
+            "definition": "The fiscal year of the collection of duties, taxes, and fees.",
+            "table_name": "FFO-6 - Customs and Border Protection Collection of Duties, Taxes, and Fees by Districts and Ports",
+            "pretty_name": "Collection Fiscal Year",
+            "data_type": "YEAR",
+            "is_required": 1,
+            "sort_order_nbr": 2
+          },
+          {
+            "column_name": "district_nm",
+            "definition": "The name of the district of collection. Denoted by the city name followed by the state name.",
+            "table_name": "FFO-6 - Customs and Border Protection Collection of Duties, Taxes, and Fees by Districts and Ports",
+            "pretty_name": "District Name",
+            "data_type": "STRING",
+            "is_required": 1,
+            "sort_order_nbr": 3
+          }
+        ]
+      }
+    ]
   }
 ]

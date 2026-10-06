@@ -9,14 +9,13 @@ Eight sources take an API key (Hugging Face, Kaggle, data.gov, GitHub, FRED, Rob
 
 ## Decision
 
-- A key is read from its environment variable, then from `credentials.toml` in the config directory. Kaggle additionally reads what its own CLI writes, `~/.kaggle/access_token` then the legacy `~/.kaggle/kaggle.json` (honoring `KAGGLE_CONFIG_DIR`), so a user who ran `kaggle auth` needs no setup. Without a token Kaggle is still asked, anonymously, for its first page of 20.
+- A key is read from its environment variable, then from `credentials.toml` in the config directory. Kaggle additionally reads what its own CLI writes, `~/.kaggle/access_token` then the legacy `~/.kaggle/kaggle.json` (honoring `KAGGLE_CONFIG_DIR`), so a user who ran `kaggle auth` needs no setup. Without a token Kaggle is still asked, anonymously, and answers every page.
 - Secrets are never formatted into output; `sources` and `doctor` report only where a key came from. `doctor` fails a key file other users can read.
 - Every request's User-Agent carries the project contact `user@dataseek.dev`, and DataCite and NCBI also receive it as `mailto`/`email`. It is the project's address, the same for every user; no user's address is ever sent.
-- Data Commons falls back to the trial key its documentation publishes for public use.
 
 ## Consequences
 
-- Sources with an optional key work out of the box; FRED and Roboflow are skipped until their key is set, and say so.
+- Sources with an optional key work out of the box; FRED, Roboflow and Data Commons are skipped until their key is set, and say so. Data Commons publishes a trial key, but its documentation allows it for single requests and asks anyone building an application for an own key, so dataseek never ships it.
 - Rotating a key never touches dataseek's config beyond the one line or variable.
 
 ## Evidence

@@ -1,0 +1,417 @@
+{
+  "after": "WzIyLjEwMTAxLDEsImRjN2M5YzMzLTQxZDAtNGViMi1iMTA0LWYzN2U4NTU4YmMyYSJd",
+  "sort": "relevance",
+  "results": [
+    {
+      "_score": 81.282974,
+      "_sort": [
+        81.282974,
+        13
+      ],
+      "access_level": "public",
+      "dcat": {
+        "@type": "dcat:Dataset",
+        "DOI": "10.25984/1970814",
+        "accessLevel": "public",
+        "bureauCode": [
+          "019:20"
+        ],
+        "contactPoint": {
+          "@type": "vcard:Contact",
+          "fn": "Grant Buster",
+          "hasEmail": "mailto:contact@example.org"
+        },
+        "dataQuality": true,
+        "description": "The Super-Resolution for Renewable Energy Resource Data with Climate Change Impacts (Sup3rCC) data is a collection of 4km hourly wind, solar, temperature, humidity, and pressure fields for the contiguous United States under various climate change scenarios.\n\nSup3rCC is downscaled Global Climate Mode",
+        "distribution": [
+          {
+            "@type": "dcat:Distribution",
+            "accessURL": "https://data.openei.org/s3_viewer?bucket=nrel-pds-sup3rcc",
+            "description": "Sup3rCC data in OEDI S3 Viewer. CRS: WGS 84 from CMIP 6. ",
+            "format": "HTML",
+            "mediaType": "text/html",
+            "title": "Sup3rCC Data in S3"
+          },
+          {
+            "@type": "dcat:Distribution",
+            "accessURL": "https://github.com/NatLabRockies/sup3r",
+            "description": "The Super-Resolution for Renewable Resource Data (sup3r) software uses generative adversarial networks to create synthetic high-resolution wind and solar spatiotemporal data from coarse low-resolution inputs. ",
+            "format": "HTML",
+            "mediaType": "text/html",
+            "title": "Sup3r GitHub Repo"
+          }
+        ],
+        "identifier": "https://data.openei.org/submissions/5839",
+        "issued": "2023-04-19T06:00:00Z",
+        "keyword": [
+          "DNI",
+          "GAN"
+        ],
+        "landingPage": "https://data.openei.org/submissions/5839",
+        "license": "https://creativecommons.org/licenses/by/4.0/",
+        "modified": "2026-07-14T20:06:32Z",
+        "programCode": [
+          "019:000",
+          "019:002"
+        ],
+        "projectNumber": "38843",
+        "projectTitle": "National Transmission Planning Study (NTPS)",
+        "publisher": {
+          "@type": "org:Organization",
+          "name": "National Renewable Energy Laboratory (NREL)"
+        },
+        "spatial": "{\"type\":\"Polygon\",\"coordinates\":[[[-180,-83],[180,-83],[180,83],[-180,83],[-180,-83]]]}",
+        "title": "Super-Resolution for Renewable Energy Resource Data with Climate Change Impacts (Sup3rCC)"
+      },
+      "description": "The Super-Resolution for Renewable Energy Resource Data with Climate Change Impacts (Sup3rCC) data is a collection of 4km hourly wind, solar, temperature, humidity, and pressure fields for the contiguous United States under various climate change scenarios.\n\nSup3rCC is downscaled Global Climate Mode",
+      "distribution_titles": [
+        "Sup3rCC Data in S3",
+        "Sup3r GitHub Repo"
+      ],
+      "harvest_record": "https://catalog.data.gov/harvest_record/18014651-b5a3-4481-97af-c0358b0ae168",
+      "harvest_record_raw": "https://catalog.data.gov/harvest_record/18014651-b5a3-4481-97af-c0358b0ae168/raw",
+      "has_download": false,
+      "has_spatial": true,
+      "identifier": "https://data.openei.org/submissions/5839",
+      "keyword": [
+        "DNI",
+        "GAN"
+      ],
+      "last_harvested_date": "2026-09-10T17:47:29.825928",
+      "organization": {
+        "aliases": [
+          "doe",
+          "dept"
+        ],
+        "code_repo_exempt": false,
+        "code_repo_url": null,
+        "description": null,
+        "id": "1f2ebc13-fc03-4bcd-b2c0-dad0bb510b65",
+        "logo": "https://raw.githubusercontent.com/GSA/logo/refs/heads/master/energy.png",
+        "name": "Department of Energy",
+        "organization_type": "Federal Government",
+        "slug": "energy"
+      },
+      "parent_identifier": null,
+      "popularity": 13,
+      "publisher": "National Renewable Energy Laboratory (NREL)",
+      "slug": "super-resolution-for-renewable-energy-resource-data-with-climate-change-impacts-sup3rcc",
+      "spatial_centroid": {
+        "lat": -16.6,
+        "lon": -36.0
+      },
+      "spatial_shape": {
+        "coordinates": [
+          [
+            [
+              -180,
+              -83
+            ],
+            [
+              180,
+              -83
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "theme": [],
+      "title": "Super-Resolution for Renewable Energy Resource Data with Climate Change Impacts (Sup3rCC)",
+      "type": "dataset"
+    },
+    {
+      "_score": 73.74221,
+      "_sort": [
+        73.74221,
+        1
+      ],
+      "access_level": "public",
+      "dcat": {
+        "@type": "dcat:Dataset",
+        "accessLevel": "public",
+        "bureauCode": [
+          "026:00"
+        ],
+        "contactPoint": {
+          "@type": "vcard:Contact",
+          "fn": "Earthdata Forum",
+          "hasEmail": "mailto:contact@example.org"
+        },
+        "description": "This data set contains a mean monthly climatology for several climate variables averaged over the period from 1961 to 1990,  and constructed from a data set of station 1961-1990 climatological normals, numbering between 19,800 (precipitation) and 3,615 (windspeed; see New et al, 1999 for details). T",
+        "distribution": [
+          {
+            "@type": "dcat:Distribution",
+            "conformsTo": "http://www.isotc211.org/2005/gmi",
+            "description": "The metadata's original source.",
+            "downloadURL": "https://cmr.earthdata.nasa.gov/search/concepts/C2785293782-ORNL_CLOUD.iso19115",
+            "format": "ISO",
+            "mediaType": "text/xml",
+            "title": "Original Metadata"
+          },
+          {
+            "@type": "dcat:Distribution",
+            "downloadURL": "https://daac.ornl.gov/graphics/browse/sdat-tds/1015_1_fit.png",
+            "format": "PNG",
+            "mediaType": "image/png"
+          }
+        ],
+        "identifier": "10.3334/ORNLDAAC/1015",
+        "keyword": [
+          "earth-science-atmospheric-temperature-atmosphere-surface-temperature",
+          "earth-science-atmospheric-water-vapor-atmosphere-water-vapor-indicators"
+        ],
+        "license": "https://www.usa.gov/government-works",
+        "modified": "2026-09-22",
+        "programCode": [
+          "026:000"
+        ],
+        "publisher": {
+          "@type": "org:Organization",
+          "name": "ORNL_DAAC"
+        },
+        "spatial": "[\"CARTESIAN\", [{\"WestBoundingCoordinate\": -180.0, \"NorthBoundingCoordinate\": 90.0, \"EastBoundingCoordinate\": 180.0, \"SouthBoundingCoordinate\": -90.0}]]",
+        "temporal": "1986-01-01/1995-12-31",
+        "theme": [
+          "Earth Science"
+        ],
+        "title": "ISLSCP II Climate Research Unit CRU05 Monthly Climate Data"
+      },
+      "description": "This data set contains a mean monthly climatology for several climate variables averaged over the period from 1961 to 1990,  and constructed from a data set of station 1961-1990 climatological normals, numbering between 19,800 (precipitation) and 3,615 (windspeed; see New et al, 1999 for details). T",
+      "distribution_titles": [
+        "Original Metadata"
+      ],
+      "harvest_record": "https://catalog.data.gov/harvest_record/e68efab6-fae6-4705-afd4-c20b935c7747",
+      "harvest_record_raw": "https://catalog.data.gov/harvest_record/e68efab6-fae6-4705-afd4-c20b935c7747/raw",
+      "has_download": true,
+      "has_spatial": true,
+      "identifier": "10.3334/ORNLDAAC/1015",
+      "keyword": [
+        "earth-science-atmospheric-temperature-atmosphere-surface-temperature",
+        "earth-science-atmospheric-water-vapor-atmosphere-water-vapor-indicators"
+      ],
+      "last_harvested_date": "2026-09-23T00:17:47.750117",
+      "organization": {
+        "aliases": [
+          ""
+        ],
+        "code_repo_exempt": false,
+        "code_repo_url": null,
+        "description": null,
+        "id": "f4ca4614-8901-409b-8553-2e994ad10023",
+        "logo": "https://raw.githubusercontent.com/GSA/logo/refs/heads/master/nasa.png",
+        "name": "National Aeronautics and Space Administration",
+        "organization_type": "Federal Government",
+        "slug": "nasa"
+      },
+      "parent_identifier": null,
+      "popularity": 1,
+      "publisher": "ORNL_DAAC",
+      "slug": "islscp-ii-climate-research-unit-cru05-monthly-climate-data",
+      "spatial_centroid": null,
+      "spatial_shape": null,
+      "theme": [
+        "Earth Science"
+      ],
+      "title": "ISLSCP II Climate Research Unit CRU05 Monthly Climate Data",
+      "type": "dataset"
+    },
+    {
+      "_score": 68.31816,
+      "_sort": [
+        68.31816,
+        1
+      ],
+      "access_level": "non-public",
+      "dcat": {
+        "@type": "dcat:Dataset",
+        "accessLevel": "non-public",
+        "contactPoint": {
+          "@type": "vcard:Contact",
+          "fn": "NOAA National Centers for Environmental Information",
+          "hasEmail": "mailto:contact@example.org"
+        },
+        "describedByType": "application/octet-steam",
+        "description": "**Please note, this dataset has been superseded by a newer version (see below). Users should not use this version except in rare cases (e.g., when reproducing previous studies that used this version).** USCRN \"Processed\" Data (labeled as \"uscrn-processed\"): are interpreted values and derived geophys",
+        "distribution": [
+          {
+            "@type": "dcat:Distribution",
+            "accessURL": "https://www.ncei.noaa.gov/metadata/geoportal/rest/metadata/item/gov.noaa.ncdc:C00366/html",
+            "describedByType": "application/octet-stream",
+            "description": "Landing page for the dataset.",
+            "mediaType": "text/html",
+            "title": "NCEI Dataset Landing Page"
+          },
+          {
+            "@type": "dcat:Distribution",
+            "accessURL": "https://www.ncdc.noaa.gov/customer-support",
+            "describedByType": "application/octet-stream",
+            "description": "Contact NCEI's User Engagement and Services Branch for information on how to acquire this datasetContact NCDC's Customer Engagement Branch for information on how to acquire this dataset",
+            "mediaType": "text/html",
+            "title": "User Engagement Services Branch Contact Information"
+          }
+        ],
+        "identifier": "https://data.noaa.gov/waf/NOAA/NESDIS/ncei/aim/iso/xml/C00366.xml",
+        "issued": "2013-06-19T00:00:00.000+00:00",
+        "keyword": [
+          "Earth Science > Atmosphere > Atmospheric Temperature > Surface Temperature > Air Temperature",
+          "Earth Science > Atmosphere > Atmospheric Temperature > Surface Temperature > Maximum/Minimum Temperature"
+        ],
+        "landingPage": "https://doi.org/10.7289/V5MS3QR9",
+        "language": [],
+        "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "modified": "2013-06-19T00:00:00.000+00:00",
+        "publisher": {
+          "@type": "org:Organization",
+          "name": "DOC/NOAA/NESDIS/NCEI > National Centers for Environmental Information, NESDIS, NOAA, U.S. Department of Commerce"
+        },
+        "references": [
+          "https://www.ncei.noaa.gov/pub/data/uscrn/documentation/program/X040_d0.pdf",
+          "https://www.ncei.noaa.gov/pub/data/uscrn/documentation/program/CRN_Ingest_Functional_Spec.pdf"
+        ],
+        "rights": "otherRestrictions",
+        "spatial": "-65.0,18.0,172.0,72.0",
+        "temporal": "2000-11-15T00:00:00+00:00/2000-11-15T00:00:00+00:00",
+        "title": "United States Climate Reference Network (USCRN) Processed Data (Version Superseded)"
+      },
+      "description": "**Please note, this dataset has been superseded by a newer version (see below). Users should not use this version except in rare cases (e.g., when reproducing previous studies that used this version).** USCRN \"Processed\" Data (labeled as \"uscrn-processed\"): are interpreted values and derived geophys",
+      "distribution_titles": [
+        "NCEI Dataset Landing Page",
+        "User Engagement Services Branch Contact Information"
+      ],
+      "harvest_record": "https://catalog.data.gov/harvest_record/a5120176-5a49-43a3-87a0-d35e4ddc1321",
+      "harvest_record_raw": "https://catalog.data.gov/harvest_record/a5120176-5a49-43a3-87a0-d35e4ddc1321/raw",
+      "harvest_record_transformed": "https://catalog.data.gov/harvest_record/a5120176-5a49-43a3-87a0-d35e4ddc1321/transformed",
+      "has_download": true,
+      "has_spatial": true,
+      "identifier": "https://data.noaa.gov/waf/NOAA/NESDIS/ncei/aim/iso/xml/C00366.xml",
+      "keyword": [
+        "Earth Science > Atmosphere > Atmospheric Temperature > Surface Temperature > Air Temperature",
+        "Earth Science > Atmosphere > Atmospheric Temperature > Surface Temperature > Maximum/Minimum Temperature"
+      ],
+      "last_harvested_date": "2026-04-12T21:12:06.967465",
+      "organization": {
+        "aliases": [
+          ""
+        ],
+        "code_repo_exempt": false,
+        "code_repo_url": null,
+        "description": null,
+        "id": "5f4f1195-e770-4a2a-8f75-195cd98860ce",
+        "logo": "https://raw.githubusercontent.com/GSA/logo/refs/heads/master/noaa.png",
+        "name": "National Oceanic and Atmospheric Administration, Department of Commerce",
+        "organization_type": "Federal Government",
+        "slug": "noaa"
+      },
+      "parent_identifier": null,
+      "popularity": 1,
+      "publisher": "DOC/NOAA/NESDIS/NCEI > National Centers for Environmental Information, NESDIS, NOAA, U.S. Department of Commerce",
+      "slug": "united-states-climate-reference-network-uscrn-processed-data-version-superseded",
+      "spatial_centroid": {
+        "lat": 39.6,
+        "lon": 29.8
+      },
+      "spatial_shape": {
+        "coordinates": [
+          [
+            [
+              -65.0,
+              18.0
+            ],
+            [
+              -65.0,
+              72.0
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "theme": [],
+      "title": "United States Climate Reference Network (USCRN) Processed Data (Version Superseded)",
+      "type": "dataset"
+    },
+    {
+      "_score": 66.17813,
+      "_sort": [
+        66.17813,
+        4
+      ],
+      "access_level": "public",
+      "dcat": {
+        "@type": "dcat:Dataset",
+        "accessLevel": "public",
+        "bureauCode": [
+          "018:001"
+        ],
+        "contactPoint": {
+          "fn": "ARM Data Center",
+          "hasEmail": "mailto:contact@example.org"
+        },
+        "description": "No description found",
+        "distribution": [
+          {
+            "accessURL": "http://www.archive.arm.gov/discovery/#v/results/s/s::60noaacrn",
+            "format": "Undefined"
+          }
+        ],
+        "identifier": "60noaacrn",
+        "keyword": [
+          "ADC",
+          "ARM"
+        ],
+        "license": "https://project-open-data.cio.gov/unknown-license",
+        "modified": "2019-06-27 12:41:27",
+        "programCode": [
+          "018:001"
+        ],
+        "publisher": {
+          "name": "Atmospheric Radiation Measurement Data Center",
+          "subOrganizationOf": {
+            "name": "DOE Biological and Environmental Research (BER)",
+            "subOrganizationOf": {
+              "name": "DOE Office of Science user facilities",
+              "subOrganizationOf": {
+                "name": "U.S. Government"
+              }
+            }
+          }
+        },
+        "title": "NOAA Climate Reference Network data-precipitation and temperature"
+      },
+      "description": "No description found",
+      "distribution_titles": [],
+      "harvest_record": "https://catalog.data.gov/harvest_record/02781d95-9a1b-47d4-b129-3d033a58bfee",
+      "harvest_record_raw": "https://catalog.data.gov/harvest_record/02781d95-9a1b-47d4-b129-3d033a58bfee/raw",
+      "has_download": false,
+      "has_spatial": false,
+      "identifier": "60noaacrn",
+      "keyword": [
+        "ADC",
+        "ARM"
+      ],
+      "last_harvested_date": "2026-09-10T20:00:22.234107",
+      "organization": {
+        "aliases": [
+          "doe",
+          "dept"
+        ],
+        "code_repo_exempt": false,
+        "code_repo_url": null,
+        "description": null,
+        "id": "1f2ebc13-fc03-4bcd-b2c0-dad0bb510b65",
+        "logo": "https://raw.githubusercontent.com/GSA/logo/refs/heads/master/energy.png",
+        "name": "Department of Energy",
+        "organization_type": "Federal Government",
+        "slug": "energy"
+      },
+      "parent_identifier": null,
+      "popularity": 4,
+      "publisher": "Atmospheric Radiation Measurement Data Center",
+      "slug": "noaa-climate-reference-network-data-precipitation-and-temperature",
+      "spatial_centroid": null,
+      "spatial_shape": null,
+      "theme": [],
+      "title": "NOAA Climate Reference Network data-precipitation and temperature",
+      "type": "dataset"
+    }
+  ]
+}

@@ -22,6 +22,8 @@ struct Row {
     key: &'static str,
     key_env: Option<&'static str>,
     docs: &'static str,
+    /// Why the source is asked only when `--source` names it.
+    opt_in: Option<&'static str>,
 }
 
 pub fn run(out: &Out) -> Result<()> {
@@ -43,6 +45,7 @@ pub fn run(out: &Out) -> Result<()> {
             },
             key_env: s.key.map(|(key, _)| key.env_var()),
             docs: s.docs,
+            opt_in: s.opt_in,
         })
         .collect();
 
@@ -57,8 +60,14 @@ pub fn run(out: &Out) -> Result<()> {
         for r in &rows {
             writeln!(
                 w,
-                "{}\t{}\t{}\t{}\t{}\t{}",
-                r.id, r.category, r.protocol, r.search, r.key, r.docs
+                "{}\t{}\t{}\t{}\t{}\t{}\t{}",
+                r.id,
+                r.category,
+                r.protocol,
+                r.search,
+                r.key,
+                r.docs,
+                r.opt_in.unwrap_or_default()
             )?;
         }
         return Ok(());
@@ -77,6 +86,7 @@ pub fn run(out: &Out) -> Result<()> {
                 format!("{muted}optional ${var}{muted:#}")
             }
             ("set", Some(var)) => format!("set ${var}"),
+            _ if r.opt_in.is_some() => format!("{muted}opt-in{muted:#}"),
             _ => String::new(),
         };
         writeln!(
@@ -91,5 +101,14 @@ pub fn run(out: &Out) -> Result<()> {
         "{muted}{} sources. `local` ones download their catalog once a week and search it on disk.{muted:#}",
         rows.len()
     )?;
+    for r in &rows {
+        if let Some(reason) = r.opt_in {
+            writeln!(
+                w,
+                "{muted}{} is asked only when named with -s: {reason}.{muted:#}",
+                r.id
+            )?;
+        }
+    }
     Ok(())
 }

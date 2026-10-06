@@ -9,13 +9,13 @@ Google Dataset Search was dataseek's only source in the lost Python version, and
 
 ## Decision
 
-Every source below is implemented to the same contract (`src/sources.rs`) and searched by default. A source is left out of a run only when it needs a key the user has not set, when it had an outage in the last ten minutes, or when the user narrows the run with `--source`, `--exclude` or `--category`. `dataseek bench` measures latency, answer rate, result count and overlap per source, and that measurement, not a tier list, is what a source is later demoted or dropped on.
+Every source below is implemented to the same contract (`src/sources.rs`) and searched by default, except the opt-in ones ([ADR 0013](0013-opt-in-sources.md)), which run only when `--source` names them. A source is left out of a run only when it needs a key the user has not set, when it had an outage in the last ten minutes, or when the user narrows the run with `--source`, `--exclude` or `--category`. `dataseek bench` measures latency, answer rate, result count and overlap per source, and that measurement, not a tier list, is what a source is later demoted or dropped on.
 
 `search` is `live` when the query goes to the source, `local` when the source publishes a complete list but no search endpoint, so its catalog is downloaded (cached for a week) and searched on disk.
 
 ## Consequences
 
-- One query fans out to about 75 hosts. The search deadline (ADR 0007) bounds the cost of the slowest; the cache bounds repeats.
+- One query fans out to about 74 hosts. The search deadline (ADR 0007) bounds the cost of the slowest; the cache bounds repeats.
 - Adding a source is one registry row plus, at most, one module. Removing one is the reverse; nothing else refers to a source by id.
 - Overlap is low (ADR 0006 evidence: 96% of merged hits came from exactly one source), so dropping a source loses results rather than duplicates. Reverting to tiers would cut recall in proportion.
 
@@ -26,7 +26,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 
 ## The sources
 
-76 sources, grouped by `--category`. Keys are read from the environment or `credentials.toml` ([`../reference/keys-and-cache.md`](../reference/keys-and-cache.md)); an optional key raises a rate limit or unlocks a better endpoint, a required one is the only way in.
+76 sources, grouped by `--category`. Each source's terms verdict and the sentence it rests on are in [`../synthesis/terms.md`](../synthesis/terms.md); what each offers for filters and file lists is in [`../synthesis/capabilities.md`](../synthesis/capabilities.md). Keys are read from the environment or `credentials.toml` ([`../reference/keys-and-cache.md`](../reference/keys-and-cache.md)); an optional key raises a rate limit or unlocks a better endpoint, a required one is the only way in.
 
 ### aggregator
 
@@ -34,14 +34,14 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 |---|---|---|---|---|---|
 | `datacite` | DataCite | DataCite REST | live |  | [docs](https://support.datacite.org/docs/api) |
 | `openaire` | OpenAIRE Graph | OpenAIRE Graph | live |  | [docs](https://graph.openaire.eu/docs/apis/graph-api/) |
-| `google` | Google Dataset Search | results page data | live |  | [docs](https://datasetsearch.research.google.com/help) |
+| `google` | Google Dataset Search | results page data | live | opt-in | [docs](https://datasetsearch.research.google.com/help) |
 | `b2find` | EUDAT B2FIND | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
 
 ### machine-learning
 
 | id | source | protocol | search | key | API docs |
 |---|---|---|---|---|---|
-| `huggingface` | Hugging Face Hub | Hub API | live | `$HF_TOKEN` (optional) | [docs](https://huggingface.co/docs/hub/api) |
+| `huggingface` | Hugging Face Hub | Hub API | live | `$HF_TOKEN` (optional) | [docs](https://huggingface.co/docs/huggingface_hub/package_reference/hf_api) |
 | `kaggle` | Kaggle | Kaggle API | live | `$KAGGLE_API_TOKEN` (optional) | [docs](https://www.kaggle.com/docs/api) |
 | `openml` | OpenML | OpenML REST, listed | local |  | [docs](https://docs.openml.org/ecosystem/Rest/) |
 | `uci` | UCI Machine Learning Repository | list endpoint | local |  | [docs](https://github.com/uci-ml-repo/ucimlrepo) |
@@ -68,7 +68,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `dataverse-nl` | DataverseNL | Dataverse | live |  | [docs](https://guides.dataverse.org/en/latest/api/search.html) |
 | `dataverse-no` | DataverseNO | Dataverse | live |  | [docs](https://guides.dataverse.org/en/latest/api/search.html) |
 | `osf` | OSF (via SHARE) | SHARE trove | live |  | [docs](https://share.osf.io/trove/docs) |
-| `mendeley` | Mendeley Data | site search API | live |  | [docs](https://data.mendeley.com/api/docs/) |
+| `mendeley` | Mendeley Data | site search API | live | opt-in | [docs](https://data.mendeley.com/api/docs/) |
 
 ### government
 
@@ -80,10 +80,10 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `open-canada` | Open Government Canada | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
 | `data-gov-au` | data.gov.au | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
 | `govdata` | GovData (Germany) | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
-| `hdx` | Humanitarian Data Exchange | CKAN | live |  | [docs](https://data.humdata.org/faqs/devs) |
+| `hdx` | Humanitarian Data Exchange | CKAN | live |  | [docs](https://docs.humdata.org/build/hdx-apis/metadata-endpoints/package_search) |
 | `socrata` | Socrata portals (US) | Socrata Discovery | live |  | [docs](https://dev.socrata.com/docs/other/discovery) |
 | `socrata-eu` | Socrata portals (EU) | Socrata Discovery | live |  | [docs](https://dev.socrata.com/docs/other/discovery) |
-| `opendatasoft` | OpenDataSoft hub | OpenDataSoft Explore | live |  | [docs](https://help.opendatasoft.com/apis/ods-explore-v2/) |
+| `opendatasoft` | OpenDataSoft hub | OpenDataSoft Explore | live |  | [docs](https://help.huwise.com/apis/ods-explore-v2/) |
 | `arcgis` | ArcGIS Hub | OGC API Records | live |  | [docs](https://hub.arcgis.com/api/search/v1) |
 
 ### statistics
@@ -95,9 +95,9 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `unhcr-microdata` | UNHCR Microdata Library | NADA | live |  | [docs](https://microdata.worldbank.org/api-documentation/catalog/index.html) |
 | `eurostat` | Eurostat | Eurostat table of contents | local |  | [docs](https://ec.europa.eu/eurostat/web/user-guides/data-browser/api-data-access) |
 | `undata` | UNdata | SDMX | local |  | [docs](https://data.un.org/Host.aspx?Content=API) |
-| `datacommons` | Data Commons | Data Commons REST v2 | live | `$DATACOMMONS_API_KEY` (optional) | [docs](https://docs.datacommons.org/api/rest/v2/) |
-| `owid` | Our World in Data | site search API | live |  | [docs](https://docs.owid.io/projects/etl/api/) |
-| `census` | U.S. Census Bureau API | DCAT data.json, listed | local |  | [docs](https://www.census.gov/data/developers/guidance/api-user-guide.html) |
+| `datacommons` | Data Commons | Data Commons REST v2 | live | `$DATACOMMONS_API_KEY` (required) | [docs](https://docs.datacommons.org/api/rest/v2/) |
+| `owid` | Our World in Data | Search API | live |  | [docs](https://docs.owid.io/projects/etl/api/search-api/) |
+| `census` | U.S. Census Bureau API | DCAT data.json, listed | local |  | [docs](https://census.gov/data/developers/updates/new-discovery-tool.html) |
 | `who` | WHO Global Health Observatory | OData, listed | local |  | [docs](https://www.who.int/data/gho/info/gho-odata-api) |
 
 ### economics
@@ -107,9 +107,9 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `dbnomics` | DBnomics | DBnomics | live |  | [docs](https://api.db.nomics.world/v22/apidocs) |
 | `worldbank` | World Bank indicators | World Bank API, listed | local |  | [docs](https://datahelpdesk.worldbank.org/knowledgebase/articles/889392) |
 | `worldbank-microdata` | World Bank Microdata Library | NADA | live |  | [docs](https://microdata.worldbank.org/api-documentation/catalog/index.html) |
-| `imf` | IMF | SDMX | local |  | [docs](https://portal.api.imf.org/) |
-| `oecd` | OECD | SDMX | local |  | [docs](https://sdmx.oecd.org/public/rest/) |
-| `ilo` | ILOSTAT | SDMX | local |  | [docs](https://ilostat.ilo.org/resources/sdmx-tools/) |
+| `imf` | IMF | SDMX | local |  | [docs](https://data.imf.org/en/Resource-Pages/IMF-API) |
+| `oecd` | OECD | SDMX | local |  | [docs](https://www.oecd.org/en/data/insights/data-explainers/2024/09/api.html) |
+| `ilo` | ILOSTAT | SDMX | local |  | [docs](https://www.ilo.org/resource/other/ilostat-sdmx-user-guide) |
 
 ### finance
 
@@ -118,7 +118,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `ecb` | European Central Bank | SDMX | local |  | [docs](https://data.ecb.europa.eu/help/api/overview) |
 | `bis` | Bank for International Settlements | SDMX | local |  | [docs](https://stats.bis.org/api-doc/v2/) |
 | `fred` | FRED | FRED API | live | `$FRED_API_KEY` (required) | [docs](https://fred.stlouisfed.org/docs/api/fred/series_search.html) |
-| `bundesbank` | Deutsche Bundesbank | SDMX | local |  | [docs](https://www.bundesbank.de/en/statistics/time-series-databases/help-for-sdmx-web-service) |
+| `bundesbank` | Deutsche Bundesbank | SDMX | local |  | [docs](https://statistiken.bundesbank.de/content/991208) |
 | `fiscal-data` | U.S. Treasury Fiscal Data | Fiscal Data API, listed | local |  | [docs](https://fiscaldata.treasury.gov/api-documentation/) |
 
 ### geospatial
@@ -165,7 +165,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | id | source | protocol | search | key | API docs |
 |---|---|---|---|---|---|
 | `cern` | CERN Open Data | Invenio | live |  | [docs](https://github.com/cernopendata/opendata.cern.ch) |
-| `materials-project` | Materials Project (MPContribs) | MPContribs, listed | local |  | [docs](https://api.materialsproject.org/docs) |
+| `materials-project` | Materials Project (MPContribs) | MPContribs, listed | local |  | [docs](https://contribs-api.materialsproject.org/) |
 | `nomad` | NOMAD | NOMAD API, listed | local |  | [docs](https://nomad-lab.eu/prod/v1/api/v1/extensions/docs) |
 
 ### social-science

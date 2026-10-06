@@ -6,7 +6,7 @@
     "consortia": [
       "CZI Cell Science"
     ],
-    "contact_email": "ruichen@bcm.edu",
+    "contact_email": "contact@example.org",
     "contact_name": "Rui Chen",
     "created_at": "2026-06-09T23:02:06+00:00",
     "curator_name": "Jennifer Yu-Sheng Chien",
@@ -48,11 +48,6 @@
             "label": "macula lutea proper",
             "ontology_term_id": "UBERON:0002822",
             "tissue_type": "tissue"
-          },
-          {
-            "label": "peripheral region of retina",
-            "ontology_term_id": "UBERON:0013682",
-            "tissue_type": "tissue"
           }
         ]
       },
@@ -93,101 +88,6 @@
             "label": "macula lutea proper",
             "ontology_term_id": "UBERON:0002822",
             "tissue_type": "tissue"
-          },
-          {
-            "label": "peripheral region of retina",
-            "ontology_term_id": "UBERON:0013682",
-            "tissue_type": "tissue"
-          }
-        ]
-      },
-      {
-        "assay": [
-          {
-            "label": "10x 3' v3",
-            "ontology_term_id": "EFO:0009922"
-          }
-        ],
-        "dataset_id": "8f10185b-e0b3-46a5-8706-7f1799225d79",
-        "dataset_version_id": "45e411d4-c103-4c28-84a9-cb5320f873ba",
-        "disease": [
-          {
-            "label": "normal",
-            "ontology_term_id": "PATO:0000461"
-          }
-        ],
-        "genetic_perturbation_strategy": null,
-        "is_pre_analysis": false,
-        "organism": [
-          {
-            "label": "Homo sapiens",
-            "ontology_term_id": "NCBITaxon:9606"
-          }
-        ],
-        "perturbation_types": null,
-        "suspension_type": [
-          "nucleus"
-        ],
-        "tissue": [
-          {
-            "label": "fovea centralis",
-            "ontology_term_id": "UBERON:0001786",
-            "tissue_type": "tissue"
-          },
-          {
-            "label": "macula lutea proper",
-            "ontology_term_id": "UBERON:0002822",
-            "tissue_type": "tissue"
-          },
-          {
-            "label": "peripheral region of retina",
-            "ontology_term_id": "UBERON:0013682",
-            "tissue_type": "tissue"
-          }
-        ]
-      },
-      {
-        "assay": [
-          {
-            "label": "10x 3' v3",
-            "ontology_term_id": "EFO:0009922"
-          }
-        ],
-        "dataset_id": "359f7af4-87d4-4117-9d6c-ca4cfa1f3f0b",
-        "dataset_version_id": "e3c7aa91-5edd-416e-965e-17bef75462d4",
-        "disease": [
-          {
-            "label": "normal",
-            "ontology_term_id": "PATO:0000461"
-          }
-        ],
-        "genetic_perturbation_strategy": null,
-        "is_pre_analysis": false,
-        "organism": [
-          {
-            "label": "Homo sapiens",
-            "ontology_term_id": "NCBITaxon:9606"
-          }
-        ],
-        "perturbation_types": null,
-        "suspension_type": [
-          "nucleus"
-        ],
-        "tissue": [
-          {
-            "label": "fovea centralis",
-            "ontology_term_id": "UBERON:0001786",
-            "tissue_type": "tissue"
-          },
-          {
-            "label": "macula lutea proper",
-            "ontology_term_id": "UBERON:0002822",
-            "tissue_type": "tissue"
-          },
-          {
-            "label": "peripheral region of retina",
-            "ontology_term_id": "UBERON:0013682",
-            "tissue_type": "tissue"
           }
         ]
       }
@@ -205,11 +105,6 @@
         "link_name": "",
         "link_type": "RAW_DATA",
         "link_url": "https://explore.data.humancellatlas.org/projects/9c20a245-f2c0-43ae-82c9-2232ec6b594f"
-      },
-      {
-        "link_name": "GSE226108",
-        "link_type": "RAW_DATA",
-        "link_url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE226108"
       }
     ],
     "name": "Single-cell transcriptomic atlas for adult human retina",
@@ -223,14 +118,6 @@
         {
           "family": "Cheng",
           "given": "Xuesen"
-        },
-        {
-          "family": "Wang",
-          "given": "Jun"
-        },
-        {
-          "family": "Owen",
-          "given": "Leah"
         }
       ],
       "is_preprint": false,
@@ -246,16 +133,14 @@
     "visibility": "PUBLIC"
   },
   {
-    "collection_id": "3a5dbf8a-9b3e-4309-b4c5-d8a024f83734",
-    "collection_url": "https://cellxgene.cziscience.com/collections/3a5dbf8a-9b3e-4309-b4c5-d8a024f83734",
-    "collection_version_id": "c656236c-fc37-4470-aef1-799af222a821",
-    "consortia": [
-      "LungMAP"
-    ],
+    "collection_id": "77f9d7e9-5675-49c3-abed-ce02f39eef1b",
+    "collection_url": "https://cellxgene.cziscience.com/collections/77f9d7e9-5675-49c3-abed-ce02f39eef1b",
+    "collection_version_id": "4ee03caa-4822-432a-adb6-87d81158e3e9",
+    "consortia": [],
     "contact_email": "contact@example.org",
-    "contact_name": "Xin Sun",
-    "created_at": "2026-06-10T03:39:38+00:00",
-    "curator_name": "Jennifer Yu-Sheng Chien",
+    "contact_name": "Claire Gustafson (Allen Institute for Immunology)",
+    "created_at": "2026-06-10T10:06:54+00:00",
+    "curator_name": "Jason Hilton",
     "datasets": [
       {
         "assay": [
@@ -264,12 +149,12 @@
             "ontology_term_id": "EFO:0009922"
           }
         ],
-        "dataset_id": "d68a8b48-abf0-4bd5-8834-155d34ec448a",
-        "dataset_version_id": "83bbeaaf-f5e0-42ac-be8a-dbc4e0c0d433",
+        "dataset_id": "ed78c6b7-cb40-4ebc-b55f-40bc99ba1b5d",
+        "dataset_version_id": "b6986a7f-981e-4e04-93ed-57f444749b8b",
         "disease": [
           {
-            "label": "bronchopulmonary dysplasia",
-            "ontology_term_id": "MONDO:0019091"
+            "label": "cytomegalovirus infection",
+            "ontology_term_id": "MONDO:0005132"
           },
           {
             "label": "normal",
@@ -286,286 +171,340 @@
         ],
         "perturbation_types": null,
         "suspension_type": [
-          "nucleus"
+          "cell"
         ],
         "tissue": [
           {
-            "label": "middle lobe of right lung",
-            "ontology_term_id": "UBERON:0002174",
+            "label": "blood",
+            "ontology_term_id": "UBERON:0000178",
+            "tissue_type": "tissue"
+          }
+        ]
+      },
+      {
+        "assay": [
+          {
+            "label": "10x 3' v3",
+            "ontology_term_id": "EFO:0009922"
+          }
+        ],
+        "dataset_id": "e522d2cd-7927-4e59-a4ed-064009569279",
+        "dataset_version_id": "c1ce03ce-4b71-4b8d-b695-c3cec99cdfc2",
+        "disease": [
+          {
+            "label": "cytomegalovirus infection",
+            "ontology_term_id": "MONDO:0005132"
+          },
+          {
+            "label": "normal",
+            "ontology_term_id": "PATO:0000461"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "cell"
+        ],
+        "tissue": [
+          {
+            "label": "blood",
+            "ontology_term_id": "UBERON:0000178",
             "tissue_type": "tissue"
           }
         ]
       }
     ],
-    "description": "Bronchopulmonary dysplasia (BPD) is a chronic lung disease characterized by alveolar dysplasia in newborns that are typically born prematurely.",
+    "description": "The Allen Institute for Immunology aims to deepen our understanding of the immune system - how it works when we’re healthy and what goes wrong in disease.  The generation and maintenance of protective immunity is a dynamic interplay between host and environment that is impacted by age.",
+    "doi": "10.1038/s41586-025-09686-5",
+    "is_pre_analysis": false,
+    "links": [
+      {
+        "link_name": "Human Immune Health Atlas",
+        "link_type": "OTHER",
+        "link_url": "https://apps.allenimmunology.org/aifi/resources/imm-health-atlas/"
+      },
+      {
+        "link_name": "Human Immune Health Atlas github",
+        "link_type": "OTHER",
+        "link_url": "https://github.com/aifimmunology/aifi-healthy-pbmc-reference/"
+      }
+    ],
+    "name": "Human Immune Health Atlas",
+    "published_at": "2025-10-24T23:35:58+00:00",
+    "publisher_metadata": {
+      "authors": [
+        {
+          "family": "Gong",
+          "given": "Qiuyu"
+        },
+        {
+          "family": "Sharma",
+          "given": "Mehul"
+        }
+      ],
+      "is_preprint": false,
+      "journal": "Nature",
+      "published_at": 1766016000.0,
+      "published_day": 18,
+      "published_month": 12,
+      "published_year": 2025
+    },
+    "revised_at": "2026-06-11T16:54:12+00:00",
+    "revising_in": null,
+    "revision_of": null,
+    "visibility": "PUBLIC"
+  },
+  {
+    "collection_id": "e9360edf-b0b7-4e01-bce8-e596814f13e7",
+    "collection_url": "https://cellxgene.cziscience.com/collections/e9360edf-b0b7-4e01-bce8-e596814f13e7",
+    "collection_version_id": "8c766595-269a-40f2-b092-a4d6eb4bb378",
+    "consortia": [],
+    "contact_email": "contact@example.org",
+    "contact_name": "Claire Gustafson (Allen Institute for Immunology)",
+    "created_at": "2026-06-10T09:28:20+00:00",
+    "curator_name": "Jason Hilton",
+    "datasets": [
+      {
+        "assay": [
+          {
+            "label": "10x 3' v3",
+            "ontology_term_id": "EFO:0009922"
+          }
+        ],
+        "dataset_id": "aa32098f-f7b0-43f2-a00a-601d190aae94",
+        "dataset_version_id": "1a8cdcae-a010-4f81-97a4-4136f77c1a93",
+        "disease": [
+          {
+            "label": "cytomegalovirus infection",
+            "ontology_term_id": "MONDO:0005132"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "cell"
+        ],
+        "tissue": [
+          {
+            "label": "blood",
+            "ontology_term_id": "UBERON:0000178",
+            "tissue_type": "tissue"
+          }
+        ]
+      },
+      {
+        "assay": [
+          {
+            "label": "10x 3' v3",
+            "ontology_term_id": "EFO:0009922"
+          }
+        ],
+        "dataset_id": "5fde5c9c-5b1e-4df5-982a-3f8e7635161f",
+        "dataset_version_id": "0c007e96-c225-41de-93c7-60bedef739ca",
+        "disease": [
+          {
+            "label": "cytomegalovirus infection",
+            "ontology_term_id": "MONDO:0005132"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "cell"
+        ],
+        "tissue": [
+          {
+            "label": "blood",
+            "ontology_term_id": "UBERON:0000178",
+            "tissue_type": "tissue"
+          }
+        ]
+      }
+    ],
+    "description": "The generation and maintenance of immunity is a dynamic process that is dependent on age. Here, to better understand its progression, we profiled peripheral immunity in more than 300 healthy adults (25 to 90 years of age) using single-cell RNA sequencing, proteomics and flow cytometry, following 96 adults longitudinally across 2 years with seasonal influenza vaccination.",
+    "doi": "10.1038/s41586-025-09686-5",
+    "is_pre_analysis": false,
+    "links": [
+      {
+        "link_name": "Dynamics of IHA: scRNA-seq dataset github",
+        "link_type": "OTHER",
+        "link_url": "https://github.com/aifimmunology/sound-life-scrna-analysis/"
+      },
+      {
+        "link_name": "Dynamics of IHA: Figures github",
+        "link_type": "OTHER",
+        "link_url": "https://github.com/aifimmunology/IHA-Figure"
+      }
+    ],
+    "name": "Multi-omic profiling reveals age-related immune dynamics in healthy adults",
+    "published_at": "2025-10-24T23:35:56+00:00",
+    "publisher_metadata": {
+      "authors": [
+        {
+          "family": "Gong",
+          "given": "Qiuyu"
+        },
+        {
+          "family": "Sharma",
+          "given": "Mehul"
+        }
+      ],
+      "is_preprint": false,
+      "journal": "Nature",
+      "published_at": 1766016000.0,
+      "published_day": 18,
+      "published_month": 12,
+      "published_year": 2025
+    },
+    "revised_at": "2026-06-11T16:53:28+00:00",
+    "revising_in": null,
+    "revision_of": null,
+    "visibility": "PUBLIC"
+  },
+  {
+    "collection_id": "be2285ed-d27d-4249-97a2-9b23ea924413",
+    "collection_url": "https://cellxgene.cziscience.com/collections/be2285ed-d27d-4249-97a2-9b23ea924413",
+    "collection_version_id": "86824404-8a9c-42c9-bb60-ca500ea2dfc0",
+    "consortia": [
+      "Human Cell Atlas (HCA)"
+    ],
+    "contact_email": "contact@example.org",
+    "contact_name": "Chenguang Wang",
+    "created_at": "2026-08-04T19:49:18+00:00",
+    "curator_name": "James Chaffer",
+    "datasets": [
+      {
+        "assay": [
+          {
+            "label": "10x 5' transcription profiling",
+            "ontology_term_id": "EFO:0030004"
+          },
+          {
+            "label": "10x 5' v1",
+            "ontology_term_id": "EFO:0011025"
+          }
+        ],
+        "dataset_id": "fe067858-1282-46ea-9553-b8cd19167266",
+        "dataset_version_id": "296a7df6-3505-418a-9762-4fe844bc90bc",
+        "disease": [
+          {
+            "label": "Sezary syndrome",
+            "ontology_term_id": "MONDO:0017844"
+          },
+          {
+            "label": "mycosis fungoides",
+            "ontology_term_id": "MONDO:0009691"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "cell"
+        ],
+        "tissue": [
+          {
+            "label": "blood",
+            "ontology_term_id": "UBERON:0000178",
+            "tissue_type": "tissue"
+          },
+          {
+            "label": "mesenteric lymph node",
+            "ontology_term_id": "UBERON:0002509",
+            "tissue_type": "tissue"
+          }
+        ]
+      },
+      {
+        "assay": [
+          {
+            "label": "10x 3' v2",
+            "ontology_term_id": "EFO:0009899"
+          },
+          {
+            "label": "10x 3' v3",
+            "ontology_term_id": "EFO:0009922"
+          }
+        ],
+        "dataset_id": "98b68224-956d-45dd-9eca-538747578af8",
+        "dataset_version_id": "81036f88-1a43-46ea-a800-659ea37ce815",
+        "disease": [
+          {
+            "label": "Sezary syndrome",
+            "ontology_term_id": "MONDO:0017844"
+          },
+          {
+            "label": "mycosis fungoides",
+            "ontology_term_id": "MONDO:0009691"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "cell"
+        ],
+        "tissue": [
+          {
+            "label": "dermis",
+            "ontology_term_id": "UBERON:0002067",
+            "tissue_type": "tissue"
+          },
+          {
+            "label": "skin epidermis",
+            "ontology_term_id": "UBERON:0001003",
+            "tissue_type": "tissue"
+          }
+        ]
+      }
+    ],
+    "description": "Primary cutaneous T-cell lymphomas (CTCL) are a heterogeneous group of extranodal non-Hodgkin lymphomas. Outcomes for patients with advanced-stage disease are suboptimal, as few complete and durable responses are achieved with currently available therapeutic agents.",
     "doi": null,
     "is_pre_analysis": false,
     "links": [
       {
-        "link_name": "",
+        "link_name": "GSE309807",
         "link_type": "OTHER",
-        "link_url": "https://data-browser.lungmap.net/projects/1977dc47-8414-4263-a870-6b0f207d8ab3"
+        "link_url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE309807"
       }
     ],
-    "name": "Bronchopulmonary Dysplasia",
-    "published_at": "2025-02-03T17:14:54+00:00",
+    "name": "A single-cell atlas identifies oncogenic transcriptional programs and immune escape mechanisms in CTCL",
+    "published_at": "2026-09-08T20:28:23+00:00",
     "publisher_metadata": null,
-    "revised_at": "2026-06-11T16:53:15+00:00",
-    "revising_in": null,
-    "revision_of": null,
-    "visibility": "PUBLIC"
-  },
-  {
-    "collection_id": "16876983-d454-43db-a8ec-77fafca9bf38",
-    "collection_url": "https://cellxgene.cziscience.com/collections/16876983-d454-43db-a8ec-77fafca9bf38",
-    "collection_version_id": "ea4e5a38-8adb-4ca3-94e0-3cb07c661091",
-    "consortia": [],
-    "contact_email": "ryan.corces@gladstone.ucsf.edu",
-    "contact_name": "Ryan Corces",
-    "created_at": "2026-06-10T02:12:51+00:00",
-    "curator_name": "Jennifer Yu-Sheng Chien",
-    "datasets": [
-      {
-        "assay": [
-          {
-            "label": "10x multiome",
-            "ontology_term_id": "EFO:0030059"
-          }
-        ],
-        "dataset_id": "e88a8e7c-0586-4690-8aa6-34efd7076f7a",
-        "dataset_version_id": "02e1d36f-3019-49c9-aa3d-3a7df7ae9fd8",
-        "disease": [
-          {
-            "label": "Parkinson disease",
-            "ontology_term_id": "MONDO:0005180"
-          },
-          {
-            "label": "normal",
-            "ontology_term_id": "PATO:0000461"
-          }
-        ],
-        "genetic_perturbation_strategy": null,
-        "is_pre_analysis": false,
-        "organism": [
-          {
-            "label": "Homo sapiens",
-            "ontology_term_id": "NCBITaxon:9606"
-          }
-        ],
-        "perturbation_types": null,
-        "suspension_type": [
-          "nucleus"
-        ],
-        "tissue": [
-          {
-            "label": "cerebellum",
-            "ontology_term_id": "UBERON:0002037",
-            "tissue_type": "tissue"
-          },
-          {
-            "label": "cingulate gyrus",
-            "ontology_term_id": "UBERON:0002967",
-            "tissue_type": "tissue"
-          },
-          {
-            "label": "middle temporal gyrus",
-            "ontology_term_id": "UBERON:0002771",
-            "tissue_type": "tissue"
-          },
-          {
-            "label": "putamen",
-            "ontology_term_id": "UBERON:0001874",
-            "tissue_type": "tissue"
-          }
-        ]
-      },
-      {
-        "assay": [
-          {
-            "label": "10x multiome",
-            "ontology_term_id": "EFO:0030059"
-          }
-        ],
-        "dataset_id": "5fa72b3e-999e-4560-a105-391d109574da",
-        "dataset_version_id": "5451683b-f184-4bd5-8fb1-401bf1a467c6",
-        "disease": [
-          {
-            "label": "Parkinson disease",
-            "ontology_term_id": "MONDO:0005180"
-          },
-          {
-            "label": "normal",
-            "ontology_term_id": "PATO:0000461"
-          }
-        ],
-        "genetic_perturbation_strategy": null,
-        "is_pre_analysis": false,
-        "organism": [
-          {
-            "label": "Homo sapiens",
-            "ontology_term_id": "NCBITaxon:9606"
-          }
-        ],
-        "perturbation_types": null,
-        "suspension_type": [
-          "nucleus"
-        ],
-        "tissue": [
-          {
-            "label": "cerebellum",
-            "ontology_term_id": "UBERON:0002037",
-            "tissue_type": "tissue"
-          },
-          {
-            "label": "cingulate gyrus",
-            "ontology_term_id": "UBERON:0002967",
-            "tissue_type": "tissue"
-          },
-          {
-            "label": "middle temporal gyrus",
-            "ontology_term_id": "UBERON:0002771",
-            "tissue_type": "tissue"
-          },
-          {
-            "label": "putamen",
-            "ontology_term_id": "UBERON:0001874",
-            "tissue_type": "tissue"
-          }
-        ]
-      }
-    ],
-    "description": "Complex diseases, by definition, are driven by a large number of genetic variants, many of which reside within the noncoding genome.",
-    "doi": "10.64898/2026.03.05.709922",
-    "is_pre_analysis": false,
-    "links": [],
-    "name": "Multi-Region Brain Single-Cell Atlas of Parkinson's Disease and Control Samples",
-    "published_at": "2026-04-30T17:25:28+00:00",
-    "publisher_metadata": {
-      "authors": [
-        {
-          "family": "Menon",
-          "given": "Shreya"
-        },
-        {
-          "family": "Turner",
-          "given": "Adam W."
-        },
-        {
-          "family": "Chang",
-          "given": "Serena H."
-        },
-        {
-          "family": "Johnson",
-          "given": "Alia W."
-        }
-      ],
-      "is_preprint": true,
-      "journal": "bioRxiv",
-      "published_at": 1772668800.0,
-      "published_day": 5,
-      "published_month": 3,
-      "published_year": 2026
-    },
-    "revised_at": "2026-06-11T16:53:15+00:00",
-    "revising_in": null,
-    "revision_of": null,
-    "visibility": "PUBLIC"
-  },
-  {
-    "collection_id": "ad10cef8-9c6c-488f-9b50-d252d49b6837",
-    "collection_url": "https://cellxgene.cziscience.com/collections/ad10cef8-9c6c-488f-9b50-d252d49b6837",
-    "collection_version_id": "6f05ce2a-2fca-424c-82b7-0226386e1951",
-    "consortia": [],
-    "contact_email": "jiyeon.choi2@nih.gov",
-    "contact_name": "Jiyeon Choi",
-    "created_at": "2026-06-10T02:39:24+00:00",
-    "curator_name": "Jennifer Yu-Sheng Chien",
-    "datasets": [
-      {
-        "assay": [
-          {
-            "label": "10x multiome",
-            "ontology_term_id": "EFO:0030059"
-          }
-        ],
-        "dataset_id": "92594117-6e7c-47bd-bd6b-65c52cea167b",
-        "dataset_version_id": "a1e971da-5c35-46fd-acc3-b742735ec7d9",
-        "disease": [
-          {
-            "label": "normal",
-            "ontology_term_id": "PATO:0000461"
-          }
-        ],
-        "genetic_perturbation_strategy": null,
-        "is_pre_analysis": false,
-        "organism": [
-          {
-            "label": "Homo sapiens",
-            "ontology_term_id": "NCBITaxon:9606"
-          }
-        ],
-        "perturbation_types": null,
-        "suspension_type": [
-          "nucleus"
-        ],
-        "tissue": [
-          {
-            "label": "lung",
-            "ontology_term_id": "UBERON:0002048",
-            "tissue_type": "tissue"
-          }
-        ]
-      }
-    ],
-    "description": "Genome-wide association studies (GWAS) identified over fifty loci associated with lung cancer risk. However, underlying mechanisms and target genes are largely unknown, as most risk-associated variants might regulate gene expression in a context-specific manner.",
-    "doi": "10.1038/s41467-024-52356-9",
-    "is_pre_analysis": false,
-    "links": [
-      {
-        "link_name": "GSE241468",
-        "link_type": "RAW_DATA",
-        "link_url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE241468"
-      },
-      {
-        "link_name": "",
-        "link_type": "OTHER",
-        "link_url": "https://github.com/pumclyy/HLISCA"
-      },
-      {
-        "link_name": "",
-        "link_type": "OTHER",
-        "link_url": "https://zenodo.org/records/13306592"
-      }
-    ],
-    "name": "Context-aware single-cell multiomics approach identifies cell-type specific lung cancer susceptibility genes",
-    "published_at": "2026-01-07T20:01:55+00:00",
-    "publisher_metadata": {
-      "authors": [
-        {
-          "family": "Long",
-          "given": "Erping"
-        },
-        {
-          "family": "Yin",
-          "given": "Jinhu"
-        },
-        {
-          "family": "Shin",
-          "given": "Ju Hye"
-        },
-        {
-          "family": "Li",
-          "given": "Yuyan"
-        }
-      ],
-      "is_preprint": false,
-      "journal": "Nat Commun",
-      "published_at": 1726099200.0,
-      "published_day": 12,
-      "published_month": 9,
-      "published_year": 2024
-    },
-    "revised_at": "2026-06-11T16:53:41+00:00",
+    "revised_at": null,
     "revising_in": null,
     "revision_of": null,
     "visibility": "PUBLIC"

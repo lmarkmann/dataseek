@@ -2,7 +2,7 @@
 
 ## API keys
 
-No key is needed to search: 74 of the 76 sources answer without one. Keys raise rate limits or unlock two sources. Set a key as an environment variable, or put it in `credentials.toml` in the config directory (`dataseek doctor` prints the path) with permissions `600`:
+No key is needed for most sources: 73 of the 76 answer without one. Keys raise rate limits or unlock three sources. Set a key as an environment variable, or put it in `credentials.toml` in the config directory (`dataseek doctor` prints the path) with permissions `600`:
 
 ```toml
 fred = "..."
@@ -12,12 +12,12 @@ datagov = "..."
 | source | environment variable | file key | without it | get one |
 |---|---|---|---|---|
 | Hugging Face | `HF_TOKEN` | `huggingface` | 500 requests per 5 min per IP | https://huggingface.co/settings/tokens |
-| Kaggle | `KAGGLE_API_TOKEN`, or `~/.kaggle/access_token`, or `~/.kaggle/kaggle.json` | `kaggle` | anonymous first page of 20 | https://www.kaggle.com/settings/api |
+| Kaggle | `KAGGLE_API_TOKEN`, or `~/.kaggle/access_token`, or `~/.kaggle/kaggle.json` | `kaggle` | anonymous requests reach every page; a key changed nothing observable | https://www.kaggle.com/settings/api |
 | Data.gov | `DATAGOV_API_KEY` | `datagov` | catalog.data.gov's keyless search | https://api.data.gov/signup/ |
 | GitHub | `GITHUB_TOKEN` | `github` | 10 searches per minute | https://github.com/settings/tokens |
 | FRED | `FRED_API_KEY` | `fred` | source skipped | https://fredaccount.stlouisfed.org/apikeys |
 | Roboflow Universe | `ROBOFLOW_API_KEY` | `roboflow` | source skipped | https://app.roboflow.com/settings/api |
-| Data Commons | `DATACOMMONS_API_KEY` | `datacommons` | the public trial key, quota-limited | https://apikeys.datacommons.org |
+| Data Commons | `DATACOMMONS_API_KEY` | `datacommons` | source skipped | https://apikeys.datacommons.org |
 | NCBI | `NCBI_API_KEY` | `ncbi` | 3 requests per second | https://account.ncbi.nlm.nih.gov/settings/ |
 
 An environment variable is visible to every program started from that shell and to anything that dumps the environment (a crash report, `ps e`, a CI log); it suits CI and one-off runs. For a key that stays on a machine, prefer `credentials.toml` with permissions `600`.
@@ -48,4 +48,4 @@ dataseek search ... --offline       # cached answers and catalogs only, no netwo
 dataseek search ... --timeout 0     # wait for every source, however slow
 ```
 
-A fetch that fails serves the expired entry when one exists; `-v` and `--json` label a query answered that way as stale, while a catalog searched from an expired copy still reads `ok`. An entry written by another release counts as expired, because that release may have parsed the source differently: it is refetched when online and still served when the fetch fails. `--offline` sends no request at all, so it never marks a source as down. Why the numbers are what they are: [ADR 0007](../adr/0007-cache-budget-and-failure-handling.md).
+A fetch that fails serves the expired entry when one exists; `-v` and `--json` label an answer served that way as stale, a catalog searched from an expired copy included. An entry written by another release counts as expired, because that release may have parsed the source differently: it is refetched when online and still served when the fetch fails. `--offline` sends no request at all, so it never marks a source as down or clears that mark. A host that misses a `--connect-timeout` you set is not marked as down either: that limit is your choice, and the source is asked again on the next search. Why the numbers are what they are: [ADR 0007](../adr/0007-cache-budget-and-failure-handling.md).

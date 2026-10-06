@@ -1,0 +1,77 @@
+{
+  "data": {
+    "datasets": {
+      "pageInfo": {
+        "hasNextPage": true,
+        "endCursor": "eyJvZmZzZXQiOjE2MDB9"
+      },
+      "edges": [
+        {
+          "node": {
+            "id": "ds006663",
+            "analytics": {
+              "downloads": 30
+            },
+            "latestSnapshot": {
+              "created": "2025-11-12T09:51:22.000Z",
+              "size": 18028268017,
+              "readme": "This dataset contains the raw images and templates from Cohort 1 (scanned twice, once in adolescence",
+              "description": {
+                "Name": "Longitudinal in vivo MRI of C57BL6J mice: T1w, RARE T2w, PDw, MTw, DWI, BOLD rsfMRI",
+                "DatasetDOI": "doi:10.18112/openneuro.ds006663.v1.0.3",
+                "License": "CC0"
+              }
+            }
+          }
+        },
+        {
+          "node": null
+        },
+        {
+          "node": {
+            "id": "ds006670",
+            "analytics": {
+              "downloads": 23
+            },
+            "latestSnapshot": {
+              "created": "2025-11-12T09:49:50.000Z",
+              "size": 2189862705,
+              "readme": "This dataset contains the raw images and templates from Cohort 2 (scanned once at three months, rang",
+              "description": {
+                "Name": "Adulthood in vivo MRI of C57BL6J mice: T1w, RARE T2w, PDw, MTw, DWI",
+                "DatasetDOI": "doi:10.18112/openneuro.ds006670.v1.0.2",
+                "License": "CC0"
+              }
+            }
+          }
+        },
+        {
+          "node": null
+        },
+        {
+          "node": {
+            "id": "ds006673",
+            "analytics": {
+              "downloads": 19
+            },
+            "latestSnapshot": {
+              "created": "2026-05-11T17:02:19.000Z",
+              "size": 8349645847,
+              "readme": null,
+              "description": {
+                "Name": "ball_squeeze_Carlton_2025",
+                "DatasetDOI": "doi:10.18112/openneuro.ds006673.v1.0.4",
+                "License": "CC0"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "openneuro": {
+      "version": "5.8.0"
+    }
+  }
+}

@@ -1,6 +1,12 @@
 //! U.S. Treasury Fiscal Data: the Treasury's published datasets (debt,
 //! receipts and outlays, auctions, interest rates), listed from the metadata
-//! endpoint the site is built from and searched locally.
+//! endpoint the site is built from and searched locally. The endpoint is not
+//! in the API documentation, which lists only the per-table data endpoints; it
+//! answered with 56 datasets in 1.3 MB, 140 KB compressed (Treasury Fiscal
+//! Data, October 2026). Every table in a dataset has its own `last_updated`,
+//! and the newest is the dataset's. The API needs no key and states no rate
+//! limit; its data is "free, without restriction" (Fiscal Data API
+//! documentation, October 2026).
 
 use serde_json::Value;
 
@@ -31,7 +37,7 @@ pub(super) fn parse(body: &Value) -> Result<Vec<Dataset>, SourceError> {
             )
             .describe(first_text(
                 row,
-                &["/short_description", "/summary", "/long_description"],
+                &["/short_description", "/long_description"],
             ));
             dataset.publisher = text(row, "/publisher")
                 .map(|office| format!("U.S. Treasury, {office}"));
@@ -52,7 +58,12 @@ mod tests {
     #[test]
     fn records_map_from_a_recorded_list() {
         let datasets = parse(&fixture::json("fiscal.json")).unwrap();
-        assert_eq!(datasets.len(), 3);
+        assert_eq!(datasets.len(), 4);
+        assert_eq!(
+            datasets[3].updated.as_deref(),
+            Some("2026-09-02"),
+            "the newest table, not the last one (2025-12-04)"
+        );
         assert_eq!(
             datasets[0],
             Dataset {

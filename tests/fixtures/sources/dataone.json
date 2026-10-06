@@ -1,59 +1,75 @@
 {
   "responseHeader": {
     "status": 0,
-    "QTime": 920,
+    "QTime": 93,
     "params": {
-      "q": "sea AND ice",
-      "fl": "id,title,abstract,dateModified,datasource,origin",
-      "json": "",
+      "q": "ocean AND temperature",
+      "fl": "id,seriesId,title,abstract,dateUploaded,datasource,origin,contactOrganization",
       "fq": "formatType:METADATA AND -obsoletedBy:*",
-      "rows": "10",
+      "rows": "5",
       "wt": "json"
     }
   },
   "response": {
-    "numFound": 29240,
+    "numFound": 154173,
     "start": 0,
     "docs": [
       {
-        "id": "sha256:22074341b20fe79af9506247d014e528ece4db64e3e6ae49b1a29d1ebc7e0cb7",
-        "dateModified": "2024-09-12T01:31:44Z",
+        "id": "doi:10.18739/A21Z41V5P",
+        "dateUploaded": "2024-11-14T18:41:17.653Z",
+        "datasource": "urn:node:ARCTIC",
+        "abstract": "The dataset contains measurements made from three autonomous Seasonal Ice Mass Balance (SIMB) buoys. The buoys were deployed in the late summer of 2023 as part of the Alfred Wegener Institute ArcWatch Project.",
+        "title": "Measurements of ice mass balance and temperature from autonomous Seasonal Ice Mass Balance (SIMB3) buoys deployed in the Central Arctic Ocean on the ArcWatch expedition in 2023",
+        "origin": [
+          "Donald Perovich",
+          "Ian Raphael",
+          "Chris Polashenski"
+        ],
+        "contactOrganization": [
+          "Thayer School of Engineering at Dartmouth College",
+          "USACE-CRREL; Thayer School of Engineering at Dartmouth College"
+        ]
+      },
+      {
+        "id": "sha256:a67f465f8977a250423baa0047a66ea0f67c86719695885dee946dc235ac69a0",
+        "seriesId": "https://doi.org/10.5067/TLB86RYP2MRY",
+        "dateUploaded": "2025-08-14T01:31:24Z",
         "datasource": "urn:node:NSIDC",
-        "abstract": "NSIDC provides this data set to aid in the investigations of the variability and trends of sea ice cover. Ice cover in these data are indicated by sea ice concentration: the percentage of the ocean surface covered by ice.",
-        "title": "Sea Ice Trends and Climatologies from SMMR and SSM/I-SSMIS, Version 1",
+        "abstract": "The Comprehensive Ocean - Atmosphere Data Set (COADS) Long Marine Reports Fixed-Length (LMRF) Arctic subset contains marine surface weather reports for regions north of 65 degrees N from ships, drifting ice stations, and buoys.",
+        "title": "Comprehensive Ocean - Atmosphere Data Set (COADS) LMRF Arctic Subset, 1950 - 1995, Version 1",
         "origin": [
           "National Snow and Ice Data Center"
         ]
       },
       {
-        "id": "sha256:fa40035df214bfd8768cb57e52feaa5aeffded64bb6fc3fcd11baf40ce6b867c",
-        "dateModified": "2024-09-12T01:31:43Z",
+        "id": "sha256:fb5fa7b4f931a1e8314db42eb9f46efacc7fb58ab708d903e3eedc8a40b23050",
+        "seriesId": "https://doi.org/10.7265/N5V122QS",
+        "dateUploaded": "2025-08-14T01:21:10Z",
         "datasource": "urn:node:NSIDC",
-        "abstract": "NSIDC provides this data set to aid in the investigations of the variability and trends of sea ice cover. Ice cover in these data are indicated by sea ice concentration: the percentage of the ocean surface covered by ice.",
-        "title": "Sea Ice Trends and Climatologies from SMMR and SSM/I-SSMIS, Version 2",
+        "abstract": "Fiber-optic equipped moorings for Raman backscatter Distributed Temperature Sensing (DTS) were installed at Windless Bight, Antarctica in November 2011. Continuous-in-space measurements of temperature were recorded every meter along the mooring.",
+        "title": "Fiber-Optic Distributed Temperature Sensing at Windless Bight, Version 1",
         "origin": [
           "National Snow and Ice Data Center"
         ]
       },
       {
-        "id": "sha256:5a6af8768f16ca45faf5634310c5f77fda2a9cdcfc9b06dd24496b354186c06b",
-        "dateModified": "2024-09-12T01:22:29Z",
+        "id": "sha256:81168d17bf5d9c17de028320104b34ad511826bbc23c70ad2664bb5503858f23",
+        "seriesId": "https://doi.org/10.7265/N57H1GGG",
+        "dateUploaded": "2025-08-30T01:52:32Z",
         "datasource": "urn:node:NSIDC",
-        "abstract": "This data set provides weekly estimates of sea ice age for the Arctic Ocean from remotely sensed sea ice motion and sea ice extent.",
-        "title": "EASE-Grid Sea Ice Age, Version 3",
+        "abstract": "This data set contains water depth, temperature, specific gravity, salinity, and density measurements from the North Polar Basin and the Barents Sea, gathered by Nansen and crew on the Norwegian North Polar Expedition from 1893-1896.",
+        "title": "Norwegian North Polar Expedition 1893-1896: Oceanographic Data, Version 1",
         "origin": [
           "National Snow and Ice Data Center"
         ]
       },
       {
-        "id": "sha256:e4e2803b5f1d26c49895e5e7c2cf0fe0ce74197ef0a65b16ff4f2605fe543bef",
-        "dateModified": "2025-08-22T01:31:32Z",
-        "datasource": "urn:node:NSIDC",
-        "abstract": "NSIDC provides this data set to aid investigations of variability and trends in sea ice cover. Ice cover in these data are indicated by sea ice concentration: the percentage of the ocean surface covered by ice.",
-        "title": "Sea Ice Trends and Climatologies from SMMR and SSM/I-SSMIS, Version 3",
-        "origin": [
-          "National Snow and Ice Data Center"
-        ]
+        "id": "sha256:5f5c898a0fef434678d278e649d0fecae426d058a9850cad5d77da2e225767c1",
+        "seriesId": "urn:uuid:365ff01d-e515-5d23-9cb5-6d7bf304d09d",
+        "dateUploaded": "2010-01-15T11:43:03Z",
+        "datasource": "urn:node:NPDC",
+        "abstract": "This project focused on the pelagic microbes from the Kongsfjorden-Krossfjorden system located on the West coast of Spitsbergen. The West coast of Spitsbergen is influenced by the West Spitsbergen Current (WSC), which is transformed Atlantic water, characterized by relatively warm and saline water.",
+        "title": "Glacial melting and coastal marine microbes of the Arctic"
       }
     ]
   }

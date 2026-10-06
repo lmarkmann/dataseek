@@ -10,12 +10,19 @@
 //! search loop then serves the last cached answer); a record missing its
 //! title or link is skipped rather than guessed at. One request per query:
 //! the adapter never pages or retries against Google.
+//!
+//! Google documents no API and no paging (Google, October 2026): the
+//! parameters `start`, `page` and `offset` return the same first 20, so a
+//! query yields at most 20 results however large `limit` is. Google's terms
+//! bar automated access only "in violation of the machine-readable
+//! instructions on our web pages", and the host serves no `robots.txt`: it
+//! answers 404 (Google terms effective July 2026; probed October 2026).
 
 use serde_json::Value;
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::{Dataset, doi, first_text, text};
+use crate::record::{Dataset, doi, first_text, number, text};
 
 const BLOCK: &str = "AF_initDataCallback({key: 'ds:0'";
 
@@ -74,9 +81,13 @@ fn parse(page: &str, limit: usize) -> Result<Vec<Dataset>, SourceError> {
 /// One result: `[_, _, record, docid, url]`; inside `record`, 1 is the
 /// title, 2 the provider block (`[_, host, name, home, domain, icon,
 /// [_, _, url]]`), 10 the file formats, 13 the license (`[[code, [url]]]`,
-/// the URL missing for some codes), 21 the DOI, 25 the publishers
-/// (`[[name, home, icon]]`), 27 the description (HTML), 32 the creators,
-/// 39 the last update ("Feb 17, 2026").
+/// most records carrying the code alone), 21 the DOI, 25 the publishers
+/// (`[[name, home, icon]]`), 27 the description (HTML), 32 the creators
+/// (joined with `; `), 39 the last update ("Feb 17, 2026").
+///
+/// The publisher is Google's own publisher entry; without one, a single
+/// creator (a Kaggle owner, a Mendeley author) stands in, and a list of
+/// authors never does, so the provider takes over.
 fn record(item: &Value) -> Option<Dataset> {
     let url = text(item, "/2/2/6/2").or_else(|| {
         text(item, "/4")
@@ -85,9 +96,12 @@ fn record(item: &Value) -> Option<Dataset> {
     let mut dataset = Dataset::new(&text(item, "/2/1/0")?, &url)
         .describe(text(item, "/2/27/0/1"))
         .doi_from(text(item, "/2/21").as_deref().and_then(doi));
-    dataset.publisher =
-        first_text(item, &["/2/25/0/0", "/2/32", "/2/2/2", "/2/2/1"]);
-    dataset.license = text(item, "/2/13/0/1/0");
+    dataset.publisher = text(item, "/2/25/0/0")
+        .or_else(|| text(item, "/2/32").filter(|names| !names.contains(';')))
+        .or_else(|| first_text(item, &["/2/2/2", "/2/2/1"]));
+    dataset.license = text(item, "/2/13/0/1/0").or_else(|| {
+        number(item, "/2/13/0/0").and_then(license_named).map(str::to_owned)
+    });
     dataset.updated = text(item, "/2/39").map(|d| iso_date(&d).unwrap_or(d));
     dataset.size_bytes = text(item, "/2/10/0").as_deref().and_then(bytes_in);
     if let Some(page) = text(item, "/4") {
@@ -96,6 +110,25 @@ fn record(item: &Value) -> Option<Dataset> {
             .push(page.split("#__").next().unwrap_or(&page).to_owned());
     }
     dataset.valid()
+}
+
+/// The license behind one of Google's own license codes, for results that
+/// carry the code and no link. Each code was matched against the license the
+/// provider's own metadata gives (Zenodo, Mendeley Data, Dataverse and
+/// Figshare through DataCite, Kaggle through its API) on at least two
+/// results in October 2026; a code seen less often stays unnamed.
+fn license_named(code: u64) -> Option<&'static str> {
+    match code {
+        2 => Some("CC0-1.0"),
+        8 => Some("CC-BY-4.0"),
+        13 => Some("CC-BY-SA-4.0"),
+        18 => Some("CC-BY-NC-4.0"),
+        23 => Some("CC-BY-NC-SA-4.0"),
+        33 => Some("CC-BY-NC-ND-4.0"),
+        49 => Some("MIT"),
+        50 => Some("Apache-2.0"),
+        _ => None,
+    }
 }
 
 /// `"Feb 17, 2026"` as `"2026-02-17"`.
@@ -220,7 +253,7 @@ mod tests {
             licenses,
             [
                 None,
-                None,
+                Some("CC-BY-4.0"),
                 None,
                 Some("https://creativecommons.org/publicdomain/zero/1.0/"),
             ]
@@ -231,6 +264,83 @@ mod tests {
                 "https://data.nasa.gov/dataset/\
                  ease-grid-sea-ice-age-version-4-8b6b7"
                     .to_owned()
+            ]
+        );
+    }
+
+    #[test]
+    fn license_codes_and_author_lists_map_from_a_recorded_search() {
+        let hits = parse(&fixture::text("google.codes.html"), 10).unwrap();
+        assert_eq!(hits.len(), 7);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Data from: Datasets for a data-centric image \
+                        classification benchmark for noisy and ambiguous \
+                        label estimation"
+                    .into(),
+                url: "https://datasetcatalog.nlm.nih.gov/dataset?q=0002202795"
+                    .into(),
+                description: Some(
+                    "This is the official data repository of the \
+                     Data-Centric Image Classification (DCIC) Benchmark. The \
+                     goal of this benchmark is to measure the impact of \
+                     tuning the dataset instead of the model for a variety \
+                     of image classification datasets. Full details about \
+                     the collection process, the structure"
+                        .into()
+                ),
+                publisher: Some("Zenodo".into()),
+                doi: Some("10.5281/zenodo.8115942".into()),
+                license: None,
+                updated: Some("2022-10-06".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![
+                    "https://datasetcatalog.nlm.nih.gov/dataset?q=0002202795"
+                        .into()
+                ],
+            }
+        );
+        let publishers: Vec<_> =
+            hits.iter().map(|h| h.publisher.as_deref()).collect();
+        assert_eq!(
+            publishers,
+            [
+                Some("Zenodo"),
+                Some("Ananya Verma"),
+                Some("prasuldevv"),
+                Some("Science Data Bank"),
+                Some("abrahamchan2"),
+                Some("Md Hasan Imam Bijoy"),
+                Some("Sreevalli Manda"),
+            ]
+        );
+        let licenses: Vec<_> =
+            hits.iter().map(|h| h.license.as_deref()).collect();
+        assert_eq!(
+            licenses,
+            [
+                None,
+                None,
+                Some("MIT"),
+                Some("CC-BY-4.0"),
+                Some("Apache-2.0"),
+                Some("CC-BY-NC-ND-4.0"),
+                Some("https://creativecommons.org/publicdomain/zero/1.0/"),
+            ]
+        );
+        let sizes: Vec<_> = hits.iter().map(|h| h.size_bytes).collect();
+        assert_eq!(
+            sizes,
+            [
+                None,
+                Some(98_926_314),
+                Some(1128),
+                None,
+                Some(241_294_629),
+                None,
+                Some(5_956_813),
             ]
         );
     }

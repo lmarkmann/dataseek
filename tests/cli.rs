@@ -508,6 +508,19 @@ fn sources_json_lists_every_source_with_docs() {
 }
 
 #[test]
+fn opt_in_sources_are_marked_in_the_listing_and_doctor() {
+    let report = json_of(&["sources", "--json"]);
+    let rows = report["sources"].as_array().unwrap();
+    let google = rows.iter().find(|r| r["id"] == "google").unwrap();
+    assert!(google["opt_in"].as_str().unwrap().contains("results page"));
+    let hf = rows.iter().find(|r| r["id"] == "huggingface").unwrap();
+    assert!(hf["opt_in"].is_null());
+    let doctor = stdout_text(&["doctor", "--plain"]);
+    assert!(doctor.contains("opt-in google"), "{doctor}");
+    assert!(doctor.contains("opt-in mendeley"), "{doctor}");
+}
+
+#[test]
 fn piped_json_is_one_line() {
     let text = stdout_text(&["sources", "--json"]);
     assert_eq!(text.lines().count(), 1);
@@ -559,7 +572,7 @@ fn a_key_from_the_environment_is_reported_but_never_printed() {
 fn plain_sources_are_tab_separated() {
     let text = stdout_text(&["sources", "--plain"]);
     for line in text.lines() {
-        assert_eq!(line.split('\t').count(), 6, "not six fields: {line}");
+        assert_eq!(line.split('\t').count(), 7, "not seven fields: {line}");
     }
 }
 

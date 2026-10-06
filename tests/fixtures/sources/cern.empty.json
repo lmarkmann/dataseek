@@ -1,0 +1,92 @@
+{
+  "aggregations": {
+    "availability": {
+      "buckets": [],
+      "doc_count": 0,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "category": {
+      "buckets": [],
+      "doc_count": 0,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "collision_energy": {
+      "buckets": [],
+      "doc_count": 0,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "collision_type": {
+      "buckets": [],
+      "doc_count": 0,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "experiment": {
+      "buckets": [],
+      "doc_count": 0,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "file_type": {
+      "buckets": [],
+      "doc_count": 0,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "keywords": {
+      "buckets": [],
+      "doc_count": 0,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "magnet_polarity": {
+      "buckets": [],
+      "doc_count": 0,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "number_events": {
+      "buckets": [],
+      "doc_count": 0
+    },
+    "signature": {
+      "buckets": [],
+      "doc_count": 0,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "stripping_stream": {
+      "buckets": [],
+      "doc_count": 0,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "stripping_version": {
+      "buckets": [],
+      "doc_count": 0,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "type": {
+      "buckets": [],
+      "doc_count": 0,
+      "doc_count_error_upper_bound": 0,
+      "meta": {},
+      "sum_other_doc_count": 0
+    },
+    "year": {
+      "buckets": [],
+      "doc_count": 0
+    }
+  },
+  "hits": {
+    "hits": [],
+    "total": 0
+  },
+  "links": {
+    "self": "https://opendata.cern.ch/api/records/?type=Dataset&sort=bestmatch&q=zzzzqqqxxkj&size=10&page=1"
+  }
+}

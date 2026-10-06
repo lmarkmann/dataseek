@@ -1,0 +1,263 @@
+{
+  "numberMatched": 144,
+  "numberReturned": 3,
+  "links": [
+    {
+      "rel": "root",
+      "type": "application/json",
+      "href": "https://cds.climate.copernicus.eu/api/catalogue/v1/"
+    },
+    {
+      "rel": "parent",
+      "type": "application/json",
+      "href": "https://cds.climate.copernicus.eu/api/catalogue/v1/"
+    },
+    {
+      "rel": "self",
+      "type": "application/json",
+      "href": "https://cds.climate.copernicus.eu/api/catalogue/v1/collections"
+    }
+  ],
+  "collections": [
+    {
+      "type": "Collection",
+      "id": "satellite-precipitation",
+      "stac_version": "1.1.0",
+      "title": "Precipitation monthly and daily gridded data from 1979 to present derived from satellite measurements",
+      "description": "Within the hydrological cycle, precipitation is the main component of water transport from the atmosphere to the Earth’s surface. Precipitation varies strongly, depending on geographical location, season, synopsis, and other meteorological factors. The supply of freshwater through precipitation is vital for many subsystems of the climate and the environment, but there are also hazards related to extensive precipitation or the lack of precipitation.\nThe analysis of the Global Precipitation Climatology Project (GPCP) provides global estimates of precipitation as monthly means (GPCP monthly v2.3, now updated to GPCP monthly v3.2 and v3.3) and as daily means (GPCP daily v1.3, now updated to GPCP",
+      "summaries": {},
+      "providers": [
+        {
+          "name": "ECMWF"
+        }
+      ],
+      "keywords": [
+        "Temporal coverage: Past",
+        "Spatial coverage: Global",
+        "Variable domain: Land (hydrology)",
+        "Product type: Satellite observations"
+      ],
+      "license": "other",
+      "extent": {
+        "spatial": {
+          "bbox": [
+            [
+              0.0,
+              -90.0,
+              360.0,
+              90.0
+            ]
+          ]
+        },
+        "temporal": {
+          "interval": [
+            [
+              "1979-01-01T00:00:00+00:00",
+              "2025-12-31T00:00:00+00:00"
+            ]
+          ]
+        }
+      },
+      "links": [
+        {
+          "rel": "self",
+          "type": "application/json",
+          "href": "https://cds.climate.copernicus.eu/api/catalogue/v1/collections/satellite-precipitation"
+        },
+        {
+          "rel": "parent",
+          "type": "application/json",
+          "href": "https://cds.climate.copernicus.eu/api/catalogue/v1/"
+        },
+        {
+          "rel": "root",
+          "type": "application/json",
+          "href": "https://cds.climate.copernicus.eu/api/catalogue/v1/"
+        },
+        {
+          "rel": "qa",
+          "href": "https://cds.climate.copernicus.eu/datasets/satellite-precipitation?tab=quality_assurance_tab",
+          "title": "Quality assessment of the dataset",
+          "type": "text/html"
+        }
+      ],
+      "assets": {
+        "thumbnail": {
+          "href": "https://object-store.os-api.cci2.ecmwf.int:443/cci2-prod-catalogue/resources/satellite-precipitation/overview_b51d73b9952afa2ee9248d65d659f39a17170aa4a166696f841cd1ae68d08269.png",
+          "type": "image/jpg",
+          "roles": [
+            "thumbnail"
+          ]
+        }
+      },
+      "published": "2021-01-29T00:00:00Z",
+      "updated": "2026-10-06T00:00:00Z",
+      "sci:doi": "10.24381/cds.c14d9324",
+      "cads:disabled_reason": null,
+      "cads:sanity_check": {
+        "status": "available",
+        "timestamp": "2026-10-06T20:15:52.295429+00:00"
+      },
+      "cads:update_frequency": "Semiannual",
+      "cads:fair": 84
+    },
+    {
+      "type": "Collection",
+      "id": "derived-era5-single-levels-daily-statistics",
+      "stac_version": "1.1.0",
+      "title": "ERA5 post-processed daily statistics on single levels from 1940 to present",
+      "description": "ERA5 is the fifth generation ECMWF reanalysis for the global climate and weather for the past 8 decades.\nData is available from 1940 onwards.\nERA5 replaces the ERA-Interim reanalysis.\nReanalysis combines model data with observations from across the world into a globally complete and consistent dataset using the laws of physics. This principle, called data assimilation, is based on the method used by numerical weather prediction centres, where every so many hours (12 hours at ECMWF) a previous forecast is combined with newly available observations in an optimal way to produce a new best estimate of the state of the atmosphere, called analysis, from which an updated, improved forecast is issue",
+      "summaries": {},
+      "providers": [
+        {
+          "name": "ECMWF"
+        }
+      ],
+      "keywords": [
+        "Product type: Reanalysis",
+        "Temporal coverage: Past",
+        "Spatial coverage: Global",
+        "Variable domain: Atmosphere (surface)"
+      ],
+      "license": "CC-BY-4.0",
+      "extent": {
+        "spatial": {
+          "bbox": [
+            [
+              0.0,
+              -89.0,
+              360.0,
+              89.0
+            ]
+          ]
+        },
+        "temporal": {
+          "interval": [
+            [
+              "1940-01-01T00:00:00+00:00",
+              "2026-09-30T00:00:00+00:00"
+            ]
+          ]
+        }
+      },
+      "links": [
+        {
+          "rel": "self",
+          "type": "application/json",
+          "href": "https://cds.climate.copernicus.eu/api/catalogue/v1/collections/derived-era5-single-levels-daily-statistics"
+        },
+        {
+          "rel": "parent",
+          "type": "application/json",
+          "href": "https://cds.climate.copernicus.eu/api/catalogue/v1/"
+        },
+        {
+          "rel": "root",
+          "type": "application/json",
+          "href": "https://cds.climate.copernicus.eu/api/catalogue/v1/"
+        }
+      ],
+      "assets": {
+        "thumbnail": {
+          "href": "https://object-store.os-api.cci2.ecmwf.int:443/cci2-prod-catalogue/resources/derived-era5-single-levels-daily-statistics/overview_593e6a72773f0dd1e6b665ff4fe2e184f1cd7b175c143e28caa61c569fe82dd3.png",
+          "type": "image/jpg",
+          "roles": [
+            "thumbnail"
+          ]
+        }
+      },
+      "published": "2024-10-14T00:00:00Z",
+      "updated": "2026-10-06T00:00:00Z",
+      "sci:doi": "10.24381/cds.4991cf48",
+      "cads:disabled_reason": null,
+      "cads:sanity_check": {
+        "status": "available",
+        "timestamp": "2026-10-06T20:18:22.116988+00:00"
+      },
+      "cads:update_frequency": "Daily",
+      "cads:fair": 92
+    },
+    {
+      "type": "Collection",
+      "id": "reanalysis-era5-pressure-levels-monthly-means",
+      "stac_version": "1.1.0",
+      "title": "ERA5 monthly averaged data on pressure levels from 1940 to present",
+      "description": "ERA5 is the fifth generation ECMWF reanalysis for the global climate and weather for the past 8 decades.\nData is available from 1940 onwards.\nERA5 replaces the ERA-Interim reanalysis.\nReanalysis combines model data with observations from across the world into a globally complete and consistent dataset using the laws of physics. This principle, called data assimilation, is based on the method used by numerical weather prediction centres, where every so many hours (12 hours at ECMWF) a previous forecast is combined with newly available observations in an optimal way to produce a new best estimate of the state of the atmosphere, called analysis, from which an updated, improved forecast is issue",
+      "summaries": {},
+      "providers": [
+        {
+          "name": "ECMWF"
+        }
+      ],
+      "keywords": [
+        "Product type: Reanalysis",
+        "Temporal coverage: Past",
+        "Spatial coverage: Global",
+        "Variable domain: Atmosphere (surface)"
+      ],
+      "license": "CC-BY-4.0",
+      "extent": {
+        "spatial": {
+          "bbox": [
+            [
+              0.0,
+              -89.0,
+              360.0,
+              89.0
+            ]
+          ]
+        },
+        "temporal": {
+          "interval": [
+            [
+              "1940-01-01T00:00:00+00:00",
+              "2026-09-01T00:00:00+00:00"
+            ]
+          ]
+        }
+      },
+      "links": [
+        {
+          "rel": "self",
+          "type": "application/json",
+          "href": "https://cds.climate.copernicus.eu/api/catalogue/v1/collections/reanalysis-era5-pressure-levels-monthly-means"
+        },
+        {
+          "rel": "parent",
+          "type": "application/json",
+          "href": "https://cds.climate.copernicus.eu/api/catalogue/v1/"
+        },
+        {
+          "rel": "root",
+          "type": "application/json",
+          "href": "https://cds.climate.copernicus.eu/api/catalogue/v1/"
+        },
+        {
+          "rel": "qa",
+          "href": "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-pressure-levels-monthly-means?tab=quality_assurance_tab",
+          "title": "Quality assessment of the dataset",
+          "type": "text/html"
+        }
+      ],
+      "assets": {
+        "thumbnail": {
+          "href": "https://object-store.os-api.cci2.ecmwf.int:443/cci2-prod-catalogue/resources/reanalysis-era5-pressure-levels-monthly-means/overview_f71dc114a2f6dd433f4ddecbf6b358a107864c4844c826c2da37c7044986e7fe.png",
+          "type": "image/jpg",
+          "roles": [
+            "thumbnail"
+          ]
+        }
+      },
+      "published": "2019-04-18T00:00:00Z",
+      "updated": "2026-10-06T00:00:00Z",
+      "sci:doi": "10.24381/cds.6860a573",
+      "cads:disabled_reason": null,
+      "cads:sanity_check": {
+        "status": "available",
+        "timestamp": "2026-10-06T20:18:21.025397+00:00"
+      },
+      "cads:update_frequency": "Monthly",
+      "cads:fair": 92
+    }
+  ]
+}

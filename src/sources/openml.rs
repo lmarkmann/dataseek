@@ -1,6 +1,15 @@
 //! OpenML's active datasets, downloaded whole and searched locally: the REST
-//! API filters by name and tag but has no full-text search. Only the latest
-//! version of each name is kept, in the place its name first appears.
+//! API filters by name and tag but has no full-text search (live API, October
+//! 2026). Only the latest version of each name is kept, in the place its name
+//! first appears.
+//!
+//! One request returns every active dataset: 6,434 against the 20,000 limit
+//! in the URL (October 2026). Past that limit the list would be cut silently;
+//! `limit/10000/offset/N` pages it, and a page past the end answers HTTP 412
+//! with error 372 (OpenML, October 2026). The list holds a name, a version and
+//! a few size qualities per dataset, no text, so the description is the size.
+//! The real description is one request per dataset, 6,434 of them against
+//! unpublished rate limits ("rate limits apply", docs.openml.org/intro).
 
 use std::collections::HashMap;
 
