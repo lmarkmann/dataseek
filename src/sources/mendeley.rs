@@ -16,8 +16,8 @@ pub fn search(
     let body = ctx
         .http
         .get("https://data.mendeley.com/api/research-data/search")
-        .query("search", query)
-        .query("size", limit)
+        .query("query", query)
+        .query("page_size", limit)
         .json()?;
     parse(&body, limit)
 }
