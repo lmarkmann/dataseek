@@ -5,7 +5,7 @@ use serde_json::Value;
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::{Dataset, items, text};
+use crate::record::{Dataset, day, items, text};
 
 pub fn search(
     ctx: &Ctx<'_>,
@@ -41,6 +41,7 @@ fn record(row: &Value) -> Option<Dataset> {
     .doi_from(text(row, "/doi"));
     dataset.publisher = text(row, "/publishingOrganizationTitle");
     dataset.license = text(row, "/license");
+    dataset.updated = day(text(row, "/modified"));
     dataset.valid()
 }
 
@@ -76,7 +77,7 @@ mod tests {
                     "http://creativecommons.org/licenses/by/4.0/legalcode"
                         .into()
                 ),
-                updated: None,
+                updated: Some("2023-09-21".into()),
                 size_bytes: None,
                 popularity: None,
                 aliases: vec![],
