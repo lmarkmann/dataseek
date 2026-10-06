@@ -11,7 +11,7 @@
 //! printing are the caller's.
 
 use std::sync::Arc;
-use std::sync::mpsc;
+use std::sync::mpsc::{self, RecvTimeoutError};
 use std::time::{Duration, Instant};
 
 use indicatif::ProgressBar;
@@ -104,17 +104,29 @@ pub fn run(
     let mut slots: Vec<Option<Outcome>> =
         plan.sources.iter().map(|_| None).collect();
     let mut waiting = plan.sources.len();
+    let mut deadline_passed = false;
     while waiting > 0 {
         let next = match deadline {
-            None => receiver.recv().ok(),
-            Some(limit) => limit
-                .checked_sub(started.elapsed())
-                .and_then(|left| receiver.recv_timeout(left).ok()),
+            None => {
+                receiver.recv().map_err(|_| RecvTimeoutError::Disconnected)
+            }
+            Some(limit) => match limit.checked_sub(started.elapsed()) {
+                Some(left) => receiver.recv_timeout(left),
+                None => Err(RecvTimeoutError::Timeout),
+            },
         };
-        let Some((index, outcome)) = next else { break };
-        if let Some(slot) = slots.get_mut(index) {
-            *slot = Some(outcome);
-            waiting = waiting.saturating_sub(1);
+        match next {
+            Ok((index, outcome)) => {
+                if let Some(slot) = slots.get_mut(index) {
+                    *slot = Some(outcome);
+                    waiting = waiting.saturating_sub(1);
+                }
+            }
+            Err(RecvTimeoutError::Timeout) => {
+                deadline_passed = true;
+                break;
+            }
+            Err(RecvTimeoutError::Disconnected) => break,
         }
     }
     slots
@@ -123,7 +135,11 @@ pub fn run(
         .map(|(slot, &source)| {
             slot.unwrap_or_else(|| Outcome {
                 source,
-                status: Status::Running(started.elapsed()),
+                status: if deadline_passed {
+                    Status::Running(started.elapsed())
+                } else {
+                    Status::Failed(SourceError::shape("the adapter crashed"))
+                },
                 elapsed: started.elapsed(),
                 datasets: Vec::new(),
             })
