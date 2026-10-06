@@ -36,6 +36,7 @@ pub(super) fn parse(body: &Value) -> Result<Vec<Dataset>, SourceError> {
             )
             .describe(text(row, "/abstract"))
             .doi_from(first_text(row, &["/version_doi", "/core_doi"]));
+            dataset.license = text(row, "/license/name");
             dataset.updated = day(text(row, "/publish_date"));
             dataset.valid()
         })
@@ -63,7 +64,9 @@ mod tests {
                 ),
                 publisher: None,
                 doi: Some("10.13026/c23k5s".into()),
-                license: None,
+                license: Some(
+                    "Open Data Commons Attribution License v1.0".into()
+                ),
                 updated: Some("1999-08-03".into()),
                 size_bytes: None,
                 popularity: None,
