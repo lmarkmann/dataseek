@@ -40,7 +40,7 @@ pub fn search(
     let mut body = request(ctx, domain, query, limit);
     if matches!(body, Err(SourceError::Status(400))) {
         let plain = plain_words(query);
-        if !plain.is_empty() {
+        if !plain.is_empty() && plain != query {
             body = request(ctx, domain, &plain, limit);
         }
     }
@@ -66,11 +66,13 @@ fn request(
 }
 
 /// The words of a query with every Lucene operator character escaped and the
-/// bare AND, OR and NOT dropped, so it always parses.
+/// bare AND, OR and NOT and words made only of operator characters dropped, so
+/// it always parses and no word is left that matches nothing.
 fn plain_words(query: &str) -> String {
     query
         .split_whitespace()
         .filter(|word| !matches!(*word, "AND" | "OR" | "NOT"))
+        .filter(|word| !word.chars().all(|c| OPERATORS.contains(c)))
         .map(|word| {
             let mut escaped = String::with_capacity(word.len());
             for c in word.chars() {
@@ -195,7 +197,8 @@ mod tests {
         assert_eq!(plain_words("tumor/normal"), r"tumor\/normal");
         assert_eq!(plain_words("10.1038/nature"), r"10.1038\/nature");
         assert_eq!(plain_words("[brain] (mouse)"), r"\[brain\] \(mouse\)");
-        assert_eq!(plain_words("brain ~ mouse"), r"brain \~ mouse");
+        assert_eq!(plain_words("brain ~ mouse"), "brain mouse");
+        assert_eq!(plain_words("C++"), r"C\+\+");
         assert_eq!(plain_words("mouse AND"), "mouse");
         assert_eq!(plain_words("NOT"), "");
     }
