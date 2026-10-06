@@ -1,8 +1,8 @@
 {
   "header": {
-    "numFound": 125937,
-    "maxScore": 4.8102264,
-    "queryTime": 210,
+    "numFound": 295415,
+    "maxScore": 4.1337647,
+    "queryTime": 105,
     "page": 1,
     "pageSize": 10
   },
@@ -10,28 +10,59 @@
     {
       "authors": [
         {
-          "fullName": "Arias, Sabrina B.",
-          "name": "Sabrina B.",
-          "surname": "Arias",
+          "id": null,
+          "fullName": "Nico Ritschel",
+          "name": null,
+          "surname": "Nico Ritschel",
           "rank": 1,
-          "pid": null
+          "pid": {
+            "id": {
+              "scheme": "orcid_pending",
+              "value": "0000-0001-5600-2978"
+            },
+            "provenance": null
+          }
         },
         {
-          "fullName": "Blair, Christopher W.",
-          "name": "Christopher W.",
-          "surname": "Blair",
+          "id": null,
+          "fullName": "Vladimir Kovalenko",
+          "name": null,
+          "surname": "Vladimir Kovalenko",
           "rank": 2,
           "pid": {
             "id": {
               "scheme": "orcid_pending",
-              "value": "0000-0001-5774-5976"
+              "value": "0000-0001-5880-7323"
             },
             "provenance": null
           }
+        },
+        {
+          "id": null,
+          "fullName": "Reid Holmes",
+          "name": null,
+          "surname": "Reid Holmes",
+          "rank": 3,
+          "pid": {
+            "id": {
+              "scheme": "orcid_pending",
+              "value": "0000-0003-4213-494x"
+            },
+            "provenance": null
+          }
+        },
+        {
+          "id": null,
+          "fullName": "Ronald Garcia",
+          "name": null,
+          "surname": "Ronald Garcia",
+          "rank": 4,
+          "pid": null
         }
       ],
       "openAccessColor": null,
       "publiclyFunded": null,
+      "eoscIfGuidelines": null,
       "type": "dataset",
       "language": {
         "code": "und",
@@ -41,259 +72,25 @@
       "subjects": [
         {
           "subject": {
-            "scheme": "keyword",
-            "value": "Climate; Climate Change; Public Opinion; Migration"
-          },
-          "provenance": null
-        },
-        {
-          "subject": {
-            "scheme": "keyword",
-            "value": "Social Sciences"
-          },
-          "provenance": null
-        }
-      ],
-      "mainTitle": "Replication Data for: In the Eye of the Storm: Hurricanes, Climate Migration, and Climate Attitudes",
-      "subTitle": null,
-      "descriptions": [
-        "Abstract: Climate disasters raise the salience of climate change's negative consequences, including climate-induced migration."
-      ],
-      "publicationDate": "2024-01-01",
-      "publisher": "Harvard Dataverse",
-      "embargoEndDate": "2024-04-30",
-      "sources": null,
-      "formats": null,
-      "contributors": null,
-      "coverages": null,
-      "bestAccessRight": {
-        "code": "c_abf2",
-        "label": "OPEN",
-        "scheme": "http://vocabularies.coar-repositories.org/documentation/access_rights/"
-      },
-      "container": null,
-      "documentationUrls": null,
-      "codeRepositoryUrl": null,
-      "programmingLanguage": null,
-      "contactPeople": null,
-      "contactGroups": null,
-      "tools": null,
-      "size": null,
-      "version": null,
-      "geoLocations": null,
-      "id": "doi_________::49947e5d1a303ddc1a24a0284b4eb671",
-      "originalIds": [
-        "50|datacite____::49947e5d1a303ddc1a24a0284b4eb671",
-        "10.7910/dvn/xptmgf"
-      ],
-      "pids": [
-        {
-          "scheme": "doi",
-          "value": "10.7910/dvn/xptmgf"
-        }
-      ],
-      "dateOfCollection": null,
-      "lastUpdateTimeStamp": null,
-      "indicators": {
-        "citationImpact": {
-          "citationCount": 1.0,
-          "influence": 2.1862934E-9,
-          "popularity": 2.5890183E-9,
-          "impulse": 1.0,
-          "citationClass": "C5",
-          "influenceClass": "C5",
-          "impulseClass": "C5",
-          "popularityClass": "C5"
-        }
-      },
-      "instances": [
-        {
-          "pids": [
-            {
-              "scheme": "doi",
-              "value": "10.7910/dvn/xptmgf"
-            }
-          ],
-          "license": "CC 0",
-          "type": "Dataset",
-          "urls": [
-            "https://dx.doi.org/10.7910/dvn/xptmgf"
-          ],
-          "publicationDate": "2024-01-01",
-          "refereed": "nonPeerReviewed"
-        }
-      ],
-      "isGreen": null,
-      "isInDiamondJournal": null
-    },
-    {
-      "authors": [
-        {
-          "fullName": "South African Environmental Observation Network",
-          "name": null,
-          "surname": null,
-          "rank": 1,
-          "pid": null
-        },
-        {
-          "fullName": "South African Weather Services",
-          "name": null,
-          "surname": null,
-          "rank": 2,
-          "pid": null
-        }
-      ],
-      "openAccessColor": null,
-      "publiclyFunded": null,
-      "type": "dataset",
-      "language": {
-        "code": "eng",
-        "label": "English"
-      },
-      "countries": null,
-      "subjects": [
-        {
-          "subject": {
-            "scheme": "keyword",
-            "value": "climate variability"
-          },
-          "provenance": null
-        },
-        {
-          "subject": {
-            "scheme": "keyword",
-            "value": "climate services infrastructure"
-          },
-          "provenance": null
-        },
-        {
-          "subject": {
-            "scheme": "keyword",
-            "value": "climate change"
-          },
-          "provenance": null
-        },
-        {
-          "subject": {
-            "scheme": "keyword",
-            "value": "climate risk"
-          },
-          "provenance": null
-        }
-      ],
-      "mainTitle": "Climate Risk Report of South Africa",
-      "subTitle": null,
-      "descriptions": [
-        "The Climate Risk Report was developed by the South African Environmental Observation Network (SAEON) in collaboration with the South African Weather Service (SAWS). The report was commissioned by the Presidential Climate Commission (PCC) and the African Climate Foundation."
-      ],
-      "publicationDate": "2025-01-01",
-      "publisher": null,
-      "embargoEndDate": null,
-      "sources": null,
-      "formats": null,
-      "contributors": null,
-      "coverages": null,
-      "bestAccessRight": null,
-      "container": null,
-      "documentationUrls": null,
-      "codeRepositoryUrl": null,
-      "programmingLanguage": null,
-      "contactPeople": null,
-      "contactGroups": null,
-      "tools": null,
-      "size": null,
-      "version": null,
-      "geoLocations": null,
-      "id": "doi_________::bcb17467d1e3b612a4004e6a67b52778",
-      "originalIds": [
-        "50|datacite____::bcb17467d1e3b612a4004e6a67b52778",
-        "10.15493/sarva.24092023"
-      ],
-      "pids": [
-        {
-          "scheme": "doi",
-          "value": "10.15493/sarva.24092023"
-        }
-      ],
-      "dateOfCollection": null,
-      "lastUpdateTimeStamp": null,
-      "indicators": {
-        "citationImpact": {
-          "citationCount": 0.0,
-          "influence": 2.1746283E-9,
-          "popularity": 2.2497804E-9,
-          "impulse": 0.0,
-          "citationClass": "C5",
-          "influenceClass": "C5",
-          "impulseClass": "C5",
-          "popularityClass": "C5"
-        }
-      },
-      "instances": [
-        {
-          "pids": [
-            {
-              "scheme": "doi",
-              "value": "10.15493/sarva.24092023"
-            }
-          ],
-          "type": "Dataset",
-          "urls": [
-            "https://dx.doi.org/10.15493/sarva.24092023"
-          ],
-          "publicationDate": "2025-01-01",
-          "refereed": "nonPeerReviewed"
-        }
-      ],
-      "isGreen": null,
-      "isInDiamondJournal": null
-    },
-    {
-      "authors": [
-        {
-          "fullName": "Pietschnig, Marianne",
-          "name": "Marianne",
-          "surname": "Pietschnig",
-          "rank": 1,
-          "pid": {
-            "id": {
-              "scheme": "orcid_pending",
-              "value": "0000-0002-7405-5536"
-            },
-            "provenance": null
-          }
-        }
-      ],
-      "openAccessColor": null,
-      "publiclyFunded": null,
-      "type": "dataset",
-      "language": {
-        "code": "eng",
-        "label": "English"
-      },
-      "countries": null,
-      "subjects": [
-        {
-          "subject": {
             "scheme": "FOS",
-            "value": "01 natural sciences"
+            "value": "0209 industrial biotechnology"
           },
           "provenance": null
         },
         {
           "subject": {
             "scheme": "FOS",
-            "value": "0105 earth and related environmental sciences"
+            "value": "02 engineering and technology"
           },
           "provenance": null
         }
       ],
-      "mainTitle": "Isca_experiments_for_South_American_Drying_Main",
+      "mainTitle": "Comparing Block-Based Programming Models for Two-Armed Robots (supplementary materials)",
       "subTitle": null,
       "descriptions": [
-        "This dataset contains all the experiments presented in Pietschnig et al. 2019: \"The presence of Africa and limited soil moisture contribute to future drying of South America\" (main text) The data was produced using the open-source model Isca (Vallies et al. 2018)."
+        "Supplementary Material for the research paper"
       ],
-      "publicationDate": "2019-09-10",
+      "publicationDate": "2020-09-28",
       "publisher": "Zenodo",
       "embargoEndDate": null,
       "sources": null,
@@ -315,21 +112,21 @@
       "size": null,
       "version": null,
       "geoLocations": null,
-      "id": "doi_dedup___::fc4e61b70f0f7c82790fd5f800be0243",
+      "id": "doi_dedup___::00eebe1fd712a2f0a39b6a5640abad92",
       "originalIds": [
-        "50|datacite____::223d88018ded854cede92cc7645ea88a",
-        "10.5281/zenodo.3403681",
-        "oai:zenodo.org:3403681",
-        "50|od______2659::223d88018ded854cede92cc7645ea88a"
+        "50|datacite____::00eebe1fd712a2f0a39b6a5640abad92",
+        "10.5281/zenodo.8260344",
+        "50|datacite____::3a4c408abf608656a22cf2f4847c52c6",
+        "10.5281/zenodo.8260345"
       ],
       "pids": [
         {
           "scheme": "doi",
-          "value": "10.5281/zenodo.3403681"
+          "value": "10.5281/zenodo.8260344"
         },
         {
           "scheme": "doi",
-          "value": "10.5281/zenodo.3403680"
+          "value": "10.5281/zenodo.8260345"
         }
       ],
       "dateOfCollection": null,
@@ -338,7 +135,7 @@
         "citationImpact": {
           "citationCount": 0.0,
           "influence": 2.1746283E-9,
-          "popularity": 9.737294E-10,
+          "popularity": 1.1111055E-9,
           "impulse": 0.0,
           "citationClass": "C5",
           "influenceClass": "C5",
@@ -346,177 +143,256 @@
           "popularityClass": "C5"
         },
         "usageCounts": {
-          "downloads": 0,
-          "views": 7
+          "downloads": 1,
+          "views": 8
         }
       },
+      "projects": null,
+      "organizations": [
+        {
+          "legalName": "Virginia Commonwealth University",
+          "acronym": "VCU",
+          "id": "openorgs____::7439ac36c579d368c50d1b5f02070eb9",
+          "pids": [
+            {
+              "scheme": "fundref",
+              "value": "100009238"
+            },
+            {
+              "scheme": "fundref",
+              "value": "100018317"
+            },
+            {
+              "scheme": "OrgRef",
+              "value": "29276806"
+            },
+            {
+              "scheme": "mag_id",
+              "value": "184840846"
+            }
+          ],
+          "countries": [
+            {
+              "code": "US",
+              "label": "United States"
+            }
+          ],
+          "websiteurl": "http://www.vcu.edu/"
+        },
+        {
+          "legalName": "University of British Columbia",
+          "acronym": "UBC",
+          "id": "openorgs____::3fb8683d75ab6c4dae4cf6a1b07ff536",
+          "pids": [
+            {
+              "scheme": "fundref",
+              "value": "501100005277"
+            },
+            {
+              "scheme": "OrgRef",
+              "value": "9413712"
+            },
+            {
+              "scheme": "OrgRef",
+              "value": "11469772"
+            },
+            {
+              "scheme": "fundref",
+              "value": "501100005246"
+            }
+          ],
+          "countries": [
+            {
+              "code": "CA",
+              "label": "Canada"
+            }
+          ],
+          "websiteurl": "https://www.ubc.ca/"
+        }
+      ],
+      "communities": [
+        {
+          "code": "eosc",
+          "label": "EOSC",
+          "provenance": null
+        }
+      ],
+      "collectedFrom": [
+        {
+          "key": "openaire____::9e3be59865b2c1c335d32dae2fe7b254",
+          "value": "Datacite"
+        },
+        {
+          "key": "opendoar____::358aee4cc897452c00244351e4d91f69",
+          "value": "ZENODO"
+        }
+      ],
       "instances": [
         {
           "pids": [
             {
               "scheme": "doi",
-              "value": "10.5281/zenodo.3403681"
+              "value": "10.5281/zenodo.8260344"
             }
           ],
           "license": "CC BY",
+          "accessRight": {
+            "code": "c_abf2",
+            "label": "OPEN",
+            "scheme": "http://vocabularies.coar-repositories.org/documentation/access_rights/",
+            "openAccessRoute": null
+          },
           "type": "Dataset",
           "urls": [
-            "https://dx.doi.org/10.5281/zenodo.3403681"
+            "https://dx.doi.org/10.5281/zenodo.8260344"
           ],
-          "publicationDate": "2019-09-10",
-          "refereed": "nonPeerReviewed"
+          "publicationDate": "2020-09-28",
+          "refereed": "nonPeerReviewed",
+          "hostedBy": {
+            "key": "opendoar____::358aee4cc897452c00244351e4d91f69",
+            "value": "ZENODO"
+          },
+          "collectedFrom": {
+            "key": "openaire____::9e3be59865b2c1c335d32dae2fe7b254",
+            "value": "Datacite"
+          }
         },
         {
           "pids": [
             {
               "scheme": "doi",
-              "value": "10.5281/zenodo.3403681"
+              "value": "10.5281/zenodo.8260345"
+            }
+          ],
+          "license": "CC BY",
+          "accessRight": {
+            "code": "c_abf2",
+            "label": "OPEN",
+            "scheme": "http://vocabularies.coar-repositories.org/documentation/access_rights/",
+            "openAccessRoute": null
+          },
+          "type": "Dataset",
+          "urls": [
+            "https://dx.doi.org/10.5281/zenodo.8260345"
+          ],
+          "publicationDate": "2020-09-28",
+          "refereed": "nonPeerReviewed",
+          "hostedBy": {
+            "key": "opendoar____::358aee4cc897452c00244351e4d91f69",
+            "value": "ZENODO"
+          },
+          "collectedFrom": {
+            "key": "openaire____::9e3be59865b2c1c335d32dae2fe7b254",
+            "value": "Datacite"
+          }
+        },
+        {
+          "pids": [
+            {
+              "scheme": "doi",
+              "value": "10.5281/zenodo.8260345"
             }
           ],
           "alternateIdentifiers": [
             {
               "scheme": "oai",
-              "value": "oai:zenodo.org:3403681"
+              "value": "oai:zenodo.org:8260345"
             }
           ],
           "license": "CC BY",
+          "accessRight": {
+            "code": "c_abf2",
+            "label": "OPEN",
+            "scheme": "http://vocabularies.coar-repositories.org/documentation/access_rights/",
+            "openAccessRoute": null
+          },
           "type": "Dataset",
           "urls": [
-            "http://dx.doi.org/10.5281/zenodo.3403681",
-            "https://zenodo.org/records/3403681"
+            "https://zenodo.org/records/8260345",
+            "http://dx.doi.org/10.5281/zenodo.8260345"
           ],
-          "publicationDate": "2019-09-10",
-          "refereed": "nonPeerReviewed"
-        },
-        {
-          "pids": [
-            {
-              "scheme": "doi",
-              "value": "10.5281/zenodo.3403680"
-            }
-          ],
-          "license": "CC BY",
-          "type": "Dataset",
-          "urls": [
-            "https://dx.doi.org/10.5281/zenodo.3403680"
-          ],
-          "publicationDate": "2019-09-10",
-          "refereed": "nonPeerReviewed"
+          "publicationDate": "2020-09-28",
+          "refereed": "nonPeerReviewed",
+          "hostedBy": {
+            "key": "opendoar____::358aee4cc897452c00244351e4d91f69",
+            "value": "ZENODO"
+          },
+          "collectedFrom": {
+            "key": "opendoar____::358aee4cc897452c00244351e4d91f69",
+            "value": "ZENODO"
+          }
         }
       ],
+      "links": [],
+      "otherTitles": null,
+      "green": null,
+      "inDiamondJournal": null,
       "isGreen": null,
       "isInDiamondJournal": null
     },
     {
       "authors": [
         {
-          "fullName": "Iwai, T.",
-          "name": "T.",
-          "surname": "Iwai",
+          "id": null,
+          "fullName": "Geophysical Acquisition And Processing Section",
+          "name": null,
+          "surname": null,
           "rank": 1,
-          "pid": {
-            "id": {
-              "scheme": "orcid_pending",
-              "value": "0000-0002-8733-5369"
-            },
-            "provenance": null
-          }
-        },
-        {
-          "fullName": "Bortoluzzo, A.",
-          "name": "A.",
-          "surname": "Bortoluzzo",
-          "rank": 2,
-          "pid": {
-            "id": {
-              "scheme": "orcid_pending",
-              "value": "0000-0003-2872-031x"
-            },
-            "provenance": null
-          }
-        },
-        {
-          "fullName": "Nakata, L.",
-          "name": "L.",
-          "surname": "Nakata",
-          "rank": 3,
-          "pid": {
-            "id": {
-              "scheme": "orcid_pending",
-              "value": "0000-0003-3549-0663"
-            },
-            "provenance": null
-          }
-        },
-        {
-          "fullName": "Costa, J.",
-          "name": "J.",
-          "surname": "Costa",
-          "rank": 4,
-          "pid": {
-            "id": {
-              "scheme": "orcid_pending",
-              "value": "0000-0002-1475-7456"
-            },
-            "provenance": null
-          }
+          "pid": null
         }
       ],
       "openAccessColor": null,
       "publiclyFunded": null,
+      "eoscIfGuidelines": null,
       "type": "dataset",
       "language": {
-        "code": "und",
-        "label": "Undetermined"
+        "code": "eng",
+        "label": "English"
       },
       "countries": null,
       "subjects": [
         {
           "subject": {
             "scheme": "keyword",
-            "value": "FOS: Economics and business"
+            "value": "Geophysical Survey"
           },
           "provenance": null
         },
         {
           "subject": {
             "scheme": "keyword",
-            "value": "organizational climate"
+            "value": "radiometrics"
           },
           "provenance": null
         },
         {
           "subject": {
-            "scheme": "FOS",
-            "value": "0502 economics and business"
+            "scheme": "keyword",
+            "value": "Thorium"
           },
           "provenance": null
         },
         {
           "subject": {
-            "scheme": "FOS",
-            "value": "05 social sciences"
+            "scheme": "keyword",
+            "value": "AU"
           },
           "provenance": null
         }
       ],
-      "mainTitle": "Replication Data for: Climate Strength: Its Role as a Moderator in the Relationship Between Climate and Turnover",
+      "mainTitle": "Radiometric Uranium Equivalent grid of NSW Geol  Survey, (Inverell, Grafton, Maclean), 1984 survey",
       "subTitle": null,
       "descriptions": [
-        "The effects of climate quality, defined as the shared perceptions of the work environment, on organizational outcomes is already well known and studied in the literature."
+        "This rNSW0500u.nc grid includes airborne-derived Radiometric Uranium Equivalent data for the NSW Geol  Survey, (Inverell, Grafton, Maclean), 1984 survey acquired for the geological survey of NSW"
       ],
-      "publicationDate": "2019-01-01",
-      "publisher": "Harvard Dataverse",
-      "embargoEndDate": "2019-09-02",
+      "publicationDate": "2017-01-01",
+      "publisher": null,
+      "embargoEndDate": null,
       "sources": null,
       "formats": null,
       "contributors": null,
       "coverages": null,
-      "bestAccessRight": {
-        "code": "c_abf2",
-        "label": "OPEN",
-        "scheme": "http://vocabularies.coar-repositories.org/documentation/access_rights/"
-      },
+      "bestAccessRight": null,
       "container": null,
       "documentationUrls": null,
       "codeRepositoryUrl": null,
@@ -527,15 +403,21 @@
       "size": null,
       "version": null,
       "geoLocations": null,
-      "id": "doi_________::7a3ba647efb9560e2657bd49d588f906",
+      "id": "doi_dedup___::31cdab26766f5adc5fdd8b0020a7fbf5",
       "originalIds": [
-        "50|datacite____::7a3ba647efb9560e2657bd49d588f906",
-        "10.7910/dvn/dya9tn"
+        "50|datacite____::31cdab26766f5adc5fdd8b0020a7fbf5",
+        "10.4225/25/58a3fc093a6c2",
+        "50|datacite____::e726ab8b009aa9e132303a2f8ce77c1b",
+        "10.4225/25/58a443b3dd6c0"
       ],
       "pids": [
         {
           "scheme": "doi",
-          "value": "10.7910/dvn/dya9tn"
+          "value": "10.4225/25/58a3fc093a6c2"
+        },
+        {
+          "scheme": "doi",
+          "value": "10.4225/25/58a443b3dd6c0"
         }
       ],
       "dateOfCollection": null,
@@ -544,7 +426,7 @@
         "citationImpact": {
           "citationCount": 0.0,
           "influence": 2.1746283E-9,
-          "popularity": 9.737294E-10,
+          "popularity": 7.5690954E-10,
           "impulse": 0.0,
           "citationClass": "C5",
           "influenceClass": "C5",
@@ -552,23 +434,423 @@
           "popularityClass": "C5"
         }
       },
+      "projects": null,
+      "organizations": null,
+      "communities": null,
+      "collectedFrom": [
+        {
+          "key": "openaire____::9e3be59865b2c1c335d32dae2fe7b254",
+          "value": "Datacite"
+        }
+      ],
       "instances": [
         {
           "pids": [
             {
               "scheme": "doi",
-              "value": "10.7910/dvn/dya9tn"
+              "value": "10.4225/25/58a3fc093a6c2"
             }
           ],
-          "license": "CC 0",
           "type": "Dataset",
           "urls": [
-            "https://dx.doi.org/10.7910/dvn/dya9tn"
+            "https://dx.doi.org/10.4225/25/58a3fc093a6c2"
           ],
-          "publicationDate": "2019-01-01",
-          "refereed": "nonPeerReviewed"
+          "publicationDate": "2017-01-01",
+          "refereed": "nonPeerReviewed",
+          "hostedBy": {
+            "key": "openaire____::55045bd2a65019fd8e6741a755395c8c",
+            "value": "Unknown Repository"
+          },
+          "collectedFrom": {
+            "key": "openaire____::9e3be59865b2c1c335d32dae2fe7b254",
+            "value": "Datacite"
+          }
+        },
+        {
+          "pids": [
+            {
+              "scheme": "doi",
+              "value": "10.4225/25/58a443b3dd6c0"
+            }
+          ],
+          "type": "Dataset",
+          "urls": [
+            "https://dx.doi.org/10.4225/25/58a443b3dd6c0"
+          ],
+          "publicationDate": "2017-01-01",
+          "refereed": "nonPeerReviewed",
+          "hostedBy": {
+            "key": "openaire____::55045bd2a65019fd8e6741a755395c8c",
+            "value": "Unknown Repository"
+          },
+          "collectedFrom": {
+            "key": "openaire____::9e3be59865b2c1c335d32dae2fe7b254",
+            "value": "Datacite"
+          }
         }
       ],
+      "links": [],
+      "otherTitles": null,
+      "green": null,
+      "inDiamondJournal": null,
+      "isGreen": null,
+      "isInDiamondJournal": null
+    },
+    {
+      "authors": [
+        {
+          "id": null,
+          "fullName": "Geophysical Acquisition And Processing Section",
+          "name": null,
+          "surname": null,
+          "rank": 1,
+          "pid": null
+        }
+      ],
+      "openAccessColor": null,
+      "publiclyFunded": null,
+      "eoscIfGuidelines": null,
+      "type": "dataset",
+      "language": {
+        "code": "eng",
+        "label": "English"
+      },
+      "countries": null,
+      "subjects": [
+        {
+          "subject": {
+            "scheme": "keyword",
+            "value": "Geophysical Survey"
+          },
+          "provenance": null
+        },
+        {
+          "subject": {
+            "scheme": "keyword",
+            "value": "radiometrics"
+          },
+          "provenance": null
+        },
+        {
+          "subject": {
+            "scheme": "keyword",
+            "value": "Thorium"
+          },
+          "provenance": null
+        },
+        {
+          "subject": {
+            "scheme": "keyword",
+            "value": "Uranium"
+          },
+          "provenance": null
+        }
+      ],
+      "mainTitle": "Radiometric Thorium Equivalent grid of NDSP Salinity Survey - Lake Toolibin, WA, 1997 survey",
+      "subTitle": null,
+      "descriptions": [
+        "This rWA0679plust.nc grid includes airborne-derived Radiometric Thorium Equivalent data for the NDSP Salinity Survey - Lake Toolibin, WA, 1997 survey acquired for the geological survey of WA"
+      ],
+      "publicationDate": "2017-01-01",
+      "publisher": null,
+      "embargoEndDate": null,
+      "sources": null,
+      "formats": null,
+      "contributors": null,
+      "coverages": null,
+      "bestAccessRight": null,
+      "container": null,
+      "documentationUrls": null,
+      "codeRepositoryUrl": null,
+      "programmingLanguage": null,
+      "contactPeople": null,
+      "contactGroups": null,
+      "tools": null,
+      "size": null,
+      "version": null,
+      "geoLocations": null,
+      "id": "doi_dedup___::6b9081376346663115af6d994e6f9a40",
+      "originalIds": [
+        "50|datacite____::6b9081376346663115af6d994e6f9a40",
+        "10.4225/25/58a43a0c44595",
+        "50|datacite____::d3bc413991036f6cb0c50710a6d833dd",
+        "10.4225/25/58a438f88d6de"
+      ],
+      "pids": [
+        {
+          "scheme": "doi",
+          "value": "10.4225/25/58a43a0c44595"
+        },
+        {
+          "scheme": "doi",
+          "value": "10.4225/25/58a438f88d6de"
+        }
+      ],
+      "dateOfCollection": null,
+      "lastUpdateTimeStamp": null,
+      "indicators": {
+        "citationImpact": {
+          "citationCount": 0.0,
+          "influence": 2.1746283E-9,
+          "popularity": 7.5690954E-10,
+          "impulse": 0.0,
+          "citationClass": "C5",
+          "influenceClass": "C5",
+          "impulseClass": "C5",
+          "popularityClass": "C5"
+        }
+      },
+      "projects": null,
+      "organizations": null,
+      "communities": null,
+      "collectedFrom": [
+        {
+          "key": "openaire____::9e3be59865b2c1c335d32dae2fe7b254",
+          "value": "Datacite"
+        }
+      ],
+      "instances": [
+        {
+          "pids": [
+            {
+              "scheme": "doi",
+              "value": "10.4225/25/58a43a0c44595"
+            }
+          ],
+          "type": "Dataset",
+          "urls": [
+            "https://dx.doi.org/10.4225/25/58a43a0c44595"
+          ],
+          "publicationDate": "2017-01-01",
+          "refereed": "nonPeerReviewed",
+          "hostedBy": {
+            "key": "openaire____::55045bd2a65019fd8e6741a755395c8c",
+            "value": "Unknown Repository"
+          },
+          "collectedFrom": {
+            "key": "openaire____::9e3be59865b2c1c335d32dae2fe7b254",
+            "value": "Datacite"
+          }
+        },
+        {
+          "pids": [
+            {
+              "scheme": "doi",
+              "value": "10.4225/25/58a438f88d6de"
+            }
+          ],
+          "type": "Dataset",
+          "urls": [
+            "https://dx.doi.org/10.4225/25/58a438f88d6de"
+          ],
+          "publicationDate": "2017-01-01",
+          "refereed": "nonPeerReviewed",
+          "hostedBy": {
+            "key": "openaire____::55045bd2a65019fd8e6741a755395c8c",
+            "value": "Unknown Repository"
+          },
+          "collectedFrom": {
+            "key": "openaire____::9e3be59865b2c1c335d32dae2fe7b254",
+            "value": "Datacite"
+          }
+        }
+      ],
+      "links": [],
+      "otherTitles": null,
+      "green": null,
+      "inDiamondJournal": null,
+      "isGreen": null,
+      "isInDiamondJournal": null
+    },
+    {
+      "authors": [
+        {
+          "id": null,
+          "fullName": "Geophysical Acquisition & Processing Section",
+          "name": null,
+          "surname": null,
+          "rank": 1,
+          "pid": null
+        }
+      ],
+      "openAccessColor": null,
+      "publiclyFunded": null,
+      "eoscIfGuidelines": null,
+      "type": "dataset",
+      "language": {
+        "code": "eng",
+        "label": "English"
+      },
+      "countries": null,
+      "subjects": [
+        {
+          "subject": {
+            "scheme": "keyword",
+            "value": "survey 200741"
+          },
+          "provenance": null
+        },
+        {
+          "subject": {
+            "scheme": "keyword",
+            "value": "geophysics"
+          },
+          "provenance": null
+        },
+        {
+          "subject": {
+            "scheme": "keyword",
+            "value": "Australia"
+          },
+          "provenance": null
+        },
+        {
+          "subject": {
+            "scheme": "SDG",
+            "value": "15. Life on land"
+          },
+          "provenance": null
+        }
+      ],
+      "mainTitle": "Simple Bouguer gravity grid of Cooper Basin South Gravity Survey, Queensland 2007 survey",
+      "subTitle": null,
+      "descriptions": [
+        "This p200741_Cooper_Basin_South_CompleteBA267_geodetic.nc grid includes ground gravity point data for the Cooper Basin South Gravity Survey, Queensland 2007 survey acquired for the geological survey of QLD"
+      ],
+      "publicationDate": "2011-01-01",
+      "publisher": null,
+      "embargoEndDate": null,
+      "sources": null,
+      "formats": null,
+      "contributors": null,
+      "coverages": null,
+      "bestAccessRight": null,
+      "container": null,
+      "documentationUrls": null,
+      "codeRepositoryUrl": null,
+      "programmingLanguage": null,
+      "contactPeople": null,
+      "contactGroups": null,
+      "tools": null,
+      "size": null,
+      "version": null,
+      "geoLocations": null,
+      "id": "doi_dedup___::5b78f9dc715f94704cd60303807e42f6",
+      "originalIds": [
+        "50|datacite____::5b78f9dc715f94704cd60303807e42f6",
+        "10.4225/25/598d210347157",
+        "50|datacite____::694972fae9446ed02f1cddf69eed2ab1",
+        "10.4225/25/598d20fac6dcd"
+      ],
+      "pids": [
+        {
+          "scheme": "doi",
+          "value": "10.4225/25/598d210347157"
+        },
+        {
+          "scheme": "doi",
+          "value": "10.4225/25/598d20fac6dcd"
+        },
+        {
+          "scheme": "doi",
+          "value": "10.4225/25/598d20f3f3235"
+        }
+      ],
+      "dateOfCollection": null,
+      "lastUpdateTimeStamp": null,
+      "indicators": {
+        "citationImpact": {
+          "citationCount": 0.0,
+          "influence": 2.1746283E-9,
+          "popularity": 4.0211975E-10,
+          "impulse": 0.0,
+          "citationClass": "C5",
+          "influenceClass": "C5",
+          "impulseClass": "C5",
+          "popularityClass": "C5"
+        }
+      },
+      "projects": null,
+      "organizations": null,
+      "communities": null,
+      "collectedFrom": [
+        {
+          "key": "openaire____::9e3be59865b2c1c335d32dae2fe7b254",
+          "value": "Datacite"
+        }
+      ],
+      "instances": [
+        {
+          "pids": [
+            {
+              "scheme": "doi",
+              "value": "10.4225/25/598d210347157"
+            }
+          ],
+          "type": "Dataset",
+          "urls": [
+            "https://dx.doi.org/10.4225/25/598d210347157"
+          ],
+          "publicationDate": "2011-01-01",
+          "refereed": "nonPeerReviewed",
+          "hostedBy": {
+            "key": "openaire____::55045bd2a65019fd8e6741a755395c8c",
+            "value": "Unknown Repository"
+          },
+          "collectedFrom": {
+            "key": "openaire____::9e3be59865b2c1c335d32dae2fe7b254",
+            "value": "Datacite"
+          }
+        },
+        {
+          "pids": [
+            {
+              "scheme": "doi",
+              "value": "10.4225/25/598d20fac6dcd"
+            }
+          ],
+          "type": "Dataset",
+          "urls": [
+            "https://dx.doi.org/10.4225/25/598d20fac6dcd"
+          ],
+          "publicationDate": "2011-01-01",
+          "refereed": "nonPeerReviewed",
+          "hostedBy": {
+            "key": "openaire____::55045bd2a65019fd8e6741a755395c8c",
+            "value": "Unknown Repository"
+          },
+          "collectedFrom": {
+            "key": "openaire____::9e3be59865b2c1c335d32dae2fe7b254",
+            "value": "Datacite"
+          }
+        },
+        {
+          "pids": [
+            {
+              "scheme": "doi",
+              "value": "10.4225/25/598d20f3f3235"
+            }
+          ],
+          "type": "Dataset",
+          "urls": [
+            "https://dx.doi.org/10.4225/25/598d20f3f3235"
+          ],
+          "publicationDate": "2011-01-01",
+          "refereed": "nonPeerReviewed",
+          "hostedBy": {
+            "key": "openaire____::55045bd2a65019fd8e6741a755395c8c",
+            "value": "Unknown Repository"
+          },
+          "collectedFrom": {
+            "key": "openaire____::9e3be59865b2c1c335d32dae2fe7b254",
+            "value": "Datacite"
+          }
+        }
+      ],
+      "links": [],
+      "otherTitles": null,
+      "green": null,
+      "inDiamondJournal": null,
       "isGreen": null,
       "isInDiamondJournal": null
     }
