@@ -41,7 +41,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 
 | id | source | protocol | search | key | API docs |
 |---|---|---|---|---|---|
-| `huggingface` | Hugging Face Hub | Hub API | live | `$HF_TOKEN` (optional) | [docs](https://huggingface.co/docs/hub/api) |
+| `huggingface` | Hugging Face Hub | Hub API | live | `$HF_TOKEN` (optional) | [docs](https://huggingface.co/docs/huggingface_hub/package_reference/hf_api) |
 | `kaggle` | Kaggle | Kaggle API | live | `$KAGGLE_API_TOKEN` (optional) | [docs](https://www.kaggle.com/docs/api) |
 | `openml` | OpenML | OpenML REST, listed | local |  | [docs](https://docs.openml.org/ecosystem/Rest/) |
 | `uci` | UCI Machine Learning Repository | list endpoint | local |  | [docs](https://github.com/uci-ml-repo/ucimlrepo) |
@@ -80,10 +80,10 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `open-canada` | Open Government Canada | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
 | `data-gov-au` | data.gov.au | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
 | `govdata` | GovData (Germany) | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
-| `hdx` | Humanitarian Data Exchange | CKAN | live |  | [docs](https://data.humdata.org/faqs/devs) |
+| `hdx` | Humanitarian Data Exchange | CKAN | live |  | [docs](https://docs.humdata.org/build/hdx-apis/metadata-endpoints/package_search) |
 | `socrata` | Socrata portals (US) | Socrata Discovery | live |  | [docs](https://dev.socrata.com/docs/other/discovery) |
 | `socrata-eu` | Socrata portals (EU) | Socrata Discovery | live |  | [docs](https://dev.socrata.com/docs/other/discovery) |
-| `opendatasoft` | OpenDataSoft hub | OpenDataSoft Explore | live |  | [docs](https://help.opendatasoft.com/apis/ods-explore-v2/) |
+| `opendatasoft` | OpenDataSoft hub | OpenDataSoft Explore | live |  | [docs](https://help.huwise.com/apis/ods-explore-v2/) |
 | `arcgis` | ArcGIS Hub | OGC API Records | live |  | [docs](https://hub.arcgis.com/api/search/v1) |
 
 ### statistics
@@ -96,8 +96,8 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `eurostat` | Eurostat | Eurostat table of contents | local |  | [docs](https://ec.europa.eu/eurostat/web/user-guides/data-browser/api-data-access) |
 | `undata` | UNdata | SDMX | local |  | [docs](https://data.un.org/Host.aspx?Content=API) |
 | `datacommons` | Data Commons | Data Commons REST v2 | live | `$DATACOMMONS_API_KEY` (optional) | [docs](https://docs.datacommons.org/api/rest/v2/) |
-| `owid` | Our World in Data | site search API | live |  | [docs](https://docs.owid.io/projects/etl/api/) |
-| `census` | U.S. Census Bureau API | DCAT data.json, listed | local |  | [docs](https://www.census.gov/data/developers/guidance/api-user-guide.html) |
+| `owid` | Our World in Data | Search API | live |  | [docs](https://docs.owid.io/projects/etl/api/search-api/) |
+| `census` | U.S. Census Bureau API | DCAT data.json, listed | local |  | [docs](https://census.gov/data/developers/updates/new-discovery-tool.html) |
 | `who` | WHO Global Health Observatory | OData, listed | local |  | [docs](https://www.who.int/data/gho/info/gho-odata-api) |
 
 ### economics
@@ -107,9 +107,9 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `dbnomics` | DBnomics | DBnomics | live |  | [docs](https://api.db.nomics.world/v22/apidocs) |
 | `worldbank` | World Bank indicators | World Bank API, listed | local |  | [docs](https://datahelpdesk.worldbank.org/knowledgebase/articles/889392) |
 | `worldbank-microdata` | World Bank Microdata Library | NADA | live |  | [docs](https://microdata.worldbank.org/api-documentation/catalog/index.html) |
-| `imf` | IMF | SDMX | local |  | [docs](https://portal.api.imf.org/) |
-| `oecd` | OECD | SDMX | local |  | [docs](https://sdmx.oecd.org/public/rest/) |
-| `ilo` | ILOSTAT | SDMX | local |  | [docs](https://ilostat.ilo.org/resources/sdmx-tools/) |
+| `imf` | IMF | SDMX | local |  | [docs](https://data.imf.org/en/Resource-Pages/IMF-API) |
+| `oecd` | OECD | SDMX | local |  | [docs](https://www.oecd.org/en/data/insights/data-explainers/2024/09/api.html) |
+| `ilo` | ILOSTAT | SDMX | local |  | [docs](https://www.ilo.org/resource/other/ilostat-sdmx-user-guide) |
 
 ### finance
 
@@ -118,7 +118,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `ecb` | European Central Bank | SDMX | local |  | [docs](https://data.ecb.europa.eu/help/api/overview) |
 | `bis` | Bank for International Settlements | SDMX | local |  | [docs](https://stats.bis.org/api-doc/v2/) |
 | `fred` | FRED | FRED API | live | `$FRED_API_KEY` (required) | [docs](https://fred.stlouisfed.org/docs/api/fred/series_search.html) |
-| `bundesbank` | Deutsche Bundesbank | SDMX | local |  | [docs](https://www.bundesbank.de/en/statistics/time-series-databases/help-for-sdmx-web-service) |
+| `bundesbank` | Deutsche Bundesbank | SDMX | local |  | [docs](https://statistiken.bundesbank.de/content/991208) |
 | `fiscal-data` | U.S. Treasury Fiscal Data | Fiscal Data API, listed | local |  | [docs](https://fiscaldata.treasury.gov/api-documentation/) |
 
 ### geospatial
@@ -165,7 +165,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | id | source | protocol | search | key | API docs |
 |---|---|---|---|---|---|
 | `cern` | CERN Open Data | Invenio | live |  | [docs](https://github.com/cernopendata/opendata.cern.ch) |
-| `materials-project` | Materials Project (MPContribs) | MPContribs, listed | local |  | [docs](https://api.materialsproject.org/docs) |
+| `materials-project` | Materials Project (MPContribs) | MPContribs, listed | local |  | [docs](https://contribs-api.materialsproject.org/) |
 | `nomad` | NOMAD | NOMAD API, listed | local |  | [docs](https://nomad-lab.eu/prod/v1/api/v1/extensions/docs) |
 
 ### social-science
