@@ -10,11 +10,11 @@
 //! temperature" and so is not `updated`. The documentation states no rate
 //! limit.
 //!
-//! An apostrophe, slash, parenthesis, bracket, quote, `*`, `~`, `&`, `%`, `+`,
-//! `;`, `#` or any non-ASCII letter in `text` answers HTTP 400 "Invalid
-//! search options", so such a query is asked once more as plain ASCII words
-//! (October 2026). `doiLink` holds a DOI link for 62 of the 100 datasets and
-//! another landing page for 36.
+//! Any ASCII punctuation in `text` but `,` `-` `.` `:` and `_`, and any
+//! non-ASCII letter, answers HTTP 400 "Invalid search options", so such a
+//! query is asked once more as plain ASCII words (October 2026). `doiLink`
+//! holds a DOI link for 62 of the 100 datasets and another landing page for
+//! 36.
 
 use serde_json::Value;
 
