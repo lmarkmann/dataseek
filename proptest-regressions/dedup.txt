@@ -1,0 +1,7 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 26620b79dfbf9142618326d84e91f2c8cca5cb148ddcca785f0072508a4bc1de # shrinks to a = [], b = [Dataset { title: "Record 0", url: "https://x.org/0", description: None, publisher: None, doi: Some("10.1234/2"), license: None, updated: None, size_bytes: None, popularity: None, aliases: [] }], c = [Dataset { title: "Record 3", url: "https://x.org/3", description: None, publisher: None, doi: None, license: None, updated: None, size_bytes: None, popularity: None, aliases: [] }, Dataset { title: "Record 3", url: "https://x.org/3", description: None, publisher: None, doi: Some("10.1234/2"), license: None, updated: None, size_bytes: None, popularity: None, aliases: [] }]
