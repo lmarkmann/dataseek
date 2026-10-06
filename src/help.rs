@@ -162,7 +162,7 @@ fn ansi(help: &StyledStr) -> String {
     help.ansi().to_string()
 }
 
-/// Every variable dataseek reads, with what it does. The `DATASEEK_*` ones
+/// The variables that change what dataseek does, with what each does. The `DATASEEK_*` ones
 /// come from the flag definitions, the keys from the key registry.
 fn environment() -> BTreeMap<String, String> {
     let mut vars = BTreeMap::new();
@@ -190,8 +190,8 @@ fn environment() -> BTreeMap<String, String> {
         ("NO_COLOR", "any non-empty value turns color off"),
         ("CLICOLOR_FORCE", "1 keeps color on, even through a pipe"),
         (
-            "HTTPS_PROXY",
-            "proxy for every request (also HTTP_PROXY, ALL_PROXY)",
+            "ALL_PROXY",
+            "proxy for every request; else HTTPS_PROXY, then HTTP_PROXY",
         ),
         ("NO_PROXY", "hosts that skip the proxy"),
         (
@@ -200,7 +200,7 @@ fn environment() -> BTreeMap<String, String> {
         ),
         ("XDG_CACHE_HOME", "parent of the cache directory"),
         ("XDG_STATE_HOME", "parent of the state directory"),
-        ("COLUMNS", "line width for help and results"),
+        ("COLUMNS", "line width for results; for help only off a terminal"),
     ] {
         vars.insert(var.to_owned(), meaning.to_owned());
     }

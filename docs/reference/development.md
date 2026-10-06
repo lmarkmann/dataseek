@@ -65,7 +65,7 @@ just bench-startup           # hyperfine over --version, --help, the overview, c
 just bench-startup --bless   # rewrite this machine class's baseline
 ```
 
-`scripts/bench_check.py` reads hyperfine's export (`docs/bench/startup.json`) and fails on any path over its budget: 10 ms for `--version`, 20 ms for the rest, doubled under `CI` because runners are slower and noisier. A path more than 25% slower than `docs/bench/baseline-<os>-<arch>.json` only warns. The CI job runs it after the tests and uploads the JSON, so a slow path can be traced to its commit.
+`scripts/bench_check.py` reads hyperfine's export (`docs/bench/startup.json`) and fails on any path over its budget: 10 ms for `--version`, 20 ms for the rest, doubled under `CI` because runners are slower and noisier. A path more than 25% and 2 ms slower than `docs/bench/baseline-<os>-<arch>.json` only warns. The CI job runs it after the tests and uploads the JSON, so a slow path can be traced to its commit.
 
 ## Dependencies
 

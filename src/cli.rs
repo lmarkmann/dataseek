@@ -61,7 +61,7 @@ macro_rules! examples {
     styles = palette::help()
 )]
 pub struct Cli {
-    /// Errors and final result only.
+    /// Errors only on stderr; stdout data is unaffected.
     #[arg(short = 'q', long, global = true, conflicts_with = "verbose")]
     pub quiet: bool,
 
@@ -89,7 +89,7 @@ pub struct Cli {
     #[arg(long, global = true)]
     pub plain: bool,
 
-    /// No progress bars or spinners; one status line at start and end.
+    /// No progress bars or spinners; status lines print plain, as in a pipe.
     #[arg(long, global = true, hide_short_help = true)]
     pub no_progress: bool,
 
@@ -103,7 +103,8 @@ pub struct Cli {
     )]
     pub cache_dir: Option<PathBuf>,
 
-    /// Give up on a host that has not accepted the connection by then.
+    /// Seconds a host gets to accept the connection; each request's own
+    /// deadline (15 s, 90 s for catalogs) still caps it.
     #[arg(
         long,
         value_name = "SECS",
@@ -325,7 +326,7 @@ mod tests {
 
     proptest! {
         // clap panics on some definition bugs only when a particular argv
-        // reaches them; any argv must come back as Ok or a usage error.
+        // reaches them; any argv must return, Ok or Err, without panicking.
         #[test]
         fn any_argv_parses_or_errors(
             args in prop::collection::vec(

@@ -4,8 +4,9 @@
 //! How it shows depends on who is reading stderr. A terminal gets status lines
 //! plus live bars and spinners; a pipe, or `--no-progress`, gets the status
 //! lines alone, so a slow command still says what it is doing without frames;
-//! `--json` turns each line into an NDJSON event; `--quiet` silences it. Off
-//! a terminal the bars are hidden `ProgressBar`s, so callers never branch.
+//! `--json` turns each line into an NDJSON event; `--quiet` silences it.
+//! Outside Live mode the bars are hidden `ProgressBar`s, so callers never
+//! branch.
 
 use std::fmt::Display;
 use std::io::{IsTerminal, Write};
@@ -35,7 +36,7 @@ static MODE: AtomicU8 = AtomicU8::new(Mode::Off as u8);
 static UNICODE: AtomicBool = AtomicBool::new(true);
 static COLOR: AtomicBool = AtomicBool::new(false);
 
-/// Wire the layer once, in `main`. Takes the context rather than three bools,
+/// Wire the layer once, in `main`. Takes the context rather than loose bools,
 /// which would transpose without a compile error.
 pub fn init(out: &Out) {
     let mode = if out.verbosity == Verbosity::Quiet {
@@ -112,7 +113,7 @@ pub fn ok(msg: impl Display) {
 }
 
 /// Flag a soft problem under the stage: `  ! <msg>`. Hard failures go through
-/// `main::report`.
+/// `report` in `src/lib.rs`.
 pub fn warn(msg: impl Display) {
     let mark = if unicode() { "⚠" } else { "!" };
     say("warning", "  ", &paint(palette::warning(), mark), msg);

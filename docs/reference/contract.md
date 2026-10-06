@@ -13,6 +13,8 @@ The version lives only in `Cargo.toml`. Clap reads it via `#[command(version)]`,
 - `--json`, `--jq EXPR`, `--color=auto|always|never`, `--no-color`, `--plain`, `--no-progress`
 - `--cache-dir DIR` and `--connect-timeout SECS`, each with a `DATASEEK_*` variable
 
+`search` reads `-x`, `--per-source`, `-n` and `--timeout` from `DATASEEK_EXCLUDE`, `DATASEEK_PER_SOURCE`, `DATASEEK_LIMIT` and `DATASEEK_TIMEOUT` too. A flag beats its variable, which beats the default; `dataseek help environment` lists them all.
+
 `-v` is verbose, never version. `--color` follows the ecosystem standard used by git, ripgrep, and fd:
 
 - `auto` colors only on a terminal and honors `NO_COLOR`.
@@ -28,8 +30,8 @@ Secrets never arrive as flags, which leak into shell history and process listing
 ## Help surfaces
 
 - A bare `dataseek` prints the overview on **stdout** and exits `0`: the name and version, the commands in three small groups (search, upkeep, shell), and a footer pointing at `-h`. It is orientation, so `dsk | head` shows it. `src/help.rs` holds the groups; a unit test fails when a command is missing from them.
-- `dataseek help <command>` is that command's `--help`. `dataseek help environment` lists every variable the tool reads, `dataseek help exit-codes` every code it returns.
-- `dataseek help --json` describes the whole surface as data for scripts and agents: commands, flags with their types, defaults and variables, and the exit codes, all generated from the clap definition.
+- `dataseek help <command>` is that command's `--help`. `dataseek help environment` lists the variables that change what it does, `dataseek help exit-codes` every code it returns.
+- `dataseek help --json` describes the whole surface as data for scripts and agents: commands, flags with their value names, possible values, defaults and variables, and the exit codes, all generated from the clap definition. A bare `dataseek --json` prints the same object.
 
 ## stdout is data, stderr is status
 
@@ -39,10 +41,10 @@ Every byte of stdout goes through a handle from `src/output.rs`, including the t
 |---|---|
 | a terminal | status lines plus live bars and spinners with elapsed time |
 | a pipe, or `--no-progress` | the same status lines, plain, and no frames |
-| `--json` | each status line as an NDJSON event tagged `dataseek-events/1` |
+| `--json` | each status line, and each `-v` note, as an NDJSON event tagged `dataseek-events/1` |
 | `--quiet` | nothing but the error |
 
-So a piped search still announces itself at once and sums up at the end, and no spinner frame can reach a log. What must never happen is a frame on stdout, and that is guaranteed by the layer only ever writing to stderr. Waits under 100 ms show nothing, which is why `doctor` does not narrate its checks.
+So a piped search still announces itself at once and sums up at the end, and no spinner frame can reach a log. What must never happen is a frame on stdout, and that is guaranteed by the layer only ever writing to stderr. `doctor` does not narrate: its checks take milliseconds, so it prints only its report.
 
 `search` prints its summary after the results, so the last line says how many matched, how many sources answered and how to see more. An empty result is a stderr line, never text on stdout.
 
@@ -50,7 +52,7 @@ This is why `Cargo.toml` denies `print_stdout` and `print_stderr`: a stray `prin
 
 ## JSON
 
-Every `--json` output is one object with a `schema` tag naming its shape and version (`dataseek-search/1`, `dataseek-sources/1`, `dataseek-doctor/1`, ...). A key that changes meaning or disappears bumps the tag; a new key does not. On a terminal the JSON is indented, in a pipe it is one line. `--jq EXPR` runs a jq expression over the same object (strings come out raw, like `jq -r`), so a script needs no second process; a broken expression fails before any work starts. `tests/snapshots/` freezes the shapes.
+Every `--json` output is one object with a `schema` tag naming its shape and version (`dataseek-search/1`, `dataseek-sources/1`, `dataseek-doctor/1`, ...). A key that changes meaning or disappears bumps the tag; a new key does not. On a terminal the JSON is indented, in a pipe it is one line. `--jq EXPR` runs a jq expression over the same object (strings come out raw, like `jq -r`), so a script needs no second process; a broken expression fails before any work starts. `completion` and `man` print their script and page whatever the flag. `tests/snapshots/` freezes the search, sources, doctor, cache info, exit-codes and error-event shapes.
 
 ## SIGPIPE
 
@@ -81,7 +83,7 @@ Expected failures never show a stack trace. `Cargo.toml` denies every route a pa
 - `2`: usage error (clap)
 - `130`: interrupted by Ctrl-C (death by SIGINT, which the shell reports as 130)
 
-For `search`, success means at least one source answered, even with no results: an empty answer is a result (ADR 0007). `1` means every attempted source failed or none of the chosen sources could run for want of a key; when every failure is a connection refused, the error says the machine looks offline and points at `--offline`. A source that fails while others answer is a warning on stderr, never a failure. `cache warm` is the exception that fails partway: any catalog that did not download makes the run exit `1`, after every success is printed and every failure named.
+For `search`, success means at least one source answered, even with no results: an empty answer is a result (ADR 0007). `1` means every attempted source failed, or none could run: each lacks its key, each is resting after an outage in the last ten minutes, or `-s`, `-c` and `-x` left none. When every attempted source was unreachable (no DNS answer, refused, a TLS failure; a timeout does not count), the error says the machine looks offline and points at `--offline`; under `--offline` with nothing cached, it says so instead. `--offline` and `-s` ask resting sources anyway. A source that fails while others answer is a warning on stderr, never a failure. `cache warm` is the exception that fails partway: any catalog that did not download makes the run exit `1`, after every success is printed and every failure named, on stderr and again in the error, so `-q` still says which.
 
 `src/help.rs` holds the list `help exit-codes` prints, and `tests/cli.rs` asserts every code on it.
 
@@ -110,7 +112,7 @@ const MUTED: Color = ansi(AnsiColor::BrightBlack); // secondary detail
 
 Roles are semantic (`accent`, `success`, `danger`), not literal, so swapping a color is one edit. Use a named ANSI color for portability, or 24-bit truecolor with `rgb(0x7a, 0xa2, 0xf7)`.
 
-The same roles drive clap help styling, stdout text, and the stderr progress accent. `anstream` strips escapes whenever the stream is not a terminal, so call sites style unconditionally and never branch on color. On a terminal, result URLs are OSC 8 hyperlinks and long titles and descriptions are cut to the width (`COLUMNS` wins) with an ellipsis; in a pipe every line stays whole.
+The same roles drive clap help styling, stdout text, and the stderr progress accent. `anstream` strips escapes whenever the stream is not a terminal, so call sites style unconditionally and never branch on color. On a color terminal, result URLs are OSC 8 hyperlinks and long titles and descriptions are cut to the width (`COLUMNS` wins) with an ellipsis; in a pipe every line stays whole.
 
 indicatif parses its color token with `console::Style::from_dotted_str`, which understands named colors, `#rrggbb` truecolor, and a bare 256-color index, so `palette::accent_token()` renders whichever shape the accent takes exactly. Spinners and bars match help and stdout rather than approximating them.
 
@@ -124,6 +126,6 @@ indicatif parses its color token with `console::Style::from_dotted_str`, which u
 
 ## Extending the CLI
 
-Add a subcommand by adding a variant to `Command` in `src/cli.rs`, a match arm in `run()` in `src/lib.rs`, its name in `COMMANDS` and a line in `GROUPS` in `src/help.rs`. Keep one domain per tool; prefer support subcommands (`doctor`, `cache`) over piling flags onto the root. Add a test in `tests/cli.rs` for every behavior you add, and give a command that takes arguments people get wrong at most three examples; the test suite parses every example.
+Add a subcommand by adding a variant to `Command` in `src/cli.rs`, a match arm in `run()` in `src/lib.rs`, its name in `COMMANDS` and a line in `GROUPS` in `src/help.rs`. Keep one domain per tool; prefer support subcommands (`doctor`, `cache`) over piling flags onto the root. Add a test in `tests/cli.rs` for every behavior you add, and give a command that takes arguments people get wrong at most three examples, and add its `-h` to the list `every_example_in_help_and_readme_parses` reads.
 
 The unit test at the bottom of `src/cli.rs` calls clap's `debug_assert()` on the built command, which catches a malformed definition that still compiles: a short flag used twice, a `default_value` outside the possible values, an arg that conflicts with itself. Those otherwise panic the first time a user reaches them, inside clap, where the `panic = "deny"` lint cannot see them. A proptest beside it feeds arbitrary argv to the parser for the same reason.

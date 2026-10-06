@@ -14,7 +14,7 @@ pub enum Error {
     )]
     Syntax(String),
     #[error(
-        "the --jq expression uses {0}, which jq does not define\n  Try:   check the spelling and the number of arguments"
+        "the --jq expression uses {0}, which dataseek's jq (jaq) does not define\n  Try:   check the spelling and the number of arguments"
     )]
     Undefined(String),
     #[error(

@@ -6,10 +6,11 @@
 Budgets enforce; regressions inform. A path over its budget fails the run
 (doubled when CI is set, because runners are slower and noisier). A path more
 than --regression-pct slower than the committed baseline for this machine
-class prints a warning and a table, never a failure. See docs/contract.md.
+class prints a warning and a table, never a failure. See
+docs/reference/development.md.
 
-    just bench                 measure, check, print the table
-    just bench --bless         rewrite the baseline for this machine class
+    just bench-startup           measure, check, print the table
+    just bench-startup --bless   rewrite the baseline for this machine class
 """
 
 import argparse
@@ -85,7 +86,7 @@ def main() -> int:
     text = "\n".join(table)
     print(text)
     if not baseline:
-        print(f"no baseline for {machine_class()} at {baseline_path}; run `just bench --bless` on this machine class to start one")
+        print(f"no baseline for {machine_class()} at {baseline_path}; run `just bench-startup --bless` on this machine class to start one")
 
     summary = os.environ.get("GITHUB_STEP_SUMMARY")
     if summary:
