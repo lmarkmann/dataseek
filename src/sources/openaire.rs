@@ -11,8 +11,10 @@
 //!
 //! The query is Solr syntax with uppercase `AND`, `OR` and `NOT`. An
 //! unbalanced quote or parenthesis answers 400 and an operator without an
-//! operand answers 500, which would park the source as down, so a query is
-//! sent as plain words (OpenAIRE, October 2026).
+//! operand answers 500, which would park the source as down, so a query it
+//! rejects is asked once more as plain words. Phrases and operators that it
+//! accepts stay: `"sea ice" AND arctic` found 4,728 records where the same
+//! words without syntax found 5,042 (OpenAIRE, October 2026).
 //!
 //! A record stands for every copy of one product. Its DOIs beyond the first
 //! and the landing pages of its copies travel as aliases, ten at most because
@@ -33,22 +35,32 @@ pub fn search(
     query: &str,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    let words = plain_words(query);
-    if words.is_empty() {
-        return Ok(Vec::new());
-    }
-    let body = ctx
-        .http
-        .get("https://api.openaire.eu/graph/v3/research-products")
-        .query("search", words)
-        .query("type", "dataset")
-        .query("pageSize", limit.clamp(1, 100))
-        .json()?;
+    let body = match fetch(ctx, query, limit) {
+        Err(error) => {
+            let plain = plain(query, &error).ok_or(error)?;
+            fetch(ctx, &plain, limit)?
+        }
+        Ok(body) => body,
+    };
     parse(&body, limit)
 }
 
-fn plain_words(query: &str) -> String {
-    query
+fn fetch(
+    ctx: &Ctx<'_>,
+    query: &str,
+    limit: usize,
+) -> Result<Value, SourceError> {
+    ctx.http
+        .get("https://api.openaire.eu/graph/v3/research-products")
+        .query("search", query)
+        .query("type", "dataset")
+        .query("pageSize", limit.clamp(1, 100))
+        .json()
+}
+
+fn plain(query: &str, error: &SourceError) -> Option<String> {
+    let rejected = matches!(error, SourceError::Status(400 | 500));
+    let plain = query
         .replace(['"', '(', ')'], " ")
         .split_whitespace()
         .map(|word| match word {
@@ -56,7 +68,8 @@ fn plain_words(query: &str) -> String {
             _ => word.to_owned(),
         })
         .collect::<Vec<_>>()
-        .join(" ")
+        .join(" ");
+    (rejected && plain != query && !plain.is_empty()).then_some(plain)
 }
 
 pub(super) fn parse(
@@ -170,7 +183,8 @@ mod tests {
     fn a_series_of_two_hundred_dois_keeps_ten_aliases() {
         let pids: Vec<Value> = (0..200)
             .map(|n| {
-                json!({"scheme": "doi", "value": format!("10.1594/pangaea.{n}")})
+                let value = format!("10.1594/pangaea.{n}");
+                json!({"scheme": "doi", "value": value})
             })
             .collect();
         let row = json!({"mainTitle": "A series", "pids": pids});
@@ -181,16 +195,28 @@ mod tests {
     }
 
     #[test]
-    fn a_query_is_sent_as_plain_words() {
-        assert_eq!(
-            plain_words("sea surface temperature"),
-            "sea surface temperature"
-        );
-        assert_eq!(plain_words("\"unbalanced"), "unbalanced");
-        assert_eq!(plain_words("C++ (benchmark"), "C++ benchmark");
-        assert_eq!(plain_words("sea AND"), "sea and");
-        assert_eq!(plain_words("NOT ice OR snow"), "not ice or snow");
-        assert_eq!(plain_words("android"), "android");
-        assert_eq!(plain_words("\"()\""), "");
+    fn a_rejected_query_is_asked_again_as_plain_words() {
+        for (query, status, plain_query) in [
+            ("\"unbalanced", 400, "unbalanced"),
+            ("C++ (benchmark", 400, "C++ benchmark"),
+            ("sea AND", 500, "sea and"),
+            ("NOT ice OR", 500, "not ice or"),
+        ] {
+            assert_eq!(
+                plain(query, &SourceError::Status(status)).as_deref(),
+                Some(plain_query),
+                "{query}"
+            );
+        }
+    }
+
+    #[test]
+    fn a_query_is_not_asked_again_when_that_would_change_nothing() {
+        let error = SourceError::Status(500);
+        assert_eq!(plain("sea surface temperature", &error), None);
+        assert_eq!(plain("android", &error), None);
+        assert_eq!(plain("\"()\"", &SourceError::Status(400)), None);
+        assert_eq!(plain("sea AND", &SourceError::Status(404)), None);
+        assert_eq!(plain("sea AND", &SourceError::RateLimited), None);
     }
 }
