@@ -87,7 +87,10 @@ fn described(code: &str, folders: &str) -> Option<String> {
     if folders.is_empty() {
         return None;
     }
-    let text = format!("{code}: {folders}");
+    let mut text = String::with_capacity(code.len() + 2 + folders.len());
+    text.push_str(code);
+    text.push_str(": ");
+    text.push_str(folders);
     let plain = code.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_');
     if plain && text.len() <= SUMMARY_CHARS {
         Some(text)
