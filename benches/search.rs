@@ -176,6 +176,14 @@ fn html(bytes: usize) -> String {
     paragraph.repeat(bytes.div_ceil(paragraph.len()))
 }
 
+/// Prose whose ampersands start no entity, as in "R&D" or "Q&A", and which
+/// has no semicolon to end one.
+fn ampersands(bytes: usize) -> String {
+    let sentence = "Research & development spending by R&D sector, \
+        with Q&A notes from AT&T and P&G. ";
+    sentence.repeat(bytes.div_ceil(sentence.len()))
+}
+
 fn parse(c: &mut Criterion) {
     let mut group = c.benchmark_group("parse/sdmx");
     for flows in [100, 1_000, 10_000] {
@@ -275,6 +283,20 @@ fn sanitize(c: &mut Criterion) {
     let mut group = c.benchmark_group("clean");
     for bytes in [200, 2_000, 20_000] {
         let text = html(bytes);
+        group.throughput(Throughput::Bytes(text.len() as u64));
+        group.bench_with_input(
+            BenchmarkId::from_parameter(bytes),
+            &text,
+            |b, text| {
+                b.iter(|| clean(black_box(text)));
+            },
+        );
+    }
+    group.finish();
+
+    let mut group = c.benchmark_group("clean/ampersands");
+    for bytes in [2_000, 20_000] {
+        let text = ampersands(bytes);
         group.throughput(Throughput::Bytes(text.len() as u64));
         group.bench_with_input(
             BenchmarkId::from_parameter(bytes),
