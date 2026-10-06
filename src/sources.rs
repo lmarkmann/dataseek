@@ -1218,4 +1218,76 @@ mod tests {
         assert_eq!(catalog(rain).warm(&ctx).unwrap().unwrap(), 2);
         assert_eq!(cached(&ctx).unwrap().0.len(), 2);
     }
+
+    type LiveParse =
+        fn(&serde_json::Value, usize) -> Result<Vec<Dataset>, SourceError>;
+
+    /// Every live adapter's parser, fed its recorded response by name.
+    fn live_parsers() -> Vec<(&'static str, LiveParse)> {
+        vec![
+            ("arcgis", |b, n| arcgis::parse(b, n)),
+            ("cern", |b, n| cern::parse(b, n)),
+            ("cessda", |b, n| cessda::parse(b, n)),
+            ("cmr", |b, n| cmr::parse(b, n)),
+            ("dandi", |b, n| dandi::parse(b, n)),
+            ("datacite", |b, n| datacite::parse(b, n)),
+            ("datacommons", |b, n| datacommons::parse(b, n)),
+            ("datagov", |b, n| datagov::parse(b, n)),
+            ("dataone", |b, n| dataone::parse(b, n)),
+            ("dataverse", |b, n| dataverse::parse(b, n)),
+            ("dbnomics", |b, n| dbnomics::parse(b, n)),
+            ("europa", |b, n| europa::parse(b, n)),
+            ("figshare", |b, n| figshare::parse(b, n)),
+            ("fred", |b, n| fred::parse(b, n)),
+            ("gbif", |b, n| gbif::parse(b, n)),
+            ("github", |b, n| github::parse(b, n)),
+            ("kaggle", |b, n| kaggle::parse(b, n)),
+            ("mendeley", |b, n| mendeley::parse(b, n)),
+            ("modelscope", |b, n| modelscope::parse(b, n)),
+            ("ncei", |b, n| ncei::parse(b, n)),
+            ("omicsdi", |b, n| omicsdi::parse(b, n)),
+            ("openaire", |b, n| openaire::parse(b, n)),
+            ("opendatasoft", |b, n| opendatasoft::parse(b, n)),
+            ("osf", |b, n| osf::parse(b, n)),
+            ("owid", |b, n| owid::parse(b, n)),
+            ("pangaea", |b, n| pangaea::parse(b, n)),
+            ("roboflow", |b, n| roboflow::parse(b, n)),
+            ("socrata", |b, n| socrata::parse(b, n)),
+            ("synapse", |b, n| synapse::parse(b, n)),
+            ("zenodo", |b, n| zenodo::parse(b, n)),
+            ("ckan", |b, n| ckan::parse(&ckan::DATA_GOV_UK, b, n)),
+            ("ebi", |b, n| ebi::parse(&ebi::ARRAYEXPRESS, b, n)),
+            ("nada", |b, n| {
+                nada::parse("https://microdata.worldbank.org/index.php", b, n)
+            }),
+            ("huggingface", |b, n| {
+                huggingface::parse(b, &["temperature".to_owned()], n)
+            }),
+            ("ncbi", |b, n| {
+                let ids =
+                    ["200304969", "200279746", "200279384"].map(String::from);
+                ncbi::parse(&ids, b, n)
+            }),
+        ]
+    }
+
+    #[test]
+    fn a_changed_response_is_a_shape_error_never_an_empty_list() {
+        let changed = serde_json::json!({"error": "unexpected"});
+        for (id, parse) in live_parsers() {
+            let outcome = parse(&changed, 10);
+            assert!(
+                matches!(outcome, Err(SourceError::Shape(_))),
+                "{id} answered {outcome:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn every_live_adapter_stops_at_the_limit() {
+        for (id, parse) in live_parsers() {
+            let body = fixture::json(&format!("{id}.json"));
+            assert_eq!(parse(&body, 1).unwrap().len(), 1, "{id}");
+        }
+    }
 }
