@@ -45,3 +45,32 @@ fn record(card: &Value) -> Option<Dataset> {
     dataset.updated = day(text(card, "/dateModified/0/@value"));
     dataset.valid()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("osf.json"), 10).unwrap();
+        assert_eq!(hits.len(), 3);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Climate emotions and pro\u{2011}environmental \
+                        behaviour: Associations with well\u{2011}being"
+                    .into(),
+                url: "https://osf.io/kzt9d".into(),
+                description: None,
+                publisher: Some("Bronislav Farka\u{10d}".into()),
+                doi: None,
+                license: None,
+                updated: Some("2026-06-23".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
+}

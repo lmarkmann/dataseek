@@ -1,0 +1,1101 @@
+{
+  "aggregations": {
+    "availability": {
+      "buckets": [
+        {
+          "doc_count": 1428,
+          "key": "online"
+        },
+        {
+          "doc_count": 20,
+          "key": "partial"
+        },
+        {
+          "doc_count": 1,
+          "key": "requested"
+        }
+      ],
+      "doc_count": 1450,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "category": {
+      "buckets": [
+        {
+          "doc_count": 4,
+          "key": " Heavy-Ion Physics",
+          "subcategory": {
+            "buckets": [],
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0
+          }
+        },
+        {
+          "doc_count": 4,
+          "key": "2 Fermion",
+          "subcategory": {
+            "buckets": [],
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0
+          }
+        },
+        {
+          "doc_count": 47,
+          "key": "B physics and Quarkonia",
+          "subcategory": {
+            "buckets": [],
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0
+          }
+        },
+        {
+          "doc_count": 10,
+          "key": "Higgs Physics",
+          "subcategory": {
+            "buckets": [
+              {
+                "doc_count": 10,
+                "key": "Beyond Standard Model"
+              }
+            ],
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0
+          }
+        }
+      ],
+      "doc_count": 1450,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "collision_energy": {
+      "buckets": [
+        {
+          "doc_count": 2,
+          "key": "0.9TeV"
+        },
+        {
+          "doc_count": 1,
+          "key": "0TeV"
+        },
+        {
+          "doc_count": 1,
+          "key": "12GeV"
+        },
+        {
+          "doc_count": 1,
+          "key": "13.6TeV"
+        }
+      ],
+      "doc_count": 1450,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "collision_type": {
+      "buckets": [
+        {
+          "doc_count": 1,
+          "key": "Interfill"
+        },
+        {
+          "doc_count": 6,
+          "key": "PbPb"
+        },
+        {
+          "doc_count": 5,
+          "key": "e+e-"
+        },
+        {
+          "doc_count": 13,
+          "key": "pPb"
+        }
+      ],
+      "doc_count": 1450,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "experiment": {
+      "buckets": [
+        {
+          "doc_count": 10,
+          "key": "ATLAS"
+        },
+        {
+          "doc_count": 550,
+          "key": "CMS"
+        },
+        {
+          "doc_count": 4,
+          "key": "DELPHI"
+        },
+        {
+          "doc_count": 1,
+          "key": "JADE"
+        }
+      ],
+      "doc_count": 1450,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "file_type": {
+      "buckets": [
+        {
+          "doc_count": 1,
+          "key": ".ckpt"
+        },
+        {
+          "doc_count": 4,
+          "key": "LONG"
+        },
+        {
+          "doc_count": 207,
+          "key": "aod"
+        },
+        {
+          "doc_count": 898,
+          "key": "csv"
+        }
+      ],
+      "doc_count": 1450,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "keywords": {
+      "buckets": [
+        {
+          "doc_count": 1,
+          "key": "ATLAS"
+        },
+        {
+          "doc_count": 1,
+          "key": "Drell-Yan"
+        },
+        {
+          "doc_count": 1,
+          "key": "Energy-energy correlators"
+        },
+        {
+          "doc_count": 1,
+          "key": "Full phase space"
+        }
+      ],
+      "doc_count": 1450,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 87
+    },
+    "magnet_polarity": {
+      "buckets": [],
+      "doc_count": 1450,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "number_events": {
+      "buckets": [
+        {
+          "doc_count": 887,
+          "from": 0.0,
+          "key": "0--999",
+          "to": 1000.0
+        },
+        {
+          "doc_count": 5,
+          "from": 1000.0,
+          "key": "1000--9999",
+          "to": 10000.0
+        },
+        {
+          "doc_count": 35,
+          "from": 10000.0,
+          "key": "10000--99999",
+          "to": 100000.0
+        },
+        {
+          "doc_count": 85,
+          "from": 100000.0,
+          "key": "100000--999999",
+          "to": 1000000.0
+        }
+      ],
+      "doc_count": 1450
+    },
+    "signature": {
+      "buckets": [
+        {
+          "doc_count": 1,
+          "key": "H"
+        },
+        {
+          "doc_count": 3,
+          "key": "Jpsi"
+        },
+        {
+          "doc_count": 3,
+          "key": "W"
+        },
+        {
+          "doc_count": 2,
+          "key": "Y"
+        }
+      ],
+      "doc_count": 1450,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 1
+    },
+    "stripping_stream": {
+      "buckets": [],
+      "doc_count": 1450,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "stripping_version": {
+      "buckets": [],
+      "doc_count": 1450,
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "type": {
+      "buckets": [
+        {
+          "doc_count": 1450,
+          "key": "Dataset",
+          "subtype": {
+            "buckets": [
+              {
+                "doc_count": 344,
+                "key": "Collision"
+              },
+              {
+                "doc_count": 930,
+                "key": "Derived"
+              },
+              {
+                "doc_count": 184,
+                "key": "Simulated"
+              }
+            ],
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0
+          }
+        },
+        {
+          "doc_count": 220,
+          "key": "Documentation",
+          "subtype": {
+            "buckets": [
+              {
+                "doc_count": 5,
+                "key": "About"
+              },
+              {
+                "doc_count": 1,
+                "key": "Activities"
+              },
+              {
+                "doc_count": 9,
+                "key": "Guide"
+              },
+              {
+                "doc_count": 1,
+                "key": "Help"
+              }
+            ],
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0
+          }
+        },
+        {
+          "doc_count": 24,
+          "key": "Environment",
+          "subtype": {
+            "buckets": [
+              {
+                "doc_count": 24,
+                "key": "Validation"
+              }
+            ],
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0
+          }
+        },
+        {
+          "doc_count": 27,
+          "key": "Glossary",
+          "subtype": {
+            "buckets": [],
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0
+          }
+        }
+      ],
+      "doc_count": 1754,
+      "doc_count_error_upper_bound": 0,
+      "meta": {},
+      "sum_other_doc_count": 0
+    },
+    "year": {
+      "buckets": [
+        {
+          "doc_count": 1,
+          "key": 504921600000,
+          "key_as_string": "1986"
+        },
+        {
+          "doc_count": 2,
+          "key": 694224000000,
+          "key_as_string": "1992"
+        },
+        {
+          "doc_count": 2,
+          "key": 725846400000,
+          "key_as_string": "1993"
+        },
+        {
+          "doc_count": 50,
+          "key": 1199145600000,
+          "key_as_string": "2008"
+        }
+      ],
+      "doc_count": 1450
+    }
+  },
+  "hits": {
+    "hits": [
+      {
+        "created": "2024-12-02T22:56:14.031770+00:00",
+        "id": "4803",
+        "links": {
+          "self": "https://opendata.cern.ch/api/records/4803"
+        },
+        "metadata": {
+          "$schema": "http://opendata.cern.ch/schema/records/record-v1.0.0.json",
+          "_availability_details": {
+            "online": 13
+          },
+          "_bucket": "dc050185-4fcc-4391-98ab-592c5bc69817",
+          "_file_indices": [],
+          "_files": [
+            {
+              "availability": "online",
+              "bucket": "dc050185-4fcc-4391-98ab-592c5bc69817",
+              "checksum": "adler32:7cbf16fb",
+              "file_id": "76ac3ada-fbae-451c-8201-ebb1609e1690",
+              "key": "12316057896_EventInfo.csv",
+              "size": 85,
+              "tags": {},
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12316057896_EventInfo.csv",
+              "version_id": "4e9cc8e9-2eff-4ba2-a83e-2a23d172ff47"
+            },
+            {
+              "availability": "online",
+              "bucket": "dc050185-4fcc-4391-98ab-592c5bc69817",
+              "checksum": "adler32:db978a17",
+              "file_id": "4b2dfc21-618d-4f98-a160-84133c9144f6",
+              "key": "12316057896_FilteredDTHitsXZ.csv",
+              "size": 722,
+              "tags": {},
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12316057896_FilteredDTHitsXZ.csv",
+              "version_id": "09366eb2-1056-4a90-9fd8-c332a847594b"
+            },
+            {
+              "availability": "online",
+              "bucket": "dc050185-4fcc-4391-98ab-592c5bc69817",
+              "checksum": "adler32:ae8549ce",
+              "file_id": "7cbfeba8-9cd4-4e3e-bd99-8932deb35c8d",
+              "key": "12316057896_FilteredRPCHitsXZ.csv",
+              "size": 381,
+              "tags": {},
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12316057896_FilteredRPCHitsXZ.csv",
+              "version_id": "03748620-5511-4945-8693-ca64ff107a12"
+            },
+            {
+              "availability": "online",
+              "bucket": "dc050185-4fcc-4391-98ab-592c5bc69817",
+              "checksum": "adler32:c9c1332c",
+              "file_id": "1952d09f-e4c2-481a-bce1-3c9e59a458a3",
+              "key": "12316057896_FilteredRPCHitsYZ.csv",
+              "size": 260,
+              "tags": {},
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12316057896_FilteredRPCHitsYZ.csv",
+              "version_id": "a77f8897-4c72-4d10-ab98-953582c9adb0"
+            }
+          ],
+          "abstract": {
+            "description": "This OPERA muon neutrino event is a muon neutrino interaction with the lead target where a muon was reconstructed in the final state. The event data from Electronic Detectors are available in the Drift Tube, RPC, and Target Tracker files."
+          },
+          "accelerator": "CERN-SPS",
+          "availability": "online",
+          "collaboration": {
+            "name": "OPERA collaboration",
+            "recid": "452"
+          },
+          "collections": [
+            "OPERA-Detector-Events"
+          ],
+          "dataset_semantics": [
+            {
+              "description": "PMT amplitude measured from the \"left\" side of a scintillator strip (in photo-electrons)",
+              "variable": "amplL"
+            },
+            {
+              "description": "PMT amplitude measured from the \"right\" side of a scintillator strip (in photo-electrons)",
+              "variable": "amplR"
+            },
+            {
+              "description": "PMT amplitude reconstructed from the \"left\" and \"right\" side amplitudes of a scintillator strip taking into account light attenuation in a WLS fiber (in photo-electrons)",
+              "variable": "amplRec"
+            },
+            {
+              "description": "cluster length (in cm)",
+              "variable": "clLength"
+            }
+          ],
+          "date_created": [
+            "2010",
+            "2011",
+            "2012"
+          ],
+          "date_published": "2018",
+          "distribution": {
+            "formats": [
+              "csv"
+            ],
+            "number_events": 1,
+            "number_files": 13,
+            "size": 8371
+          },
+          "doi": "10.7483/OPENDATA.OPERA.OCJX.PJSN",
+          "experiment": [
+            "OPERA"
+          ],
+          "files": [
+            {
+              "bucket": "dc050185-4fcc-4391-98ab-592c5bc69817",
+              "checksum": "adler32:d1bd3125",
+              "key": "12316057896_Tracks.csv",
+              "size": 221,
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12316057896_Tracks.csv",
+              "version_id": "98ca1dba-e981-44bf-87ad-2563f1479260"
+            },
+            {
+              "bucket": "dc050185-4fcc-4391-98ab-592c5bc69817",
+              "checksum": "adler32:5bdf2515",
+              "key": "12316057896_Vertex.csv",
+              "size": 134,
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12316057896_Vertex.csv",
+              "version_id": "b28452ab-4eb4-4e2c-a21b-e171d8ec9260"
+            },
+            {
+              "bucket": "dc050185-4fcc-4391-98ab-592c5bc69817",
+              "checksum": "adler32:7cbf16fb",
+              "key": "12316057896_EventInfo.csv",
+              "size": 85,
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12316057896_EventInfo.csv",
+              "version_id": "4e9cc8e9-2eff-4ba2-a83e-2a23d172ff47"
+            },
+            {
+              "bucket": "dc050185-4fcc-4391-98ab-592c5bc69817",
+              "checksum": "adler32:db978a17",
+              "key": "12316057896_FilteredDTHitsXZ.csv",
+              "size": 722,
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12316057896_FilteredDTHitsXZ.csv",
+              "version_id": "09366eb2-1056-4a90-9fd8-c332a847594b"
+            }
+          ],
+          "license": {
+            "attribution": "CC0-1.0"
+          },
+          "pids": {
+            "oai": {
+              "id": "oai:cernopendata.cern:4803"
+            }
+          },
+          "publisher": "CERN Open Data Portal",
+          "recid": "4803",
+          "relations": [
+            {
+              "description": "This event is part of OPERA Electronic Detector dataset",
+              "recid": "3900",
+              "type": "isPartOf"
+            },
+            {
+              "description": "This event is part of OPERA Emulsion Detector dataset",
+              "recid": "3901",
+              "type": "isPartOf"
+            }
+          ],
+          "title": " OPERA muon neutrino event 12316057896",
+          "title_additional": " OPERA muon neutrino event 12316057896",
+          "type": {
+            "primary": "Dataset",
+            "secondary": [
+              "Derived"
+            ]
+          },
+          "usage": {
+            "description": "These OPERA event data files can be visualised using the online OPERA event display",
+            "links": [
+              {
+                "description": "Visualise OPERA muon neutrino event 12316057896",
+                "url": "/visualise/events/opera/12316057896"
+              }
+            ]
+          }
+        },
+        "updated": "2025-06-06T08:55:09.001724+00:00"
+      },
+      {
+        "created": "2024-12-02T22:56:14.344418+00:00",
+        "id": "4804",
+        "links": {
+          "self": "https://opendata.cern.ch/api/records/4804"
+        },
+        "metadata": {
+          "$schema": "http://opendata.cern.ch/schema/records/record-v1.0.0.json",
+          "_availability_details": {
+            "online": 13
+          },
+          "_bucket": "3d745262-9c0e-47e5-bfa9-7ed1253050be",
+          "_file_indices": [],
+          "_files": [
+            {
+              "availability": "online",
+              "bucket": "3d745262-9c0e-47e5-bfa9-7ed1253050be",
+              "checksum": "adler32:930a1725",
+              "file_id": "f368e995-ffa0-4a6d-8e9b-770b95a4c83e",
+              "key": "12317016714_EventInfo.csv",
+              "size": 86,
+              "tags": {},
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12317016714_EventInfo.csv",
+              "version_id": "458314fc-75db-4e6e-a662-538ef88a36f4"
+            },
+            {
+              "availability": "online",
+              "bucket": "3d745262-9c0e-47e5-bfa9-7ed1253050be",
+              "checksum": "adler32:1a451cf8",
+              "file_id": "2fff55fe-69a7-4803-931b-43c7318177a5",
+              "key": "12317016714_FilteredDTHitsXZ.csv",
+              "size": 1510,
+              "tags": {},
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12317016714_FilteredDTHitsXZ.csv",
+              "version_id": "0bea39c1-cbf7-4a00-8c9e-342277c811aa"
+            },
+            {
+              "availability": "online",
+              "bucket": "3d745262-9c0e-47e5-bfa9-7ed1253050be",
+              "checksum": "adler32:7e897bec",
+              "file_id": "a67ce35b-0c2b-4f71-96e5-9801b3073c6d",
+              "key": "12317016714_FilteredRPCHitsXZ.csv",
+              "size": 653,
+              "tags": {},
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12317016714_FilteredRPCHitsXZ.csv",
+              "version_id": "7709ce90-36bf-44c2-abf0-9ba238275658"
+            },
+            {
+              "availability": "online",
+              "bucket": "3d745262-9c0e-47e5-bfa9-7ed1253050be",
+              "checksum": "adler32:b8187d48",
+              "file_id": "6be577b4-8bdf-4b02-9512-c8a90844f028",
+              "key": "12317016714_FilteredRPCHitsYZ.csv",
+              "size": 659,
+              "tags": {},
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12317016714_FilteredRPCHitsYZ.csv",
+              "version_id": "25b14cab-2df0-4fc0-a005-0f7110717099"
+            }
+          ],
+          "abstract": {
+            "description": "This OPERA muon neutrino event is a muon neutrino interaction with the lead target where a muon was reconstructed in the final state. The event data from Electronic Detectors are available in the Drift Tube, RPC, and Target Tracker files."
+          },
+          "accelerator": "CERN-SPS",
+          "availability": "online",
+          "collaboration": {
+            "name": "OPERA collaboration",
+            "recid": "452"
+          },
+          "collections": [
+            "OPERA-Detector-Events"
+          ],
+          "dataset_semantics": [
+            {
+              "description": "PMT amplitude measured from the \"left\" side of a scintillator strip (in photo-electrons)",
+              "variable": "amplL"
+            },
+            {
+              "description": "PMT amplitude measured from the \"right\" side of a scintillator strip (in photo-electrons)",
+              "variable": "amplR"
+            },
+            {
+              "description": "PMT amplitude reconstructed from the \"left\" and \"right\" side amplitudes of a scintillator strip taking into account light attenuation in a WLS fiber (in photo-electrons)",
+              "variable": "amplRec"
+            },
+            {
+              "description": "cluster length (in cm)",
+              "variable": "clLength"
+            }
+          ],
+          "date_created": [
+            "2010",
+            "2011",
+            "2012"
+          ],
+          "date_published": "2018",
+          "distribution": {
+            "formats": [
+              "csv"
+            ],
+            "number_events": 1,
+            "number_files": 13,
+            "size": 15853
+          },
+          "doi": "10.7483/OPENDATA.OPERA.IIXP.AWXF",
+          "experiment": [
+            "OPERA"
+          ],
+          "files": [
+            {
+              "bucket": "3d745262-9c0e-47e5-bfa9-7ed1253050be",
+              "checksum": "adler32:07833a55",
+              "key": "12317016714_Tracks.csv",
+              "size": 269,
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12317016714_Tracks.csv",
+              "version_id": "ec3a1234-4d77-40fb-a948-5158c0d28d2f"
+            },
+            {
+              "bucket": "3d745262-9c0e-47e5-bfa9-7ed1253050be",
+              "checksum": "adler32:19d7261b",
+              "key": "12317016714_Vertex.csv",
+              "size": 139,
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12317016714_Vertex.csv",
+              "version_id": "0d24200f-2aae-4c02-bf63-b8e13c6ccc42"
+            },
+            {
+              "bucket": "3d745262-9c0e-47e5-bfa9-7ed1253050be",
+              "checksum": "adler32:930a1725",
+              "key": "12317016714_EventInfo.csv",
+              "size": 86,
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12317016714_EventInfo.csv",
+              "version_id": "458314fc-75db-4e6e-a662-538ef88a36f4"
+            },
+            {
+              "bucket": "3d745262-9c0e-47e5-bfa9-7ed1253050be",
+              "checksum": "adler32:1a451cf8",
+              "key": "12317016714_FilteredDTHitsXZ.csv",
+              "size": 1510,
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12317016714_FilteredDTHitsXZ.csv",
+              "version_id": "0bea39c1-cbf7-4a00-8c9e-342277c811aa"
+            }
+          ],
+          "license": {
+            "attribution": "CC0-1.0"
+          },
+          "pids": {
+            "oai": {
+              "id": "oai:cernopendata.cern:4804"
+            }
+          },
+          "publisher": "CERN Open Data Portal",
+          "recid": "4804",
+          "relations": [
+            {
+              "description": "This event is part of OPERA Electronic Detector dataset",
+              "recid": "3900",
+              "type": "isPartOf"
+            },
+            {
+              "description": "This event is part of OPERA Emulsion Detector dataset",
+              "recid": "3901",
+              "type": "isPartOf"
+            }
+          ],
+          "title": " OPERA muon neutrino event 12317016714",
+          "title_additional": " OPERA muon neutrino event 12317016714",
+          "type": {
+            "primary": "Dataset",
+            "secondary": [
+              "Derived"
+            ]
+          },
+          "usage": {
+            "description": "These OPERA event data files can be visualised using the online OPERA event display",
+            "links": [
+              {
+                "description": "Visualise OPERA muon neutrino event 12317016714",
+                "url": "/visualise/events/opera/12317016714"
+              }
+            ]
+          }
+        },
+        "updated": "2025-06-06T08:55:09.103335+00:00"
+      },
+      {
+        "created": "2024-12-02T22:56:14.646425+00:00",
+        "id": "4805",
+        "links": {
+          "self": "https://opendata.cern.ch/api/records/4805"
+        },
+        "metadata": {
+          "$schema": "http://opendata.cern.ch/schema/records/record-v1.0.0.json",
+          "_availability_details": {
+            "online": 13
+          },
+          "_bucket": "063d9821-449c-4f2e-aa3c-9fb1cd98534a",
+          "_file_indices": [],
+          "_files": [
+            {
+              "availability": "online",
+              "bucket": "063d9821-449c-4f2e-aa3c-9fb1cd98534a",
+              "checksum": "adler32:7b8f16f4",
+              "file_id": "fc072a25-fa38-41ed-9f94-b14d68f879cb",
+              "key": "12319052824_EventInfo.csv",
+              "size": 85,
+              "tags": {},
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12319052824_EventInfo.csv",
+              "version_id": "f6cf6afc-26ee-4bd0-9118-5b611b90d8c0"
+            },
+            {
+              "availability": "online",
+              "bucket": "063d9821-449c-4f2e-aa3c-9fb1cd98534a",
+              "checksum": "adler32:0e233c51",
+              "file_id": "373d3986-242e-49ce-8026-9721462170eb",
+              "key": "12319052824_FilteredDTHitsXZ.csv",
+              "size": 303,
+              "tags": {},
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12319052824_FilteredDTHitsXZ.csv",
+              "version_id": "db201240-bfc8-4063-a23a-dc27a573061c"
+            },
+            {
+              "availability": "online",
+              "bucket": "063d9821-449c-4f2e-aa3c-9fb1cd98534a",
+              "checksum": "adler32:67203abc",
+              "file_id": "4d9d28a8-c229-4096-bc1c-8859efa1c838",
+              "key": "12319052824_FilteredRPCHitsXZ.csv",
+              "size": 299,
+              "tags": {},
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12319052824_FilteredRPCHitsXZ.csv",
+              "version_id": "5fade9fb-9eb9-4869-952a-53ab0a72d526"
+            },
+            {
+              "availability": "online",
+              "bucket": "063d9821-449c-4f2e-aa3c-9fb1cd98534a",
+              "checksum": "adler32:efab353b",
+              "file_id": "68adf5f8-79f0-40d8-b0cb-b84f40451509",
+              "key": "12319052824_FilteredRPCHitsYZ.csv",
+              "size": 270,
+              "tags": {},
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12319052824_FilteredRPCHitsYZ.csv",
+              "version_id": "9013bc36-2858-4cf7-bdfa-d500adf989f5"
+            }
+          ],
+          "abstract": {
+            "description": "This OPERA muon neutrino event is a muon neutrino interaction with the lead target where a muon was reconstructed in the final state. The event data from Electronic Detectors are available in the Drift Tube, RPC, and Target Tracker files."
+          },
+          "accelerator": "CERN-SPS",
+          "availability": "online",
+          "collaboration": {
+            "name": "OPERA collaboration",
+            "recid": "452"
+          },
+          "collections": [
+            "OPERA-Detector-Events"
+          ],
+          "dataset_semantics": [
+            {
+              "description": "PMT amplitude measured from the \"left\" side of a scintillator strip (in photo-electrons)",
+              "variable": "amplL"
+            },
+            {
+              "description": "PMT amplitude measured from the \"right\" side of a scintillator strip (in photo-electrons)",
+              "variable": "amplR"
+            },
+            {
+              "description": "PMT amplitude reconstructed from the \"left\" and \"right\" side amplitudes of a scintillator strip taking into account light attenuation in a WLS fiber (in photo-electrons)",
+              "variable": "amplRec"
+            },
+            {
+              "description": "cluster length (in cm)",
+              "variable": "clLength"
+            }
+          ],
+          "date_created": [
+            "2010",
+            "2011",
+            "2012"
+          ],
+          "date_published": "2018",
+          "distribution": {
+            "formats": [
+              "csv"
+            ],
+            "number_events": 1,
+            "number_files": 13,
+            "size": 19739
+          },
+          "doi": "10.7483/OPENDATA.OPERA.B2HZ.SC7S",
+          "experiment": [
+            "OPERA"
+          ],
+          "files": [
+            {
+              "bucket": "063d9821-449c-4f2e-aa3c-9fb1cd98534a",
+              "checksum": "adler32:688753f0",
+              "key": "12319052824_Tracks.csv",
+              "size": 404,
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12319052824_Tracks.csv",
+              "version_id": "914c1e8f-d516-44a2-82a7-9e8a116b3a6b"
+            },
+            {
+              "bucket": "063d9821-449c-4f2e-aa3c-9fb1cd98534a",
+              "checksum": "adler32:7f9d253c",
+              "key": "12319052824_Vertex.csv",
+              "size": 135,
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12319052824_Vertex.csv",
+              "version_id": "e2e8fcb5-94b8-415e-b9c8-97982b40bcd0"
+            },
+            {
+              "bucket": "063d9821-449c-4f2e-aa3c-9fb1cd98534a",
+              "checksum": "adler32:7b8f16f4",
+              "key": "12319052824_EventInfo.csv",
+              "size": 85,
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12319052824_EventInfo.csv",
+              "version_id": "f6cf6afc-26ee-4bd0-9118-5b611b90d8c0"
+            },
+            {
+              "bucket": "063d9821-449c-4f2e-aa3c-9fb1cd98534a",
+              "checksum": "adler32:0e233c51",
+              "key": "12319052824_FilteredDTHitsXZ.csv",
+              "size": 303,
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12319052824_FilteredDTHitsXZ.csv",
+              "version_id": "db201240-bfc8-4063-a23a-dc27a573061c"
+            }
+          ],
+          "license": {
+            "attribution": "CC0-1.0"
+          },
+          "pids": {
+            "oai": {
+              "id": "oai:cernopendata.cern:4805"
+            }
+          },
+          "publisher": "CERN Open Data Portal",
+          "recid": "4805",
+          "relations": [
+            {
+              "description": "This event is part of OPERA Electronic Detector dataset",
+              "recid": "3900",
+              "type": "isPartOf"
+            },
+            {
+              "description": "This event is part of OPERA Emulsion Detector dataset",
+              "recid": "3901",
+              "type": "isPartOf"
+            }
+          ],
+          "title": " OPERA muon neutrino event 12319052824",
+          "title_additional": " OPERA muon neutrino event 12319052824",
+          "type": {
+            "primary": "Dataset",
+            "secondary": [
+              "Derived"
+            ]
+          },
+          "usage": {
+            "description": "These OPERA event data files can be visualised using the online OPERA event display",
+            "links": [
+              {
+                "description": "Visualise OPERA muon neutrino event 12319052824",
+                "url": "/visualise/events/opera/12319052824"
+              }
+            ]
+          }
+        },
+        "updated": "2025-06-06T08:55:09.188461+00:00"
+      },
+      {
+        "created": "2024-12-02T22:56:14.963676+00:00",
+        "id": "4806",
+        "links": {
+          "self": "https://opendata.cern.ch/api/records/4806"
+        },
+        "metadata": {
+          "$schema": "http://opendata.cern.ch/schema/records/record-v1.0.0.json",
+          "_availability_details": {
+            "online": 13
+          },
+          "_bucket": "f6abe4bd-998c-4b5c-9eeb-94a912455163",
+          "_file_indices": [],
+          "_files": [
+            {
+              "availability": "online",
+              "bucket": "f6abe4bd-998c-4b5c-9eeb-94a912455163",
+              "checksum": "adler32:90c41717",
+              "file_id": "2431409f-029c-4bac-971e-ea30cbb95654",
+              "key": "12321008586_EventInfo.csv",
+              "size": 86,
+              "tags": {},
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12321008586_EventInfo.csv",
+              "version_id": "aa9d5188-6b66-4093-a475-1d7a1c2b7748"
+            },
+            {
+              "availability": "online",
+              "bucket": "f6abe4bd-998c-4b5c-9eeb-94a912455163",
+              "checksum": "adler32:faba544c",
+              "file_id": "b642909d-6b26-45b3-b074-77f8712e04e5",
+              "key": "12321008586_FilteredDTHitsXZ.csv",
+              "size": 430,
+              "tags": {},
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12321008586_FilteredDTHitsXZ.csv",
+              "version_id": "2b0b915c-4f9b-42f9-bd44-c0e7b6e24419"
+            },
+            {
+              "availability": "online",
+              "bucket": "f6abe4bd-998c-4b5c-9eeb-94a912455163",
+              "checksum": "adler32:384f4b76",
+              "file_id": "caa8ee0a-f22e-4abd-9810-6f0e0b97623f",
+              "key": "12321008586_FilteredRPCHitsXZ.csv",
+              "size": 389,
+              "tags": {},
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12321008586_FilteredRPCHitsXZ.csv",
+              "version_id": "bfd51f59-b4d0-4fc1-a192-e02fa5440fda"
+            },
+            {
+              "availability": "online",
+              "bucket": "f6abe4bd-998c-4b5c-9eeb-94a912455163",
+              "checksum": "adler32:13824369",
+              "file_id": "fb6d6be4-a126-4cab-ae4f-2f25056846b9",
+              "key": "12321008586_FilteredRPCHitsYZ.csv",
+              "size": 346,
+              "tags": {},
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12321008586_FilteredRPCHitsYZ.csv",
+              "version_id": "3fc171bd-654d-4996-ba62-08422e634f95"
+            }
+          ],
+          "abstract": {
+            "description": "This OPERA muon neutrino event is a muon neutrino interaction with the lead target where a muon was reconstructed in the final state. The event data from Electronic Detectors are available in the Drift Tube, RPC, and Target Tracker files."
+          },
+          "accelerator": "CERN-SPS",
+          "availability": "online",
+          "collaboration": {
+            "name": "OPERA collaboration",
+            "recid": "452"
+          },
+          "collections": [
+            "OPERA-Detector-Events"
+          ],
+          "dataset_semantics": [
+            {
+              "description": "PMT amplitude measured from the \"left\" side of a scintillator strip (in photo-electrons)",
+              "variable": "amplL"
+            },
+            {
+              "description": "PMT amplitude measured from the \"right\" side of a scintillator strip (in photo-electrons)",
+              "variable": "amplR"
+            },
+            {
+              "description": "PMT amplitude reconstructed from the \"left\" and \"right\" side amplitudes of a scintillator strip taking into account light attenuation in a WLS fiber (in photo-electrons)",
+              "variable": "amplRec"
+            },
+            {
+              "description": "cluster length (in cm)",
+              "variable": "clLength"
+            }
+          ],
+          "date_created": [
+            "2010",
+            "2011",
+            "2012"
+          ],
+          "date_published": "2018",
+          "distribution": {
+            "formats": [
+              "csv"
+            ],
+            "number_events": 1,
+            "number_files": 13,
+            "size": 9941
+          },
+          "doi": "10.7483/OPENDATA.OPERA.GU7N.B1GT",
+          "experiment": [
+            "OPERA"
+          ],
+          "files": [
+            {
+              "bucket": "f6abe4bd-998c-4b5c-9eeb-94a912455163",
+              "checksum": "adler32:2a0623ab",
+              "key": "12321008586_Tracks.csv",
+              "size": 151,
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12321008586_Tracks.csv",
+              "version_id": "75128f08-5938-41b3-b7e3-58ecf1cdb78c"
+            },
+            {
+              "bucket": "f6abe4bd-998c-4b5c-9eeb-94a912455163",
+              "checksum": "adler32:eb6625c4",
+              "key": "12321008586_Vertex.csv",
+              "size": 138,
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12321008586_Vertex.csv",
+              "version_id": "548168c0-63e2-4a56-9b66-600836ca607e"
+            },
+            {
+              "bucket": "f6abe4bd-998c-4b5c-9eeb-94a912455163",
+              "checksum": "adler32:90c41717",
+              "key": "12321008586_EventInfo.csv",
+              "size": 86,
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12321008586_EventInfo.csv",
+              "version_id": "aa9d5188-6b66-4093-a475-1d7a1c2b7748"
+            },
+            {
+              "bucket": "f6abe4bd-998c-4b5c-9eeb-94a912455163",
+              "checksum": "adler32:faba544c",
+              "key": "12321008586_FilteredDTHitsXZ.csv",
+              "size": 430,
+              "uri": "root://eospublic.cern.ch//eos/opendata/opera/events/multiplicity/12321008586_FilteredDTHitsXZ.csv",
+              "version_id": "2b0b915c-4f9b-42f9-bd44-c0e7b6e24419"
+            }
+          ],
+          "license": {
+            "attribution": "CC0-1.0"
+          },
+          "pids": {
+            "oai": {
+              "id": "oai:cernopendata.cern:4806"
+            }
+          },
+          "publisher": "CERN Open Data Portal",
+          "recid": "4806",
+          "relations": [
+            {
+              "description": "This event is part of OPERA Electronic Detector dataset",
+              "recid": "3900",
+              "type": "isPartOf"
+            },
+            {
+              "description": "This event is part of OPERA Emulsion Detector dataset",
+              "recid": "3901",
+              "type": "isPartOf"
+            }
+          ],
+          "title": " OPERA muon neutrino event 12321008586",
+          "title_additional": " OPERA muon neutrino event 12321008586",
+          "type": {
+            "primary": "Dataset",
+            "secondary": [
+              "Derived"
+            ]
+          },
+          "usage": {
+            "description": "These OPERA event data files can be visualised using the online OPERA event display",
+            "links": [
+              {
+                "description": "Visualise OPERA muon neutrino event 12321008586",
+                "url": "/visualise/events/opera/12321008586"
+              }
+            ]
+          }
+        },
+        "updated": "2025-06-06T08:55:09.274609+00:00"
+      }
+    ],
+    "total": 1450
+  },
+  "links": {
+    "next": "https://opendata.cern.ch/api/records/?type=Dataset&sort=bestmatch&q=muon&size=10&page=2",
+    "self": "https://opendata.cern.ch/api/records/?type=Dataset&sort=bestmatch&q=muon&size=10&page=1"
+  }
+}

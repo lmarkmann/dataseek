@@ -31,3 +31,32 @@ pub(super) fn parse(body: &Value) -> Vec<Dataset> {
         })
         .collect()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_list() {
+        let datasets = parse(&fixture::json("who.json"));
+        assert_eq!(datasets.len(), 4);
+        assert_eq!(
+            datasets[0],
+            Dataset {
+                title: "Underweight among adults, BMI < 18.5 kg/m2 (crude \
+                        estimate) (%)"
+                    .into(),
+                url: "https://ghoapi.azureedge.net/api/NCD_BMI_18C".into(),
+                description: None,
+                publisher: Some("World Health Organization".into()),
+                doi: None,
+                license: None,
+                updated: None,
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
+}

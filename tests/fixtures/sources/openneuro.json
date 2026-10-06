@@ -1,0 +1,61 @@
+{
+  "data": {
+    "datasets": {
+      "pageInfo": {
+        "hasNextPage": true,
+        "endCursor": "eyJvZmZzZXQiOjEwMH0="
+      },
+      "edges": [
+        {
+          "node": {
+            "id": "ds000001",
+            "latestSnapshot": {
+              "created": "2020-05-14T14:56:55.000Z",
+              "description": {
+                "Name": "Balloon Analog Risk-taking Task"
+              }
+            }
+          }
+        },
+        {
+          "node": {
+            "id": "ds000002",
+            "latestSnapshot": {
+              "created": "2018-07-14T01:23:36.000Z",
+              "description": {
+                "Name": "Classification learning"
+              }
+            }
+          }
+        },
+        {
+          "node": {
+            "id": "ds000003",
+            "latestSnapshot": {
+              "created": "2020-05-14T15:01:29.000Z",
+              "description": {
+                "Name": "Rhyme judgment"
+              }
+            }
+          }
+        },
+        {
+          "node": {
+            "id": "ds000005",
+            "latestSnapshot": {
+              "created": "2018-07-14T01:26:48.000Z",
+              "description": {
+                "Name": "Mixed-gambles task"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "openneuro": {
+      "version": "5.8.0"
+    }
+  }
+}

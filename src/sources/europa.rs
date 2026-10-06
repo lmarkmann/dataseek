@@ -57,3 +57,42 @@ fn record(row: &Value) -> Option<Dataset> {
         day(text(row, "/modified").or_else(|| text(row, "/issued")));
     dataset.valid()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("europa.json"), 10).unwrap();
+        assert_eq!(hits.len(), 3);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "water".into(),
+                url: "https://data.europa.eu/data/datasets/\
+                      http-www-geoportal-rlp-de-registry-spatial-dataset-\
+                      75be9c8c-b6d5-6e29-aca2-eb1ae907b29c"
+                    .into(),
+                description: Some(
+                    "Topic Water supply from the spatial planning cadastre \
+                     of the structural and permit diirersection south of \
+                     the state of Rhineland-Palatinate"
+                        .into()
+                ),
+                publisher: Some(
+                    "SGD S\u{fc}d Raumordnung Technisches B\u{fc}ro".into()
+                ),
+                doi: None,
+                license: Some(
+                    "http://dcat-ap.de/def/licenses/dl-by-de/2.0".into()
+                ),
+                updated: Some("2023-12-06".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
+}

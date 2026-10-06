@@ -1,0 +1,10 @@
+"title"	"code"	"type"	"last update of data"	"last table structure change"	"data start"	"data end"	"values"
+"Database by themes"	"data"	"folder"	" "	" "	" "	" "	
+"    General and regional statistics"	"general"	"folder"	" "	" "	" "	" "	
+"        European and national indicators for short-term analysis"	"euroind"	"folder"	" "	" "	" "	" "	
+"            Balance of payments"	"ei_bp"	"folder"	" "	" "	" "	" "	
+"                Current account - quarterly data"	"ei_bpm6ca_q"	"table"	"02.10.2026"	"02.10.2026"	"1991-Q1"	"2026-Q2"	314789
+"                Financial account - quarterly data"	"ei_bpm6fa_q"	"table"	"02.10.2026"	"01.10.2026"	"1991-Q1"	"2026-Q2"	55918
+"                        Unemployment by sex and age - monthly data"	"une_rt_m"	"dataset"	"02.10.2026"	"04.09.2026"	"1983-01"	"2026-08"	757612
+"                        Employees by economic activity (NACE Rev. 2) (2008-2026)"	"lfsa_eegan2"	"dataset"	"10.09.2026"	"17.04.2026"	"2008"	"2025"	822061
+"                        Employees by economic activity (NACE Rev. 2) (2008-2026)"	"lfsa_eegan2"	"dataset"	"10.09.2026"	"17.04.2026"	"2008"	"2025"	822061

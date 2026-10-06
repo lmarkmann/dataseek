@@ -1,0 +1,60 @@
+{
+  "responseHeader": {
+    "status": 0,
+    "QTime": 920,
+    "params": {
+      "q": "sea AND ice",
+      "fl": "id,title,abstract,dateModified,datasource,origin",
+      "json": "",
+      "fq": "formatType:METADATA AND -obsoletedBy:*",
+      "rows": "10",
+      "wt": "json"
+    }
+  },
+  "response": {
+    "numFound": 29240,
+    "start": 0,
+    "docs": [
+      {
+        "id": "sha256:22074341b20fe79af9506247d014e528ece4db64e3e6ae49b1a29d1ebc7e0cb7",
+        "dateModified": "2024-09-12T01:31:44Z",
+        "datasource": "urn:node:NSIDC",
+        "abstract": "NSIDC provides this data set to aid in the investigations of the variability and trends of sea ice cover. Ice cover in these data are indicated by sea ice concentration: the percentage of the ocean surface covered by ice.",
+        "title": "Sea Ice Trends and Climatologies from SMMR and SSM/I-SSMIS, Version 1",
+        "origin": [
+          "National Snow and Ice Data Center"
+        ]
+      },
+      {
+        "id": "sha256:fa40035df214bfd8768cb57e52feaa5aeffded64bb6fc3fcd11baf40ce6b867c",
+        "dateModified": "2024-09-12T01:31:43Z",
+        "datasource": "urn:node:NSIDC",
+        "abstract": "NSIDC provides this data set to aid in the investigations of the variability and trends of sea ice cover. Ice cover in these data are indicated by sea ice concentration: the percentage of the ocean surface covered by ice.",
+        "title": "Sea Ice Trends and Climatologies from SMMR and SSM/I-SSMIS, Version 2",
+        "origin": [
+          "National Snow and Ice Data Center"
+        ]
+      },
+      {
+        "id": "sha256:5a6af8768f16ca45faf5634310c5f77fda2a9cdcfc9b06dd24496b354186c06b",
+        "dateModified": "2024-09-12T01:22:29Z",
+        "datasource": "urn:node:NSIDC",
+        "abstract": "This data set provides weekly estimates of sea ice age for the Arctic Ocean from remotely sensed sea ice motion and sea ice extent.",
+        "title": "EASE-Grid Sea Ice Age, Version 3",
+        "origin": [
+          "National Snow and Ice Data Center"
+        ]
+      },
+      {
+        "id": "sha256:e4e2803b5f1d26c49895e5e7c2cf0fe0ce74197ef0a65b16ff4f2605fe543bef",
+        "dateModified": "2025-08-22T01:31:32Z",
+        "datasource": "urn:node:NSIDC",
+        "abstract": "NSIDC provides this data set to aid investigations of variability and trends in sea ice cover. Ice cover in these data are indicated by sea ice concentration: the percentage of the ocean surface covered by ice.",
+        "title": "Sea Ice Trends and Climatologies from SMMR and SSM/I-SSMIS, Version 3",
+        "origin": [
+          "National Snow and Ice Data Center"
+        ]
+      }
+    ]
+  }
+}

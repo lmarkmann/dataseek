@@ -36,3 +36,36 @@ pub(super) fn parse(body: &Value) -> Vec<Dataset> {
         })
         .collect()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_list() {
+        let entries = parse(&fixture::json("materials.json"));
+        assert_eq!(entries.len(), 4);
+        assert_eq!(
+            entries[0],
+            Dataset {
+                title: "Carrier Transport".into(),
+                url: "https://contribs.materialsproject.org/projects/\
+                      carrier_transport"
+                    .into(),
+                description: Some(
+                    "Ab-initio electronic transport database for inorganic \
+                     materials."
+                        .into()
+                ),
+                publisher: None,
+                doi: None,
+                license: None,
+                updated: None,
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
+}

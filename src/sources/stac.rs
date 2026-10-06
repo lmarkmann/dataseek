@@ -87,3 +87,39 @@ fn record(catalog: &Catalog, collection: &Value) -> Option<Dataset> {
         .filter(|l| l != "proprietary" && l != "other" && l != "various");
     dataset.valid()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_list() {
+        let (entries, next) =
+            parse(&EARTH_SEARCH, &fixture::json("stac.json")).unwrap();
+        assert_eq!(entries.len(), 4);
+        assert_eq!(next, None);
+        assert_eq!(
+            entries[0],
+            Dataset {
+                title: "Sentinel-2 Pre-Collection 1 Level-2A".into(),
+                url: "https://earth-search.aws.element84.com/v1/collections/\
+                      sentinel-2-pre-c1-l2a"
+                    .into(),
+                description: Some(
+                    "Sentinel-2 Pre-Collection 1 Level-2A (baseline < 05.00), \
+                     with data and metadata matching collection \
+                     sentinel-2-c1-l2a"
+                        .into()
+                ),
+                publisher: Some("Element 84".into()),
+                doi: None,
+                license: None,
+                updated: None,
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
+}

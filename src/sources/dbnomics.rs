@@ -48,3 +48,38 @@ fn record(row: &Value) -> Option<Dataset> {
     dataset.updated = day(text(row, "/updated_at"));
     dataset.valid()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("dbnomics.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Economic statistics ROPI-adjusted for inflation - \
+                        Regions (for 'Developer API')"
+                    .into(),
+                url: "https://db.nomics.world/OECD/DSD_REG_ECO@DF_ECO_ROPI"
+                    .into(),
+                description: Some(
+                    "65065 series (OECD/DSD_REG_ECO@DF_ECO_ROPI)".into()
+                ),
+                publisher: Some(
+                    "Organisation for Economic Co-operation and Development"
+                        .into()
+                ),
+                doi: None,
+                license: None,
+                updated: Some("2026-06-12".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
+}

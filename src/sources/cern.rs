@@ -50,3 +50,37 @@ fn record(hit: &Value) -> Option<Dataset> {
     dataset.updated = text(meta, "/date_published");
     dataset.valid()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("cern.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "OPERA muon neutrino event 12316057896".into(),
+                url: "https://opendata.cern.ch/record/4803".into(),
+                description: Some(
+                    "This OPERA muon neutrino event is a muon neutrino \
+                     interaction with the lead target where a muon was \
+                     reconstructed in the final state. The event data from \
+                     Electronic Detectors are available in the Drift Tube, \
+                     RPC, and Target Tracker files."
+                        .into()
+                ),
+                publisher: Some("CERN OPERA".into()),
+                doi: Some("10.7483/opendata.opera.ocjx.pjsn".into()),
+                license: None,
+                updated: Some("2018".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
+}

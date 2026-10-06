@@ -35,3 +35,40 @@ pub(super) fn parse(body: &Value) -> Result<Vec<Dataset>, SourceError> {
         })
         .collect())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_list() {
+        let entries = parse(&fixture::json("cellxgene.json")).unwrap();
+        assert_eq!(entries.len(), 4);
+        assert_eq!(
+            entries[0],
+            Dataset {
+                title:
+                    "Single-cell transcriptomic atlas for adult human retina"
+                        .into(),
+                url: "https://cellxgene.cziscience.com/collections/\
+                      af893e86-8e9f-41f1-a474-ef05359b1fb7"
+                    .into(),
+                description: Some(
+                    "The retina is the innermost tissue of the eyes of human \
+                     and most other vertebrates. It receives the information \
+                     of the visual images like the film of a camera and then \
+                     translates the images into neural signals."
+                        .into()
+                ),
+                publisher: None,
+                doi: Some("10.1016/j.xgen.2023.100298".into()),
+                license: None,
+                updated: Some("2026-06-11".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
+}

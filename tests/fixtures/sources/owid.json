@@ -1,0 +1,97 @@
+{
+  "query": "water",
+  "results": [
+    {
+      "title": "Share using safely managed drinking water",
+      "slug": "proportion-using-safely-managed-drinking-water",
+      "subtitle": "Safely managed drinking water service means an improved water source is located on the premises, available when needed, and free from contamination.",
+      "variantName": "",
+      "type": "chart",
+      "availableEntities": [
+        "Bosnia and Herzegovina",
+        "Czechia",
+        "Democratic Republic of Congo",
+        "Eswatini"
+      ],
+      "availableTabs": [
+        "Table",
+        "WorldMap",
+        "LineChart",
+        "DiscreteBar"
+      ],
+      "publishedAt": "2018-03-15T20:51:30.000Z",
+      "updatedAt": "2026-05-11T11:23:07.000Z",
+      "url": "https://ourworldindata.org/grapher/proportion-using-safely-managed-drinking-water"
+    },
+    {
+      "title": "Drinking water service usage",
+      "slug": "access-drinking-water-stacked",
+      "subtitle": "Share of population using five different levels of drinking water services: safely managed, basic, limited, unimproved and surface water.",
+      "variantName": "",
+      "type": "chart",
+      "availableEntities": [
+        "Bosnia and Herzegovina",
+        "Czechia",
+        "Democratic Republic of Congo",
+        "Eswatini"
+      ],
+      "availableTabs": [
+        "Table",
+        "StackedDiscreteBar"
+      ],
+      "publishedAt": "2021-07-01T13:44:56.000Z",
+      "updatedAt": "2026-05-11T11:20:41.000Z",
+      "url": "https://ourworldindata.org/grapher/access-drinking-water-stacked"
+    },
+    {
+      "title": "Share of population using at least a basic drinking water source",
+      "slug": "population-using-at-least-basic-drinking-water",
+      "subtitle": "A basic drinking water service is water from an improved water source that can be collected within a 30-minute round trip, including queuing.",
+      "variantName": "",
+      "type": "chart",
+      "availableEntities": [
+        "Bosnia and Herzegovina",
+        "Czechia",
+        "Democratic Republic of Congo",
+        "Eswatini"
+      ],
+      "availableTabs": [
+        "Table",
+        "WorldMap",
+        "LineChart",
+        "DiscreteBar"
+      ],
+      "publishedAt": "2018-03-15T21:01:20.000Z",
+      "updatedAt": "2026-05-11T11:22:20.000Z",
+      "url": "https://ourworldindata.org/grapher/population-using-at-least-basic-drinking-water"
+    },
+    {
+      "title": "Share of the population using safely managed drinking water",
+      "containerTitle": "Water, Sanitation and Hygiene (WASH)",
+      "slug": "water-and-sanitation",
+      "subtitle": "Proportion of people using an improved drinking water source that is located on premises, available when needed and free from fecal and priority chemical contamination.",
+      "variantName": "Share of the population using safely managed drinking water",
+      "type": "explorerView",
+      "queryParams": "?Resource=Drinking+water&Level+of+Use%2FAccess=Safely+managed&Residence=Total&Relative+to+population=Share+of+population",
+      "availableEntities": [
+        "Bosnia and Herzegovina",
+        "Czechia",
+        "Democratic Republic of Congo",
+        "Eswatini"
+      ],
+      "availableTabs": [
+        "Table",
+        "WorldMap",
+        "LineChart",
+        "DiscreteBar"
+      ],
+      "publishedAt": "2023-06-01T19:11:31.000Z",
+      "updatedAt": "2026-09-10T19:02:49.000Z",
+      "url": "https://ourworldindata.org/explorers/water-and-sanitation?Resource=Drinking+water&Level+of+Use%2FAccess=Safely+managed&Residence=Total&Relative+to+population=Share+of+population"
+    }
+  ],
+  "nbHits": 423,
+  "page": 0,
+  "nbPages": 22,
+  "hitsPerPage": 20
+}

@@ -42,3 +42,38 @@ fn record(row: &Value) -> Option<Dataset> {
     dataset.updated = day(text(row, "/published_date"));
     dataset.valid()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("figshare.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Data Set for 2023_67023_39501".into(),
+                url: "https://figshare.com/articles/dataset/\
+                      Data_Set_for_2023_67023_39501/34099329"
+                    .into(),
+                description: None,
+                publisher: None,
+                doi: Some("10.6084/m9.figshare.34099329.v1".into()),
+                license: None,
+                updated: Some("2026-10-06".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+        assert_eq!(
+            hits[1].title,
+            "Data and code for Ecological zoning adds conditional \
+             information on productivity in persistent forest-dominated \
+             locations in China"
+        );
+    }
+}

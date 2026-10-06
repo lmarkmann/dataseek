@@ -40,3 +40,38 @@ pub(super) fn parse(body: &Value) -> Result<Vec<Dataset>, SourceError> {
         })
         .collect())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_list() {
+        let datasets = parse(&fixture::json("census.json")).unwrap();
+        assert_eq!(datasets.len(), 4);
+        assert_eq!(
+            datasets[0],
+            Dataset {
+                title: "Jun 1994 Current Population Survey: Basic Monthly"
+                    .into(),
+                url: "https://api.census.gov/data/1994/cps/basic/jun.html"
+                    .into(),
+                description: Some(
+                    "To provide estimates of employment, unemployment, and \
+                     other characteristics of the general labor force, of \
+                     the population as a whole, and of various subgroups of \
+                     the population."
+                        .into()
+                ),
+                publisher: Some("U.S. Census Bureau".into()),
+                doi: None,
+                license: None,
+                updated: Some("2019-10-09".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
+}

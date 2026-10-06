@@ -1,0 +1,314 @@
+[
+  {
+    "dataset_id": "015-BFS-2014Q3-076",
+    "title": "Schedules of Federal Debt",
+    "long_description": "The Schedules of Federal Debt dataset provides monthly and fiscal year-to-date changes in federal debt. It shows increases (borrowing) and decreases (repayments) in debt. The data notes whether the debt is debt held by the public or intragovernmental holdings.",
+    "short_description": "Monthly and fiscal year-to-date increases and decreases in federal debt. The data is broken out by debt holder type, principal, interest, and premiums/discounts.",
+    "notes_and_known_limitations": "***Total Public Debt Outstanding Disclaimer***\n\nThere are six datasets on Fiscal Data which include the national debt, which is referred to as Total Public Debt Outstanding (TPDO). TPDO is the sum of Debt Held by the Public and Intragovernmental (Intragov) Holdings.",
+    "publisher": "Office of Accounting",
+    "update_frequency": "Monthly",
+    "metadata_complete": 1,
+    "dataset_path": "schedules-federal-debt",
+    "pdf_path": null,
+    "master_static_filename": "SFD_all_tables",
+    "popularity_rank": 18,
+    "apis": [
+      {
+        "api_id": 138,
+        "table_name": "Schedules of Federal Debt by Month",
+        "table_description": "This table represents monthly activity for the Federal Debt Managed by the Bureau of the Fiscal Service separated by Held by the Public and Intragovernmental Debt Holdings totaled by Principal, Accrued Interest Payable, and Net Unamortized Premiums/Discounts.",
+        "update_frequency": "Monthly",
+        "row_definition": "Each row represents the amount of principal, accrued interest payable, and net unamortized debt organized by security class and month.",
+        "last_updated": "2026-09-04",
+        "earliest_date": "2005-10-31",
+        "latest_date": "2026-08-31",
+        "row_count": 4906,
+        "api_sort_order_nbr": 1,
+        "endpoint_txt": "/services/api/fiscal_service/v1/accounting/od/schedules_fed_debt",
+        "static_filename": "SFD_SchedFedDebtMo",
+        "api_notes_and_limitations": null,
+        "fields": [
+          {
+            "column_name": "record_date",
+            "definition": "The date that data was published.",
+            "table_name": "Schedules of Federal Debt by Month",
+            "pretty_name": "Record Date",
+            "data_type": "DATE",
+            "is_required": 1,
+            "sort_order_nbr": 1
+          },
+          {
+            "column_name": "debt_holder_type",
+            "definition": "Indicates whether the debt is held by the public or part of intragovernmental holdings. ",
+            "table_name": "Schedules of Federal Debt by Month",
+            "pretty_name": "Debt Holder Type",
+            "data_type": "STRING",
+            "is_required": 1,
+            "sort_order_nbr": 2
+          },
+          {
+            "column_name": "security_class1_desc",
+            "definition": "Tier one of a two-tier hierarchy for categorizing federal debt.",
+            "table_name": "Schedules of Federal Debt by Month",
+            "pretty_name": "Security Class 1 Description",
+            "data_type": "STRING",
+            "is_required": 0,
+            "sort_order_nbr": 3
+          }
+        ]
+      },
+      {
+        "api_id": 141,
+        "table_name": "Schedules of Federal Debt, Fiscal Year-to-Date",
+        "table_description": "This table represents fiscal year-to-date activity for the Federal Debt Managed by the Bureau of the Fiscal Service separated by Held by the Public and Intragovernmental Debt Holdings totaled by Principal, Accrued Interest Payable, and Net Unamortized Premiums/Discounts.",
+        "update_frequency": "Monthly",
+        "row_definition": "Each row represents the amount of principal, accrued interest payable, and net unamortized debt organized by security class and fiscal year.",
+        "last_updated": "2026-09-04",
+        "earliest_date": "2005-10-31",
+        "latest_date": "2026-08-31",
+        "row_count": 4904,
+        "api_sort_order_nbr": 2,
+        "endpoint_txt": "/services/api/fiscal_service/v1/accounting/od/schedules_fed_debt_fytd",
+        "static_filename": "SFD_SchedFedDebtFytd",
+        "api_notes_and_limitations": null,
+        "fields": [
+          {
+            "column_name": "record_date",
+            "definition": "The date that data was published.",
+            "table_name": "Schedules of Federal Debt, Fiscal Year-to-Date",
+            "pretty_name": "Record Date",
+            "data_type": "DATE",
+            "is_required": 1,
+            "sort_order_nbr": 1
+          },
+          {
+            "column_name": "debt_holder_type",
+            "definition": "Indicates whether the debt is held by the public or part of intragovernmental holdings. ",
+            "table_name": "Schedules of Federal Debt, Fiscal Year-to-Date",
+            "pretty_name": "Debt Holder Type",
+            "data_type": "STRING",
+            "is_required": 1,
+            "sort_order_nbr": 2
+          },
+          {
+            "column_name": "security_class1_desc",
+            "definition": "Tier one of a two-tier hierarchy for categorizing federal debt.",
+            "table_name": "Schedules of Federal Debt, Fiscal Year-to-Date",
+            "pretty_name": "Security Class 1 Description",
+            "data_type": "STRING",
+            "is_required": 0,
+            "sort_order_nbr": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "dataset_id": "015-BFS-2014Q1-13",
+    "title": "Monthly Treasury Statement (MTS)",
+    "long_description": "The Monthly Treasury Statement (MTS) dataset provides information on the flow of money into and out of the U.S. Department of the Treasury. It includes how deficits are funded, such as borrowing from the public or reducing operating cash, and how surpluses are distributed.",
+    "short_description": "The Monthly Treasury Statement (MTS) dataset provides information on receipts and outlays of the Federal Government.",
+    "notes_and_known_limitations": "***Total Public Debt Outstanding Disclaimer***\n\nThere are six datasets on Fiscal Data which include the national debt, which is referred to as Total Public Debt Outstanding (TPDO). TPDO is the sum of Debt Held by the Public and Intragovernmental (Intragov) Holdings.",
+    "publisher": "Office of Accounting",
+    "update_frequency": "Monthly",
+    "metadata_complete": 1,
+    "dataset_path": "monthly-treasury-statement",
+    "pdf_path": null,
+    "master_static_filename": "MTS_all_tables",
+    "popularity_rank": 4,
+    "apis": [
+      {
+        "api_id": 108,
+        "table_name": "Receipts of the U.S. Government",
+        "table_description": "This table shows the gross receipts, refunds and net receipts for the current month, the current fiscal year-to-date and the prior fiscal year-to-date for the various receipts of the federal government.",
+        "update_frequency": "Monthly",
+        "row_definition": "Each row includes the gross receipts, refunds and net receipts for the month, the fiscal year-to-date and the prior fiscal year-to-date for specific categories of governmental receipts.",
+        "last_updated": "2026-09-30",
+        "earliest_date": "2015-03-31",
+        "latest_date": "2026-08-31",
+        "row_count": 7604,
+        "api_sort_order_nbr": 4,
+        "endpoint_txt": "/services/api/fiscal_service/v1/accounting/mts/mts_table_4",
+        "static_filename": "MTS_RcptSrc",
+        "api_notes_and_limitations": null,
+        "fields": [
+          {
+            "column_name": "record_date",
+            "definition": "The date that data was published.",
+            "table_name": "Receipts of the U.S. Government",
+            "pretty_name": "Record Date",
+            "data_type": "DATE",
+            "is_required": 1,
+            "sort_order_nbr": 1
+          },
+          {
+            "column_name": "parent_id",
+            "definition": "Identifies which record the classification_id belongs to in the hierarchy.",
+            "table_name": "Receipts of the U.S. Government",
+            "pretty_name": "Parent ID",
+            "data_type": "STRING",
+            "is_required": 0,
+            "sort_order_nbr": 2
+          },
+          {
+            "column_name": "classification_id",
+            "definition": "Unique identifier for a particular data point. This ID changes each time the MTS is published. The value is never repeated or reused.",
+            "table_name": "Receipts of the U.S. Government",
+            "pretty_name": "Classification ID",
+            "data_type": "STRING",
+            "is_required": 1,
+            "sort_order_nbr": 3
+          }
+        ]
+      },
+      {
+        "api_id": 109,
+        "table_name": "Outlays of the U.S. Government",
+        "table_description": "This table shows the gross outlays, applicable receipts and net outlays for the current month, current fiscal year-to-date and prior fiscal year-to-date by various agency programs accounted for in the budget of the federal government.",
+        "update_frequency": "Monthly",
+        "row_definition": "Each row includes the total amount of gross outlays, applicable receipts and net outlays for the month, the fiscal year-to-date and the prior fiscal year-to-date for various programs within the Federal Program Agencies.",
+        "last_updated": "2026-09-30",
+        "earliest_date": "2015-03-31",
+        "latest_date": "2026-08-31",
+        "row_count": 110158,
+        "api_sort_order_nbr": 5,
+        "endpoint_txt": "/services/api/fiscal_service/v1/accounting/mts/mts_table_5",
+        "static_filename": "MTS_OutlyAgcy",
+        "api_notes_and_limitations": null,
+        "fields": [
+          {
+            "column_name": "record_date",
+            "definition": "The date that data was published.",
+            "table_name": "Outlays of the U.S. Government",
+            "pretty_name": "Record Date",
+            "data_type": "DATE",
+            "is_required": 1,
+            "sort_order_nbr": 1
+          },
+          {
+            "column_name": "parent_id",
+            "definition": "Identifies which record the classification_id belongs to in the hierarchy.",
+            "table_name": "Outlays of the U.S. Government",
+            "pretty_name": "Parent ID",
+            "data_type": "STRING",
+            "is_required": 0,
+            "sort_order_nbr": 2
+          },
+          {
+            "column_name": "classification_id",
+            "definition": "Unique identifier for a particular data point. This ID changes each time the MTS is published. The value is never repeated or reused.",
+            "table_name": "Outlays of the U.S. Government",
+            "pretty_name": "Classification ID",
+            "data_type": "STRING",
+            "is_required": 1,
+            "sort_order_nbr": 3
+          }
+        ]
+      },
+      {
+        "api_id": 111,
+        "table_name": "Receipts and Outlays of the U.S. Government by Month",
+        "table_description": "This table shows the receipts and outlays of the United States Government by month for the current fiscal year, up to and including the current accounting month.",
+        "update_frequency": "Monthly",
+        "row_definition": "Each row on the table is the total of the type of receipt or total outlay by agencies/programs for each month of the fiscal year.",
+        "last_updated": "2026-09-30",
+        "earliest_date": "2015-03-31",
+        "latest_date": "2026-08-31",
+        "row_count": 15360,
+        "api_sort_order_nbr": 12,
+        "endpoint_txt": "/services/api/fiscal_service/v1/accounting/mts/mts_table_7",
+        "static_filename": "MTS_RcptOutlyMo",
+        "api_notes_and_limitations": null,
+        "fields": [
+          {
+            "column_name": "record_date",
+            "definition": "The date that data was published.",
+            "table_name": "Receipts and Outlays of the U.S. Government by Month",
+            "pretty_name": "Record Date",
+            "data_type": "DATE",
+            "is_required": 0,
+            "sort_order_nbr": 1
+          },
+          {
+            "column_name": "parent_id",
+            "definition": "Identifies which record the classification_id belongs to in the hierarchy.",
+            "table_name": "Receipts and Outlays of the U.S. Government by Month",
+            "pretty_name": "Parent ID",
+            "data_type": "STRING",
+            "is_required": 1,
+            "sort_order_nbr": 2
+          },
+          {
+            "column_name": "classification_id",
+            "definition": "Unique identifier for a particular data point. This ID changes each time the MTS is published. The value is never repeated or reused.",
+            "table_name": "Receipts and Outlays of the U.S. Government by Month",
+            "pretty_name": "Classification ID",
+            "data_type": "STRING",
+            "is_required": 1,
+            "sort_order_nbr": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "dataset_id": "015-BFS-2014Q3-048",
+    "title": "Treasury Securities Upcoming Auctions Data",
+    "long_description": "The Treasury Securities Upcoming Auctions Data dataset provides information on auction announcements. Each announcement includes what securities are being auctioned, the announcement date, the auction date and issue date.",
+    "short_description": "This data provides a notification of what Treasury Marketable securities will be announced and or auctioned in the upcoming week.",
+    "notes_and_known_limitations": "There are no notes or known limitations for this dataset.",
+    "publisher": "Wholesale Securities Services",
+    "update_frequency": "As Needed",
+    "metadata_complete": 1,
+    "dataset_path": "upcoming-auctions",
+    "pdf_path": null,
+    "master_static_filename": "upcoming_auctions",
+    "popularity_rank": 15,
+    "apis": [
+      {
+        "api_id": 262,
+        "table_name": "Treasury Securities Upcoming Auctions",
+        "table_description": "Provides data regarding the upcoming auctions on marketable Treasury securities. It includes information such as Security Type, Security Term, auction announcement date, auction date, and issue date.",
+        "update_frequency": "As Needed",
+        "row_definition": "Each row represents a Treasury security being auctioned/announced, which is represented by a unique CUSIP identifier. CUSIP and Issue Date are the unique identifiers.",
+        "last_updated": "2026-10-02",
+        "earliest_date": "2024-03-08",
+        "latest_date": "2026-10-02",
+        "row_count": 95,
+        "api_sort_order_nbr": 1,
+        "endpoint_txt": "/services/api/fiscal_service/v1/accounting/od/upcoming_auctions",
+        "static_filename": "Upcoming_Auctions",
+        "api_notes_and_limitations": null,
+        "fields": [
+          {
+            "column_name": "record_date",
+            "definition": "The date that data was published.",
+            "table_name": "Treasury Securities Upcoming Auctions",
+            "pretty_name": "Record Date",
+            "data_type": "DATE",
+            "is_required": 1,
+            "sort_order_nbr": 1
+          },
+          {
+            "column_name": "security_type",
+            "definition": "The kind of marketable security that is being announced/auctioned. This is determined by the length to maturity.",
+            "table_name": "Treasury Securities Upcoming Auctions",
+            "pretty_name": "Security Type",
+            "data_type": "STRING",
+            "is_required": 1,
+            "sort_order_nbr": 2
+          },
+          {
+            "column_name": "security_term",
+            "definition": "The term of the security.",
+            "table_name": "Treasury Securities Upcoming Auctions",
+            "pretty_name": "Security Term",
+            "data_type": "STRING",
+            "is_required": 1,
+            "sort_order_nbr": 3
+          }
+        ]
+      }
+    ]
+  }
+]

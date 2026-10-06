@@ -59,3 +59,31 @@ pub(super) fn parse(
     };
     Ok((entries, next))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_list() {
+        let (entries, next) = parse(&fixture::json("openneuro.json")).unwrap();
+        assert_eq!(entries.len(), 4);
+        assert_eq!(next.as_deref(), Some("eyJvZmZzZXQiOjEwMH0="));
+        assert_eq!(
+            entries[0],
+            Dataset {
+                title: "Balloon Analog Risk-taking Task".into(),
+                url: "https://openneuro.org/datasets/ds000001".into(),
+                description: None,
+                publisher: None,
+                doi: None,
+                license: None,
+                updated: Some("2020-05-14".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
+}

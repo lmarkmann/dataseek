@@ -1,0 +1,22 @@
+{
+  "status": 200,
+  "statusText": "OK",
+  "data": [
+    {
+      "id": 1,
+      "name": "Abalone"
+    },
+    {
+      "id": 2,
+      "name": "Adult"
+    },
+    {
+      "id": 3,
+      "name": "Annealing"
+    },
+    {
+      "id": 4,
+      "name": "Anonymous Microsoft Web Data"
+    }
+  ]
+}

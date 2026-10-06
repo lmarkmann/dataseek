@@ -48,3 +48,33 @@ pub(super) fn parse(body: &Value) -> (Vec<Dataset>, Option<String>) {
         .collect();
     (entries, text(body, "/pagination/next_page_after_value"))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_list() {
+        let (entries, next) = parse(&fixture::json("nomad.json"));
+        assert_eq!(entries.len(), 4);
+        assert_eq!(next.as_deref(), Some("999"));
+        assert_eq!(
+            entries[0],
+            Dataset {
+                title: "demo example data".into(),
+                url: "https://nomad-lab.eu/prod/v1/gui/dataset/id/\
+                      wWgAnNZNQxOHLf97H62dgw"
+                    .into(),
+                description: None,
+                publisher: None,
+                doi: Some("10.17172/nomad/2020.05.20-1".into()),
+                license: None,
+                updated: Some("2020-05-20".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
+}

@@ -1,0 +1,100 @@
+[
+  {
+    "project_id": null,
+    "id": 34099329,
+    "title": "Data Set for 2023_67023_39501",
+    "doi": "10.6084/m9.figshare.34099329.v1",
+    "handle": "",
+    "url": "https://api.figshare.com/v2/articles/34099329",
+    "published_date": "2026-10-06T15:05:11Z",
+    "thumb": "",
+    "defined_type": 3,
+    "defined_type_name": "dataset",
+    "group_id": 0,
+    "url_private_api": "https://api.figshare.com/v2/account/articles/34099329",
+    "url_public_api": "https://api.figshare.com/v2/articles/34099329",
+    "url_private_html": "https://figshare.com/account/articles/34099329",
+    "url_public_html": "https://figshare.com/articles/dataset/Data_Set_for_2023_67023_39501/34099329",
+    "timeline": {
+      "posted": "2026-10-06T15:05:11"
+    },
+    "resource_title": "",
+    "resource_doi": "",
+    "created_date": "2026-10-06T15:05:11Z",
+    "modified_date": "2026-10-06T15:05:12Z"
+  },
+  {
+    "project_id": null,
+    "id": 30562508,
+    "title": "<b>Data and code for Ecological zoning adds conditional information on productivity in persistent forest-dominated locations in China</b>",
+    "doi": "10.6084/m9.figshare.30562508.v11",
+    "handle": "",
+    "url": "https://api.figshare.com/v2/articles/30562508",
+    "published_date": "2026-10-06T14:51:03Z",
+    "thumb": "",
+    "defined_type": 3,
+    "defined_type_name": "dataset",
+    "group_id": 0,
+    "url_private_api": "https://api.figshare.com/v2/account/articles/30562508",
+    "url_public_api": "https://api.figshare.com/v2/articles/30562508",
+    "url_private_html": "https://figshare.com/account/articles/30562508",
+    "url_public_html": "https://figshare.com/articles/dataset/Data_and_python_code_use_in_the_paper_Ecological_zoning_amplifies_climate-biosphere_coupling_through_governance-mediated_productivity_regulation_under_review_/30562508",
+    "timeline": {
+      "posted": "2026-10-06T14:51:03",
+      "firstOnline": "2025-11-07"
+    },
+    "resource_title": "",
+    "resource_doi": "",
+    "created_date": "2026-10-06T14:51:03Z",
+    "modified_date": "2026-10-06T14:51:03Z"
+  },
+  {
+    "project_id": null,
+    "id": 29835041,
+    "title": "Codes",
+    "doi": "10.6084/m9.figshare.29835041.v1",
+    "handle": "",
+    "url": "https://api.figshare.com/v2/articles/29835041",
+    "published_date": "2026-10-06T13:34:38Z",
+    "thumb": "",
+    "defined_type": 3,
+    "defined_type_name": "dataset",
+    "group_id": 0,
+    "url_private_api": "https://api.figshare.com/v2/account/articles/29835041",
+    "url_public_api": "https://api.figshare.com/v2/articles/29835041",
+    "url_private_html": "https://figshare.com/account/articles/29835041",
+    "url_public_html": "https://figshare.com/articles/dataset/Codes/29835041",
+    "timeline": {
+      "posted": "2026-10-06T13:34:38",
+      "firstOnline": "2026-02-06"
+    },
+    "resource_title": "",
+    "resource_doi": "",
+    "created_date": "2026-10-06T13:34:38Z",
+    "modified_date": "2026-10-06T13:34:38Z"
+  },
+  {
+    "project_id": null,
+    "id": 34093310,
+    "title": "Long-term conservation policy promotes substantial carbon storage in riparian forests of the southern Russian Far East",
+    "doi": "10.6084/m9.figshare.34093310.v1",
+    "handle": "",
+    "url": "https://api.figshare.com/v2/articles/34093310",
+    "published_date": "2026-10-06T13:12:28Z",
+    "thumb": "",
+    "defined_type": 3,
+    "defined_type_name": "dataset",
+    "group_id": 3519,
+    "url_private_api": "https://api.figshare.com/v2/account/articles/34093310",
+    "url_public_api": "https://api.figshare.com/v2/articles/34093310",
+    "url_private_html": "https://figshare.com/account/articles/34093310",
+    "url_public_html": "https://tandf.figshare.com/articles/dataset/Long-term_conservation_policy_promotes_substantial_carbon_storage_in_riparian_forests_of_the_southern_Russian_Far_East/34093310",
+    "timeline": {
+      "posted": "2026-10-06T13:12:28"
+    },
+    "resource_title": "Long-term conservation policy promotes substantial carbon storage in riparian forests of the southern Russian Far East",
+    "resource_doi": "10.1080/02827581.2026.2738825",
+    "created_date": "2026-10-06T13:12:28Z",
+    "modified_date": "2026-10-06T13:12:28Z"
+  }
+]

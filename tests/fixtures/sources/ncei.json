@@ -1,0 +1,591 @@
+{
+  "formats": {
+    "docCountError": 0,
+    "buckets": [
+      {
+        "docCount": 3,
+        "key": "csv"
+      },
+      {
+        "docCount": 3,
+        "key": "json"
+      },
+      {
+        "docCount": 2,
+        "key": "native"
+      },
+      {
+        "docCount": 14,
+        "key": "netcdf"
+      }
+    ],
+    "sumOfOtherDocCounts": 0
+  },
+  "observationTypes": {
+    "docCountError": 0,
+    "buckets": [
+      {
+        "docCount": 1,
+        "key": "GRABIPRD"
+      },
+      {
+        "docCount": 1,
+        "key": "Land Surface"
+      },
+      {
+        "docCount": 1,
+        "key": "Level 2"
+      },
+      {
+        "docCount": 1,
+        "key": "Ocean"
+      }
+    ],
+    "sumOfOtherDocCounts": 0
+  },
+  "keywords": {
+    "docCountError": 0,
+    "buckets": [],
+    "sumOfOtherDocCounts": 0
+  },
+  "endDate": "2026-10-06T00:00:00.000Z",
+  "count": 20,
+  "bounds": {
+    "bottomRight": null,
+    "topLeft": null
+  },
+  "datasets": {
+    "docCountError": 0,
+    "buckets": [
+      {
+        "docCount": 1,
+        "key": "avhrr-pathfinder-sea-surface-temperature"
+      },
+      {
+        "docCount": 1,
+        "key": "avhrr-polar-pathfinder-extended"
+      },
+      {
+        "docCount": 1,
+        "key": "coops-1-minute-tsunami-water-level-data"
+      },
+      {
+        "docCount": 1,
+        "key": "extended-reconstructed-sea-surface-temperature-ersst-monthly-analysis"
+      }
+    ],
+    "sumOfOtherDocCounts": 0
+  },
+  "totalCount": 100,
+  "results": [
+    {
+      "featured": false,
+      "formats": [
+        {
+          "name": "netcdf",
+          "id": "netcdf"
+        }
+      ],
+      "observationTypes": [
+        {
+          "name": "Satellite",
+          "id": "Satellite"
+        }
+      ],
+      "keywords": [
+        "SEA SURFACE TEMPERATURE"
+      ],
+      "contactInfo": "Email ncei.info@noaa.gov Online Resource NCEI Contact Information https://www.ncei.noaa.gov/contact",
+      "endDate": "2026-10-06",
+      "topics": [],
+      "orderable": false,
+      "description": "This high-resolution sea surface temperature (SST) analysis product was developed using an optimum interpolation (OI) technique. The SST analysis has a spatial grid resolution of 0.25 (1/4) degree and temporal resolution of 1 day.",
+      "people": [
+        {
+          "role": "principalInvestigator",
+          "organization": {
+            "name": "DOC/NOAA/NESDIS/NCDC > National Climatic Data Center, NESDIS, NOAA, U.S. Department of Commerce"
+          },
+          "name": "Reynolds, Richard W.",
+          "position": "",
+          "url": ""
+        },
+        {
+          "role": "author",
+          "organization": {
+            "name": "DOC/NOAA/NESDIS/NCDC > National Climatic Data Center, NESDIS, NOAA, U.S. Department of Commerce"
+          },
+          "name": "Reynolds, Richard W.",
+          "position": "",
+          "url": ""
+        },
+        {
+          "role": "principalInvestigator",
+          "organization": {
+            "name": "DOC/NOAA/NESDIS/NCDC > National Climatic Data Center, NESDIS, NOAA, U.S. Department of Commerce"
+          },
+          "name": "Banzon, Viva F.",
+          "position": "",
+          "url": ""
+        },
+        {
+          "role": "author",
+          "organization": {
+            "name": "DOC/NOAA/NESDIS/NCDC > National Climatic Data Center, NESDIS, NOAA, U.S. Department of Commerce"
+          },
+          "name": "Banzon, Viva F.",
+          "position": "",
+          "url": ""
+        }
+      ],
+      "searchable": false,
+      "frequency": "daily",
+      "dataTypes": [],
+      "organization": {
+        "name": "NOAA National Centers for Environmental Information"
+      },
+      "name": "NOAA Optimum Interpolation 1/4 Degree Daily Sea Surface Temperature (OISST) Analysis, Version 2",
+      "parsedKeywords": [
+        "EARTH SCIENCE > OCEANS > OCEAN TEMPERATURE > SEA SURFACE TEMPERATURE"
+      ],
+      "location": {
+        "coordinates": [
+          [
+            [
+              -180.0,
+              90.0
+            ],
+            [
+              -180.0,
+              -90.0
+            ],
+            [
+              180.0,
+              -90.0
+            ],
+            [
+              180.0,
+              90.0
+            ]
+          ]
+        ],
+        "type": "polygon"
+      },
+      "links": {
+        "other": [
+          {
+            "name": "ncei dataset landing page",
+            "type": "information",
+            "url": "https://doi.org/10.7289/V5SQ8XB5"
+          }
+        ],
+        "access": [
+          {
+            "name": "ncei direct download (dataset files)",
+            "type": "download",
+            "url": "https://www.ncei.noaa.gov/data/sea-surface-temperature-optimum-interpolation/v2/access/"
+          },
+          {
+            "name": "ncei thredds",
+            "type": "download",
+            "url": "https://www.ncei.noaa.gov/thredds/blended-global/oisst-catalog.html"
+          }
+        ],
+        "documentation": [
+          {
+            "name": "ncei product information page",
+            "type": "information",
+            "url": "https://www.ncei.noaa.gov/products/optimum-interpolation-sst"
+          }
+        ]
+      },
+      "id": "sea-surface-temperature-optimum-interpolation",
+      "doiLink": "https://doi.org/10.7289/V5SQ8XB5",
+      "certifiable": false,
+      "startDate": "1981-09-01",
+      "fileId": "gov.noaa.ncdc:C00844"
+    },
+    {
+      "featured": false,
+      "formats": [
+        {
+          "name": "netcdf",
+          "id": "netcdf"
+        }
+      ],
+      "observationTypes": [],
+      "keywords": [
+        "SEA ICE CONCENTRATION",
+        "SEA ICE CONCENTRATION"
+      ],
+      "contactInfo": "Email ncei.info@noaa.gov Online Resource NCEI Contact Information https://www.ncei.noaa.gov/contact",
+      "endDate": "2015-12-31",
+      "topics": [],
+      "orderable": false,
+      "description": "*Note: This dataset version has been superseded by a newer version. It is highly recommended that users access the current version.",
+      "people": [
+        {
+          "role": "principalInvestigator",
+          "organization": {
+            "name": "NSIDC > National Snow and Ice Data Center"
+          },
+          "name": "Meier, Walter N.",
+          "position": "",
+          "url": ""
+        },
+        {
+          "role": "author",
+          "organization": {
+            "name": "NSIDC > National Snow and Ice Data Center"
+          },
+          "name": "Meier, Walter N.",
+          "position": "",
+          "url": ""
+        },
+        {
+          "role": "collaborator",
+          "organization": {
+            "name": "NSIDC > National Snow and Ice Data Center"
+          },
+          "name": "Fetterer, Florence",
+          "position": "",
+          "url": ""
+        },
+        {
+          "role": "author",
+          "organization": {
+            "name": "NSIDC > National Snow and Ice Data Center"
+          },
+          "name": "Fetterer, Florence",
+          "position": "",
+          "url": ""
+        }
+      ],
+      "searchable": false,
+      "frequency": "notPlanned",
+      "dataTypes": [],
+      "organization": {
+        "name": "NOAA National Centers for Environmental Information"
+      },
+      "name": "NOAA Climate Data Record (CDR) of Passive Microwave Sea Ice Concentration, Version 2 (Version Superseded)",
+      "parsedKeywords": [
+        "EARTH SCIENCE > CRYOSPHERE > SEA ICE > SEA ICE CONCENTRATION",
+        "EARTH SCIENCE > OCEANS > SEA ICE > SEA ICE CONCENTRATION"
+      ],
+      "location": {
+        "coordinates": [
+          [
+            [
+              -180.0,
+              89.84
+            ],
+            [
+              -180.0,
+              -89.84
+            ],
+            [
+              180.0,
+              -89.84
+            ],
+            [
+              180.0,
+              89.84
+            ]
+          ]
+        ],
+        "type": "polygon"
+      },
+      "links": {
+        "other": [
+          {
+            "name": "ncei dataset landing page",
+            "type": "information",
+            "url": "https://www.ncei.noaa.gov/metadata/geoportal/rest/metadata/item/gov.noaa.ncdc:C00808/html"
+          },
+          {
+            "name": "nsidc landing page for this dataset",
+            "type": "information",
+            "url": "https://doi.org/10.7265/N55M63M1"
+          },
+          {
+            "name": "contact ncei",
+            "type": "offlineaccess",
+            "url": "https://www.ncei.noaa.gov/contact"
+          }
+        ]
+      },
+      "id": "sea-ice-concentration",
+      "doiLink": "https://doi.org/10.7265/N55M63M1",
+      "certifiable": false,
+      "startDate": "1978-10-26",
+      "fileId": "gov.noaa.ncdc:C00808"
+    },
+    {
+      "featured": false,
+      "formats": [
+        {
+          "name": "netcdf",
+          "id": "netcdf"
+        }
+      ],
+      "observationTypes": [],
+      "keywords": [],
+      "contactInfo": "Email ncei.info@noaa.gov Online Resource  ",
+      "endDate": "2023-12-31",
+      "topics": [],
+      "orderable": false,
+      "description": "The AVHRR Pathfinder Version 5.3 (PFV53) L3C Sea Surface Temperature dataset is a collection of global, twice-daily (Day and Night) 4km sea surface temperature (SST) data produced by the NOAA National Centers for Environmental Information (NCEI).",
+      "people": [
+        {
+          "role": "resourceProvider",
+          "organization": {
+            "name": "NOAA National Centers for Environmental Information (NCEI)"
+          },
+          "name": "Kenneth S. Casey",
+          "position": "",
+          "url": "https://orcid.org/0000-0002-6052-7117"
+        },
+        {
+          "role": "author",
+          "organization": {
+            "name": "NOAA National Centers for Environmental Information"
+          },
+          "name": "Saha, Korak",
+          "position": "",
+          "url": "https://orcid.org/0000-0002-8433-6294"
+        },
+        {
+          "role": "author",
+          "organization": {
+            "name": "NOAA National Centers for Environmental Information"
+          },
+          "name": "Zhao, Xuepeng",
+          "position": "",
+          "url": "https://orcid.org/0000-0001-6491-3907"
+        },
+        {
+          "role": "author",
+          "organization": {
+            "name": "NOAA National Centers for Environmental Information"
+          },
+          "name": "Zhang, Huai-min",
+          "position": "",
+          "url": "https://www.ncei.noaa.gov/archive/archive-management-system/OAS/bin/prd/jquery/person/details/5864"
+        }
+      ],
+      "searchable": false,
+      "frequency": "asNeeded",
+      "dataTypes": [],
+      "organization": {
+        "name": "NOAA National Centers for Environmental Information"
+      },
+      "name": "AVHRR Pathfinder version 5.3 level 3 collated (L3C) global 4km sea surface temperature for 1981-2023",
+      "parsedKeywords": [],
+      "location": {
+        "coordinates": [
+          [
+            [
+              -180.0,
+              90.0
+            ],
+            [
+              -180.0,
+              -90.0
+            ],
+            [
+              180.0,
+              -90.0
+            ],
+            [
+              180.0,
+              90.0
+            ]
+          ]
+        ],
+        "type": "polygon"
+      },
+      "links": {
+        "other": [
+          {
+            "name": "azure landing page (region: us-east)",
+            "type": "information",
+            "url": "https://microsoft.github.io/AIforEarthDataSets/data/noaa-cdr.html"
+          },
+          {
+            "name": "ncei dataset landing page",
+            "type": "information",
+            "url": "https://doi.org/10.7289/v52j68xx"
+          }
+        ],
+        "access": [
+          {
+            "name": "thredds",
+            "type": "download",
+            "url": "https://www.ncei.noaa.gov/thredds-ocean/catalog/pathfinder/Version5.3/L3C/catalog.html"
+          },
+          {
+            "name": "https",
+            "type": "download",
+            "url": "https://www.ncei.noaa.gov/data/oceans/pathfinder/Version5.3/L3C/"
+          },
+          {
+            "name": "ftp",
+            "type": "download",
+            "url": "ftp://ftp-oceans.ncei.noaa.gov/pub/data.nodc/pathfinder/Version5.3/L3C/"
+          }
+        ],
+        "documentation": [
+          {
+            "name": "4 km avhrr pathfinder project",
+            "type": "information",
+            "url": "https://www.ncei.noaa.gov/products/avhrr-pathfinder-sst"
+          },
+          {
+            "name": "registry of open data on aws",
+            "type": "information",
+            "url": "https://registry.opendata.aws/noaa-cdr-oceanic/"
+          }
+        ]
+      },
+      "id": "avhrr-pathfinder-sea-surface-temperature",
+      "doiLink": "https://doi.org/10.7289/v52j68xx",
+      "certifiable": false,
+      "startDate": "1981-08-25",
+      "fileId": "gov.noaa.nodc:AVHRR_Pathfinder-NCEI-L3C-v5.3"
+    },
+    {
+      "featured": false,
+      "formats": [
+        {
+          "name": "netcdf",
+          "id": "netcdf"
+        }
+      ],
+      "observationTypes": [],
+      "keywords": [],
+      "contactInfo": "Email ncei.info@noaa.gov Online Resource  ",
+      "endDate": "2023-12-31",
+      "topics": [],
+      "orderable": false,
+      "description": "The AVHRR Pathfinder Version 5.3 (PFV53) L3C Sea Surface Temperature dataset is a collection of global, twice-daily (Day and Night) 4km sea surface temperature (SST) data produced by the NOAA National Centers for Environmental Information (NCEI).",
+      "people": [
+        {
+          "role": "resourceProvider",
+          "organization": {
+            "name": "NOAA National Centers for Environmental Information (NCEI)"
+          },
+          "name": "Kenneth S. Casey",
+          "position": "",
+          "url": "https://orcid.org/0000-0002-6052-7117"
+        },
+        {
+          "role": "author",
+          "organization": {
+            "name": "NOAA National Centers for Environmental Information"
+          },
+          "name": "Saha, Korak",
+          "position": "",
+          "url": "https://orcid.org/0000-0002-8433-6294"
+        },
+        {
+          "role": "author",
+          "organization": {
+            "name": "NOAA National Centers for Environmental Information"
+          },
+          "name": "Zhao, Xuepeng",
+          "position": "",
+          "url": "https://orcid.org/0000-0001-6491-3907"
+        },
+        {
+          "role": "author",
+          "organization": {
+            "name": "NOAA National Centers for Environmental Information"
+          },
+          "name": "Zhang, Huai-min",
+          "position": "",
+          "url": "https://www.ncei.noaa.gov/archive/archive-management-system/OAS/bin/prd/jquery/person/details/5864"
+        }
+      ],
+      "searchable": false,
+      "frequency": "asNeeded",
+      "dataTypes": [],
+      "organization": {
+        "name": "NOAA National Centers for Environmental Information"
+      },
+      "name": "AVHRR Pathfinder version 5.3 level 3 collated (L3C) global 4km sea surface temperature for 1981-2023",
+      "parsedKeywords": [],
+      "location": {
+        "coordinates": [
+          [
+            [
+              -180.0,
+              90.0
+            ],
+            [
+              -180.0,
+              -90.0
+            ],
+            [
+              180.0,
+              -90.0
+            ],
+            [
+              180.0,
+              90.0
+            ]
+          ]
+        ],
+        "type": "polygon"
+      },
+      "links": {
+        "other": [
+          {
+            "name": "azure landing page (region: us-east)",
+            "type": "information",
+            "url": "https://microsoft.github.io/AIforEarthDataSets/data/noaa-cdr.html"
+          },
+          {
+            "name": "ncei dataset landing page",
+            "type": "information",
+            "url": "https://doi.org/10.7289/v52j68xx"
+          }
+        ],
+        "access": [
+          {
+            "name": "thredds",
+            "type": "download",
+            "url": "https://www.ncei.noaa.gov/thredds-ocean/catalog/pathfinder/Version5.3/L3C/catalog.html"
+          },
+          {
+            "name": "https",
+            "type": "download",
+            "url": "https://www.ncei.noaa.gov/data/oceans/pathfinder/Version5.3/L3C/"
+          },
+          {
+            "name": "ftp",
+            "type": "download",
+            "url": "ftp://ftp-oceans.ncei.noaa.gov/pub/data.nodc/pathfinder/Version5.3/L3C/"
+          }
+        ],
+        "documentation": [
+          {
+            "name": "4 km avhrr pathfinder project",
+            "type": "information",
+            "url": "https://www.ncei.noaa.gov/products/avhrr-pathfinder-sst"
+          },
+          {
+            "name": "registry of open data on aws",
+            "type": "information",
+            "url": "https://registry.opendata.aws/noaa-cdr-oceanic/"
+          }
+        ]
+      },
+      "id": "sea-surface-temperature-pathfinder",
+      "doiLink": "https://doi.org/10.7289/v52j68xx",
+      "certifiable": false,
+      "startDate": "1981-08-25",
+      "fileId": "gov.noaa.nodc:AVHRR_Pathfinder-NCEI-L3C-v5.3"
+    }
+  ],
+  "startDate": "1662-01-01T00:00:00.000Z"
+}

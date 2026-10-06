@@ -48,3 +48,41 @@ fn record(row: &Value) -> Option<Dataset> {
     }
     dataset.valid()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("socrata.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Austin Water - Residential Water Consumption".into(),
+                url: "https://datahub.austintexas.gov/\
+                      Utilities-and-City-Services/\
+                      Austin-Water-Residential-Water-Consumption/sxk7-7k6z"
+                    .into(),
+                description: Some(
+                    "\u{200b}Monthly residential water consumption grouped \
+                     by zip code and customer class."
+                        .into()
+                ),
+                publisher: Some(
+                    "City of Austin, Texas - data.austintexas.gov".into()
+                ),
+                doi: None,
+                license: Some("Public Domain".into()),
+                updated: Some("2026-03-16".into()),
+                size_bytes: None,
+                popularity: Some(3841),
+                aliases: vec![
+                    "https://datahub.austintexas.gov/d/sxk7-7k6z".into()
+                ],
+            }
+        );
+    }
+}

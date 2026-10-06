@@ -47,3 +47,41 @@ fn record(row: &Value) -> Option<Dataset> {
     }
     dataset.valid()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("cessda.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "European Climate Services User Survey (EU-MACS) 2017"
+                    .into(),
+                url: "https://datacatalogue.cessda.eu/detail/\
+                      519d27e0cd34d4f7a43635cdb3a787e072646ba4e03d12900ad5b055caf00481\
+                      ?lang=en"
+                    .into(),
+                description: Some(
+                    "The survey was targeted at users and producers of \
+                     climate services. It charted climate services available \
+                     to Europeans as well as their use and development. The \
+                     study was a part of the EU-MACS project funded by the \
+                     European Commission (grant agreement ID: 730500)."
+                        .into()
+                ),
+                publisher: Some("Finnish Social Science Data Archive".into()),
+                doi: None,
+                license: None,
+                updated: Some("2026-08-11".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec!["https://urn.fi/urn:nbn:fi:fsd:T-FSD3325".into()],
+            }
+        );
+    }
+}

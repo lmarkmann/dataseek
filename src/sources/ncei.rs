@@ -45,3 +45,40 @@ fn record(row: &Value) -> Option<Dataset> {
     dataset.updated = text(row, "/endDate");
     dataset.valid()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("ncei.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title:
+                    "NOAA Optimum Interpolation 1/4 Degree Daily Sea Surface \
+                        Temperature (OISST) Analysis, Version 2"
+                        .into(),
+                url: "https://doi.org/10.7289/V5SQ8XB5".into(),
+                description: Some(
+                    "This high-resolution sea surface temperature (SST) \
+                     analysis product was developed using an optimum \
+                     interpolation (OI) technique. The SST analysis has a \
+                     spatial grid resolution of 0.25 (1/4) degree and \
+                     temporal resolution of 1 day."
+                        .into()
+                ),
+                publisher: Some("NOAA NCEI".into()),
+                doi: Some("10.7289/v5sq8xb5".into()),
+                license: None,
+                updated: Some("2026-10-06".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
+}

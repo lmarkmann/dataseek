@@ -1,0 +1,1664 @@
+{
+  "data": [
+    {
+      "@id": "https://osf.io/kzt9d",
+      "resourceType": [
+        {
+          "@id": "Project"
+        }
+      ],
+      "dateCreated": [
+        {
+          "@value": "2025-11-19"
+        }
+      ],
+      "creator": [
+        {
+          "@id": "https://osf.io/qv2h3",
+          "resourceType": [
+            {
+              "@id": "Agent"
+            },
+            {
+              "@id": "Person"
+            }
+          ],
+          "identifier": [
+            {
+              "@value": "https://orcid.org/0000-0002-1109-1281"
+            },
+            {
+              "@value": "https://osf.io/qv2h3"
+            },
+            {
+              "@value": "https://researchgate.net/profile/Bronislav-Farkac"
+            }
+          ],
+          "sameAs": [
+            {
+              "@id": "https://orcid.org/0000-0002-1109-1281"
+            }
+          ],
+          "foaf:familyName": [
+            {
+              "@value": "Farka\u010d"
+            }
+          ],
+          "foaf:givenName": [
+            {
+              "@value": "Bronislav"
+            }
+          ],
+          "name": [
+            {
+              "@value": "Bronislav Farka\u010d"
+            }
+          ]
+        }
+      ],
+      "hasVersion": [
+        {
+          "@id": "https://osf.io/kh7r3",
+          "resourceType": [
+            {
+              "@id": "Registration"
+            }
+          ],
+          "dateCreated": [
+            {
+              "@value": "2025-11-19"
+            }
+          ],
+          "creator": [
+            {
+              "@id": "https://osf.io/p4qgh",
+              "resourceType": [
+                {
+                  "@id": "Agent"
+                },
+                {
+                  "@id": "Person"
+                }
+              ],
+              "identifier": [
+                {
+                  "@value": "http://fss.muni.cz/~serek"
+                },
+                {
+                  "@value": "http://researcherid.com/rid/S-7263-2019"
+                },
+                {
+                  "@value": "https://orcid.org/0000-0003-2358-7329"
+                }
+              ],
+              "sameAs": [
+                {
+                  "@id": "https://orcid.org/0000-0003-2358-7329"
+                }
+              ],
+              "foaf:familyName": [
+                {
+                  "@value": "Serek"
+                }
+              ],
+              "foaf:givenName": [
+                {
+                  "@value": "Jan"
+                }
+              ],
+              "name": [
+                {
+                  "@value": "Jan Serek"
+                }
+              ]
+            },
+            {
+              "@id": "https://osf.io/qv2h3",
+              "resourceType": [
+                {
+                  "@id": "Agent"
+                },
+                {
+                  "@id": "Person"
+                }
+              ],
+              "identifier": [
+                {
+                  "@value": "https://orcid.org/0000-0002-1109-1281"
+                },
+                {
+                  "@value": "https://osf.io/qv2h3"
+                },
+                {
+                  "@value": "https://researchgate.net/profile/Bronislav-Farkac"
+                }
+              ],
+              "sameAs": [
+                {
+                  "@id": "https://orcid.org/0000-0002-1109-1281"
+                }
+              ],
+              "foaf:familyName": [
+                {
+                  "@value": "Farka\u010d"
+                }
+              ],
+              "foaf:givenName": [
+                {
+                  "@value": "Bronislav"
+                }
+              ],
+              "name": [
+                {
+                  "@value": "Bronislav Farka\u010d"
+                }
+              ]
+            },
+            {
+              "@id": "https://osf.io/t3cks",
+              "resourceType": [
+                {
+                  "@id": "Agent"
+                },
+                {
+                  "@id": "Person"
+                }
+              ],
+              "identifier": [
+                {
+                  "@value": "https://orcid.org/0000-0002-8429-3212"
+                },
+                {
+                  "@value": "https://osf.io/t3cks"
+                },
+                {
+                  "@value": "https://researchgate.net/profile/Michal-Muzik"
+                }
+              ],
+              "sameAs": [
+                {
+                  "@id": "https://orcid.org/0000-0002-8429-3212"
+                }
+              ],
+              "foaf:familyName": [
+                {
+                  "@value": "Mu\u017e\u00edk"
+                }
+              ],
+              "foaf:givenName": [
+                {
+                  "@value": "Michal"
+                }
+              ],
+              "name": [
+                {
+                  "@value": "Michal Mu\u017e\u00edk"
+                }
+              ]
+            }
+          ],
+          "identifier": [
+            {
+              "@value": "https://doi.org/10.17605/OSF.IO/KH7R3"
+            },
+            {
+              "@value": "https://osf.io/kh7r3"
+            }
+          ],
+          "publisher": [
+            {
+              "@id": "https://osf.io/registries/osf",
+              "resourceType": [
+                {
+                  "@id": "Agent"
+                },
+                {
+                  "@id": "Organization"
+                }
+              ],
+              "identifier": [
+                {
+                  "@value": "https://osf.io/"
+                },
+                {
+                  "@value": "https://osf.io/registries/osf"
+                }
+              ],
+              "name": [
+                {
+                  "@value": "OSF Registries"
+                }
+              ]
+            }
+          ],
+          "rights": [
+            {
+              "@id": "https://creativecommons.org/licenses/by/4.0/legalcode",
+              "identifier": [
+                {
+                  "@value": "https://creativecommons.org/licenses/by/4.0/legalcode"
+                }
+              ],
+              "name": [
+                {
+                  "@value": "CC-By Attribution 4.0 International"
+                }
+              ]
+            }
+          ],
+          "title": [
+            {
+              "@value": "Climate emotions and pro\u2011environmental behaviour: Associations with well\u2011being"
+            }
+          ],
+          "resourceNature": [
+            {
+              "@id": "datacite:StudyRegistration",
+              "displayLabel": [
+                {
+                  "@value": "StudyRegistration",
+                  "@language": "en"
+                }
+              ]
+            }
+          ],
+          "sameAs": [
+            {
+              "@id": "https://doi.org/10.17605/OSF.IO/KH7R3"
+            }
+          ]
+        }
+      ],
+      "identifier": [
+        {
+          "@value": "https://osf.io/kzt9d"
+        }
+      ],
+      "dateModified": [
+        {
+          "@value": "2026-06-23"
+        }
+      ],
+      "publisher": [
+        {
+          "@id": "https://osf.io",
+          "resourceType": [
+            {
+              "@id": "Agent"
+            },
+            {
+              "@id": "Organization"
+            }
+          ],
+          "identifier": [
+            {
+              "@value": "https://osf.io"
+            }
+          ],
+          "name": [
+            {
+              "@value": "OSF"
+            }
+          ]
+        }
+      ],
+      "rights": [
+        {
+          "@id": "https://creativecommons.org/licenses/by/4.0/legalcode",
+          "identifier": [
+            {
+              "@value": "https://creativecommons.org/licenses/by/4.0/legalcode"
+            }
+          ],
+          "name": [
+            {
+              "@value": "CC-By Attribution 4.0 International"
+            }
+          ]
+        }
+      ],
+      "subject": [
+        {
+          "@id": "https://api.osf.io/v2/subjects/584240da54be81056cecac48",
+          "resourceType": [
+            {
+              "@id": "Concept"
+            }
+          ],
+          "inScheme": [
+            {
+              "@id": "https://bepress.com/reference_guide_dc/disciplines/",
+              "resourceType": [
+                {
+                  "@id": "Concept:Scheme"
+                }
+              ],
+              "title": [
+                {
+                  "@value": "bepress Digital Commons Three-Tiered Taxonomy"
+                }
+              ]
+            }
+          ],
+          "prefLabel": [
+            {
+              "@value": "Social and Behavioral Sciences"
+            }
+          ]
+        },
+        {
+          "@id": "https://api.osf.io/v2/subjects/584240da54be81056cecac68",
+          "resourceType": [
+            {
+              "@id": "Concept"
+            }
+          ],
+          "broader": [
+            {
+              "@id": "https://api.osf.io/v2/subjects/584240da54be81056cecac48",
+              "resourceType": [
+                {
+                  "@id": "Concept"
+                }
+              ],
+              "inScheme": [
+                {
+                  "@id": "https://bepress.com/reference_guide_dc/disciplines/",
+                  "resourceType": [
+                    {
+                      "@id": "Concept:Scheme"
+                    }
+                  ],
+                  "title": [
+                    {
+                      "@value": "bepress Digital Commons Three-Tiered Taxonomy"
+                    }
+                  ]
+                }
+              ],
+              "prefLabel": [
+                {
+                  "@value": "Social and Behavioral Sciences"
+                }
+              ]
+            }
+          ],
+          "inScheme": [
+            {
+              "@id": "https://bepress.com/reference_guide_dc/disciplines/",
+              "resourceType": [
+                {
+                  "@id": "Concept:Scheme"
+                }
+              ],
+              "title": [
+                {
+                  "@value": "bepress Digital Commons Three-Tiered Taxonomy"
+                }
+              ]
+            }
+          ],
+          "prefLabel": [
+            {
+              "@value": "Psychology"
+            }
+          ]
+        }
+      ],
+      "title": [
+        {
+          "@value": "Climate emotions and pro\u2011environmental behaviour: Associations with well\u2011being"
+        }
+      ],
+      "accessService": [
+        {
+          "@id": "https://osf.io",
+          "resourceType": [
+            {
+              "@id": "Agent"
+            },
+            {
+              "@id": "Organization"
+            }
+          ],
+          "identifier": [
+            {
+              "@value": "https://osf.io"
+            }
+          ],
+          "name": [
+            {
+              "@value": "OSF"
+            }
+          ]
+        }
+      ],
+      "qualifiedAttribution": [
+        {
+          "agent": [
+            {
+              "@id": "https://osf.io/qv2h3"
+            }
+          ],
+          "hadRole": [
+            {
+              "@id": "osf:admin-contributor"
+            }
+          ],
+          "osf:order": [
+            {
+              "@value": "0",
+              "@type": "xsd:integer"
+            }
+          ]
+        }
+      ],
+      "hostingInstitution": [
+        {
+          "@id": "https://cos.io/",
+          "resourceType": [
+            {
+              "@id": "Agent"
+            },
+            {
+              "@id": "Organization"
+            }
+          ],
+          "identifier": [
+            {
+              "@value": "https://cos.io/"
+            },
+            {
+              "@value": "https://ror.org/05d5mza29"
+            }
+          ],
+          "sameAs": [
+            {
+              "@id": "https://ror.org/05d5mza29"
+            }
+          ],
+          "name": [
+            {
+              "@value": "Center for Open Science"
+            }
+          ]
+        }
+      ],
+      "keyword": [
+        {
+          "@value": "climate anger"
+        },
+        {
+          "@value": "climate anxiety"
+        },
+        {
+          "@value": "climate emotions"
+        }
+      ],
+      "storageByteCount": [
+        {
+          "@value": "142773",
+          "@type": "xsd:integer"
+        }
+      ],
+      "storageRegion": [
+        {
+          "@id": "https://api.osf.io/v2/regions/de-1/",
+          "prefLabel": [
+            {
+              "@value": "Germany - Frankfurt",
+              "@language": "en"
+            }
+          ]
+        }
+      ],
+      "usage": [
+        {
+          "accessService": [
+            {
+              "@id": "https://osf.io"
+            }
+          ],
+          "downloadSessionCount": [
+            {
+              "@value": "0",
+              "@type": "xsd:integer"
+            }
+          ],
+          "downloadCount": [
+            {
+              "@value": "0",
+              "@type": "xsd:integer"
+            }
+          ],
+          "foaf:primaryTopic": [
+            {
+              "@id": "https://osf.io/kzt9d"
+            }
+          ],
+          "viewCount": [
+            {
+              "@value": "4",
+              "@type": "xsd:integer"
+            }
+          ],
+          "temporalCoverage": [
+            {
+              "@value": "2026-09",
+              "@type": "xsd:gYearMonth"
+            }
+          ],
+          "viewSessionCount": [
+            {
+              "@value": "4",
+              "@type": "xsd:integer"
+            }
+          ]
+        }
+      ],
+      "foaf:isPrimaryTopicOf": [
+        {
+          "@id": "https://share.osf.io/trove/index-card/f1bfc9cd-9b97-4481-9a05-d288f03549e4"
+        }
+      ],
+      "description": null
+    },
+    {
+      "@id": "https://osf.io/zh3w9",
+      "resourceType": [
+        {
+          "@id": "Registration"
+        }
+      ],
+      "dateAvailable": [
+        {
+          "@value": "2028-04-27"
+        }
+      ],
+      "conformsTo": [
+        {
+          "@id": "https://api.osf.io/v2/schemas/registrations/5a970dfec69830002df68ac2/",
+          "title": [
+            {
+              "@value": "Registered Report Protocol Preregistration"
+            }
+          ]
+        }
+      ],
+      "dateCreated": [
+        {
+          "@value": "2024-04-29"
+        }
+      ],
+      "creator": [
+        {
+          "@id": "https://osf.io/35h7k",
+          "resourceType": [
+            {
+              "@id": "Agent"
+            },
+            {
+              "@id": "Person"
+            }
+          ],
+          "identifier": [
+            {
+              "@value": "http://abp.dipsco.unitn.it/"
+            },
+            {
+              "@value": "http://researcherid.com/rid/K-9353-2013"
+            },
+            {
+              "@value": "http://scholar.google.com/citations?user=ehhpFjQAAAAJ&amp;hl=en"
+            }
+          ],
+          "sameAs": [
+            {
+              "@id": "https://orcid.org/0000-0002-9442-0254"
+            }
+          ],
+          "name": [
+            {
+              "@value": "Gianluca Esposito"
+            }
+          ]
+        },
+        {
+          "@id": "https://osf.io/jkhn7",
+          "resourceType": [
+            {
+              "@id": "Agent"
+            },
+            {
+              "@id": "Person"
+            }
+          ],
+          "identifier": [
+            {
+              "@value": "http://scholar.google.com/citations?user=MeoqEYgAAAAJ"
+            },
+            {
+              "@value": "http://www.cameronbrick.com"
+            },
+            {
+              "@value": "https://orcid.org/0000-0002-7174-8193"
+            }
+          ],
+          "sameAs": [
+            {
+              "@id": "https://orcid.org/0000-0002-7174-8193"
+            }
+          ],
+          "name": [
+            {
+              "@value": "Cameron Brick"
+            }
+          ]
+        },
+        {
+          "@id": "https://osf.io/n8c5t",
+          "resourceType": [
+            {
+              "@id": "Agent"
+            },
+            {
+              "@id": "Person"
+            }
+          ],
+          "identifier": [
+            {
+              "@value": "https://orcid.org/0000-0002-1586-8350"
+            },
+            {
+              "@value": "https://osf.io/n8c5t"
+            }
+          ],
+          "sameAs": [
+            {
+              "@id": "https://orcid.org/0000-0002-1586-8350"
+            }
+          ],
+          "name": [
+            {
+              "@value": "Andrea Bizzego"
+            }
+          ]
+        }
+      ],
+      "description": [
+        {
+          "@value": "Stage 1 IPA at PCI RR"
+        }
+      ],
+      "identifier": [
+        {
+          "@value": "https://doi.org/10.17605/OSF.IO/ZH3W9"
+        },
+        {
+          "@value": "https://osf.io/zh3w9"
+        }
+      ],
+      "isVersionOf": [
+        {
+          "@id": "https://osf.io/g7euc",
+          "resourceType": [
+            {
+              "@id": "Project"
+            }
+          ],
+          "dateCreated": [
+            {
+              "@value": "2024-04-29"
+            }
+          ],
+          "creator": [
+            {
+              "@id": "https://osf.io/35h7k",
+              "resourceType": [
+                {
+                  "@id": "Agent"
+                },
+                {
+                  "@id": "Person"
+                }
+              ],
+              "identifier": [
+                {
+                  "@value": "http://abp.dipsco.unitn.it/"
+                },
+                {
+                  "@value": "http://researcherid.com/rid/K-9353-2013"
+                },
+                {
+                  "@value": "http://scholar.google.com/citations?user=ehhpFjQAAAAJ&amp;hl=en"
+                }
+              ],
+              "sameAs": [
+                {
+                  "@id": "https://orcid.org/0000-0002-9442-0254"
+                }
+              ],
+              "name": [
+                {
+                  "@value": "Gianluca Esposito"
+                }
+              ]
+            },
+            {
+              "@id": "https://osf.io/jkhn7",
+              "resourceType": [
+                {
+                  "@id": "Agent"
+                },
+                {
+                  "@id": "Person"
+                }
+              ],
+              "identifier": [
+                {
+                  "@value": "http://scholar.google.com/citations?user=MeoqEYgAAAAJ"
+                },
+                {
+                  "@value": "http://www.cameronbrick.com"
+                },
+                {
+                  "@value": "https://orcid.org/0000-0002-7174-8193"
+                }
+              ],
+              "sameAs": [
+                {
+                  "@id": "https://orcid.org/0000-0002-7174-8193"
+                }
+              ],
+              "name": [
+                {
+                  "@value": "Cameron Brick"
+                }
+              ]
+            },
+            {
+              "@id": "https://osf.io/n8c5t",
+              "resourceType": [
+                {
+                  "@id": "Agent"
+                },
+                {
+                  "@id": "Person"
+                }
+              ],
+              "identifier": [
+                {
+                  "@value": "https://orcid.org/0000-0002-1586-8350"
+                },
+                {
+                  "@value": "https://osf.io/n8c5t"
+                }
+              ],
+              "sameAs": [
+                {
+                  "@id": "https://orcid.org/0000-0002-1586-8350"
+                }
+              ],
+              "name": [
+                {
+                  "@value": "Andrea Bizzego"
+                }
+              ]
+            }
+          ],
+          "identifier": [
+            {
+              "@value": "https://osf.io/g7euc"
+            }
+          ],
+          "publisher": [
+            {
+              "@id": "https://osf.io",
+              "resourceType": [
+                {
+                  "@id": "Agent"
+                },
+                {
+                  "@id": "Organization"
+                }
+              ],
+              "identifier": [
+                {
+                  "@value": "https://osf.io"
+                }
+              ],
+              "name": [
+                {
+                  "@value": "OSF"
+                }
+              ]
+            }
+          ],
+          "rights": [
+            {
+              "@id": "https://creativecommons.org/licenses/by/4.0/legalcode",
+              "identifier": [
+                {
+                  "@value": "https://creativecommons.org/licenses/by/4.0/legalcode"
+                }
+              ],
+              "name": [
+                {
+                  "@value": "CC-By Attribution 4.0 International"
+                }
+              ]
+            }
+          ],
+          "title": [
+            {
+              "@value": "A climate action intervention to boost individual and collective climate mitigation behaviors in young adults"
+            }
+          ]
+        }
+      ],
+      "dateModified": [
+        {
+          "@value": "2024-04-29"
+        }
+      ],
+      "publisher": [
+        {
+          "@id": "https://osf.io/registries/osf",
+          "resourceType": [
+            {
+              "@id": "Agent"
+            },
+            {
+              "@id": "Organization"
+            }
+          ],
+          "identifier": [
+            {
+              "@value": "https://osf.io/"
+            },
+            {
+              "@value": "https://osf.io/registries/osf"
+            }
+          ],
+          "name": [
+            {
+              "@value": "OSF Registries"
+            }
+          ]
+        }
+      ],
+      "rights": [
+        {
+          "@id": "https://creativecommons.org/licenses/by/4.0/legalcode",
+          "identifier": [
+            {
+              "@value": "https://creativecommons.org/licenses/by/4.0/legalcode"
+            }
+          ],
+          "name": [
+            {
+              "@value": "CC-By Attribution 4.0 International"
+            }
+          ]
+        }
+      ],
+      "subject": [
+        {
+          "@id": "https://api.osf.io/v2/subjects/584240d954be81056ceca9a1",
+          "resourceType": [
+            {
+              "@id": "Concept"
+            }
+          ],
+          "inScheme": [
+            {
+              "@id": "https://bepress.com/reference_guide_dc/disciplines/",
+              "resourceType": [
+                {
+                  "@id": "Concept:Scheme"
+                }
+              ],
+              "title": [
+                {
+                  "@value": "bepress Digital Commons Three-Tiered Taxonomy"
+                }
+              ]
+            }
+          ],
+          "prefLabel": [
+            {
+              "@value": "Physical Sciences and Mathematics"
+            }
+          ]
+        },
+        {
+          "@id": "https://api.osf.io/v2/subjects/584240da54be81056cecaab6",
+          "resourceType": [
+            {
+              "@id": "Concept"
+            }
+          ],
+          "broader": [
+            {
+              "@id": "https://api.osf.io/v2/subjects/584240da54be81056cecac68",
+              "resourceType": [
+                {
+                  "@id": "Concept"
+                }
+              ],
+              "broader": [
+                {
+                  "@id": "https://api.osf.io/v2/subjects/584240da54be81056cecac48",
+                  "resourceType": [
+                    {
+                      "@id": "Concept"
+                    }
+                  ],
+                  "inScheme": [
+                    {
+                      "@id": "https://bepress.com/reference_guide_dc/disciplines/",
+                      "resourceType": [
+                        {
+                          "@id": "Concept:Scheme"
+                        }
+                      ],
+                      "title": [
+                        {
+                          "@value": "bepress Digital Commons Three-Tiered Taxonomy"
+                        }
+                      ]
+                    }
+                  ],
+                  "prefLabel": [
+                    {
+                      "@value": "Social and Behavioral Sciences"
+                    }
+                  ]
+                }
+              ],
+              "inScheme": [
+                {
+                  "@id": "https://bepress.com/reference_guide_dc/disciplines/",
+                  "resourceType": [
+                    {
+                      "@id": "Concept:Scheme"
+                    }
+                  ],
+                  "title": [
+                    {
+                      "@value": "bepress Digital Commons Three-Tiered Taxonomy"
+                    }
+                  ]
+                }
+              ],
+              "prefLabel": [
+                {
+                  "@value": "Psychology"
+                }
+              ]
+            }
+          ],
+          "inScheme": [
+            {
+              "@id": "https://bepress.com/reference_guide_dc/disciplines/",
+              "resourceType": [
+                {
+                  "@id": "Concept:Scheme"
+                }
+              ],
+              "title": [
+                {
+                  "@value": "bepress Digital Commons Three-Tiered Taxonomy"
+                }
+              ]
+            }
+          ],
+          "prefLabel": [
+            {
+              "@value": "Social Psychology"
+            }
+          ]
+        },
+        {
+          "@id": "https://api.osf.io/v2/subjects/584240da54be81056cecaae5",
+          "resourceType": [
+            {
+              "@id": "Concept"
+            }
+          ],
+          "inScheme": [
+            {
+              "@id": "https://bepress.com/reference_guide_dc/disciplines/",
+              "resourceType": [
+                {
+                  "@id": "Concept:Scheme"
+                }
+              ],
+              "title": [
+                {
+                  "@value": "bepress Digital Commons Three-Tiered Taxonomy"
+                }
+              ]
+            }
+          ],
+          "prefLabel": [
+            {
+              "@value": "Education"
+            }
+          ]
+        }
+      ],
+      "title": [
+        {
+          "@value": "A climate action intervention to boost individual and collective climate mitigation behaviors in young adults"
+        }
+      ],
+      "resourceNature": [
+        {
+          "@id": "datacite:StudyRegistration",
+          "displayLabel": [
+            {
+              "@value": "StudyRegistration",
+              "@language": "en"
+            }
+          ]
+        }
+      ],
+      "sameAs": [
+        {
+          "@id": "https://doi.org/10.17605/OSF.IO/ZH3W9"
+        }
+      ],
+      "accessService": [
+        {
+          "@id": "https://osf.io",
+          "resourceType": [
+            {
+              "@id": "Agent"
+            },
+            {
+              "@id": "Organization"
+            }
+          ],
+          "identifier": [
+            {
+              "@value": "https://osf.io"
+            }
+          ],
+          "name": [
+            {
+              "@value": "OSF"
+            }
+          ]
+        }
+      ],
+      "qualifiedAttribution": [
+        {
+          "agent": [
+            {
+              "@id": "https://osf.io/jkhn7"
+            }
+          ],
+          "hadRole": [
+            {
+              "@id": "osf:readonly-contributor"
+            }
+          ]
+        },
+        {
+          "agent": [
+            {
+              "@id": "https://osf.io/n8c5t"
+            }
+          ],
+          "hadRole": [
+            {
+              "@id": "osf:readonly-contributor"
+            }
+          ]
+        },
+        {
+          "agent": [
+            {
+              "@id": "https://osf.io/nqrt7"
+            }
+          ],
+          "hadRole": [
+            {
+              "@id": "osf:readonly-contributor"
+            }
+          ]
+        }
+      ],
+      "archivedAt": [
+        {
+          "@id": "https://archive.org/details/osf-registrations-zh3w9-v1"
+        }
+      ],
+      "hostingInstitution": [
+        {
+          "@id": "https://cos.io/",
+          "resourceType": [
+            {
+              "@id": "Agent"
+            },
+            {
+              "@id": "Organization"
+            }
+          ],
+          "identifier": [
+            {
+              "@value": "https://cos.io/"
+            },
+            {
+              "@value": "https://ror.org/05d5mza29"
+            }
+          ],
+          "sameAs": [
+            {
+              "@id": "https://ror.org/05d5mza29"
+            }
+          ],
+          "name": [
+            {
+              "@value": "Center for Open Science"
+            }
+          ]
+        }
+      ],
+      "keyword": [
+        {
+          "@value": "climate action"
+        },
+        {
+          "@value": "climate activism"
+        },
+        {
+          "@value": "climate anxiety"
+        }
+      ],
+      "storageByteCount": [
+        {
+          "@value": "540260",
+          "@type": "xsd:integer"
+        }
+      ],
+      "storageRegion": [
+        {
+          "@id": "https://api.osf.io/v2/regions/us/",
+          "prefLabel": [
+            {
+              "@value": "United States",
+              "@language": "en"
+            }
+          ]
+        }
+      ],
+      "usage": [
+        {
+          "temporalCoverage": [
+            {
+              "@value": "2026-08",
+              "@type": "xsd:gYearMonth"
+            }
+          ],
+          "viewSessionCount": [
+            {
+              "@value": "1",
+              "@type": "xsd:integer"
+            }
+          ],
+          "viewCount": [
+            {
+              "@value": "1",
+              "@type": "xsd:integer"
+            }
+          ],
+          "accessService": [
+            {
+              "@id": "https://osf.io"
+            }
+          ],
+          "foaf:primaryTopic": [
+            {
+              "@id": "https://osf.io/zh3w9"
+            }
+          ],
+          "downloadSessionCount": [
+            {
+              "@value": "0",
+              "@type": "xsd:integer"
+            }
+          ],
+          "downloadCount": [
+            {
+              "@value": "0",
+              "@type": "xsd:integer"
+            }
+          ]
+        }
+      ],
+      "foaf:isPrimaryTopicOf": [
+        {
+          "@id": "https://share.osf.io/trove/index-card/0a1321ba-5dd2-43b4-a576-dfbd85b6953a"
+        }
+      ]
+    },
+    {
+      "@id": "https://osf.io/rfn6m",
+      "resourceType": [
+        {
+          "@id": "Project"
+        }
+      ],
+      "dateCreated": [
+        {
+          "@value": "2023-04-20"
+        }
+      ],
+      "creator": [
+        {
+          "@id": "https://osf.io/p97rc",
+          "resourceType": [
+            {
+              "@id": "Agent"
+            },
+            {
+              "@id": "Person"
+            }
+          ],
+          "identifier": [
+            {
+              "@value": "https://orcid.org/0000-0002-2270-811X"
+            },
+            {
+              "@value": "https://osf.io/p97rc"
+            }
+          ],
+          "sameAs": [
+            {
+              "@id": "https://orcid.org/0000-0002-2270-811X"
+            }
+          ],
+          "name": [
+            {
+              "@value": "Michalina Marczak"
+            }
+          ]
+        }
+      ],
+      "description": [
+        {
+          "@value": "The ICE is a self-report instrument to measure the experience of eight distinct  affective phenomena in response to climate change. Here, we gather in one place different language versions of this questionnaire."
+        }
+      ],
+      "identifier": [
+        {
+          "@value": "https://osf.io/rfn6m"
+        }
+      ],
+      "dateModified": [
+        {
+          "@value": "2025-05-07"
+        }
+      ],
+      "publisher": [
+        {
+          "@id": "https://osf.io",
+          "resourceType": [
+            {
+              "@id": "Agent"
+            },
+            {
+              "@id": "Organization"
+            }
+          ],
+          "identifier": [
+            {
+              "@value": "https://osf.io"
+            }
+          ],
+          "name": [
+            {
+              "@value": "OSF"
+            }
+          ]
+        }
+      ],
+      "title": [
+        {
+          "@value": "The Inventory of Climate Emotions (ICE): all existing language versions"
+        }
+      ],
+      "accessService": [
+        {
+          "@id": "https://osf.io",
+          "resourceType": [
+            {
+              "@id": "Agent"
+            },
+            {
+              "@id": "Organization"
+            }
+          ],
+          "identifier": [
+            {
+              "@value": "https://osf.io"
+            }
+          ],
+          "name": [
+            {
+              "@value": "OSF"
+            }
+          ]
+        }
+      ],
+      "qualifiedAttribution": [
+        {
+          "hadRole": [
+            {
+              "@id": "osf:admin-contributor"
+            }
+          ],
+          "osf:order": [
+            {
+              "@value": "0",
+              "@type": "xsd:integer"
+            }
+          ],
+          "agent": [
+            {
+              "@id": "https://osf.io/p97rc"
+            }
+          ]
+        }
+      ],
+      "hostingInstitution": [
+        {
+          "@id": "https://cos.io/",
+          "resourceType": [
+            {
+              "@id": "Agent"
+            },
+            {
+              "@id": "Organization"
+            }
+          ],
+          "identifier": [
+            {
+              "@value": "https://cos.io/"
+            },
+            {
+              "@value": "https://ror.org/05d5mza29"
+            }
+          ],
+          "sameAs": [
+            {
+              "@id": "https://ror.org/05d5mza29"
+            }
+          ],
+          "name": [
+            {
+              "@value": "Center for Open Science"
+            }
+          ]
+        }
+      ],
+      "keyword": [
+        {
+          "@value": "Climate anger"
+        },
+        {
+          "@value": "Climate anxiety"
+        },
+        {
+          "@value": "Climate change"
+        }
+      ],
+      "supplements": [
+        {
+          "@id": "https://osf.io/v8hm9",
+          "resourceType": [
+            {
+              "@id": "Preprint"
+            }
+          ],
+          "dateCreated": [
+            {
+              "@value": "2023-04-24"
+            }
+          ],
+          "creator": [
+            {
+              "@id": "https://osf.io/atu89",
+              "resourceType": [
+                {
+                  "@id": "Agent"
+                },
+                {
+                  "@id": "Person"
+                }
+              ],
+              "identifier": [
+                {
+                  "@value": "https://osf.io/atu89"
+                }
+              ],
+              "name": [
+                {
+                  "@value": "Bartosz Kossowski"
+                }
+              ]
+            },
+            {
+              "@id": "https://osf.io/fvy8k",
+              "resourceType": [
+                {
+                  "@id": "Agent"
+                },
+                {
+                  "@id": "Person"
+                }
+              ],
+              "identifier": [
+                {
+                  "@value": "http://scholar.google.com/citations?user=gB3J4TkAAAAJ"
+                },
+                {
+                  "@value": "https://lobi.nencki.gov.pl/"
+                },
+                {
+                  "@value": "https://osf.io/fvy8k"
+                }
+              ],
+              "name": [
+                {
+                  "@value": "Artur Marchewka"
+                }
+              ]
+            },
+            {
+              "@id": "https://osf.io/p97rc",
+              "resourceType": [
+                {
+                  "@id": "Agent"
+                },
+                {
+                  "@id": "Person"
+                }
+              ],
+              "identifier": [
+                {
+                  "@value": "https://orcid.org/0000-0002-2270-811X"
+                },
+                {
+                  "@value": "https://osf.io/p97rc"
+                }
+              ],
+              "sameAs": [
+                {
+                  "@id": "https://orcid.org/0000-0002-2270-811X"
+                }
+              ],
+              "name": [
+                {
+                  "@value": "Michalina Marczak"
+                }
+              ]
+            }
+          ],
+          "dateCopyrighted": [
+            {
+              "@value": "2023"
+            }
+          ],
+          "identifier": [
+            {
+              "@value": "https://doi.org/10.31234/osf.io/v8hm9"
+            },
+            {
+              "@value": "https://osf.io/v8hm9"
+            }
+          ],
+          "publisher": [
+            {
+              "@id": "https://osf.io/preprints/psyarxiv",
+              "resourceType": [
+                {
+                  "@id": "Agent"
+                },
+                {
+                  "@id": "Organization"
+                }
+              ],
+              "identifier": [
+                {
+                  "@value": "https://osf.io/preprints/psyarxiv"
+                },
+                {
+                  "@value": "https://psyarxiv.com/"
+                }
+              ],
+              "name": [
+                {
+                  "@value": "PsyArXiv"
+                }
+              ]
+            }
+          ],
+          "rights": [
+            {
+              "@id": "https://creativecommons.org/licenses/by/4.0/legalcode",
+              "identifier": [
+                {
+                  "@value": "https://creativecommons.org/licenses/by/4.0/legalcode"
+                }
+              ],
+              "name": [
+                {
+                  "@value": "CC-By Attribution 4.0 International"
+                }
+              ]
+            }
+          ],
+          "title": [
+            {
+              "@value": "Emotional responses to climate change in Norway and Ireland: cross-cultural validation of the Inventory of Climate Emotions (ICE)"
+            }
+          ],
+          "resourceNature": [
+            {
+              "@id": "datacite:Preprint",
+              "displayLabel": [
+                {
+                  "@value": "Preprint",
+                  "@language": "en"
+                }
+              ]
+            }
+          ],
+          "sameAs": [
+            {
+              "@id": "https://doi.org/10.31234/osf.io/v8hm9"
+            }
+          ]
+        }
+      ],
+      "storageByteCount": [
+        {
+          "@value": "297879",
+          "@type": "xsd:integer"
+        }
+      ],
+      "storageRegion": [
+        {
+          "@id": "https://api.osf.io/v2/regions/de-1/",
+          "prefLabel": [
+            {
+              "@value": "Germany - Frankfurt",
+              "@language": "en"
+            }
+          ]
+        }
+      ],
+      "usage": [
+        {
+          "temporalCoverage": [
+            {
+              "@value": "2026-09",
+              "@type": "xsd:gYearMonth"
+            }
+          ],
+          "downloadSessionCount": [
+            {
+              "@value": "0",
+              "@type": "xsd:integer"
+            }
+          ],
+          "accessService": [
+            {
+              "@id": "https://osf.io"
+            }
+          ],
+          "viewSessionCount": [
+            {
+              "@value": "7",
+              "@type": "xsd:integer"
+            }
+          ],
+          "foaf:primaryTopic": [
+            {
+              "@id": "https://osf.io/rfn6m"
+            }
+          ],
+          "viewCount": [
+            {
+              "@value": "12",
+              "@type": "xsd:integer"
+            }
+          ],
+          "downloadCount": [
+            {
+              "@value": "0",
+              "@type": "xsd:integer"
+            }
+          ]
+        }
+      ],
+      "foaf:isPrimaryTopicOf": [
+        {
+          "@id": "https://share.osf.io/trove/index-card/8365bb89-74aa-4f24-a047-7f154ca2c732"
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "total": 7976
+  },
+  "links": {
+    "next": "https://share.osf.io/trove/index-card-search?acceptMediatype=application%2Fjson&cardSearchText%5B%2A%5D=climate&page%5Bcursor%5D=WyJPQyIsIDEwLCA3OTc2LCAxMF0%3D&cardSearchFilter%5BresourceType%5D%5Bany-of%5D=Project%2CRegistration",
+    "first": "https://share.osf.io/trove/index-card-search?acceptMediatype=application%2Fjson&cardSearchText%5B%2A%5D=climate&page%5Bcursor%5D=WyJPQyIsIDEwLCA3OTc2LCAwXQ%3D%3D&cardSearchFilter%5BresourceType%5D%5Bany-of%5D=Project%2CRegistration",
+    "atom": "https://share.osf.io/trove/index-card-search/atom.xml?cardSearchText=climate&cardSearchFilter%5BresourceType%5D=https%3A%2F%2Fosf.io%2Fvocab%2F2022%2FProject%2Chttps%3A%2F%2Fosf.io%2Fvocab%2F2022%2FRegistration&page%5Bsize%5D=10",
+    "rss": "https://share.osf.io/trove/index-card-search/rss.xml?cardSearchText=climate&cardSearchFilter%5BresourceType%5D=https%3A%2F%2Fosf.io%2Fvocab%2F2022%2FProject%2Chttps%3A%2F%2Fosf.io%2Fvocab%2F2022%2FRegistration&page%5Bsize%5D=10"
+  }
+}

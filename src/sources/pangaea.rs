@@ -49,3 +49,38 @@ fn record(row: &Value) -> Option<Dataset> {
     dataset.publisher = Some(clean(authors).trim_end_matches(':').to_owned());
     dataset.valid()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("pangaea.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Sea ice thickness and sea ice area transport in the \
+                        Laptev Sea"
+                    .into(),
+                url: "https://doi.org/10.1594/pangaea.880357".into(),
+                description: Some(
+                    "Recent studies based on satellite observations have \
+                     shown that there is a high statistical connection \
+                     between the late winter (Feb-May) sea ice export out the \
+                     Laptev Sea, and the ice coverage in the following summer."
+                        .into()
+                ),
+                publisher: Some("Krumpen, T (2017)".into()),
+                doi: Some("10.1594/pangaea.880357".into()),
+                license: None,
+                updated: None,
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
+}

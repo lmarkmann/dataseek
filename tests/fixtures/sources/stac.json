@@ -1,0 +1,1255 @@
+{
+  "collections": [
+    {
+      "type": "Collection",
+      "id": "sentinel-2-pre-c1-l2a",
+      "title": "Sentinel-2 Pre-Collection 1 Level-2A ",
+      "description": "Sentinel-2 Pre-Collection 1 Level-2A (baseline < 05.00), with data and metadata matching collection sentinel-2-c1-l2a",
+      "stac_version": "1.0.0",
+      "links": [
+        {
+          "rel": "self",
+          "type": "application/json",
+          "href": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-pre-c1-l2a"
+        },
+        {
+          "rel": "cite-as",
+          "href": "https://doi.org/10.5270/S2_-742ikth",
+          "title": "Copernicus Sentinel-2 MSI Level-2A (L2A) Bottom-of-Atmosphere Radiance"
+        },
+        {
+          "rel": "license",
+          "href": "https://sentinel.esa.int/documents/247904/690755/Sentinel_Data_Legal_Notice",
+          "title": "proprietary"
+        },
+        {
+          "rel": "parent",
+          "type": "application/json",
+          "href": "https://earth-search.aws.element84.com/v1"
+        }
+      ],
+      "stac_extensions": [
+        "https://stac-extensions.github.io/item-assets/v1.0.0/schema.json",
+        "https://stac-extensions.github.io/view/v1.0.0/schema.json",
+        "https://stac-extensions.github.io/scientific/v1.0.0/schema.json",
+        "https://stac-extensions.github.io/raster/v1.1.0/schema.json"
+      ],
+      "item_assets": {
+        "red": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "Red - 10m",
+          "eo:bands": [
+            {
+              "name": "B04",
+              "common_name": "red",
+              "center_wavelength": 0.665,
+              "full_width_half_max": 0.038
+            }
+          ],
+          "gsd": 10,
+          "proj:shape": [
+            10980,
+            10980
+          ],
+          "proj:transform": [
+            10,
+            0,
+            600000,
+            0
+          ],
+          "raster:bands": [
+            {
+              "nodata": 0,
+              "data_type": "uint16",
+              "spatial_resolution": 10,
+              "scale": 0.0001,
+              "offset": -0.1
+            }
+          ],
+          "roles": [
+            "data",
+            "reflectance"
+          ]
+        },
+        "green": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "Green - 10m",
+          "eo:bands": [
+            {
+              "name": "B03",
+              "common_name": "green",
+              "center_wavelength": 0.56,
+              "full_width_half_max": 0.045
+            }
+          ],
+          "gsd": 10,
+          "proj:shape": [
+            10980,
+            10980
+          ],
+          "proj:transform": [
+            10,
+            0,
+            600000,
+            0
+          ],
+          "raster:bands": [
+            {
+              "nodata": 0,
+              "data_type": "uint16",
+              "spatial_resolution": 10,
+              "scale": 0.0001,
+              "offset": -0.1
+            }
+          ],
+          "roles": [
+            "data",
+            "reflectance"
+          ]
+        },
+        "blue": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "Blue - 10m",
+          "eo:bands": [
+            {
+              "name": "B02",
+              "common_name": "blue",
+              "center_wavelength": 0.49,
+              "full_width_half_max": 0.098
+            }
+          ],
+          "gsd": 10,
+          "proj:shape": [
+            10980,
+            10980
+          ],
+          "proj:transform": [
+            10,
+            0,
+            600000,
+            0
+          ],
+          "raster:bands": [
+            {
+              "nodata": 0,
+              "data_type": "uint16",
+              "spatial_resolution": 10,
+              "scale": 0.0001,
+              "offset": -0.1
+            }
+          ],
+          "roles": [
+            "data",
+            "reflectance"
+          ]
+        },
+        "visual": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "True color image",
+          "eo:bands": [
+            {
+              "name": "B04",
+              "common_name": "red",
+              "center_wavelength": 0.665,
+              "full_width_half_max": 0.038
+            },
+            {
+              "name": "B03",
+              "common_name": "green",
+              "center_wavelength": 0.56,
+              "full_width_half_max": 0.045
+            },
+            {
+              "name": "B02",
+              "common_name": "blue",
+              "center_wavelength": 0.49,
+              "full_width_half_max": 0.098
+            }
+          ],
+          "gsd": 10,
+          "proj:shape": [
+            10980,
+            10980
+          ],
+          "proj:transform": [
+            10,
+            0,
+            600000,
+            0
+          ],
+          "raster:bands": [
+            {
+              "nodata": 0,
+              "data_type": "uint8",
+              "spatial_resolution": 10
+            },
+            {
+              "nodata": 0,
+              "data_type": "uint8",
+              "spatial_resolution": 10
+            },
+            {
+              "nodata": 0,
+              "data_type": "uint8",
+              "spatial_resolution": 10
+            }
+          ],
+          "roles": [
+            "visual"
+          ]
+        },
+        "nir": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "NIR 1 - 10m",
+          "eo:bands": [
+            {
+              "name": "B08",
+              "common_name": "nir",
+              "center_wavelength": 0.842,
+              "full_width_half_max": 0.145
+            }
+          ],
+          "gsd": 10,
+          "proj:shape": [
+            10980,
+            10980
+          ],
+          "proj:transform": [
+            10,
+            0,
+            600000,
+            0
+          ],
+          "raster:bands": [
+            {
+              "nodata": 0,
+              "data_type": "uint16",
+              "spatial_resolution": 10,
+              "scale": 0.0001,
+              "offset": -0.1
+            }
+          ],
+          "roles": [
+            "data",
+            "reflectance"
+          ]
+        },
+        "swir22": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "SWIR 2.2μm - 20m",
+          "eo:bands": [
+            {
+              "name": "B12",
+              "common_name": "swir22",
+              "center_wavelength": 2.19,
+              "full_width_half_max": 0.242
+            }
+          ],
+          "gsd": 20,
+          "proj:shape": [
+            5490,
+            5490
+          ],
+          "proj:transform": [
+            20,
+            0,
+            600000,
+            0
+          ],
+          "raster:bands": [
+            {
+              "nodata": 0,
+              "data_type": "uint16",
+              "spatial_resolution": 20,
+              "scale": 0.0001,
+              "offset": -0.1
+            }
+          ],
+          "roles": [
+            "data",
+            "reflectance"
+          ]
+        },
+        "rededge2": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "Red Edge 2 - 20m",
+          "eo:bands": [
+            {
+              "name": "B06",
+              "common_name": "rededge",
+              "center_wavelength": 0.74,
+              "full_width_half_max": 0.018
+            }
+          ],
+          "gsd": 20,
+          "proj:shape": [
+            5490,
+            5490
+          ],
+          "proj:transform": [
+            20,
+            0,
+            600000,
+            0
+          ],
+          "raster:bands": [
+            {
+              "nodata": 0,
+              "data_type": "uint16",
+              "spatial_resolution": 20,
+              "scale": 0.0001,
+              "offset": -0.1
+            }
+          ],
+          "roles": [
+            "data",
+            "reflectance"
+          ]
+        },
+        "rededge3": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "Red Edge 3 - 20m",
+          "eo:bands": [
+            {
+              "name": "B07",
+              "common_name": "rededge",
+              "center_wavelength": 0.783,
+              "full_width_half_max": 0.028
+            }
+          ],
+          "gsd": 20,
+          "proj:shape": [
+            5490,
+            5490
+          ],
+          "proj:transform": [
+            20,
+            0,
+            600000,
+            0
+          ],
+          "raster:bands": [
+            {
+              "nodata": 0,
+              "data_type": "uint16",
+              "spatial_resolution": 20,
+              "scale": 0.0001,
+              "offset": -0.1
+            }
+          ],
+          "roles": [
+            "data",
+            "reflectance"
+          ]
+        },
+        "rededge1": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "Red Edge 1 - 20m",
+          "eo:bands": [
+            {
+              "name": "B05",
+              "common_name": "rededge",
+              "center_wavelength": 0.704,
+              "full_width_half_max": 0.019
+            }
+          ],
+          "gsd": 20,
+          "proj:shape": [
+            5490,
+            5490
+          ],
+          "proj:transform": [
+            20,
+            0,
+            600000,
+            0
+          ],
+          "raster:bands": [
+            {
+              "nodata": 0,
+              "data_type": "uint16",
+              "spatial_resolution": 20,
+              "scale": 0.0001,
+              "offset": -0.1
+            }
+          ],
+          "roles": [
+            "data",
+            "reflectance"
+          ]
+        },
+        "swir16": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "SWIR 1.6μm - 20m",
+          "eo:bands": [
+            {
+              "name": "B11",
+              "common_name": "swir16",
+              "center_wavelength": 1.61,
+              "full_width_half_max": 0.143
+            }
+          ],
+          "gsd": 20,
+          "proj:shape": [
+            5490,
+            5490
+          ],
+          "proj:transform": [
+            20,
+            0,
+            600000,
+            0
+          ],
+          "raster:bands": [
+            {
+              "nodata": 0,
+              "data_type": "uint16",
+              "spatial_resolution": 20,
+              "scale": 0.0001,
+              "offset": -0.1
+            }
+          ],
+          "roles": [
+            "data",
+            "reflectance"
+          ]
+        },
+        "wvp": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "Water Vapour (WVP)",
+          "gsd": 20,
+          "proj:shape": [
+            5490,
+            5490
+          ],
+          "proj:transform": [
+            20,
+            0,
+            600000,
+            0
+          ],
+          "raster:bands": [
+            {
+              "nodata": 0,
+              "data_type": "uint16",
+              "spatial_resolution": 20,
+              "unit": "cm",
+              "scale": 0.001,
+              "offset": 0
+            }
+          ],
+          "roles": [
+            "data"
+          ]
+        },
+        "nir08": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "NIR 2 - 20m",
+          "eo:bands": [
+            {
+              "name": "B8A",
+              "common_name": "nir08",
+              "center_wavelength": 0.865,
+              "full_width_half_max": 0.033
+            }
+          ],
+          "gsd": 20,
+          "proj:shape": [
+            5490,
+            5490
+          ],
+          "proj:transform": [
+            20,
+            0,
+            600000,
+            0
+          ],
+          "raster:bands": [
+            {
+              "nodata": 0,
+              "data_type": "uint16",
+              "spatial_resolution": 20,
+              "scale": 0.0001,
+              "offset": -0.1
+            }
+          ],
+          "roles": [
+            "data",
+            "reflectance"
+          ]
+        },
+        "scl": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "Scene classification map (SCL)",
+          "gsd": 20,
+          "proj:shape": [
+            5490,
+            5490
+          ],
+          "proj:transform": [
+            20,
+            0,
+            600000,
+            0
+          ],
+          "raster:bands": [
+            {
+              "nodata": 0,
+              "data_type": "uint8",
+              "spatial_resolution": 20
+            }
+          ],
+          "roles": [
+            "data"
+          ]
+        },
+        "aot": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "Aerosol optical thickness (AOT)",
+          "gsd": 20,
+          "proj:shape": [
+            5490,
+            5490
+          ],
+          "proj:transform": [
+            20,
+            0,
+            600000,
+            0
+          ],
+          "raster:bands": [
+            {
+              "nodata": 0,
+              "data_type": "uint16",
+              "spatial_resolution": 20,
+              "scale": 0.001,
+              "offset": 0
+            }
+          ],
+          "roles": [
+            "data"
+          ]
+        },
+        "coastal": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "Coastal - 60m",
+          "eo:bands": [
+            {
+              "name": "B01",
+              "common_name": "coastal",
+              "center_wavelength": 0.443,
+              "full_width_half_max": 0.027
+            }
+          ],
+          "gsd": 60,
+          "proj:shape": [
+            1830,
+            1830
+          ],
+          "proj:transform": [
+            60,
+            0,
+            600000,
+            0
+          ],
+          "raster:bands": [
+            {
+              "nodata": 0,
+              "data_type": "uint16",
+              "spatial_resolution": 60,
+              "scale": 0.0001,
+              "offset": -0.1
+            }
+          ],
+          "roles": [
+            "data",
+            "reflectance"
+          ]
+        },
+        "nir09": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "NIR 3 - 60m",
+          "eo:bands": [
+            {
+              "name": "B09",
+              "common_name": "nir09",
+              "center_wavelength": 0.945,
+              "full_width_half_max": 0.026
+            }
+          ],
+          "gsd": 60,
+          "proj:shape": [
+            1830,
+            1830
+          ],
+          "proj:transform": [
+            60,
+            0,
+            600000,
+            0
+          ],
+          "raster:bands": [
+            {
+              "nodata": 0,
+              "data_type": "uint16",
+              "spatial_resolution": 60,
+              "scale": 0.0001,
+              "offset": -0.1
+            }
+          ],
+          "roles": [
+            "data",
+            "reflectance"
+          ]
+        },
+        "cloud": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "Cloud Probabilities",
+          "gsd": 20,
+          "proj:shape": [
+            5490,
+            5490
+          ],
+          "proj:transform": [
+            20,
+            0,
+            600000,
+            0
+          ],
+          "raster:bands": [
+            {
+              "nodata": 0,
+              "data_type": "uint8",
+              "spatial_resolution": 20
+            }
+          ],
+          "roles": [
+            "data",
+            "cloud"
+          ]
+        },
+        "snow": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "Snow Probabilities",
+          "proj:shape": [
+            5490,
+            5490
+          ],
+          "proj:transform": [
+            20,
+            0,
+            600000,
+            0
+          ],
+          "raster:bands": [
+            {
+              "nodata": 0,
+              "data_type": "uint8",
+              "spatial_resolution": 20
+            }
+          ],
+          "roles": [
+            "data",
+            "snow-ice"
+          ]
+        },
+        "preview": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "True color preview",
+          "eo:bands": [
+            {
+              "name": "B04",
+              "common_name": "red",
+              "center_wavelength": 0.665,
+              "full_width_half_max": 0.038
+            },
+            {
+              "name": "B03",
+              "common_name": "green",
+              "center_wavelength": 0.56,
+              "full_width_half_max": 0.045
+            },
+            {
+              "name": "B02",
+              "common_name": "blue",
+              "center_wavelength": 0.49,
+              "full_width_half_max": 0.098
+            }
+          ],
+          "roles": [
+            "overview"
+          ]
+        },
+        "granule_metadata": {
+          "type": "application/xml",
+          "roles": [
+            "metadata"
+          ]
+        },
+        "tileinfo_metadata": {
+          "type": "application/json",
+          "roles": [
+            "metadata"
+          ]
+        },
+        "product_metadata": {
+          "type": "application/xml",
+          "roles": [
+            "metadata"
+          ]
+        },
+        "thumbnail": {
+          "type": "image/jpeg",
+          "title": "Thumbnail of preview image",
+          "roles": [
+            "thumbnail"
+          ]
+        }
+      },
+      "extent": {
+        "spatial": {
+          "bbox": [
+            [
+              -180,
+              -90,
+              180,
+              90
+            ]
+          ]
+        },
+        "temporal": {
+          "interval": [
+            [
+              "2015-06-27T10:25:31.456000Z",
+              null
+            ]
+          ]
+        }
+      },
+      "license": "proprietary",
+      "keywords": [
+        "sentinel",
+        "earth observation",
+        "esa"
+      ],
+      "providers": [
+        {
+          "name": "ESA",
+          "roles": [
+            "producer"
+          ],
+          "url": "https://earth.esa.int/web/guest/home"
+        },
+        {
+          "name": "Sinergise",
+          "roles": [
+            "processor"
+          ],
+          "url": "https://registry.opendata.aws/sentinel-2/"
+        },
+        {
+          "name": "AWS",
+          "roles": [
+            "host"
+          ],
+          "url": "http://sentinel-pds.s3-website.eu-central-1.amazonaws.com/"
+        },
+        {
+          "name": "Element 84",
+          "roles": [
+            "processor"
+          ],
+          "url": "https://element84.com"
+        }
+      ],
+      "summaries": {
+        "platform": [
+          "sentinel-2a",
+          "sentinel-2b"
+        ],
+        "constellation": [
+          "sentinel-2"
+        ],
+        "instruments": [
+          "msi"
+        ],
+        "gsd": [
+          10,
+          20,
+          60
+        ],
+        "view:off_nadir": [
+          0
+        ],
+        "sci:doi": [
+          "10.5270/s2_-znk9xsj"
+        ],
+        "eo:bands": [
+          {
+            "name": "coastal",
+            "common_name": "coastal",
+            "description": "Coastal aerosol (band 1)",
+            "center_wavelength": 0.443,
+            "full_width_half_max": 0.027
+          },
+          {
+            "name": "blue",
+            "common_name": "blue",
+            "description": "Blue (band 2)",
+            "center_wavelength": 0.49,
+            "full_width_half_max": 0.098
+          },
+          {
+            "name": "green",
+            "common_name": "green",
+            "description": "Green (band 3)",
+            "center_wavelength": 0.56,
+            "full_width_half_max": 0.045
+          },
+          {
+            "name": "red",
+            "common_name": "red",
+            "description": "Red (band 4)",
+            "center_wavelength": 0.665,
+            "full_width_half_max": 0.038
+          }
+        ]
+      }
+    },
+    {
+      "id": "cop-dem-glo-30",
+      "type": "Collection",
+      "links": [
+        {
+          "rel": "self",
+          "type": "application/json",
+          "href": "https://earth-search.aws.element84.com/v1/collections/cop-dem-glo-30"
+        },
+        {
+          "rel": "license",
+          "href": "https://spacedata.copernicus.eu/documents/20126/0/CSCDA_ESA_Mission-specific+Annex.pdf",
+          "title": "Copernicus DEM License"
+        },
+        {
+          "rel": "parent",
+          "type": "application/json",
+          "href": "https://earth-search.aws.element84.com/v1"
+        },
+        {
+          "rel": "root",
+          "type": "application/json",
+          "href": "https://earth-search.aws.element84.com/v1"
+        }
+      ],
+      "title": "Copernicus DEM GLO-30",
+      "extent": {
+        "spatial": {
+          "bbox": [
+            [
+              -180,
+              -90,
+              180,
+              90
+            ]
+          ]
+        },
+        "temporal": {
+          "interval": [
+            [
+              "2021-04-22T00:00:00Z",
+              "2021-04-22T00:00:00Z"
+            ]
+          ]
+        }
+      },
+      "license": "proprietary",
+      "keywords": [
+        "Copernicus",
+        "DEM",
+        "DSM",
+        "Elevation"
+      ],
+      "providers": [
+        {
+          "url": "https://spacedata.copernicus.eu/documents/20123/121286/CSCDA_ESA_Mission-specific+Annex_31_Oct_22.pdf",
+          "name": "European Space Agency",
+          "roles": [
+            "licensor"
+          ]
+        },
+        {
+          "url": "https://registry.opendata.aws/copernicus-dem/",
+          "name": "Sinergise",
+          "roles": [
+            "producer",
+            "processor"
+          ]
+        },
+        {
+          "url": "https://doi.org/10.5069/G9028PQB",
+          "name": "OpenTopography",
+          "roles": [
+            "host"
+          ]
+        },
+        {
+          "name": "AWS",
+          "roles": [
+            "host"
+          ],
+          "url": "https://registry.opendata.aws/sentinel-1"
+        }
+      ],
+      "summaries": {
+        "gsd": [
+          30
+        ],
+        "platform": [
+          "tandem-x"
+        ],
+        "proj:epsg": [
+          4326
+        ],
+        "storage:platform": [
+          "AWS"
+        ],
+        "storage:region": [
+          "eu-central-1"
+        ],
+        "storage:requester_pays": [
+          false
+        ]
+      },
+      "description": "The Copernicus DEM is a Digital Surface Model (DSM) which represents the surface of the Earth including buildings, infrastructure and vegetation.",
+      "item_assets": {
+        "data": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "roles": [
+            "data"
+          ],
+          "title": "Data",
+          "raster:bands": [
+            {
+              "sampling": "point",
+              "data_type": "float32",
+              "spatial_resolution": 30,
+              "unit": "meter"
+            }
+          ]
+        }
+      },
+      "stac_version": "1.0.0",
+      "stac_extensions": [
+        "https://stac-extensions.github.io/item-assets/v1.0.0/schema.json"
+      ]
+    },
+    {
+      "id": "naip",
+      "type": "Collection",
+      "description": "The [National Agriculture Imagery Program](https://www.fsa.usda.gov/programs-and-services/aerial-photography/imagery-programs/naip-imagery/) (NAIP) provides U.S.-wide, high-resolution aerial imagery, with four spectral bands (R, G, B, IR).",
+      "links": [
+        {
+          "rel": "self",
+          "type": "application/json",
+          "href": "https://earth-search.aws.element84.com/v1/collections/naip"
+        },
+        {
+          "rel": "license",
+          "href": "https://www.fsa.usda.gov/help/policies-and-links/",
+          "title": "Public Domain",
+          "type": "text/html"
+        },
+        {
+          "rel": "cite-as",
+          "href": "https://doi.org/10.5066/F7QN651G",
+          "title": "NAIP Overview",
+          "type": "text/html"
+        },
+        {
+          "rel": "cite-as",
+          "href": "https://doi.org/10.14358/PERS.83.10.737",
+          "title": "Publication",
+          "type": "text/html"
+        }
+      ],
+      "title": "NAIP: National Agriculture Imagery Program",
+      "extent": {
+        "spatial": {
+          "bbox": [
+            [
+              -160,
+              17,
+              -67,
+              50
+            ]
+          ]
+        },
+        "temporal": {
+          "interval": [
+            [
+              "2010-01-01T00:00:00Z",
+              "2022-12-31T00:00:00Z"
+            ]
+          ]
+        }
+      },
+      "license": "proprietary",
+      "keywords": [
+        "NAIP",
+        "Aerial",
+        "Imagery",
+        "USDA"
+      ],
+      "providers": [
+        {
+          "name": "USDA Farm Service Agency",
+          "url": "https://www.fsa.usda.gov/programs-and-services/aerial-photography/imagery-programs/naip-imagery/",
+          "roles": [
+            "producer",
+            "licensor"
+          ]
+        },
+        {
+          "name": "Esri",
+          "url": "https://www.esri.com",
+          "roles": [
+            "processor"
+          ]
+        },
+        {
+          "name": "AWS",
+          "roles": [
+            "host"
+          ],
+          "url": "https://registry.opendata.aws/naip"
+        },
+        {
+          "name": "Element 84",
+          "roles": [
+            "processor"
+          ],
+          "url": "https://element84.com"
+        }
+      ],
+      "summaries": {
+        "gsd": [
+          0.6,
+          1
+        ],
+        "eo:bands": [
+          {
+            "name": "Red",
+            "common_name": "red",
+            "description": "visible red"
+          },
+          {
+            "name": "Green",
+            "common_name": "green",
+            "description": "visible green"
+          },
+          {
+            "name": "Blue",
+            "common_name": "blue",
+            "description": "visible blue"
+          },
+          {
+            "name": "NIR",
+            "common_name": "nir",
+            "description": "near-infrared"
+          }
+        ]
+      },
+      "item_assets": {
+        "image": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "roles": [
+            "data"
+          ],
+          "title": "RGBIR COG tile",
+          "eo:bands": [
+            {
+              "name": "Red",
+              "common_name": "red"
+            },
+            {
+              "name": "Green",
+              "common_name": "green"
+            },
+            {
+              "name": "Blue",
+              "common_name": "blue"
+            },
+            {
+              "name": "NIR",
+              "common_name": "nir",
+              "description": "near-infrared"
+            }
+          ]
+        },
+        "metadata": {
+          "type": "text/plain",
+          "roles": [
+            "metadata"
+          ],
+          "title": "FGDC Metdata"
+        }
+      },
+      "sci:doi": "10.5066/F7QN651G",
+      "sci:publications": [
+        {
+          "doi": "10.14358/PERS.83.10.737",
+          "citation": "Maxwell, A. E., Warner, T. A., Vanderbilt, B. C., &amp; Ramezan, C. A. (2017). Land cover classification and feature extraction from National Agriculture Imagery Program (NAIP) orthoimagery: A Review. Photogrammetric Engineering &amp; Remote Sensing, 83(11), 737-747. https://doi.org/10.14358/pers.83.10.737"
+        }
+      ],
+      "stac_version": "1.0.0",
+      "stac_extensions": [
+        "https://stac-extensions.github.io/item-assets/v1.0.0/schema.json",
+        "https://stac-extensions.github.io/scientific/v1.0.0/schema.json"
+      ]
+    },
+    {
+      "id": "cop-dem-glo-90",
+      "type": "Collection",
+      "links": [
+        {
+          "rel": "self",
+          "type": "application/json",
+          "href": "https://earth-search.aws.element84.com/v1/collections/cop-dem-glo-90"
+        },
+        {
+          "rel": "license",
+          "href": "https://spacedata.copernicus.eu/documents/20123/121286/CSCDA_ESA_Mission-specific+Annex_31_Oct_22.pdf",
+          "title": "Copernicus DEM License"
+        },
+        {
+          "rel": "parent",
+          "type": "application/json",
+          "href": "https://earth-search.aws.element84.com/v1"
+        },
+        {
+          "rel": "root",
+          "type": "application/json",
+          "href": "https://earth-search.aws.element84.com/v1"
+        }
+      ],
+      "title": "Copernicus DEM GLO-90",
+      "extent": {
+        "spatial": {
+          "bbox": [
+            [
+              -180,
+              -90,
+              180,
+              90
+            ]
+          ]
+        },
+        "temporal": {
+          "interval": [
+            [
+              "2021-04-22T00:00:00Z",
+              "2021-04-22T00:00:00Z"
+            ]
+          ]
+        }
+      },
+      "license": "proprietary",
+      "keywords": [
+        "Copernicus",
+        "DEM",
+        "Elevation"
+      ],
+      "providers": [
+        {
+          "url": "https://spacedata.copernicus.eu/documents/20126/0/CSCDA_ESA_Mission-specific+Annex.pdf",
+          "name": "European Space Agency",
+          "roles": [
+            "licensor"
+          ]
+        },
+        {
+          "url": "https://registry.opendata.aws/copernicus-dem/",
+          "name": "Sinergise",
+          "roles": [
+            "producer",
+            "processor"
+          ]
+        },
+        {
+          "url": "https://doi.org/10.5069/G9028PQB",
+          "name": "OpenTopography",
+          "roles": [
+            "host"
+          ]
+        },
+        {
+          "name": "AWS",
+          "roles": [
+            "host"
+          ],
+          "url": "https://registry.opendata.aws/sentinel-1"
+        }
+      ],
+      "summaries": {
+        "gsd": [
+          90
+        ],
+        "platform": [
+          "tandem-x"
+        ],
+        "proj:epsg": [
+          4326
+        ],
+        "storage:platform": [
+          "AWS"
+        ],
+        "storage:region": [
+          "eu-central-1"
+        ],
+        "storage:requester_pays": [
+          false
+        ]
+      },
+      "description": "The Copernicus DEM is a Digital Surface Model (DSM) which represents the surface of the Earth including buildings, infrastructure and vegetation. GLO-90 provides worldwide coverage at 90 meters.",
+      "item_assets": {
+        "data": {
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "roles": [
+            "data"
+          ],
+          "title": "Data",
+          "raster:bands": [
+            {
+              "sampling": "point",
+              "data_type": "float32",
+              "spatial_resolution": 30,
+              "unit": "meter"
+            }
+          ]
+        }
+      },
+      "stac_version": "1.0.0",
+      "stac_extensions": [
+        "https://stac-extensions.github.io/item-assets/v1.0.0/schema.json"
+      ]
+    }
+  ],
+  "links": [
+    {
+      "rel": "self",
+      "type": "application/json",
+      "href": "https://earth-search.aws.element84.com/v1/collections"
+    },
+    {
+      "rel": "root",
+      "type": "application/json",
+      "href": "https://earth-search.aws.element84.com/v1"
+    }
+  ],
+  "context": {
+    "page": 1,
+    "limit": 100,
+    "matched": 9,
+    "returned": 9
+  }
+}

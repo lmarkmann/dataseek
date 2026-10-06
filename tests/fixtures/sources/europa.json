@@ -1,0 +1,2140 @@
+{
+  "result": {
+    "index": "dataset",
+    "count": 69931,
+    "results": [
+      {
+        "identifier": [
+          "http://www.geoportal.rlp.de/registry/spatial/dataset/75be9c8c-b6d5-6e29-aca2-eb1ae907b29c"
+        ],
+        "country": {
+          "label": "Germany",
+          "id": "de",
+          "resource": "http://publications.europa.eu/resource/authority/country/DEU"
+        },
+        "corporate-body-classification": {
+          "label": {
+            "title": {
+              "fr": "Autorit\u00e9s nationales",
+              "pl": "Organy krajowe",
+              "lv": "Valstu iest\u0101des",
+              "bg": "\u041d\u0430\u0446\u0438\u043e\u043d\u0430\u043b\u043d\u0438 \u043e\u0440\u0433\u0430\u043d\u0438",
+              "el": "\u0395\u03b8\u03bd\u03b9\u03ba\u03ad\u03c2 \u03b1\u03c1\u03c7\u03ad\u03c2",
+              "ro": "Autorit\u0103\u021bi na\u021bionale",
+              "da": "Nationale myndigheder",
+              "hu": "Nemzeti hat\u00f3s\u00e1gok",
+              "sv": "Nationella myndigheter",
+              "sk": "N\u00e1rodn\u00e9 org\u00e1ny",
+              "it": "Autorit\u00e0 nazionali",
+              "sl": "Nacionalni organi",
+              "pt": "Autoridades nacionais",
+              "lt": "Nacionalin\u0117s institucijos",
+              "de": "Nationale Beh\u00f6rden",
+              "hr": "Nacionalna tijela",
+              "nl": "Nationale autoriteiten",
+              "et": "Riiklikud asutused",
+              "ga": "\u00dadar\u00e1is n\u00e1isi\u00fanta",
+              "fi": "Kansalliset viranomaiset",
+              "en": "National Authorities",
+              "es": "Autoridades nacionales",
+              "cs": "Vnitrost\u00e1tn\u00ed org\u00e1ny",
+              "mt": "Awtoritajiet nazzjonali"
+            }
+          },
+          "id": "_NATIONAL"
+        },
+        "keywords": [
+          {
+            "id": "sgd",
+            "label": "sgd",
+            "language": "de"
+          },
+          {
+            "id": "su\u0308d",
+            "label": "s\u00fcd",
+            "language": "de"
+          },
+          {
+            "id": "raumordnungskataster",
+            "label": "raumordnungskataster",
+            "language": "de"
+          }
+        ],
+        "resource": "http://data.europa.eu/88u/dataset/http-www-geoportal-rlp-de-registry-spatial-dataset-75be9c8c-b6d5-6e29-aca2-eb1ae907b29c",
+        "catalog": {
+          "id": "govdata",
+          "description": {
+            "fr": "Portail des donn\u00e9es ouvertes Allemagne",
+            "sv": "Portalen f\u00f6r \u00f6ppna data Tyskland",
+            "da": "Den \u00e5bne dataportal Tyskland",
+            "en": "Open Data Portal Germany",
+            "cs": "Port\u00e1l ve\u0159ejn\u011b p\u0159\u00edstupn\u00fdch dat N\u011bmecko",
+            "lt": "Atvir\u0173j\u0173 duomen\u0173 portalas Vokietija",
+            "es": "Portal de datos abiertos Alemania",
+            "pl": "Portal Otwartych Danych Niemcy",
+            "lv": "Atv\u0113rto datu port\u0101ls V\u0101cij\u0101",
+            "hr": "Portal otvorenih podataka Njema\u010dka",
+            "pt": "Portal de Dados Abertos Alemanha",
+            "fi": "Avoimen datan portaali Saksa",
+            "ga": "Tairseach Sonra\u00ed Oscailte na Gearm\u00e1ine",
+            "sl": "Portal odprtih podatkov Nem\u010dija",
+            "sk": "Port\u00e1l otvoren\u00fdch d\u00e1t Nemecko",
+            "de": "Open Data Portal Deutschland",
+            "mt": "Portal tad-Data Miftu\u0127a tal-\u0120ermanja",
+            "ro": "Portalul de date deschise Germania",
+            "nl": "Open Data Portal Duitsland",
+            "bg": "\u041f\u043e\u0440\u0442\u0430\u043b \u0437\u0430 \u0441\u0432\u043e\u0431\u043e\u0434\u043d\u043e \u0434\u043e\u0441\u0442\u044a\u043f\u043d\u0438 \u0434\u0430\u043d\u043d\u0438 \u0413\u0435\u0440\u043c\u0430\u043d\u0438\u044f",
+            "uk": "\u041f\u043e\u0440\u0442\u0430\u043b \u0432\u0456\u0434\u043a\u0440\u0438\u0442\u0438\u0445 \u0434\u0430\u043d\u0438\u0445 \u041d\u0456\u043c\u0435\u0447\u0447\u0438\u043d\u0430",
+            "it": "Portale Open Data Germania",
+            "el": "\u03a0\u03cd\u03bb\u03b7 \u0394\u03b7\u03bc\u03cc\u03c3\u03b9\u03c9\u03bd \u0394\u03b5\u03b4\u03bf\u03bc\u03ad\u03bd\u03c9\u03bd \u03c4\u03b7\u03c2 \u0393\u03b5\u03c1\u03bc\u03b1\u03bd\u03af\u03b1\u03c2",
+            "hu": "Ny\u00edlt hozz\u00e1f\u00e9r\u00e9s\u0171 adatok port\u00e1lja N\u00e9metorsz\u00e1g",
+            "et": "Avatud andmete portaal Saksamaa"
+          },
+          "issued": "2022-11-21T05:38:24Z",
+          "title": {
+            "bg": "GovData",
+            "da": "GovData",
+            "hr": "GovData",
+            "hu": "Korm\u00e1nyzati adatok",
+            "sl": "GovData",
+            "pt": "GovData",
+            "es": "GovData",
+            "nl": "GovData",
+            "uk": "GovData",
+            "fi": "GovData",
+            "cs": "GovData",
+            "pl": "GovData",
+            "lv": "GovData",
+            "sk": "GovData",
+            "de": "GovData",
+            "en": "GovData",
+            "el": "GovData",
+            "it": "GovData",
+            "lt": "GovData",
+            "mt": "GovData",
+            "sv": "GovData",
+            "et": "GovData",
+            "ga": "GovData",
+            "ro": "GovData",
+            "fr": "GovData"
+          },
+          "publisher": {
+            "type": "Agent",
+            "name": "GKSt GovData Freie und Hansestadt Hamburg",
+            "homepage": "https://www.govdata.de",
+            "email": "mailto:info@govdata.de"
+          },
+          "modified": "2023-02-12T00:17:44.239270",
+          "language": [
+            {
+              "id": "de",
+              "label": "German",
+              "resource": "http://publications.europa.eu/resource/authority/language/DEU"
+            }
+          ],
+          "homepage": "https://www.govdata.de",
+          "source_type": "dcat-ap",
+          "country": {
+            "label": "Germany",
+            "id": "de",
+            "resource": "http://publications.europa.eu/resource/authority/country/DEU"
+          },
+          "spatial_resource": [
+            {
+              "label": "Germany",
+              "id": "de",
+              "resource": "http://publications.europa.eu/resource/authority/country/DEU"
+            }
+          ],
+          "translation_meta": {
+            "details": {
+              "bg": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "da": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "hr": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "hu": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "sl": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "pt": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "es": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "nl": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "uk": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "fi": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "cs": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "pl": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "lv": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "sk": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "de": {
+                "machine_translated": false
+              },
+              "en": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "el": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "it": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "lt": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "mt": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "sv": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "et": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "ga": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "ro": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "fr": {
+                "machine_translated": true,
+                "original_language": "de"
+              }
+            },
+            "full_available_languages": [
+              "bg",
+              "da",
+              "hr"
+            ],
+            "status": "unknown"
+          }
+        },
+        "translation_meta": {
+          "details": {
+            "ga": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "es": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "bg": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "nl": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "en": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "hr": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "hu": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "de": {
+              "machine_translated": false,
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "sl": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "sv": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "it": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "el": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "ro": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "et": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "fr": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "sk": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "pt": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "pl": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "uk": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "lt": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "lv": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "fi": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "da": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "mt": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            },
+            "cs": {
+              "machine_translated": true,
+              "original_language": "de",
+              "issued": "2026-10-05T00:04:26Z"
+            }
+          },
+          "full_available_languages": [
+            "ga",
+            "es",
+            "bg"
+          ],
+          "status": "processing"
+        },
+        "description": {
+          "mt": "Topic Il-provvista tal-ilma mill-katast tal-ippjanar spazjali tas-sezzjoni tad-diirer strutturali u tal-permess fin-Nofsinhar tal-istat ta\u2019 Rhineland-Palatinate",
+          "da": "Emne Vandforsyning fra matrikelregisteret for fysisk planl\u00e6gning i struktur- og tilladelsesafsnittet syd for delstaten Rheinland-Pfalz",
+          "ro": "Subiect Aprovizionarea cu ap\u0103 din cadastrul de amenajare a teritoriului al sec\u021biunii structurale \u0219i de autorizare la sud de landul Renania-Palatinat",
+          "bg": "\u0422\u0435\u043c\u0430 \u0412\u043e\u0434\u043e\u0441\u043d\u0430\u0431\u0434\u044f\u0432\u0430\u043d\u0435 \u043e\u0442 \u043a\u0430\u0434\u0430\u0441\u0442\u044a\u0440\u0430 \u0437\u0430 \u043f\u0440\u043e\u0441\u0442\u0440\u0430\u043d\u0441\u0442\u0432\u0435\u043d\u043e \u043f\u043b\u0430\u043d\u0438\u0440\u0430\u043d\u0435 \u043d\u0430 \u043a\u043e\u043d\u0441\u0442\u0440\u0443\u043a\u0442\u0438\u0432\u043d\u0430\u0442\u0430 \u0438 \u0440\u0430\u0437\u0440\u0435\u0448\u0438\u0442\u0435\u043b\u043d\u0430 \u0434\u0438\u0438\u0440\u0441\u0435\u043a\u0430\u0446\u0438\u044f \u044e\u0436\u043d\u043e \u043e\u0442 \u043f\u0440\u043e\u0432\u0438\u043d\u0446\u0438\u044f \u0420\u0430\u0439\u043d\u043b\u0430\u043d\u0434-\u041f\u0444\u0430\u043b\u0446",
+          "es": "Tema Abastecimiento de agua del catastro de ordenaci\u00f3n territorial de la zona estructural y permiso diirersection al sur del estado de Renania-Palatinado",
+          "el": "\u0398\u03ad\u03bc\u03b1 \u038e\u03b4\u03c1\u03b5\u03c5\u03c3\u03b7 \u03b1\u03c0\u03cc \u03c4\u03bf \u03ba\u03c4\u03b7\u03bc\u03b1\u03c4\u03bf\u03bb\u03cc\u03b3\u03b9\u03bf \u03c7\u03c9\u03c1\u03bf\u03c4\u03b1\u03be\u03b9\u03ba\u03bf\u03cd \u03c3\u03c7\u03b5\u03b4\u03b9\u03b1\u03c3\u03bc\u03bf\u03cd \u03c4\u03bf\u03c5 \u03b4\u03b9\u03b1\u03c1\u03b8\u03c1\u03c9\u03c4\u03b9\u03ba\u03bf\u03cd \u03ba\u03b1\u03b9 \u03b1\u03b4\u03b5\u03b9\u03bf\u03b4\u03bf\u03c4\u03b9\u03ba\u03bf\u03cd \u03c4\u03bc\u03ae\u03bc\u03b1\u03c4\u03bf\u03c2 \u03bd\u03bf\u03c4\u03af\u03c9\u03c2 \u03c4\u03bf\u03c5 \u03bf\u03bc\u03cc\u03c3\u03c0\u03bf\u03bd\u03b4\u03bf\u03c5 \u03ba\u03c1\u03ac\u03c4\u03bf\u03c5\u03c2 \u03c4\u03b7\u03c2 \u03a1\u03b7\u03bd\u03b1\u03bd\u03af\u03b1\u03c2-\u03a0\u03b1\u03bb\u03b1\u03c4\u03b9\u03bd\u03ac\u03c4\u03bf\u03c5",
+          "hu": "T\u00e9ma V\u00edzell\u00e1t\u00e1s a Rajna-vid\u00e9k\u2013Pfalz \u00e1llamt\u00f3l d\u00e9lre fekv\u0151 szerkezeti \u00e9s enged\u00e9lyez\u00e9si diirersection ter\u00fcletrendez\u00e9si kataszter\u00e9b\u0151l",
+          "lt": "Tema Vandens tiekimas i\u0161 konstrukcin\u0117s ir leidim\u0173 diirersekcijos \u012f pietus nuo Reino kra\u0161to-Pfalco \u017eem\u0117s teritorij\u0173 planavimo kadastro",
+          "uk": "\u0422\u0435\u043c\u0430 \u0412\u043e\u0434\u043e\u043f\u043e\u0441\u0442\u0430\u0447\u0430\u043d\u043d\u044f \u0437 \u043f\u0440\u043e\u0441\u0442\u043e\u0440\u043e\u0432\u043e-\u043f\u043b\u0430\u043d\u0443\u0432\u0430\u043b\u044c\u043d\u043e\u0433\u043e \u043a\u0430\u0434\u0430\u0441\u0442\u0440\u0443 \u0441\u0442\u0440\u0443\u043a\u0442\u0443\u0440\u043d\u043e-\u0434\u043e\u0437\u0432\u0456\u043b\u044c\u043d\u043e\u0457 \u0434\u0456\u043b\u044f\u043d\u043a\u0438 \u043d\u0430 \u043f\u0456\u0432\u0434\u0435\u043d\u044c \u0432\u0456\u0434 \u0437\u0435\u043c\u043b\u0456 \u0420\u0435\u0439\u043d\u043b\u0430\u043d\u0434-\u041f\u0444\u0430\u043b\u044c\u0446",
+          "sk": "T\u00e9ma Z\u00e1sobovanie vodou z katastra \u00fazemn\u00e9ho pl\u00e1novania \u0161truktur\u00e1lnej a povolenej diirersekcie ju\u017ene od spolkovej krajiny Por\u00fdnie-Falcko",
+          "it": "Argomento Approvvigionamento idrico dal catasto di pianificazione territoriale della sezione strutturale e autorizzativa a sud dello Stato della Renania-Palatinato",
+          "ga": "Topaic Sol\u00e1thar uisce \u00f3 chadastar plean\u00e1la sp\u00e1s\u00fala na deighilte strucht\u00fara\u00ed agus ceada \u00f3 dheas \u00f3 st\u00e1t Dh\u00faiche na R\u00e9ine agus na Palait\u00edneachta",
+          "fi": "Aihe Vesihuolto Rheinland-Pfalzin osavaltion etel\u00e4puolella sijaitsevan rakenne- ja lupa-alueen aluesuunnittelurekisterist\u00e4",
+          "sl": "Tema Oskrba z vodo iz katastra prostorskega na\u010drtovanja strukturnega in dovoljenega diirersection ju\u017eno od zvezne de\u017eele Porenje - Pfal\u0161ka",
+          "hr": "Opskrba vodom iz katastra prostornog planiranja konstrukcije i dozvola za diirekciju ju\u017eno od savezne dr\u017eave Porajnje-Fala\u010dka",
+          "et": "Teema Veevarustus Rheinland-Pfalzi liidumaast l\u00f5una pool asuva struktuurilise ja loa diirersektsiooni ruumilise planeerimise katastris",
+          "sv": "\u00c4mne Vattenf\u00f6rs\u00f6rjning fr\u00e5n byggnads- och tillst\u00e5ndsdistriktets fastighetsregister s\u00f6der om delstaten Rheinland-Pfalz",
+          "lv": "Temats \u016adensapg\u0101de no Reinzemes-Pfalcas feder\u0101l\u0101s zemes struktur\u0101l\u0101s pl\u0101no\u0161anas kadastra un at\u013cauju diirersection uz dienvidiem no Reinzemes-Pfalcas",
+          "de": "Thema Wasserversorgung aus dem Raumordnungskataster der Struktur- und Genehmigungsdirerektion S\u00fcd des Landes Rheinland-Pfalz",
+          "nl": "Thema Watervoorziening uit het ruimtelijkeordeningskadaster van de structuur- en vergunningsdiirersectie ten zuiden van de deelstaat Rijnland-Palts",
+          "en": "Topic Water supply from the spatial planning cadastre of the structural and permit diirersection south of the state of Rhineland-Palatinate",
+          "fr": "Th\u00e8me Approvisionnement en eau du cadastre d'am\u00e9nagement du territoire de la direction des structures et des autorisations du sud du Land de Rh\u00e9nanie-Palatinat",
+          "pt": "T\u00f3pico Abastecimento de \u00e1gua a partir do cadastro de ordenamento do territ\u00f3rio da sec\u00e7\u00e3o estrutural e de autoriza\u00e7\u00e3o a sul do estado da Ren\u00e2nia-Palatinado",
+          "cs": "T\u00e9ma Dod\u00e1vka vody z katastru \u00fazemn\u00edho pl\u00e1nov\u00e1n\u00ed stavebn\u00edho a povolovac\u00edho \u00faseku ji\u017en\u011b od spolkov\u00e9 zem\u011b Por\u00fdn\u00ed-Falc",
+          "pl": "Temat Zaopatrzenie w wod\u0119 z katastru planowania przestrzennego diirersekcji strukturalnej i pozwolenia na po\u0142udnie od kraju zwi\u0105zkowego Nadrenia-Palatynat"
+        },
+        "index": "dataset",
+        "hvd_category": [
+          {
+            "id": "c_dd313021",
+            "label": {
+              "pt": "Observa\u00e7\u00e3o da Terra e do ambiente",
+              "el": "\u0393\u03b5\u03c9\u03c3\u03ba\u03cc\u03c0\u03b7\u03c3\u03b7 \u03ba\u03b1\u03b9 \u03c0\u03b5\u03c1\u03b9\u03b2\u03ac\u03bb\u03bb\u03bf\u03bd",
+              "hu": "F\u00f6ldmegfigyel\u00e9si \u00e9s k\u00f6rnyezeti adatok",
+              "it": "Dati relativi all'osservazione della terra e all'ambiente",
+              "es": "Observaci\u00f3n de la Tierra y medio ambiente",
+              "lv": "Zemes nov\u0113ro\u0161ana un vide",
+              "bg": "\u041d\u0430\u0431\u043b\u044e\u0434\u0435\u043d\u0438\u0435 \u043d\u0430 \u0417\u0435\u043c\u044f\u0442\u0430 \u0438 \u043e\u043a\u043e\u043b\u043d\u0430\u0442\u0430 \u0441\u0440\u0435\u0434\u0430",
+              "mt": "Data dwar l-osservazzjoni tad-dinja u l-ambjent",
+              "lt": "\u017dem\u0117s steb\u0117jimas ir aplinka",
+              "en": "Earth observation and environment",
+              "et": "Maa seire ja keskkond",
+              "nl": "Aardobservatie en milieu",
+              "sk": "Pozorovanie Zeme a \u017eivotn\u00e9 prostredie",
+              "pl": "Dane dotycz\u0105ce obserwacji Ziemi i \u015brodowiska",
+              "da": "Jordobservation og milj\u00f8",
+              "cs": "Zem\u011b a \u017eivotn\u00ed prost\u0159ed\u00ed",
+              "de": "Erdbeobachtung und Umwelt",
+              "ga": "Faire na cruinne agus an comhshaol",
+              "fi": "Maan havainnointi ja ymp\u00e4rist\u00f6",
+              "sv": "Jordobservation och milj\u00f6",
+              "ro": "Domeniul Observarea P\u0103m\u00e2ntului \u0219i mediu",
+              "hr": "Promatranje Zemlje i okoli\u0161",
+              "sl": "Opazovanje zemlje in okolje",
+              "fr": "Observation de la terre et environnement"
+            },
+            "resource": "http://data.europa.eu/bna/c_dd313021"
+          }
+        ],
+        "title": {
+          "ga": "uisce",
+          "es": "agua",
+          "bg": "\u0432\u043e\u0434\u0430",
+          "nl": "water",
+          "en": "water",
+          "hr": "vode",
+          "hu": "v\u00edz",
+          "de": "Wasserversorgung",
+          "sl": "voda",
+          "sv": "vatten",
+          "it": "acqua",
+          "el": "\u03bd\u03b5\u03c1\u03cc",
+          "ro": "ap\u0103",
+          "et": "vesi",
+          "fr": "Approvisionnement en eau",
+          "sk": "voda",
+          "pt": "\u00e1gua",
+          "pl": "woda",
+          "uk": "\u0432\u043e\u0434\u0430",
+          "lt": "vanduo",
+          "lv": "\u016bdens",
+          "fi": "vesi",
+          "da": "vand",
+          "mt": "l-ilma",
+          "cs": "voda"
+        },
+        "distributions": [
+          {
+            "id": "da39b45e-ad36-49f5-9aea-4610c8b323e1",
+            "title": {
+              "de": "WMS Schnittstelle"
+            },
+            "description": {
+              "de": "Ebene: Wasserversorgung"
+            },
+            "license": {
+              "resource": "http://dcat-ap.de/def/licenses/dl-by-de/2.0",
+              "id": "http://dcat-ap.de/def/licenses/dl-by-de/2.0",
+              "label": "http://dcat-ap.de/def/licenses/dl-by-de/2.0"
+            },
+            "access_url": [
+              "https://www.geoportal.rlp.de/mapbender/php/wms.php?layer_id=53165&REQUEST=GetCapabilities&VERSION=1.1.1&SERVICE=WMS"
+            ],
+            "format": {
+              "id": "WMS_SRVC",
+              "label": "WMS",
+              "resource": "http://publications.europa.eu/resource/authority/file-type/WMS_SRVC",
+              "format_types": [
+                {
+                  "id": "structured",
+                  "label": {
+                    "en": "Structured"
+                  }
+                },
+                {
+                  "id": "geographical",
+                  "label": {
+                    "en": "Geographical"
+                  }
+                },
+                {
+                  "id": "textual",
+                  "label": {
+                    "en": "Textual"
+                  }
+                }
+              ]
+            },
+            "issued": "2024-12-10T17:22:37.749311",
+            "modified": "2026-10-02T20:54:29.802952",
+            "applicable_legislation": [
+              "http://data.europa.eu/eli/reg_impl/2023/138/oj"
+            ]
+          },
+          {
+            "id": "8db65a7f-142b-4253-b4d8-68bb1ae964c3",
+            "title": {
+              "de": "GeoPortal.rlp"
+            },
+            "description": {
+              "de": "Wasserversorgung - Anzeige im GeoPortal.rlp"
+            },
+            "license": {
+              "resource": "http://dcat-ap.de/def/licenses/dl-by-de/2.0",
+              "id": "http://dcat-ap.de/def/licenses/dl-by-de/2.0",
+              "label": "http://dcat-ap.de/def/licenses/dl-by-de/2.0"
+            },
+            "access_url": [
+              "https://www.geoportal.rlp.de/map?LAYER%5Bzoom%5D=1&LAYER%5Bid%5D=53165"
+            ],
+            "format": {
+              "id": "HTML",
+              "label": "HTML",
+              "resource": "http://publications.europa.eu/resource/authority/file-type/HTML",
+              "format_types": [
+                {
+                  "id": "structured",
+                  "label": {
+                    "en": "Structured"
+                  }
+                },
+                {
+                  "id": "textual",
+                  "label": {
+                    "en": "Textual"
+                  }
+                }
+              ]
+            },
+            "issued": "2024-12-10T17:22:37.749309",
+            "modified": "2026-10-02T20:54:29.802837",
+            "applicable_legislation": [
+              "http://data.europa.eu/eli/reg_impl/2023/138/oj"
+            ]
+          },
+          {
+            "id": "adeae2d4-3079-4a38-8f61-808ff2297971",
+            "title": {
+              "de": "Origin\u00e4re Metadaten f\u00fcr Kartenebene"
+            },
+            "description": {
+              "de": "Kartenebene: Wasserversorgung - Anzeige der origin\u00e4ren Metadaten"
+            },
+            "license": {
+              "resource": "http://dcat-ap.de/def/licenses/cc-zero",
+              "id": "http://dcat-ap.de/def/licenses/cc-zero",
+              "label": "http://dcat-ap.de/def/licenses/cc-zero"
+            },
+            "access_url": [
+              "https://www.geoportal.rlp.de/mapbender/php/mod_showMetadata.php?languageCode=de&resource=layer&layout=tabs&id=53165"
+            ],
+            "format": {
+              "id": "HTML",
+              "label": "HTML",
+              "resource": "http://publications.europa.eu/resource/authority/file-type/HTML",
+              "format_types": [
+                {
+                  "id": "structured",
+                  "label": {
+                    "en": "Structured"
+                  }
+                },
+                {
+                  "id": "textual",
+                  "label": {
+                    "en": "Textual"
+                  }
+                }
+              ]
+            },
+            "issued": "2024-12-10T17:22:37.749310",
+            "modified": "2026-09-16T01:52:01.456522",
+            "applicable_legislation": [
+              "http://data.europa.eu/eli/reg_impl/2023/138/oj"
+            ]
+          }
+        ],
+        "is_hvd": true,
+        "quality_meas": {
+          "scoring": 525
+        },
+        "modified": "2023-12-06",
+        "publisher": {
+          "type": "Agent",
+          "email": "Referat41TechnBuero@sgdsued.rlp.de",
+          "name": "SGD S\u00fcd Raumordnung Technisches B\u00fcro",
+          "resource": "https://www.geoportal.rlp.de/organization/9e4d44d0-4e43-1af9-080e-b12280107316"
+        },
+        "id": "http-www-geoportal-rlp-de-registry-spatial-dataset-75be9c8c-b6d5-6e29-aca2-eb1ae907b29c",
+        "categories": [
+          {
+            "id": "GOVE",
+            "label": {
+              "fr": "Gouvernement et secteur public",
+              "mt": "Gvern u settur pubbliku",
+              "fi": "Valtioneuvosto ja julkinen sektori",
+              "bg": "\u041f\u0440\u0430\u0432\u0438\u0442\u0435\u043b\u0441\u0442\u0432\u043e \u0438 \u043f\u0443\u0431\u043b\u0438\u0447\u0435\u043d \u0441\u0435\u043a\u0442\u043e\u0440",
+              "nb": "Forvaltning og offentlig sektor",
+              "da": "Regeringen og den offentlige sektor",
+              "sv": "Regeringen och den offentliga sektorn",
+              "ro": "Guvern \u015fi sector public",
+              "en": "Government and public sector",
+              "it": "Governo e settore pubblico",
+              "cs": "Vl\u00e1da a ve\u0159ejn\u00fd sektor",
+              "sl": "Vlada in javni sektor",
+              "hu": "Korm\u00e1nyzat \u00e9s k\u00f6zszf\u00e9ra",
+              "de": "Regierung und \u00f6ffentlicher Sektor",
+              "sk": "Vl\u00e1da a verejn\u00fd sektor",
+              "pt": "Governo e setor p\u00fablico",
+              "nl": "Overheid en publieke sector",
+              "no": "Forvaltning og offentlig sektor",
+              "nn": "Forvaltning og offentleg sektor",
+              "ga": "Rialtas agus earn\u00e1il phoibl\u00ed",
+              "hr": "Vlada i javni sektor",
+              "lt": "Vyriausyb\u0117 ir vie\u0161asis sektorius",
+              "pl": "Rz\u0105d i sektor publiczny",
+              "el": "\u039a\u03c5\u03b2\u03ad\u03c1\u03bd\u03b7\u03c3\u03b7 \u03ba\u03b1\u03b9 \u03b4\u03b7\u03bc\u03cc\u03c3\u03b9\u03bf\u03c2 \u03c4\u03bf\u03bc\u03ad\u03b1\u03c2",
+              "et": "Valitsus ja avalik sektor",
+              "es": "Gobierno y sector p\u00fablico",
+              "lv": "Vald\u012bba un sabiedriskais sektors"
+            },
+            "resource": "http://publications.europa.eu/resource/authority/data-theme/GOVE"
+          },
+          {
+            "id": "ECON",
+            "label": {
+              "et": "Majandus ja rahandus",
+              "sk": "Hospod\u00e1rstvo a financie",
+              "en": "Economy and finance",
+              "el": "\u039f\u03b9\u03ba\u03bf\u03bd\u03bf\u03bc\u03af\u03b1 \u03ba\u03b1\u03b9 \u03c7\u03c1\u03b7\u03bc\u03b1\u03c4\u03bf\u03bf\u03b9\u03ba\u03bf\u03bd\u03bf\u03bc\u03b9\u03ba\u03ac \u03b8\u03ad\u03bc\u03b1\u03c4\u03b1",
+              "mt": "Ekonomija u finanzi",
+              "hr": "Ekonomija i financije",
+              "fi": "Talous ja raha-asiat",
+              "bg": "\u0418\u043a\u043e\u043d\u043e\u043c\u0438\u043a\u0430 \u0438 \u0444\u0438\u043d\u0430\u043d\u0441\u0438",
+              "sv": "Ekonomi och finans",
+              "sl": "Gospodarstvo in finance",
+              "no": "\u00d8konomi og finans",
+              "pt": "Economia e finan\u00e7as",
+              "it": "Economia e finanze",
+              "ga": "Geilleagar agus airgeadas",
+              "da": "\u00d8konomi og finanser",
+              "lv": "Ekonomika un finanses",
+              "nl": "Economie en financi\u00ebn",
+              "nb": "\u00d8konomi og finans",
+              "nn": "\u00d8konomi og finans",
+              "lt": "Ekonomika ir finansai",
+              "hu": "Gazdas\u00e1g \u00e9s p\u00e9nz\u00fcgy",
+              "de": "Wirtschaft und Finanzen",
+              "fr": "\u00c9conomie et finances",
+              "ro": "Economie \u015fi finan\u0163e",
+              "es": "Econom\u00eda y finanzas",
+              "pl": "Gospodarka i finanse",
+              "cs": "Hospod\u00e1\u0159stv\u00ed a finance"
+            },
+            "resource": "http://publications.europa.eu/resource/authority/data-theme/ECON"
+          },
+          {
+            "id": "ENVI",
+            "label": {
+              "fi": "Ymp\u00e4rist\u00f6",
+              "lt": "Aplinka",
+              "hr": "Okoli\u0161",
+              "no": "Milj\u00f8",
+              "ro": "Mediu",
+              "sk": "\u017divotn\u00e9 prostredie",
+              "cs": "\u017divotn\u00ed prost\u0159ed\u00ed",
+              "nb": "Milj\u00f8",
+              "nl": "Milieu",
+              "it": "Ambiente",
+              "sl": "Okolje",
+              "bg": "\u041e\u043a\u043e\u043b\u043d\u0430 \u0441\u0440\u0435\u0434\u0430",
+              "da": "Milj\u00f8",
+              "et": "Keskkond",
+              "sv": "Milj\u00f6",
+              "es": "Medio ambiente",
+              "ga": "Comhshaol",
+              "de": "Umwelt",
+              "lv": "Vide",
+              "fr": "Environnement",
+              "pt": "Ambiente",
+              "mt": "Ambjent",
+              "en": "Environment",
+              "pl": "\u015arodowisko",
+              "hu": "K\u00f6rnyezet",
+              "nn": "Milj\u00f8",
+              "el": "\u03a0\u03b5\u03c1\u03b9\u03b2\u03ac\u03bb\u03bb\u03bf\u03bd"
+            },
+            "resource": "http://publications.europa.eu/resource/authority/data-theme/ENVI"
+          }
+        ],
+        "issued": "2023-12-06",
+        "applicable_legislation": [
+          "http://data.europa.eu/eli/reg_impl/2023/138/oj"
+        ],
+        "temporal": [
+          {
+            "lte": "2026-09-02T00:00:00Z",
+            "gte": "2016-08-01T00:00:00Z"
+          }
+        ],
+        "catalog_record": {
+          "issued": "2026-09-19T00:00:59Z",
+          "modified": "2026-10-05T00:04:26Z"
+        }
+      },
+      {
+        "country": {
+          "resource": "http://publications.europa.eu/resource/authority/country/DEU",
+          "label": "Germany",
+          "id": "de"
+        },
+        "keywords": [
+          {
+            "language": "de",
+            "id": "raumordnungskataster",
+            "label": "Raumordnungskataster"
+          },
+          {
+            "language": "de",
+            "id": "sgd",
+            "label": "SGD"
+          },
+          {
+            "language": "de",
+            "id": "obere-landesplanungsbeho\u0308rde",
+            "label": "Obere Landesplanungsbeh\u00f6rde"
+          }
+        ],
+        "catalog": {
+          "id": "gdi-de",
+          "description": {
+            "pt": "Geo Data Portal Alemanha",
+            "hr": "Portal geopodataka Njema\u010dka",
+            "da": "Geodataportal Tyskland",
+            "fr": "Portail de donn\u00e9es g\u00e9ographiques Allemagne",
+            "ga": "Geo Data Portal An Ghearm\u00e1in",
+            "lt": "Geo duomen\u0173 portalas Vokietija",
+            "sv": "Geo Data Portal Tyskland",
+            "et": "Geoandmete portaal Saksamaa",
+            "es": "Geo Data Portal Alemania",
+            "mt": "Il-Portal tad-Data \u0120eo tal-\u0120ermanja",
+            "it": "Portale dati geografici Germania",
+            "hu": "Geo Data Portal N\u00e9metorsz\u00e1g",
+            "en": "Geo Data Portal Germany",
+            "bg": "\u041f\u043e\u0440\u0442\u0430\u043b \u0437\u0430 \u0433\u0435\u043e\u0434\u0430\u043d\u043d\u0438 \u0413\u0435\u0440\u043c\u0430\u043d\u0438\u044f",
+            "de": "Geodatenportal Deutschland",
+            "lv": "Geo datu port\u0101ls V\u0101cij\u0101",
+            "fi": "Geodataportaali Saksa",
+            "pl": "Geo Data Portal Niemcy",
+            "el": "Geo Data Portal \u0393\u03b5\u03c1\u03bc\u03b1\u03bd\u03af\u03b1",
+            "ro": "Portalul de date geo Germania",
+            "sk": "Geo Data Portal Nemecko",
+            "cs": "Geo Data Portal N\u011bmecko",
+            "nl": "Geo Data Portal Duitsland",
+            "sl": "Geopodatkovni portal Nem\u010dija",
+            "uk": "\u041f\u043e\u0440\u0442\u0430\u043b \u0433\u0435\u043e\u0434\u0430\u043d\u0438\u0445 \u041d\u0456\u043c\u0435\u0447\u0447\u0438\u043d\u0430"
+          },
+          "title": {
+            "sv": "GDI-DE",
+            "et": "GDI-DE",
+            "nl": "GDI-DE",
+            "ro": "GDI-DE",
+            "hr": "GDI-DE",
+            "pt": "GDI-DE",
+            "uk": "GDI-DE",
+            "fi": "GDI-DE",
+            "el": "\u0393.\u0394.\u0399.-\u0394.\u0395.",
+            "ga": "GDI-DE",
+            "de": "GDI-DE",
+            "sl": "GDI-DE",
+            "bg": "\u0413\u0414\u0418-\u0414\u0415",
+            "mt": "GDI-DE",
+            "fr": "GDI-DE",
+            "lt": "GDI-DE",
+            "en": "GDI-DE",
+            "sk": "GDI-DE",
+            "es": "GDI-DE",
+            "it": "GDI-DE",
+            "da": "GDI-DE",
+            "lv": "GDI-DE",
+            "pl": "GDI-DE",
+            "hu": "GDI-DE",
+            "cs": "GDI-DE"
+          },
+          "publisher": {
+            "type": "Agent",
+            "email": "mailto:support@geoportal.de",
+            "homepage": "https://www.bkg.bund.de",
+            "name": "Bundesamt f\u00fcr Kartographie und Geod\u00e4sie"
+          },
+          "homepage": "https://www.geoportal.de/",
+          "source_type": "geospatial",
+          "issued": "2022-11-21T05:37:11Z",
+          "country": {
+            "label": "Germany",
+            "id": "de",
+            "resource": "http://publications.europa.eu/resource/authority/country/DEU"
+          },
+          "spatial_resource": [
+            {
+              "label": "Germany",
+              "id": "de",
+              "resource": "http://publications.europa.eu/resource/authority/country/DEU"
+            }
+          ],
+          "modified": "2023-02-28T10:38:59Z",
+          "language": [
+            {
+              "id": "de",
+              "label": "German",
+              "resource": "http://publications.europa.eu/resource/authority/language/DEU"
+            }
+          ],
+          "translation_meta": {
+            "details": {
+              "sv": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "et": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "nl": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "ro": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "hr": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "pt": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "uk": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "fi": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "el": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "ga": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "de": {
+                "machine_translated": false
+              },
+              "sl": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "bg": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "mt": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "fr": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "lt": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "en": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "sk": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "es": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "it": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "da": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "lv": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "pl": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "hu": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "cs": {
+                "machine_translated": true,
+                "original_language": "de"
+              }
+            },
+            "full_available_languages": [
+              "sv",
+              "et",
+              "nl"
+            ],
+            "status": "unknown"
+          }
+        },
+        "subject": [],
+        "translation_meta": {
+          "details": {
+            "de": {
+              "machine_translated": false,
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "fi": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "pt": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "bg": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "lt": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "hr": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "lv": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "fr": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "hu": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "uk": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "sk": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "sl": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "ga": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "sv": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "el": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "mt": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "en": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "it": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "es": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "et": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "cs": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "pl": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "ro": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "da": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            },
+            "nl": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2024-08-12T16:10:53Z",
+              "issued": "2024-04-27T11:08:50Z"
+            }
+          },
+          "full_available_languages": [
+            "pt",
+            "uk",
+            "sl"
+          ],
+          "status": "completed"
+        },
+        "description": {
+          "de": "Thema Wasserversorgung aus dem Raumordnungskataster der Struktur- und Genehmigungsdirerektion S\u00fcd des Landes Rheinland-Pfalz",
+          "fi": "Aihe Vesihuolto Rheinland-Pfalzin osavaltion etel\u00e4puolisen rakenne- ja luparajoituksen aluesuunnittelurekisterist\u00e4",
+          "pt": "Tema Abastecimento de \u00e1gua do cadastro de planeamento regional da restri\u00e7\u00e3o estrutural e de licen\u00e7as a sul do Estado da Ren\u00e2nia-Palatinado",
+          "bg": "\u0422\u0435\u043c\u0430 \u0412\u043e\u0434\u043e\u0441\u043d\u0430\u0431\u0434\u044f\u0432\u0430\u043d\u0435 \u043e\u0442 \u0440\u0435\u0433\u0438\u043e\u043d\u0430\u043b\u043d\u0438\u044f \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u0435\u043d \u043a\u0430\u0434\u0430\u0441\u0442\u044a\u0440 \u043d\u0430 \u0421\u0442\u0440\u0443\u043a\u0442\u0443\u0440\u043d\u043e\u0442\u043e \u0438 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u043e\u0442\u043e \u043e\u0433\u0440\u0430\u043d\u0438\u0447\u0435\u043d\u0438\u0435 \u044e\u0436\u043d\u043e \u043e\u0442 \u043f\u0440\u043e\u0432\u0438\u043d\u0446\u0438\u044f \u0420\u0430\u0439\u043d\u043b\u0430\u043d\u0434-\u041f\u0444\u0430\u043b\u0446",
+          "lt": "Tema Vandens tiekimas i\u0161 Reino kra\u0161to-Pfalco \u017eem\u0117s strukt\u016brini\u0173 ir leidim\u0173 apribojim\u0173 regioninio planavimo kadastro \u012f pietus nuo Reino kra\u0161to-Pfalco \u017eem\u0117s",
+          "lv": "T\u0113ma \u016adensapg\u0101de no Reinzemes-Pfalcas feder\u0101l\u0101s zemes Struktur\u0101l\u0101 un at\u013cauju ierobe\u017eojuma re\u0123ion\u0101l\u0101s pl\u0101no\u0161anas kadastra uz dienvidiem no Reinzemes-Pfalcas",
+          "hr": "Tema Opskrba vodom iz katastra regionalnog planiranja strukturnog ograni\u010denja i ograni\u010denja dozvole ju\u017eno od savezne dr\u017eave Porajnje-Fala\u010dka",
+          "fr": "Th\u00e8me Approvisionnement en eau du cadastre de l'am\u00e9nagement du territoire de la direction des structures et des autorisations du sud du Land de Rh\u00e9nanie-Palatinat",
+          "hu": "T\u00e9ma A Rajna-vid\u00e9k\u2013Pfalz tartom\u00e1nyt\u00f3l d\u00e9lre tal\u00e1lhat\u00f3 struktur\u00e1lis \u00e9s enged\u00e9lyez\u00e9si korl\u00e1toz\u00e1sok region\u00e1lis tervez\u00e9si kataszter\u00e9b\u0151l sz\u00e1rmaz\u00f3 v\u00edzell\u00e1t\u00e1s",
+          "uk": "\u0422\u0435\u043c\u0430 \u0412\u043e\u0434\u043e\u043f\u043e\u0441\u0442\u0430\u0447\u0430\u043d\u043d\u044f \u0437 \u0440\u0435\u0433\u0456\u043e\u043d\u0430\u043b\u044c\u043d\u043e\u0433\u043e \u043f\u043b\u0430\u043d\u043e\u0432\u043e\u0433\u043e \u043a\u0430\u0434\u0430\u0441\u0442\u0440\u0443 \u0441\u0442\u0440\u0443\u043a\u0442\u0443\u0440\u043d\u043e-\u0434\u043e\u0437\u0432\u043e\u043b\u0443 \u043d\u0430 \u043f\u0456\u0432\u0434\u0435\u043d\u044c \u0432\u0456\u0434 \u0448\u0442\u0430\u0442\u0443 \u0420\u0435\u0439\u043d\u043b\u0430\u043d\u0434-\u041f\u0444\u0430\u043b\u044c\u0446",
+          "sk": "T\u00e9ma Z\u00e1sobovanie vodou z katastra region\u00e1lneho pl\u00e1novania \u0161truktur\u00e1lneho obmedzenia a obmedzenia povolenia ju\u017ene od spolkovej krajiny Por\u00fdnie-Falcko",
+          "sl": "Tema Oskrba z vodo iz katastra regionalnega prostorskega na\u010drtovanja v okviru strukturne omejitve in omejitve dovoljenj ju\u017eno od zvezne de\u017eele Porenje - Pfal\u0161ka",
+          "ga": "\u00c1bhar Sol\u00e1thar uisce \u00f3 chadastar plean\u00e1la r\u00e9igi\u00fanach an tSriain Strucht\u00fartha agus Ceada \u00f3 Dheas \u00f3 St\u00e1t Dh\u00faiche na R\u00e9ine-an Phalait\u00edneacht",
+          "sv": "\u00c4mne Vattenf\u00f6rs\u00f6rjning fr\u00e5n det regionala planeringsregistret f\u00f6r struktur- och tillst\u00e5ndsbegr\u00e4nsningarna s\u00f6der om delstaten Rheinland-Pfalz",
+          "mt": "Su\u0121\u0121ett Provvista tal-ilma mill-katast tal-ippjanar re\u0121jonali tar-Restrizzjoni Strutturali u tal-Permess fin-Nofsinhar tal-Istat ta' Rhineland-Palatinate",
+          "el": "\u0398\u03ad\u03bc\u03b1 \u038e\u03b4\u03c1\u03b5\u03c5\u03c3\u03b7 \u03b1\u03c0\u03cc \u03c4\u03bf \u03ba\u03c4\u03b7\u03bc\u03b1\u03c4\u03bf\u03bb\u03cc\u03b3\u03b9\u03bf \u03c7\u03c9\u03c1\u03bf\u03c4\u03b1\u03be\u03b9\u03ba\u03bf\u03cd \u03c3\u03c7\u03b5\u03b4\u03b9\u03b1\u03c3\u03bc\u03bf\u03cd \u03c4\u03bf\u03c5 \u03b4\u03b9\u03b1\u03c1\u03b8\u03c1\u03c9\u03c4\u03b9\u03ba\u03bf\u03cd \u03c0\u03b5\u03c1\u03b9\u03bf\u03c1\u03b9\u03c3\u03bc\u03bf\u03cd \u03ba\u03b1\u03b9 \u03c4\u03bf\u03c5 \u03c0\u03b5\u03c1\u03b9\u03bf\u03c1\u03b9\u03c3\u03bc\u03bf\u03cd \u03c4\u03b7\u03c2 \u03ac\u03b4\u03b5\u03b9\u03b1\u03c2 \u03bd\u03cc\u03c4\u03b9\u03b1 \u03c4\u03b7\u03c2 \u03c0\u03bf\u03bb\u03b9\u03c4\u03b5\u03af\u03b1\u03c2 \u03a1\u03b7\u03bd\u03b1\u03bd\u03af\u03b1\u03c2-\u03a0\u03b1\u03bb\u03b1\u03c4\u03b9\u03bd\u03ac\u03c4\u03bf\u03c5",
+          "en": "Topic Water supply from the regional planning cadastre of the Structural and Permit Restriction South of the State of Rhineland-Palatinate",
+          "it": "Tema Approvvigionamento idrico dal catasto di pianificazione regionale della restrizione strutturale e dei permessi a sud dello Stato della Renania-Palatinato",
+          "es": "Tema Abastecimiento de agua del catastro de planificaci\u00f3n regional de la Restricci\u00f3n estructural y de permisos al sur del Estado de Renania-Palatinado",
+          "et": "Teema: Rheinland-Pfalzi liidumaa l\u00f5unaosa ehitus- ja loapiirangu piirkondliku planeerimiskatastri veevarustus",
+          "cs": "T\u00e9ma Z\u00e1sobov\u00e1n\u00ed vodou z region\u00e1ln\u00edho pl\u00e1novac\u00edho katastru struktur\u00e1ln\u00edho a povolovac\u00edho omezen\u00ed ji\u017en\u011b od spolkov\u00e9 zem\u011b Por\u00fdn\u00ed-Falc",
+          "pl": "Zaopatrzenie w wod\u0119 z katastru planowania regionalnego ogranicze\u0144 strukturalnych i ogranicze\u0144 dotycz\u0105cych zezwole\u0144 na po\u0142udnie od kraju zwi\u0105zkowego Nadrenia-Palatynat",
+          "ro": "Tem\u0103 Alimentarea cu ap\u0103 din cadastrul de planificare regional\u0103 al restric\u021biilor structurale \u0219i de autorizare la sud de landul Renania-Palatinat",
+          "da": "Emne Vandforsyning fra det regionale matrikelregister i delstaten Rheinland-Pfalz' struktur- og tilladelsesrestriktioner syd for delstaten Rheinland-Pfalz",
+          "nl": "Thema Watervoorziening van het regionale planningskadaster van de Structuur- en Vergunningsbeperking ten zuiden van de deelstaat Rijnland-Palts"
+        },
+        "language": [
+          {
+            "resource": "http://publications.europa.eu/resource/authority/language/DEU",
+            "id": "de",
+            "label": "German"
+          }
+        ],
+        "title": {
+          "de": "Wasserversorgung",
+          "fi": "vesi",
+          "pt": "\u00e1gua",
+          "bg": "\u0432\u043e\u0434\u0430",
+          "lt": "vanduo",
+          "hr": "vode",
+          "lv": "\u016bdens",
+          "fr": "Approvisionnement en eau",
+          "hu": "v\u00edz",
+          "uk": "\u0432\u043e\u0434\u0430",
+          "sk": "voda",
+          "sl": "voda",
+          "ga": "uisce",
+          "sv": "vatten",
+          "el": "\u03bd\u03b5\u03c1\u03cc",
+          "mt": "l-ilma",
+          "en": "water",
+          "it": "acqua",
+          "es": "agua",
+          "et": "vesi",
+          "cs": "voda",
+          "pl": "woda",
+          "ro": "ap\u0103",
+          "da": "vand",
+          "nl": "water"
+        },
+        "type": {
+          "resource": "http://inspire.ec.europa.eu/metadata-codelist/ResourceType/dataset"
+        },
+        "accrual_periodicity": {
+          "resource": "http://publications.europa.eu/resource/authority/frequency/MONTHLY",
+          "label": "monthly"
+        },
+        "provenance": [
+          {
+            "label": "\u00dcbernahme und Generalisierung von Fremddaten sowie eigene Erfassung. Das Raumordnungskataster wird gem\u00e4\u00df \u00a721 Landesplanungsgesetz Rheinland-Pfalz gef\u00fchrt. Es s"
+          }
+        ],
+        "spatial_resource": [],
+        "modified": "2024-03-21",
+        "id": "75be9c8c-b6d5-6e29-aca2-eb1ae907b29c",
+        "categories": [
+          {
+            "resource": "http://publications.europa.eu/resource/authority/data-theme/AGRI",
+            "id": "AGRI",
+            "label": {
+              "nn": "Jordbruk, fiskeri, skogbruk og mat",
+              "no": "Jordbruk, fiskeri, skogbruk og mat",
+              "de": "Landwirtschaft, Fischerei, Forstwirtschaft und Nahrungsmittel",
+              "fi": "Maatalous, kalastus, mets\u00e4talous ja elintarvikkeet",
+              "pt": "Agricultura, pesca, silvicultura e alimenta\u00e7\u00e3o",
+              "bg": "\u0421\u0435\u043b\u0441\u043a\u043e \u0441\u0442\u043e\u043f\u0430\u043d\u0441\u0442\u0432\u043e, \u0440\u0438\u0431\u0430\u0440\u0441\u0442\u0432\u043e, \u0433\u043e\u0440\u0441\u043a\u043e \u0441\u0442\u043e\u043f\u0430\u043d\u0441\u0442\u0432\u043e \u0438 \u0445\u0440\u0430\u043d\u0438",
+              "lt": "\u017dem\u0117s \u016bkis, \u017euvininkyst\u0117, mi\u0161kininkyst\u0117 ir maistas",
+              "hr": "Poljoprivreda, ribarstvo, \u0161umarstvo i hrana",
+              "lv": "Lauksaimniec\u012bba, zivsaimniec\u012bba, me\u017esaimniec\u012bba un p\u0101rtika",
+              "fr": "Agriculture, p\u00eache, sylviculture et alimentation",
+              "hu": "Mez\u0151gazdas\u00e1g, hal\u00e1szat, erd\u00e9szet \u00e9s \u00e9lelmiszer",
+              "sk": "Po\u013enohospod\u00e1rstvo, rybn\u00e9 hospod\u00e1rstvo, lesn\u00edctvo a potravin\u00e1rstvo",
+              "sl": "Kmetijstvo, ribi\u0161tvo, gozdarstvo in prehrana",
+              "ga": "Talmha\u00edocht, iascach, foraoiseacht agus bia",
+              "sv": "Jordbruk, fiske, skogsbruk och livsmedel",
+              "mt": "Agrikoltura, sajd, forestrija u ikel",
+              "el": "\u0393\u03b5\u03c9\u03c1\u03b3\u03af\u03b1, \u03b1\u03bb\u03b9\u03b5\u03af\u03b1, \u03b4\u03b1\u03c3\u03bf\u03ba\u03bf\u03bc\u03af\u03b1 \u03ba\u03b1\u03b9 \u03c4\u03c1\u03cc\u03c6\u03b9\u03bc\u03b1",
+              "en": "Agriculture, fisheries, forestry and food",
+              "it": "Agricoltura, pesca, silvicoltura e prodotti alimentari",
+              "es": "Agricultura, pesca, silvicultura y alimentaci\u00f3n",
+              "et": "P\u00f5llumajandus, kalandus, metsandus ja toiduained",
+              "cs": "Zem\u011bd\u011blstv\u00ed, rybolov, lesnictv\u00ed a v\u00fd\u017eiva",
+              "nb": "Jordbruk, fiskeri, skogbruk og mat",
+              "pl": "Rolnictwo, rybo\u0142\u00f3wstwo, le\u015bnictwo i \u017cywno\u015b\u0107",
+              "ro": "Agricultur\u0103, pescuit, silvicultur\u0103 \u015fi hran\u0103",
+              "da": "Landbrug, fiskeri, skovbrug og f\u00f8devarer",
+              "nl": "Landbouw, visserij, bosbouw en voeding"
+            }
+          }
+        ],
+        "qualified_attribution": [],
+        "identifier": [
+          "http://www.geoportal.rlp.de/registry/spatial/dataset/75be9c8c-b6d5-6e29-aca2-eb1ae907b29c"
+        ],
+        "corporate-body-classification": {
+          "label": {
+            "title": {
+              "de": "Nationale Beh\u00f6rden",
+              "sv": "Nationella myndigheter",
+              "fi": "Kansalliset viranomaiset",
+              "pt": "Autoridades nacionais",
+              "bg": "\u041d\u0430\u0446\u0438\u043e\u043d\u0430\u043b\u043d\u0438 \u043e\u0440\u0433\u0430\u043d\u0438",
+              "el": "\u0395\u03b8\u03bd\u03b9\u03ba\u03ad\u03c2 \u03b1\u03c1\u03c7\u03ad\u03c2",
+              "mt": "Awtoritajiet nazzjonali",
+              "lt": "Nacionalin\u0117s institucijos",
+              "en": "National Authorities",
+              "lv": "Valstu iest\u0101des",
+              "hr": "Nacionalna tijela",
+              "it": "Autorit\u00e0 nazionali",
+              "fr": "Autorit\u00e9s nationales",
+              "hu": "Nemzeti hat\u00f3s\u00e1gok",
+              "es": "Autoridades nacionales",
+              "et": "Riiklikud asutused",
+              "cs": "Vnitrost\u00e1tn\u00ed org\u00e1ny",
+              "sk": "N\u00e1rodn\u00e9 org\u00e1ny",
+              "sl": "Nacionalni organi",
+              "ga": "\u00dadar\u00e1is n\u00e1isi\u00fanta",
+              "pl": "Organy krajowe",
+              "ro": "Autorit\u0103\u021bi na\u021bionale",
+              "da": "Nationale myndigheder",
+              "nl": "Nationale autoriteiten"
+            }
+          },
+          "id": "_NATIONAL"
+        },
+        "resource": "http://data.europa.eu/88u/dataset/75be9c8c-b6d5-6e29-aca2-eb1ae907b29c",
+        "index": "dataset",
+        "is_hvd": false,
+        "quality_meas": null,
+        "conforms_to": [],
+        "catalog_record": {
+          "modified": "2024-08-12T16:10:53Z",
+          "issued": "2024-02-24T10:48:34Z"
+        },
+        "contact_point": [
+          {
+            "name": "SGD S\u00fcd Raumordnung Technisches B\u00fcro",
+            "type": "Organization",
+            "email": "mailto:Referat41TechnBuero@sgdsued.rlp.de"
+          }
+        ]
+      },
+      {
+        "country": {
+          "label": "Switzerland",
+          "id": "ch",
+          "resource": "http://publications.europa.eu/resource/authority/country/CHE"
+        },
+        "keywords": [
+          {
+            "id": "odin-open-data-inventory",
+            "label": "odin-open-data-inventory",
+            "language": "en"
+          },
+          {
+            "id": "odin-open-data-inventory",
+            "label": "odin-open-data-inventory",
+            "language": "de"
+          },
+          {
+            "id": "territory-and-environment",
+            "label": "territory-and-environment",
+            "language": "en"
+          }
+        ],
+        "catalog": {
+          "id": "opendata-swiss",
+          "description": {
+            "mt": "Portal tad-Data Miftu\u0127a tal-I\u017cvizzera",
+            "sk": "Port\u00e1l otvoren\u00fdch d\u00e1t \u0160vaj\u010diarsko",
+            "hr": "Portal otvorenih podataka \u0160vicarska",
+            "hu": "Ny\u00edlt hozz\u00e1f\u00e9r\u00e9s\u0171 adatok port\u00e1lja Sv\u00e1jc",
+            "bg": "\u041f\u043e\u0440\u0442\u0430\u043b \u0437\u0430 \u043e\u0442\u0432\u043e\u0440\u0435\u043d\u0438 \u0434\u0430\u043d\u043d\u0438 \u0428\u0432\u0435\u0439\u0446\u0430\u0440\u0438\u044f",
+            "ga": "Tairseach Sonra\u00ed Oscailte na hEilv\u00e9ise",
+            "pl": "Portal Otwartych Danych Szwajcaria",
+            "nl": "Open Data Portal Zwitserland",
+            "el": "\u03a0\u03cd\u03bb\u03b7 \u0394\u03b7\u03bc\u03cc\u03c3\u03b9\u03c9\u03bd \u0394\u03b5\u03b4\u03bf\u03bc\u03ad\u03bd\u03c9\u03bd \u0395\u03bb\u03b2\u03b5\u03c4\u03af\u03b1",
+            "ro": "Portalul de Date Deschise Elve\u021bia",
+            "pt": "Portal de Dados Abertos Su\u00ed\u00e7a",
+            "sl": "Portal odprtih podatkov \u0160vica",
+            "it": "Portale Open Data Svizzera",
+            "fi": "Avoimen datan portaali Sveitsi",
+            "lt": "Atvir\u0173j\u0173 duomen\u0173 portalas \u0160veicarija",
+            "de": "Open Data Portal Schweiz",
+            "sv": "Portalen f\u00f6r \u00f6ppna data Schweiz",
+            "es": "Portal de datos abiertos Suiza",
+            "fr": "Portail des donn\u00e9es ouvertes Suisse",
+            "en": "Open Data Portal Switzerland",
+            "lv": "Atv\u0113rto datu port\u0101ls \u0160veice",
+            "uk": "\u041f\u043e\u0440\u0442\u0430\u043b \u0432\u0456\u0434\u043a\u0440\u0438\u0442\u0438\u0445 \u0434\u0430\u043d\u0438\u0445 \u0428\u0432\u0435\u0439\u0446\u0430\u0440\u0456\u0457",
+            "cs": "Port\u00e1l ve\u0159ejn\u011b p\u0159\u00edstupn\u00fdch dat \u0160v\u00fdcarsko",
+            "da": "Portal for \u00e5bne data Schweiz",
+            "et": "Avatud andmete portaal \u0160veits"
+          },
+          "title": {
+            "et": "opendata.swiss",
+            "bg": "opendata.swiss",
+            "en": "opendata.swiss",
+            "pt": "opendata.swiss",
+            "mt": "opendata.swiss",
+            "es": "opendata.swiss",
+            "sk": "opendata.swiss",
+            "fi": "opendata.swiss",
+            "el": "opendata.swiss",
+            "ga": "opendata.swiss",
+            "pl": "opendata.swiss",
+            "ro": "opendata.swiss",
+            "fr": "opendata.swiss",
+            "nl": "opendata.swiss",
+            "da": "opendata.swiss",
+            "hr": "opendata.swiss",
+            "sv": "opendata.swiss",
+            "lv": "opendata.swiss",
+            "lt": "opendata.swiss",
+            "it": "opendata.swiss",
+            "cs": "opendata.swiss",
+            "uk": "opendata.swiss",
+            "de": "opendata.swiss",
+            "hu": "opendata.swiss",
+            "sl": "opendata.swiss"
+          },
+          "homepage": "https://opendata.swiss",
+          "country": {
+            "label": "Switzerland",
+            "id": "ch",
+            "resource": "http://publications.europa.eu/resource/authority/country/CHE"
+          },
+          "spatial_resource": [
+            {
+              "label": "Switzerland",
+              "id": "ch",
+              "resource": "http://publications.europa.eu/resource/authority/country/CHE"
+            }
+          ],
+          "language": [
+            {
+              "id": "de",
+              "label": "German",
+              "resource": "http://publications.europa.eu/resource/authority/language/DEU"
+            }
+          ],
+          "source_type": "dcat-ap",
+          "modified": "2024-03-12T10:32:33Z",
+          "publisher": {
+            "type": "Agent",
+            "name": "Federal Statistical Office",
+            "email": "mailto:opendata@bfs.admin.ch",
+            "homepage": "https://www.bfs.admin.ch"
+          },
+          "issued": "2024-03-12T10:32:33Z",
+          "translation_meta": {
+            "details": {
+              "et": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "bg": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "en": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "pt": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "mt": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "es": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "sk": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "fi": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "el": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "ga": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "pl": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "ro": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "fr": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "nl": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "da": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "hr": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "sv": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "lv": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "lt": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "it": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "cs": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "uk": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "de": {
+                "machine_translated": false
+              },
+              "hu": {
+                "machine_translated": true,
+                "original_language": "de"
+              },
+              "sl": {
+                "machine_translated": true,
+                "original_language": "de"
+              }
+            },
+            "full_available_languages": [
+              "et",
+              "bg",
+              "en"
+            ],
+            "status": "unknown"
+          }
+        },
+        "translation_meta": {
+          "details": {
+            "bg": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "da": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "nl": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "uk": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "es": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "sk": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "et": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "sl": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "fr": {
+              "machine_translated": false,
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "en": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "fi": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "el": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "lt": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "lv": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "hu": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "pt": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "sv": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "ro": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "pl": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "de": {
+              "machine_translated": false,
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "mt": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "it": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "hr": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "cs": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            },
+            "ga": {
+              "machine_translated": true,
+              "original_language": "de",
+              "received": "2026-08-09T16:52:35Z",
+              "issued": "2026-07-15T20:07:08Z"
+            }
+          },
+          "full_available_languages": [
+            "bg",
+            "da",
+            "nl"
+          ],
+          "status": "completed"
+        },
+        "description": {
+          "ga": "Cuirtear i l\u00e1thair sa tacar sonra\u00ed seo na figi\u00fair\u00ed bliant\u00fala maidir le t\u00e1irgeadh uisce \u00f3il de r\u00e9ir foinse, an me\u00e1ntomhaltas agus an t-uastomhaltas uisce \u00f3il in aghaidh an \u00e1itritheora in aghaidh an lae agus d\u00e1ileadh thomhaltas an uisce \u00f3il \u00f3 1945 i leith.",
+          "lt": "\u0160iame duomen\u0173 rinkinyje pateikiami metiniai duomenys apie geriamojo vandens gamyb\u0105 pagal \u0161altinius, vidutin\u012f ir did\u017eiausi\u0105 geriamojo vandens suvartojim\u0105 vienam gyventojui per dien\u0105 ir geriamojo vandens suvartojimo pasiskirstym\u0105 nuo 1945 m.",
+          "pl": "W niniejszym zbiorze danych przedstawiono roczne dane dotycz\u0105ce produkcji wody pitnej wed\u0142ug \u017ar\u00f3de\u0142, \u015bredniego i maksymalnego zu\u017cycia wody pitnej na mieszka\u0144ca dziennie oraz rozk\u0142adu zu\u017cycia wody pitnej od 1945 r.",
+          "mt": "Dan is-sett ta\u2019 data jippre\u017centa \u010b-\u010bifri annwali g\u0127all-produzzjoni tal-ilma tax-xorb skont is-sors, il-konsum medju u massimu tal-ilma tax-xorb g\u0127al kull abitant kuljum u d-distribuzzjoni tal-konsum tal-ilma tax-xorb mill-1945.",
+          "sv": "Denna dataset presenterar de \u00e5rliga siffrorna f\u00f6r produktionen av dricksvatten per k\u00e4lla, den genomsnittliga och maximala dricksvattenf\u00f6rbrukningen per inv\u00e5nare per dag och f\u00f6rdelningen av dricksvattenf\u00f6rbrukningen sedan 1945.",
+          "pt": "Este conjunto de dados apresenta os valores anuais para a produ\u00e7\u00e3o de \u00e1gua pot\u00e1vel por fonte, o consumo m\u00e9dio e m\u00e1ximo de \u00e1gua pot\u00e1vel por habitante e por dia e a distribui\u00e7\u00e3o do consumo de \u00e1gua pot\u00e1vel desde 1945.",
+          "hu": "Ez az adatk\u00e9szlet az iv\u00f3v\u00edz-el\u0151\u00e1ll\u00edt\u00e1s forr\u00e1sonk\u00e9nti \u00e9ves adatait, az egy lakosra jut\u00f3 \u00e1tlagos \u00e9s maxim\u00e1lis napi iv\u00f3v\u00edzfogyaszt\u00e1st, valamint az iv\u00f3v\u00edzfogyaszt\u00e1s eloszl\u00e1s\u00e1t mutatja be 1945 \u00f3ta.",
+          "ro": "Acest set de date prezint\u0103 cifrele anuale pentru produc\u021bia de ap\u0103 potabil\u0103 \u00een func\u021bie de surs\u0103, consumul mediu \u0219i maxim de ap\u0103 potabil\u0103 pe cap de locuitor pe zi \u0219i distribu\u021bia consumului de ap\u0103 potabil\u0103 \u00eencep\u00e2nd din 1945.",
+          "uk": "\u0423 \u0446\u044c\u043e\u043c\u0443 \u043d\u0430\u0431\u043e\u0440\u0456 \u0434\u0430\u043d\u0438\u0445 \u043f\u0440\u0435\u0434\u0441\u0442\u0430\u0432\u043b\u0435\u043d\u0456 \u0440\u0456\u0447\u043d\u0456 \u043f\u043e\u043a\u0430\u0437\u043d\u0438\u043a\u0438 \u0432\u0438\u0440\u043e\u0431\u043d\u0438\u0446\u0442\u0432\u0430 \u043f\u0438\u0442\u043d\u043e\u0457 \u0432\u043e\u0434\u0438 \u0437\u0430 \u0434\u0436\u0435\u0440\u0435\u043b\u0430\u043c\u0438, \u0441\u0435\u0440\u0435\u0434\u043d\u0454 \u0456 \u043c\u0430\u043a\u0441\u0438\u043c\u0430\u043b\u044c\u043d\u0435 \u0441\u043f\u043e\u0436\u0438\u0432\u0430\u043d\u043d\u044f \u043f\u0438\u0442\u043d\u043e\u0457 \u0432\u043e\u0434\u0438 \u043d\u0430 \u043e\u0434\u043d\u043e\u0433\u043e \u0436\u0438\u0442\u0435\u043b\u044f \u043d\u0430 \u0434\u043e\u0431\u0443 \u0456 \u0440\u043e\u0437\u043f\u043e\u0434\u0456\u043b \u0441\u043f\u043e\u0436\u0438\u0432\u0430\u043d\u043d\u044f \u043f\u0438\u0442\u043d\u043e\u0457 \u0432\u043e\u0434\u0438 \u0437 1945 \u0440\u043e\u043a\u0443.",
+          "es": "Este conjunto de datos presenta las cifras anuales de la producci\u00f3n de agua potable por fuente, el consumo medio y m\u00e1ximo de agua potable por habitante por d\u00eda y la distribuci\u00f3n del consumo de agua potable desde 1945.",
+          "sl": "V tem podatkovnem nizu so predstavljeni letni podatki o proizvodnji pitne vode po virih, povpre\u010dna in najve\u010dja poraba pitne vode na prebivalca na dan ter porazdelitev porabe pitne vode od leta 1945.",
+          "lv": "\u0160aj\u0101 datu kop\u0101 ir sniegti gada r\u0101d\u012bt\u0101ji par dzeram\u0101 \u016bdens ra\u017eo\u0161anu pa avotiem, vid\u0113jo un maksim\u0101lo dzeram\u0101 \u016bdens pat\u0113ri\u0146u uz vienu iedz\u012bvot\u0101ju dien\u0101 un dzeram\u0101 \u016bdens pat\u0113ri\u0146a sadal\u012bjumu kop\u0161 1945. gada.",
+          "sk": "V tomto s\u00fabore \u00fadajov sa uv\u00e1dzaj\u00fa ro\u010dn\u00e9 \u00fadaje o v\u00fdrobe pitnej vody pod\u013ea zdroja, priemern\u00e1 a maxim\u00e1lna spotreba pitnej vody na obyvate\u013ea na de\u0148 a distrib\u00facia spotreby pitnej vody od roku 1945.",
+          "en": "This dataset presents the annual figures for the production of drinking water by source, the average and maximum drinking water consumption per inhabitant per day and the distribution of drinking water consumption since 1945.",
+          "da": "Dette datas\u00e6t viser de \u00e5rlige tal for produktionen af drikkevand efter kilde, det gennemsnitlige og maksimale drikkevandsforbrug pr. indbygger pr. dag og fordelingen af drikkevandsforbruget siden 1945.",
+          "nl": "Deze dataset geeft de jaarcijfers weer voor de productie van drinkwater per bron, het gemiddelde en maximale drinkwaterverbruik per inwoner per dag en de verdeling van het drinkwaterverbruik sinds 1945.",
+          "fi": "T\u00e4ss\u00e4 aineistossa esitet\u00e4\u00e4n juomaveden tuotannon vuosittaiset luvut l\u00e4hteitt\u00e4in, keskim\u00e4\u00e4r\u00e4inen ja suurin juomaveden kulutus asukasta kohti p\u00e4iv\u00e4ss\u00e4 sek\u00e4 juomaveden kulutuksen jakautuminen vuodesta 1945 l\u00e4htien.",
+          "cs": "Tento datov\u00fd soubor p\u0159edstavuje ro\u010dn\u00ed \u00fadaje o v\u00fdrob\u011b pitn\u00e9 vody podle zdroje, pr\u016fm\u011brn\u00e9 a maxim\u00e1ln\u00ed spot\u0159eb\u011b pitn\u00e9 vody na obyvatele a den a distribuci spot\u0159eby pitn\u00e9 vody od roku 1945.",
+          "it": "Questo set di dati presenta i dati annuali per la produzione di acqua potabile per fonte, il consumo medio e massimo di acqua potabile per abitante al giorno e la distribuzione del consumo di acqua potabile dal 1945.",
+          "hr": "U ovom skupu podataka prikazani su godi\u0161nji podaci za proizvodnju pitke vode po izvoru, prosje\u010dna i maksimalna potro\u0161nja pitke vode po stanovniku po danu te distribucija potro\u0161nje pitke vode od 1945.",
+          "et": "Selles andmekogumis esitatakse joogivee tootmise aastaandmed allikate kaupa, keskmine ja maksimaalne joogivee tarbimine elaniku kohta p\u00e4evas ning joogivee tarbimise jaotus alates 1945. aastast.",
+          "el": "\u0391\u03c5\u03c4\u03cc \u03c4\u03bf \u03c3\u03cd\u03bd\u03bf\u03bb\u03bf \u03b4\u03b5\u03b4\u03bf\u03bc\u03ad\u03bd\u03c9\u03bd \u03c0\u03b1\u03c1\u03bf\u03c5\u03c3\u03b9\u03ac\u03b6\u03b5\u03b9 \u03c4\u03b1 \u03b5\u03c4\u03ae\u03c3\u03b9\u03b1 \u03c3\u03c4\u03bf\u03b9\u03c7\u03b5\u03af\u03b1 \u03b3\u03b9\u03b1 \u03c4\u03b7\u03bd \u03c0\u03b1\u03c1\u03b1\u03b3\u03c9\u03b3\u03ae \u03c0\u03cc\u03c3\u03b9\u03bc\u03bf\u03c5 \u03bd\u03b5\u03c1\u03bf\u03cd \u03b1\u03bd\u03ac \u03c0\u03b7\u03b3\u03ae, \u03c4\u03b7 \u03bc\u03ad\u03c3\u03b7 \u03ba\u03b1\u03b9 \u03bc\u03ad\u03b3\u03b9\u03c3\u03c4\u03b7 \u03ba\u03b1\u03c4\u03b1\u03bd\u03ac\u03bb\u03c9\u03c3\u03b7 \u03c0\u03cc\u03c3\u03b9\u03bc\u03bf\u03c5 \u03bd\u03b5\u03c1\u03bf\u03cd \u03b1\u03bd\u03ac \u03ba\u03ac\u03c4\u03bf\u03b9\u03ba\u03bf \u03b1\u03bd\u03ac \u03b7\u03bc\u03ad\u03c1\u03b1 \u03ba\u03b1\u03b9 \u03c4\u03b7\u03bd \u03ba\u03b1\u03c4\u03b1\u03bd\u03bf\u03bc\u03ae \u03c4\u03b7\u03c2 \u03ba\u03b1\u03c4\u03b1\u03bd\u03ac\u03bb\u03c9\u03c3\u03b7\u03c2 \u03c0\u03cc\u03c3\u03b9\u03bc\u03bf\u03c5 \u03bd\u03b5\u03c1\u03bf\u03cd \u03b1\u03c0\u03cc \u03c4\u03bf 1945.",
+          "fr": "Ce dataset pr\u00e9sente les chiffres annuels du captage de l'eau potable selon la source, de la consommation d'eau potable moyenne et maximale par habitant et par jour et de la r\u00e9partition de l'utilisation d'eau potable, depuis 1945.",
+          "de": "Dieses Dataset pr\u00e4sentiert die j\u00e4hrlichen Zahlen der Gewinnung von Trinkwasser nach Quelle, des mittleren und maximalen Trinkwasserverbrauchs je Einwohner und Tag und der Aufteilung des Trinkwasserverbrauchs, seit 1945.",
+          "bg": "\u0422\u043e\u0437\u0438 \u043d\u0430\u0431\u043e\u0440 \u043e\u0442 \u0434\u0430\u043d\u043d\u0438 \u043f\u0440\u0435\u0434\u0441\u0442\u0430\u0432\u044f \u0433\u043e\u0434\u0438\u0448\u043d\u0438\u0442\u0435 \u0434\u0430\u043d\u043d\u0438 \u0437\u0430 \u043f\u0440\u043e\u0438\u0437\u0432\u043e\u0434\u0441\u0442\u0432\u043e\u0442\u043e \u043d\u0430 \u043f\u0438\u0442\u0435\u0439\u043d\u0430 \u0432\u043e\u0434\u0430 \u043f\u043e \u0438\u0437\u0442\u043e\u0447\u043d\u0438\u0446\u0438, \u0441\u0440\u0435\u0434\u043d\u043e\u0442\u043e \u0438 \u043c\u0430\u043a\u0441\u0438\u043c\u0430\u043b\u043d\u043e\u0442\u043e \u043f\u043e\u0442\u0440\u0435\u0431\u043b\u0435\u043d\u0438\u0435 \u043d\u0430 \u043f\u0438\u0442\u0435\u0439\u043d\u0430 \u0432\u043e\u0434\u0430 \u043d\u0430 \u0436\u0438\u0442\u0435\u043b \u043d\u0430 \u0434\u0435\u043d \u0438 \u0440\u0430\u0437\u043f\u0440\u0435\u0434\u0435\u043b\u0435\u043d\u0438\u0435\u0442\u043e \u043d\u0430 \u043f\u043e\u0442\u0440\u0435\u0431\u043b\u0435\u043d\u0438\u0435\u0442\u043e \u043d\u0430 \u043f\u0438\u0442\u0435\u0439\u043d\u0430 \u0432\u043e\u0434\u0430 \u043e\u0442 1945 \u0433. \u043d\u0430\u0441\u0430\u043c."
+        },
+        "language": [
+          {
+            "id": "fr",
+            "label": "French",
+            "resource": "http://publications.europa.eu/resource/authority/language/FRA"
+          },
+          {
+            "id": "de",
+            "label": "German",
+            "resource": "http://publications.europa.eu/resource/authority/language/DEU"
+          }
+        ],
+        "title": {
+          "bg": "\u0432\u043e\u0434\u0430",
+          "da": "vand",
+          "nl": "water",
+          "uk": "\u0432\u043e\u0434\u0430",
+          "es": "agua",
+          "sk": "voda",
+          "et": "vesi",
+          "sl": "voda",
+          "fr": "Eau potable",
+          "en": "water",
+          "fi": "vesi",
+          "el": "\u03bd\u03b5\u03c1\u03cc",
+          "lt": "vanduo",
+          "lv": "\u016bdens",
+          "hu": "v\u00edz",
+          "pt": "\u00e1gua",
+          "sv": "vatten",
+          "ro": "ap\u0103",
+          "pl": "woda",
+          "de": "Trinkwasser",
+          "mt": "l-ilma",
+          "it": "acqua",
+          "hr": "vode",
+          "cs": "voda",
+          "ga": "uisce"
+        },
+        "accrual_periodicity": {
+          "label": "annual",
+          "resource": "http://publications.europa.eu/resource/authority/frequency/ANNUAL"
+        },
+        "relation": [
+          "https://www.admin.ch/opc/de/classified-compilation/19920252/index.html"
+        ],
+        "spatial_resource": [],
+        "id": "36409164-bundesamt-fur-statistik-bfs",
+        "categories": [
+          {
+            "id": "ENVI",
+            "label": {
+              "fi": "Ymp\u00e4rist\u00f6",
+              "lt": "Aplinka",
+              "hr": "Okoli\u0161",
+              "no": "Milj\u00f8",
+              "ro": "Mediu",
+              "sk": "\u017divotn\u00e9 prostredie",
+              "cs": "\u017divotn\u00ed prost\u0159ed\u00ed",
+              "nb": "Milj\u00f8",
+              "nl": "Milieu",
+              "it": "Ambiente",
+              "sl": "Okolje",
+              "bg": "\u041e\u043a\u043e\u043b\u043d\u0430 \u0441\u0440\u0435\u0434\u0430",
+              "da": "Milj\u00f8",
+              "et": "Keskkond",
+              "sv": "Milj\u00f6",
+              "es": "Medio ambiente",
+              "ga": "Comhshaol",
+              "de": "Umwelt",
+              "lv": "Vide",
+              "fr": "Environnement",
+              "pt": "Ambiente",
+              "mt": "Ambjent",
+              "en": "Environment",
+              "pl": "\u015arodowisko",
+              "hu": "K\u00f6rnyezet",
+              "nn": "Milj\u00f8",
+              "el": "\u03a0\u03b5\u03c1\u03b9\u03b2\u03ac\u03bb\u03bb\u03bf\u03bd"
+            },
+            "resource": "http://publications.europa.eu/resource/authority/data-theme/ENVI"
+          }
+        ],
+        "issued": "2026-02-19T07:30:00Z",
+        "temporal": [
+          {
+            "gte": "1945-01-01T00:00:00Z",
+            "lte": "2024-12-31T23:59:59.999999Z"
+          }
+        ],
+        "identifier": [
+          "36409164@bundesamt-fur-statistik-bfs"
+        ],
+        "corporate-body-classification": {
+          "label": {
+            "title": {
+              "fr": "Autorit\u00e9s nationales",
+              "pl": "Organy krajowe",
+              "lv": "Valstu iest\u0101des",
+              "bg": "\u041d\u0430\u0446\u0438\u043e\u043d\u0430\u043b\u043d\u0438 \u043e\u0440\u0433\u0430\u043d\u0438",
+              "el": "\u0395\u03b8\u03bd\u03b9\u03ba\u03ad\u03c2 \u03b1\u03c1\u03c7\u03ad\u03c2",
+              "ro": "Autorit\u0103\u021bi na\u021bionale",
+              "da": "Nationale myndigheder",
+              "hu": "Nemzeti hat\u00f3s\u00e1gok",
+              "sv": "Nationella myndigheter",
+              "sk": "N\u00e1rodn\u00e9 org\u00e1ny",
+              "it": "Autorit\u00e0 nazionali",
+              "sl": "Nacionalni organi",
+              "pt": "Autoridades nacionais",
+              "lt": "Nacionalin\u0117s institucijos",
+              "de": "Nationale Beh\u00f6rden",
+              "hr": "Nacionalna tijela",
+              "nl": "Nationale autoriteiten",
+              "et": "Riiklikud asutused",
+              "ga": "\u00dadar\u00e1is n\u00e1isi\u00fanta",
+              "fi": "Kansalliset viranomaiset",
+              "en": "National Authorities",
+              "es": "Autoridades nacionales",
+              "cs": "Vnitrost\u00e1tn\u00ed org\u00e1ny",
+              "mt": "Awtoritajiet nazzjonali"
+            }
+          },
+          "id": "_NATIONAL"
+        },
+        "resource": "http://data.europa.eu/88u/dataset/36409164-bundesamt-fur-statistik-bfs",
+        "landing_page": [
+          {
+            "resource": "https://www.bfs.admin.ch/asset/de/je-d-02.03.01.01"
+          }
+        ],
+        "index": "dataset",
+        "distributions": [
+          {
+            "id": "3eff7a00-f422-432a-9e5f-cc4462e83664",
+            "language": [
+              {
+                "id": "fr",
+                "label": "French",
+                "resource": "http://publications.europa.eu/resource/authority/language/FRA"
+              }
+            ],
+            "format": {
+              "id": "XLS",
+              "label": "Excel XLS",
+              "resource": "http://publications.europa.eu/resource/authority/file-type/XLS",
+              "format_types": [
+                {
+                  "id": "tabular",
+                  "label": {
+                    "en": "Tabular"
+                  }
+                },
+                {
+                  "id": "document",
+                  "label": {
+                    "en": "Document"
+                  }
+                },
+                {
+                  "id": "package",
+                  "label": {
+                    "en": "Package"
+                  }
+                }
+              ]
+            },
+            "rights": {
+              "resource": "http://dcat-ap.ch/vocabulary/licenses/terms_by"
+            },
+            "access_url": [
+              "https://dam-api.bfs.admin.ch/hub/api/dam/assets/36409176/master"
+            ],
+            "title": {
+              "fr": "Eau potable"
+            },
+            "issued": "2026-02-19T07:30:00Z",
+            "description": {
+              "fr": "Ce dataset pr\u00e9sente les chiffres annuels du captage de l'eau potable selon la source, de la consommation d'eau potable moyenne et maximale par habitant et par jour et de la r\u00e9partition de l'utilisation d'eau potable, depuis 1945."
+            },
+            "modified": "2026-02-16T10:37:34.842Z",
+            "download_url": [
+              "https://dam-api.bfs.admin.ch/hub/api/dam/assets/36409176/master"
+            ],
+            "license": {
+              "resource": "http://dcat-ap.ch/vocabulary/licenses/terms_by",
+              "id": "http://dcat-ap.ch/vocabulary/licenses/terms_by",
+              "label": "http://dcat-ap.ch/vocabulary/licenses/terms_by"
+            },
+            "media_type": "application/vnd.ms-excel"
+          },
+          {
+            "id": "34e208f9-d67b-4240-9f8c-ba90d6445c67",
+            "issued": "2026-02-19T07:30:00Z",
+            "access_url": [
+              "https://www.bfs.admin.ch/asset/de/je-d-02.03.01.01"
+            ],
+            "format": {
+              "id": "HTML",
+              "label": "HTML",
+              "resource": "http://publications.europa.eu/resource/authority/file-type/HTML",
+              "format_types": [
+                {
+                  "id": "structured",
+                  "label": {
+                    "en": "Structured"
+                  }
+                },
+                {
+                  "id": "textual",
+                  "label": {
+                    "en": "Textual"
+                  }
+                }
+              ]
+            },
+            "license": {
+              "resource": "http://dcat-ap.ch/vocabulary/licenses/terms_by",
+              "id": "http://dcat-ap.ch/vocabulary/licenses/terms_by",
+              "label": "http://dcat-ap.ch/vocabulary/licenses/terms_by"
+            },
+            "media_type": "text/html",
+            "description": {
+              "de": "Dieses Dataset pr\u00e4sentiert die j\u00e4hrlichen Zahlen der Gewinnung von Trinkwasser nach Quelle, des mittleren und maximalen Trinkwasserverbrauchs je Einwohner und Tag und der Aufteilung des Trinkwasserverbrauchs, seit 1945."
+            },
+            "rights": {
+              "resource": "http://dcat-ap.ch/vocabulary/licenses/terms_by"
+            },
+            "title": {
+              "de": "Trinkwasser"
+            },
+            "language": [
+              {
+                "id": "de",
+                "label": "German",
+                "resource": "http://publications.europa.eu/resource/authority/language/DEU"
+              }
+            ]
+          },
+          {
+            "id": "ff79e900-f2d1-43a9-b1f7-a8edfe51c0b5",
+            "format": {
+              "id": "XLS",
+              "label": "Excel XLS",
+              "resource": "http://publications.europa.eu/resource/authority/file-type/XLS",
+              "format_types": [
+                {
+                  "id": "tabular",
+                  "label": {
+                    "en": "Tabular"
+                  }
+                },
+                {
+                  "id": "document",
+                  "label": {
+                    "en": "Document"
+                  }
+                },
+                {
+                  "id": "package",
+                  "label": {
+                    "en": "Package"
+                  }
+                }
+              ]
+            },
+            "rights": {
+              "resource": "http://dcat-ap.ch/vocabulary/licenses/terms_by"
+            },
+            "description": {
+              "de": "Dieses Dataset pr\u00e4sentiert die j\u00e4hrlichen Zahlen der Gewinnung von Trinkwasser nach Quelle, des mittleren und maximalen Trinkwasserverbrauchs je Einwohner und Tag und der Aufteilung des Trinkwasserverbrauchs, seit 1945."
+            },
+            "issued": "2026-02-19T07:30:00Z",
+            "license": {
+              "resource": "http://dcat-ap.ch/vocabulary/licenses/terms_by",
+              "id": "http://dcat-ap.ch/vocabulary/licenses/terms_by",
+              "label": "http://dcat-ap.ch/vocabulary/licenses/terms_by"
+            },
+            "language": [
+              {
+                "id": "de",
+                "label": "German",
+                "resource": "http://publications.europa.eu/resource/authority/language/DEU"
+              }
+            ],
+            "title": {
+              "de": "Trinkwasser"
+            },
+            "download_url": [
+              "https://dam-api.bfs.admin.ch/hub/api/dam/assets/36409183/master"
+            ],
+            "access_url": [
+              "https://dam-api.bfs.admin.ch/hub/api/dam/assets/36409183/master"
+            ],
+            "media_type": "application/vnd.ms-excel",
+            "modified": "2026-02-16T10:37:34.038Z"
+          }
+        ],
+        "is_hvd": false,
+        "quality_meas": {
+          "scoring": 325
+        },
+        "publisher": {
+          "type": "Agent",
+          "name": "Office f\u00e9d\u00e9ral de la statistique",
+          "resource": "https://www.bfs.admin.ch/"
+        },
+        "catalog_record": {
+          "modified": "2026-08-09T16:52:35Z",
+          "issued": "2026-02-19T20:07:22Z"
+        },
+        "contact_point": [
+          {
+            "type": "Organization",
+            "email": "mailto:auskunftsdienst@bfs.admin.ch",
+            "name": "info@bfs.admin.ch"
+          }
+        ]
+      }
+    ],
+    "facets": [
+      {
+        "id": "dataScope",
+        "title": "Data scope",
+        "items": [
+          {
+            "id": "eu",
+            "title": "European Union Data",
+            "count": 0
+          },
+          {
+            "id": "io",
+            "title": "International Data",
+            "count": 0
+          },
+          {
+            "id": "countryData",
+            "title": "National Data",
+            "count": 69931
+          }
+        ]
+      },
+      {
+        "id": "is_hvd",
+        "title": "HVD",
+        "items": [
+          {
+            "count": 67460,
+            "id": "false",
+            "title": "false"
+          },
+          {
+            "count": 2471,
+            "id": "true",
+            "title": "true"
+          }
+        ]
+      },
+      {
+        "id": "corporate-body-classification",
+        "title": "Data Scope",
+        "items": [
+          {
+            "count": 68829,
+            "id": "_NATIONAL",
+            "title": {
+              "title": {
+                "fr": "Autorit\u00e9s nationales",
+                "pl": "Organy krajowe",
+                "lv": "Valstu iest\u0101des",
+                "bg": "\u041d\u0430\u0446\u0438\u043e\u043d\u0430\u043b\u043d\u0438 \u043e\u0440\u0433\u0430\u043d\u0438",
+                "el": "\u0395\u03b8\u03bd\u03b9\u03ba\u03ad\u03c2 \u03b1\u03c1\u03c7\u03ad\u03c2",
+                "ro": "Autorit\u0103\u021bi na\u021bionale",
+                "da": "Nationale myndigheder",
+                "hu": "Nemzeti hat\u00f3s\u00e1gok",
+                "sv": "Nationella myndigheter",
+                "sk": "N\u00e1rodn\u00e9 org\u00e1ny",
+                "it": "Autorit\u00e0 nazionali",
+                "sl": "Nacionalni organi",
+                "pt": "Autoridades nacionais",
+                "lt": "Nacionalin\u0117s institucijos",
+                "de": "Nationale Beh\u00f6rden",
+                "hr": "Nacionalna tijela",
+                "nl": "Nationale autoriteiten",
+                "et": "Riiklikud asutused",
+                "ga": "\u00dadar\u00e1is n\u00e1isi\u00fanta",
+                "fi": "Kansalliset viranomaiset",
+                "en": "National Authorities",
+                "es": "Autoridades nacionales",
+                "cs": "Vnitrost\u00e1tn\u00ed org\u00e1ny",
+                "mt": "Awtoritajiet nazzjonali"
+              }
+            }
+          },
+          {
+            "count": 674,
+            "id": "DIR_GEN",
+            "title": {
+              "de": "Generaldirektion",
+              "fi": "P\u00e4\u00e4osasto",
+              "sv": "Generaldirektorat",
+              "pt": "Dire\u00e7\u00e3o-geral",
+              "bg": "\u0413\u0435\u043d\u0435\u0440\u0430\u043b\u043d\u0430 \u0434\u0438\u0440\u0435\u043a\u0446\u0438\u044f",
+              "mt": "Direttorat \u0121enerali",
+              "el": "\u0393\u03b5\u03bd\u03b9\u03ba\u03ae \u03b4\u03b9\u03b5\u03cd\u03b8\u03c5\u03bd\u03c3\u03b7",
+              "lt": "Generalinis direktoratas",
+              "en": "Directorate-general",
+              "hr": "Glavna uprava",
+              "lv": "\u0122ener\u0101ldirektor\u0101ts",
+              "it": "Direzione generale",
+              "fr": "Direction g\u00e9n\u00e9rale",
+              "hu": "F\u0151igazgat\u00f3s\u00e1g",
+              "es": "Direcci\u00f3n general",
+              "et": "Peadirektoraat",
+              "cs": "Gener\u00e1ln\u00ed \u0159editelstv\u00ed",
+              "sk": "Gener\u00e1lne riadite\u013estvo",
+              "sl": "Generalni direktorat",
+              "ga": "Ard-sti\u00farth\u00f3ireacht",
+              "pl": "Dyrekcja generalna",
+              "da": "Generaldirektorat",
+              "ro": "Direc\u021bie general\u0103",
+              "nl": "Directoraat-generaal"
+            }
+          },
+          {
+            "count": 10,
+            "id": "AGENCY_DEC",
+            "title": {
+              "de": "Dezentrale Agentur",
+              "fi": "Erillisvirasto",
+              "sv": "Decentraliserad byr\u00e5",
+              "pt": "Ag\u00eancia descentralizada",
+              "bg": "\u0414\u0435\u0446\u0435\u043d\u0442\u0440\u0430\u043b\u0438\u0437\u0438\u0440\u0430\u043d\u0430 \u0430\u0433\u0435\u043d\u0446\u0438\u044f",
+              "el": "\u0391\u03c0\u03bf\u03ba\u03b5\u03bd\u03c4\u03c1\u03c9\u03bc\u03ad\u03bd\u03bf\u03c2 \u03bf\u03c1\u03b3\u03b1\u03bd\u03b9\u03c3\u03bc\u03cc\u03c2",
+              "mt": "L-a\u0121enzija de\u010bentralizzata",
+              "lt": "Decentralizuota agent\u016bra",
+              "en": "Decentralised agency",
+              "hr": "Decentralizirana agencija",
+              "lv": "Decentraliz\u0113t\u0101 a\u0123ent\u016bra",
+              "it": "Agenzia decentrata",
+              "fr": "Agence d\u00e9centralis\u00e9e",
+              "hu": "Decentraliz\u00e1lt \u00fcgyn\u00f6ks\u00e9g",
+              "es": "Agencia descentralizada",
+              "et": "Detsentraliseeritud asutus",
+              "cs": "Decentralizovan\u00e1 agentura",
+              "sk": "Decentralizovan\u00e1 agent\u00fara",
+              "sl": "Decentralizirana agencija",
+              "ga": "Gn\u00edomhaireacht dh\u00edl\u00e1raithe",
+              "pl": "Agencja zdecentralizowana",
+              "da": "Decentralt agentur",
+              "ro": "Agen\u021bie descentralizat\u0103",
+              "nl": "Gedecentraliseerd agentschap"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

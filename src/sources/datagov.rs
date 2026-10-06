@@ -54,3 +54,48 @@ fn record(row: &Value) -> Option<Dataset> {
     }
     dataset.valid()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("datagov.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Drinking Water - Public Water System Annually \
+                        Reported Water Production and Delivery Information \
+                        2013-2022"
+                    .into(),
+                url: "https://catalog.data.gov/dataset/\
+                      drinking-water-public-water-system-annually-reported-\
+                      water-production-and-delive-2013-2022"
+                    .into(),
+                description: Some(
+                    "Amount of water produced by month and by source and \
+                     the water delivered by type of use and by month for \
+                     every Public Water System (PWS) reporting. Public Water \
+                     Systems submit their annual inventory information \
+                     using the electronic Annual Report (eAR) submission \
+                     process."
+                        .into()
+                ),
+                publisher: Some(
+                    "California State Water Resources Control Board".into()
+                ),
+                doi: None,
+                license: Some(
+                    "http://www.opendefinition.org/licenses/cc-by".into()
+                ),
+                updated: Some("2024-11-27".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
+}

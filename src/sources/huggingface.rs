@@ -80,3 +80,38 @@ fn record(row: &Value) -> Option<Dataset> {
         .map(str::to_owned);
     dataset.valid()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let words = ["climate".to_owned(), "temperature".to_owned()];
+        let hits =
+            parse(&fixture::json("huggingface.json"), &words, 10).unwrap();
+        assert_eq!(hits.len(), 3);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "castcheck/temperature-verification".into(),
+                url: "https://huggingface.co/datasets/\
+                      castcheck/temperature-verification"
+                    .into(),
+                description: Some(
+                    "CastCheck \u{2014} daily station-level verification of \
+                     public weather forecasts"
+                        .into()
+                ),
+                publisher: Some("castcheck".into()),
+                doi: None,
+                license: Some("cc-by-4.0".into()),
+                updated: Some("2026-10-05".into()),
+                size_bytes: None,
+                popularity: Some(805),
+                aliases: vec![],
+            }
+        );
+    }
+}

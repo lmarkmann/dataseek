@@ -47,3 +47,35 @@ fn record(repo: &Value) -> Option<Dataset> {
     dataset.popularity = number(repo, "/stargazers_count");
     dataset.valid()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("github.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "mikejohnson51/climateR".into(),
+                url: "https://github.com/mikejohnson51/climateR".into(),
+                description: Some(
+                    "An R \u{1f4e6} for getting point and gridded climate \
+                     data by AOI"
+                        .into()
+                ),
+                publisher: Some("mikejohnson51".into()),
+                doi: None,
+                license: None,
+                updated: Some("2026-06-01".into()),
+                size_bytes: None,
+                popularity: Some(202),
+                aliases: vec![],
+            }
+        );
+        assert_eq!(hits[3].license.as_deref(), Some("CC-BY-4.0"));
+    }
+}

@@ -1,0 +1,51 @@
+{
+  "found": 72,
+  "start": 0,
+  "hits": [
+    {
+      "id": "syn75275226",
+      "etag": "26724211-f1fa-4912-81d5-e33f79d447d9",
+      "name": "Multi-omic Glial Programs in Brain Aging",
+      "description": "\n\n#### **Title**: Aged brain multi-omic integration captures immunometabolic and sex variation\n\n**Dataset contact**:  [Justin P. Whalley](https://www.synapse.org/Profile:3335704)",
+      "node_type": "dataset",
+      "created_on": 1780509120,
+      "modified_on": 1780941841,
+      "created_by": "3561975",
+      "modified_by": "3561975"
+    },
+    {
+      "id": "syn50880811",
+      "etag": "3b24f162-d9c7-4f83-a3cf-4d2318980a04",
+      "name": "Map of full-length isoforms in the human brain",
+      "description": "\n\n###**Manuscript**: “Map of full-length isoforms in the human brain”\n\n**Authors**:  Dalila Pinto\n\n**Preprint URL**:\n\n**Published URL**: ",
+      "node_type": "dataset",
+      "created_on": 1673641338,
+      "modified_on": 1673641338,
+      "created_by": "3446625",
+      "modified_by": "3446625"
+    },
+    {
+      "id": "syn51072187",
+      "etag": "319618f1-64a1-43ea-a5d9-7f5adc9311bf",
+      "name": "Benchmarking cell-type deconvolution methods on human brain transcriptome",
+      "description": "\n\n###**Manuscript**: “Benchmarking cell-type deconvolution methods on human brain transcriptome”\n\n**Authors**: \n\n**Preprint URL**:\n\n**Published URL**: ",
+      "node_type": "dataset",
+      "created_on": 1675759141,
+      "modified_on": 1678919219,
+      "created_by": "3446625",
+      "modified_by": "3446625"
+    },
+    {
+      "id": "syn75280064",
+      "etag": "0309e3eb-92ba-48da-942e-1fa5b26c8371",
+      "name": "Plasma Proteomic Networks Reveal Shared Biology with Brain Linked to Alzheimer's Disease Pathology",
+      "description": "\n\n**Title:**Plasma Proteomic Networks Reveal Shared Biology with Brain Linked to Alzheimer’s Disease Pathology\n\n**Authors:** Qi Guo, Lingyan Ping, Saima Rathore, Duc M. Duong, Anantharaman Shantaraman, Edward J. Fox, Erik C.B. Johnson, James J. Lah, Allan I. Levey and Nicholas T. Seyfried ",
+      "node_type": "dataset",
+      "created_on": 1780530051,
+      "modified_on": 1787960965,
+      "created_by": "3574411",
+      "modified_by": "3574411"
+    }
+  ],
+  "facets": []
+}

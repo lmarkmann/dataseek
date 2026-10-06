@@ -46,3 +46,33 @@ fn record(row: &Value) -> Option<Dataset> {
     dataset.popularity = number(row, "/Downloads");
     dataset.valid()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("modelscope.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "CarbonGPT/climate-sr".into(),
+                url: "https://www.modelscope.cn/datasets/CarbonGPT/climate-sr"
+                    .into(),
+                description: Some(
+                    "\u{6c14}\u{5019}\u{6570}\u{636e}\u{8d85}\u{5206}".into()
+                ),
+                publisher: Some("CarbonGPT".into()),
+                doi: None,
+                license: Some("Apache License 2.0".into()),
+                updated: Some("2026-10-06".into()),
+                size_bytes: None,
+                popularity: Some(4618),
+                aliases: vec![],
+            }
+        );
+    }
+}

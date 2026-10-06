@@ -54,3 +54,36 @@ fn record(hit: &Value) -> Option<Dataset> {
     dataset.updated = number(hit, "/modified_on").and_then(date_from_epoch);
     dataset.valid()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("synapse.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Multi-omic Glial Programs in Brain Aging".into(),
+                url: "https://www.synapse.org/Synapse:syn75275226".into(),
+                description: Some(
+                    "#### **Title**: Aged brain multi-omic integration \
+                     captures immunometabolic and sex variation **Dataset \
+                     contact**: [Justin P. \
+                     Whalley](https://www.synapse.org/Profile:3335704)"
+                        .into()
+                ),
+                publisher: None,
+                doi: None,
+                license: None,
+                updated: Some("2026-06-08".into()),
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
+}

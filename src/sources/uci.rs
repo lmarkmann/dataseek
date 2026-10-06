@@ -29,3 +29,30 @@ pub(super) fn parse(body: &Value) -> Vec<Dataset> {
         })
         .collect()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_list() {
+        let hits = parse(&fixture::json("uci.json"));
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Abalone".into(),
+                url: "https://archive.ics.uci.edu/dataset/1".into(),
+                description: None,
+                publisher: None,
+                doi: None,
+                license: None,
+                updated: None,
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
+}

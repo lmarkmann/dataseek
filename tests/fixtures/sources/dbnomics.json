@@ -1,0 +1,65 @@
+{
+  "_meta": {
+    "args": {
+      "limit": 5,
+      "offset": 0,
+      "q": "inflation"
+    },
+    "version": "22.1.17"
+  },
+  "results": {
+    "docs": [
+      {
+        "code": "DSD_REG_ECO@DF_ECO_ROPI",
+        "description": "<p style=\"text-align: justify;\">This dataset provides indicators on real GDP, GVA and labour productivity measures in large regions (TL2) and small regions (TL3).&nbsp;Real values are deflation-adjusted using Regional Producer Price Index (ROPI), where available.</p>",
+        "dir_hash": "cf9db373adafdb05312c1516089c2acc64a76035",
+        "indexed_at": "2026-06-15T17:26:46.116Z",
+        "name": "Economic statistics ROPI-adjusted for inflation - Regions (for 'Developer API')",
+        "nb_matching_series": 65065,
+        "nb_series": 65065,
+        "provider_code": "OECD",
+        "provider_name": "Organisation for Economic Co-operation and Development",
+        "updated_at": "2026-06-12T00:00:00Z"
+      },
+      {
+        "code": "DSD_REG_ECO_ROPI@DF_ECO_ROPI",
+        "description": "<p style=\"text-align: justify;\">This dataset provides indicators on real GDP, GVA and labour productivity measures in large regions (TL2) and small regions (TL3).&nbsp;Real values are deflation-adjusted using Regional Producer Price Index (ROPI), where available.</p>",
+        "dir_hash": "6ff2a3b09d2d584705875db479f98d42b9ef174c",
+        "indexed_at": "2026-06-15T17:26:46.116Z",
+        "name": "Economic statistics ROPI-adjusted for inflation - Regions (for 'Developer API')",
+        "nb_matching_series": 65065,
+        "nb_series": 65065,
+        "provider_code": "OECD",
+        "provider_name": "Organisation for Economic Co-operation and Development",
+        "updated_at": "2026-06-12T00:00:00Z"
+      },
+      {
+        "code": "AEO.2023",
+        "description": "The Annual Energy Outlook (AEO) from EIA.gov provides long term forecasts (25 years) of U.S. energy production, consumption, and trade for the United Stated of electricity, petroleum, natural gas, coal, nuclear, and renewable sources.",
+        "dir_hash": "54e5e78bae4432f056ef3e2654daf9eddb61a101",
+        "indexed_at": "2023-11-21T01:50:47.367Z",
+        "name": "Annual Energy Outlook 2023",
+        "nb_matching_series": 37359,
+        "nb_series": 215441,
+        "provider_code": "EIA",
+        "provider_name": "U.S. Energy Information Agency",
+        "updated_at": "2023-05-04T00:00:00Z"
+      },
+      {
+        "code": "DSD_REG_ECO@DF_GVA_ROPI",
+        "description": "<p>This dataset provides indicators on real gross value added by broad 10 activities for large and small regions. Real values are deflation-adjusted using the Regional Producer Price Index (ROPI), where available.</p>\n          <p><strong>Data source and definition</strong></p>",
+        "dir_hash": "c08b7d5e7a429553681e8693d6ecba2707cb294b",
+        "indexed_at": "2026-06-15T17:26:46.116Z",
+        "name": "Real gross value added by main economic activity (ROPI-adjusted for inflation) - Regions",
+        "nb_matching_series": 29623,
+        "nb_series": 29623,
+        "provider_code": "OECD",
+        "provider_name": "Organisation for Economic Co-operation and Development",
+        "updated_at": "2026-06-12T00:00:00Z"
+      }
+    ],
+    "limit": 5,
+    "num_found": 251,
+    "offset": 0
+  }
+}
