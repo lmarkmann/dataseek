@@ -70,14 +70,24 @@ pub fn merge(lists: &[(&'static str, Vec<Dataset>)]) -> Vec<Hit> {
         }
     }
 
-    let mut merged: Vec<Hit> =
-        hits.into_iter().flatten().map(Building::finish).collect();
-    merged.sort_by(|a, b| {
-        b.score
-            .total_cmp(&a.score)
-            .then_with(|| b.sources.len().cmp(&a.sources.len()))
+    rank(hits.into_iter().flatten().map(Building::finish).collect())
+}
+
+/// Highest score first, more sources breaking a tie, then the input order.
+/// Only the keys are sorted, so each hit, a few hundred bytes, moves once.
+fn rank(hits: Vec<Hit>) -> Vec<Hit> {
+    let mut order: Vec<(f64, usize, usize)> = hits
+        .iter()
+        .enumerate()
+        .map(|(i, hit)| (hit.score, hit.sources.len(), i))
+        .collect();
+    order.sort_unstable_by(|a, b| {
+        b.0.total_cmp(&a.0)
+            .then_with(|| b.1.cmp(&a.1))
+            .then_with(|| a.2.cmp(&b.2))
     });
-    merged
+    let mut slots: Vec<Option<Hit>> = hits.into_iter().map(Some).collect();
+    order.iter().filter_map(|&(_, _, i)| slots.get_mut(i)?.take()).collect()
 }
 
 struct Building {
@@ -207,7 +217,8 @@ pub fn weigh(hits: Vec<Hit>, query: &str) -> Vec<Hit> {
     if terms.is_empty() {
         return hits;
     }
-    let mut kept: Vec<Hit> = hits
+    let needles = crate::catalog::needles(&terms);
+    let kept: Vec<Hit> = hits
         .into_iter()
         .filter_map(|mut hit| {
             let text = format!(
@@ -215,7 +226,7 @@ pub fn weigh(hits: Vec<Hit>, query: &str) -> Vec<Hit> {
                 hit.dataset.title,
                 hit.dataset.description.as_deref().unwrap_or("")
             );
-            let found = crate::catalog::matched(&text, &terms);
+            let found = crate::catalog::matched(&text, &needles);
             if found == 0 && hit.dataset.description.is_some() {
                 return None;
             }
@@ -223,12 +234,7 @@ pub fn weigh(hits: Vec<Hit>, query: &str) -> Vec<Hit> {
             Some(hit)
         })
         .collect();
-    kept.sort_by(|a, b| {
-        b.score
-            .total_cmp(&a.score)
-            .then_with(|| b.sources.len().cmp(&a.sources.len()))
-    });
-    kept
+    rank(kept)
 }
 
 #[expect(
@@ -293,6 +299,9 @@ pub fn normalize_url(raw: &str) -> Option<String> {
 
 /// DOIs hide in resolver links and in `/doi/` paths (Zenodo, Wiley).
 fn doi_in_url(raw: &str) -> Option<String> {
+    if !raw.as_bytes().windows(3).any(|w| w.eq_ignore_ascii_case(b"doi")) {
+        return None;
+    }
     let lower = raw.to_lowercase();
     let after_resolver = ["doi.org/", "dx.doi.org/", "/doi/"]
         .iter()
@@ -309,16 +318,20 @@ fn bare_doi(raw: &str) -> Option<String> {
 
 /// Lowercase alphanumerics separated by single spaces.
 fn fold(text: &str) -> String {
-    text.chars()
-        .map(
-            |c| {
-                if c.is_alphanumeric() { c.to_ascii_lowercase() } else { ' ' }
-            },
-        )
-        .collect::<String>()
-        .split_whitespace()
-        .collect::<Vec<_>>()
-        .join(" ")
+    let mut folded = String::with_capacity(text.len());
+    let mut gap = false;
+    for c in text.chars() {
+        if c.is_alphanumeric() {
+            if gap && !folded.is_empty() {
+                folded.push(' ');
+            }
+            gap = false;
+            folded.push(c.to_ascii_lowercase());
+        } else {
+            gap = true;
+        }
+    }
+    folded
 }
 
 #[cfg(test)]

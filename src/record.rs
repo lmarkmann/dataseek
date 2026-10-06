@@ -78,7 +78,34 @@ impl Dataset {
 /// CSI, OSC, C1) replaced by a space, so a record from a remote source can
 /// never drive the terminal it is printed on.
 pub fn clean(text: &str) -> String {
-    let mut plain = String::with_capacity(text.len());
+    if already_clean(text) {
+        return text.to_owned();
+    }
+    let mut shown = Spaced::with_capacity(text.len());
+    if text.contains('&') {
+        let mut plain = String::with_capacity(text.len());
+        strip_tags(text, |c| plain.push(c));
+        decode_entities(&plain, &mut shown);
+    } else {
+        strip_tags(text, |c| shown.push(c));
+    }
+    shown.text
+}
+
+/// Printable ASCII with no markup, no entity and no space to collapse, which
+/// [`clean`] would return unchanged. Most titles are.
+fn already_clean(text: &str) -> bool {
+    let bytes = text.as_bytes();
+    bytes.first() != Some(&b' ')
+        && bytes.last() != Some(&b' ')
+        && bytes
+            .iter()
+            .all(|&b| matches!(b, b' '..=b'~') && b != b'<' && b != b'&')
+        && !text.contains("  ")
+}
+
+/// Tags removed, control characters as spaces, invisible ones dropped.
+fn strip_tags(text: &str, mut push: impl FnMut(char)) {
     let mut in_tag = false;
     let mut chars = without_controls(text).peekable();
     while let Some(c) = chars.next() {
@@ -92,13 +119,52 @@ pub fn clean(text: &str) -> String {
             }
             '>' if in_tag => {
                 in_tag = false;
-                plain.push(' ');
+                push(' ');
             }
-            _ if !in_tag && !invisible(c) => plain.push(c),
+            _ if !in_tag && !invisible(c) => push(c),
             _ => {}
         }
     }
-    decode_entities(&plain).split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+/// Text built with every run of whitespace as one space and none at either
+/// end, the same as joining `split_whitespace` with spaces.
+struct Spaced {
+    text: String,
+    gap: bool,
+}
+
+impl Spaced {
+    fn with_capacity(bytes: usize) -> Self {
+        Self { text: String::with_capacity(bytes), gap: false }
+    }
+
+    fn push(&mut self, c: char) {
+        if c.is_whitespace() {
+            self.gap = !self.text.is_empty();
+        } else {
+            if self.gap {
+                self.text.push(' ');
+                self.gap = false;
+            }
+            self.text.push(c);
+        }
+    }
+
+    fn push_str(&mut self, s: &str) {
+        for (i, word) in s.split(char::is_whitespace).enumerate() {
+            if i > 0 {
+                self.gap = !self.text.is_empty();
+            }
+            if !word.is_empty() {
+                if self.gap {
+                    self.text.push(' ');
+                    self.gap = false;
+                }
+                self.text.push_str(word);
+            }
+        }
+    }
 }
 
 /// Markdown as the text its rendered page shows: link and emphasis text kept,
@@ -137,15 +203,18 @@ pub fn from_markdown(text: &str) -> String {
 
 /// HTML entities decoded in one pass, so `&amp;lt;` stays the text `&lt;`.
 /// Unknown names and numeric codes for control characters stay as written.
-fn decode_entities(text: &str) -> String {
-    let mut out = String::with_capacity(text.len());
+/// The `;` is looked for only as far as the longest name, so text full of
+/// bare `&` stays linear.
+fn decode_entities(text: &str, out: &mut Spaced) {
     let mut rest = text;
     while let Some((head, tail)) = rest.split_once('&') {
         out.push_str(head);
         let decoded = tail
-            .split_once(';')
-            .filter(|(name, _)| name.len() <= 8)
-            .and_then(|(name, after)| Some((entity(name)?, after)));
+            .bytes()
+            .take(9)
+            .position(|b| b == b';')
+            .and_then(|end| tail.split_at_checked(end))
+            .and_then(|(name, after)| Some((entity(name)?, after.get(1..)?)));
         if let Some((c, after)) = decoded {
             out.push(c);
             rest = after;
@@ -155,7 +224,6 @@ fn decode_entities(text: &str) -> String {
         }
     }
     out.push_str(rest);
-    out
 }
 
 fn entity(name: &str) -> Option<char> {

@@ -150,9 +150,23 @@ pub fn flows(xml: &str) -> Result<Vec<Flow>, SourceError> {
         match reader.read_event() {
             Ok(Event::Start(e)) => match e.local_name().into_inner() {
                 "Dataflow" => {
+                    let (mut id, mut agency) = (None, None);
+                    for a in e.attributes().with_checks(false).flatten() {
+                        let slot = match a.key.local_name().into_inner() {
+                            "id" => &mut id,
+                            "agencyID" => &mut agency,
+                            _ => continue,
+                        };
+                        if slot.is_none() {
+                            *slot = Some(a.value.into_owned());
+                        }
+                        if id.is_some() && agency.is_some() {
+                            break;
+                        }
+                    }
                     current = Some(Flow {
-                        id: attribute(&e, "id").unwrap_or_default(),
-                        agency: attribute(&e, "agencyID").unwrap_or_default(),
+                        id: id.unwrap_or_default(),
+                        agency: agency.unwrap_or_default(),
                         ..Flow::default()
                     });
                 }
@@ -189,22 +203,20 @@ pub fn flows(xml: &str) -> Result<Vec<Flow>, SourceError> {
             }
             Ok(Event::End(e)) => match e.local_name().into_inner() {
                 "Dataflow" => {
-                    if let Some(flow) = current.take()
+                    if let Some(mut flow) = current.take()
                         && !flow.id.is_empty()
                     {
-                        let name = if flow.name.is_empty() {
-                            flow.id.clone()
-                        } else {
-                            flow.name.clone()
-                        };
-                        flows.push(Flow { name, ..flow });
+                        if flow.name.is_empty() {
+                            flow.name.clone_from(&flow.id);
+                        }
+                        flows.push(flow);
                     }
                 }
                 "Name" | "Description" => {
                     if let (Some(flow), Some(o)) =
                         (current.as_mut(), open.take())
                     {
-                        let value = o.text.trim().to_owned();
+                        let value = o.text.trim();
                         let slot = match o.field {
                             Field::Name => &mut flow.name,
                             Field::Description => flow
@@ -213,7 +225,7 @@ pub fn flows(xml: &str) -> Result<Vec<Flow>, SourceError> {
                         };
                         if !value.is_empty() && (o.english || slot.is_empty())
                         {
-                            *slot = value;
+                            value.clone_into(slot);
                         }
                     }
                 }
@@ -230,7 +242,7 @@ pub fn flows(xml: &str) -> Result<Vec<Flow>, SourceError> {
 }
 
 fn attribute(element: &BytesStart<'_>, local: &str) -> Option<String> {
-    element.attributes().flatten().find_map(|a| {
+    element.attributes().with_checks(false).flatten().find_map(|a| {
         (a.key.local_name().into_inner() == local)
             .then(|| a.value.into_owned())
     })
