@@ -312,10 +312,12 @@ mod tests {
 
     #[test]
     fn summary_cuts_on_a_word_and_marks_the_cut() {
-        let long = "word ".repeat(200);
-        let cut = summary(&long).unwrap();
-        assert!(cut.ends_with("..."));
-        assert!(cut.chars().count() <= SUMMARY_CHARS + 3);
+        // 53 "data, " fill 318 chars, so the 320-char cut lands inside the
+        // 54th word, right after a comma.
+        let long = "data, ".repeat(100);
+        let expected = format!("{}...", vec!["data"; 53].join(", "));
+        assert_eq!(summary(&long), Some(expected));
+        assert_eq!(summary("short, as is.").as_deref(), Some("short, as is."));
         assert_eq!(summary("<p> </p>"), None);
     }
 

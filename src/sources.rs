@@ -1103,7 +1103,7 @@ mod tests {
     }
 
     #[test]
-    fn kaggle_results_are_never_written_to_disk() {
+    fn kaggle_is_registered_as_never_persisted() {
         assert!(!SOURCES.iter().find(|s| s.id == "kaggle").unwrap().persist);
     }
 
