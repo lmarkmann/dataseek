@@ -1,6 +1,6 @@
 //! OpenML's active datasets, downloaded whole and searched locally: the REST
 //! API filters by name and tag but has no full-text search. Only the latest
-//! version of each name is kept.
+//! version of each name is kept, in the place its name first appears.
 
 use std::collections::HashMap;
 
@@ -24,14 +24,17 @@ pub(super) fn parse(body: &Value) -> Result<Vec<Dataset>, SourceError> {
     if rows.is_empty() {
         return Err(SourceError::shape("no data.dataset list"));
     }
-    let mut latest: HashMap<String, (u64, Dataset)> = HashMap::new();
+    let mut latest: Vec<(u64, Dataset)> = Vec::new();
+    let mut slot: HashMap<String, usize> = HashMap::new();
     for row in rows {
         let (Some(id), Some(name)) = (number(row, "/did"), text(row, "/name"))
         else {
             continue;
         };
         let version = number(row, "/version").unwrap_or(0);
-        if latest.get(&name).is_some_and(|(v, _)| *v >= version) {
+        let seen = slot.get(&name).copied();
+        if seen.and_then(|i| latest.get(i)).is_some_and(|(v, _)| *v >= version)
+        {
             continue;
         }
         let quality = |key: &str| {
@@ -53,13 +56,14 @@ pub(super) fn parse(body: &Value) -> Result<Vec<Dataset>, SourceError> {
         let dataset =
             Dataset::new(&name, &format!("https://www.openml.org/d/{id}"))
                 .describe(shape);
-        latest.insert(name, (version, dataset));
+        if let Some(older) = seen.and_then(|i| latest.get_mut(i)) {
+            *older = (version, dataset);
+        } else {
+            slot.insert(name, latest.len());
+            latest.push((version, dataset));
+        }
     }
-    Ok(latest
-        .into_values()
-        .map(|(_, d)| d)
-        .filter_map(Dataset::valid)
-        .collect())
+    Ok(latest.into_iter().map(|(_, d)| d).filter_map(Dataset::valid).collect())
 }
 
 #[cfg(test)]
@@ -69,12 +73,15 @@ mod tests {
 
     #[test]
     fn records_map_from_a_recorded_list() {
-        let mut hits = parse(&fixture::json("openml.json")).unwrap();
-        hits.sort_by(|a, b| a.title.cmp(&b.title));
-        assert_eq!(hits.len(), 4);
-        assert_eq!(hits[0].url, "https://www.openml.org/d/43250");
+        let hits = parse(&fixture::json("openml.json")).unwrap();
+        let titles: Vec<&str> =
+            hits.iter().map(|h| h.title.as_str()).collect();
         assert_eq!(
-            hits[0],
+            titles,
+            ["anneal", "kr-vs-kp", "labor", "18ProductivityPrediction"]
+        );
+        assert_eq!(
+            hits[3],
             Dataset {
                 title: "18ProductivityPrediction".into(),
                 url: "https://www.openml.org/d/43250".into(),
