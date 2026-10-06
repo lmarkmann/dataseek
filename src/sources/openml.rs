@@ -61,3 +61,32 @@ pub(super) fn parse(body: &Value) -> Result<Vec<Dataset>, SourceError> {
         .filter_map(Dataset::valid)
         .collect())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sources::fixture;
+
+    #[test]
+    fn records_map_from_a_recorded_list() {
+        let mut hits = parse(&fixture::json("openml.json")).unwrap();
+        hits.sort_by(|a, b| a.title.cmp(&b.title));
+        assert_eq!(hits.len(), 4);
+        assert_eq!(hits[0].url, "https://www.openml.org/d/43250");
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "18ProductivityPrediction".into(),
+                url: "https://www.openml.org/d/43250".into(),
+                description: Some("1197 rows, 15 features".into()),
+                publisher: None,
+                doi: None,
+                license: None,
+                updated: None,
+                size_bytes: None,
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
+}

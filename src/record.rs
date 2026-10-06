@@ -164,13 +164,14 @@ pub fn first_text(value: &Value, pointers: &[&str]) -> Option<String> {
 /// A non-negative integer at a pointer, accepting numeric strings and
 /// truncating floats, which sources use interchangeably.
 pub fn number(value: &Value, pointer: &str) -> Option<u64> {
-    match value.pointer(pointer)? {
-        Value::Number(n) => n.as_u64().or_else(|| {
-            n.as_f64().filter(|f| f.is_finite() && *f >= 0.0).map(float_to_u64)
-        }),
-        Value::String(s) => s.trim().parse().ok(),
-        _ => None,
-    }
+    let (whole, float) = match value.pointer(pointer)? {
+        Value::Number(n) => (n.as_u64(), n.as_f64()),
+        Value::String(s) => (s.trim().parse().ok(), s.trim().parse().ok()),
+        _ => return None,
+    };
+    whole.or_else(|| {
+        float.filter(|f: &f64| f.is_finite() && *f >= 0.0).map(float_to_u64)
+    })
 }
 
 #[expect(
@@ -338,12 +339,13 @@ mod tests {
 
     #[test]
     fn pointers_tolerate_missing_and_mixed_types() {
-        let v = json!({"a": {"b": " x ", "n": 3, "s": "42", "f": 7.9}});
+        let v = json!({"a": {"b": " x ", "n": 3, "s": "42", "f": 7.9, "fs": "1197.0"}});
         assert_eq!(text(&v, "/a/b").as_deref(), Some("x"));
         assert_eq!(text(&v, "/a/n").as_deref(), Some("3"));
         assert_eq!(text(&v, "/a/zz"), None);
         assert_eq!(number(&v, "/a/s"), Some(42));
         assert_eq!(number(&v, "/a/f"), Some(7));
+        assert_eq!(number(&v, "/a/fs"), Some(1197));
         assert_eq!(items(&v, "/a").len(), 0);
     }
 
