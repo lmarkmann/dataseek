@@ -1,13 +1,13 @@
 # Security
 
-The template runs two supply-chain gates in CI and locally through `just audit`.
+dataseek runs two supply-chain gates in CI and locally through `just audit`.
 
 ## cargo-deny
 
 `cargo-deny` is configured in `deny.toml`.
 
 - `advisories`: RUSTSEC advisories are errors by default. Add an ID with a note and a date only when there is no fix and the code path is unreachable.
-- `licenses`: only permissive licenses are allowed. The allowlist is deliberately wider than the current dependency tree so a clone adding a dependency does not fail on a license that was always going to be fine.
+- `licenses`: only permissive licenses are allowed. The allowlist is deliberately wider than the current dependency tree so a new dependency does not fail on a license that was always going to be fine.
 - `bans`: duplicate versions are warned, not failed. Wildcards in dependency requirements are denied.
 - `sources`: only crates.io is allowed.
 

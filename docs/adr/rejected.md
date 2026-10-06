@@ -1,6 +1,6 @@
 # Rejected
 
-Things that were considered for this template and deliberately left out, with the reason and the date of the decision. The point is that a rejection stays rejected: without this file the same plausible-sounding addition gets re-proposed every few months and re-litigated from scratch.
+Things that were considered and deliberately left out, with the reason and the date of the decision. The point is that a rejection stays rejected: without this file the same plausible-sounding addition gets re-proposed every few months and re-litigated from scratch.
 
 A rejection is not permanent. If the reason stops being true (an upstream interface stabilizes, a dependency changes behavior), that is a new entry, not a silent reversal. Ideas that were never rejected, only parked as *not yet*, live in [`watchlist.md`](watchlist.md) with the trigger that would revisit them.
 
