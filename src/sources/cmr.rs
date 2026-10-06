@@ -6,7 +6,7 @@ use serde_json::Value;
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::{Dataset, day, items, text};
+use crate::record::{Dataset, day, first_text, items, text};
 
 pub fn search(
     ctx: &Ctx<'_>,
@@ -49,7 +49,10 @@ fn record(entry: &Value) -> Option<Dataset> {
             .filter_map(|link| text(link, "/href"))
             .find(|href| href.contains("doi.org/")),
     );
-    dataset.publisher = text(entry, "/data_center");
+    dataset.publisher = first_text(
+        entry,
+        &["/archive_center", "/organizations/0", "/data_center"],
+    );
     dataset.updated = day(text(entry, "/updated"));
     dataset.valid()
 }
@@ -77,7 +80,7 @@ mod tests {
                      instrument on board the ICESat-2 observatory."
                         .into()
                 ),
-                publisher: Some("NSIDC_CPRD".into()),
+                publisher: Some("NASA NSIDC DAAC".into()),
                 doi: Some("10.5067/atlas/atl10.007".into()),
                 license: None,
                 updated: None,
