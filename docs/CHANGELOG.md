@@ -2,6 +2,25 @@
 
 What shipped, newest first. release-plz writes each section from the conventional commits merged since the previous tag; see [`reference/release.md`](reference/release.md).
 
+## 0.4.3 - 2026-10-06
+
+### Docs
+
+- Measured gains from the allocation and complexity pass
+
+### Other
+
+- Bench cleaning prose full of bare ampersands
+
+### Performance
+
+- Load cached catalogs with one UTF-8 check
+- Parse Eurostat's table of contents without per-line allocations
+- Parse SDMX dataflow lists with one pass over each element's attributes
+- Merge results with fewer copies and allocations
+- Search downloaded catalogs without allocating per entry
+- Clean remote text in linear time and with fewer copies
+
 ## 0.4.2 - 2026-10-06
 
 ### Fixed

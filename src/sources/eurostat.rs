@@ -30,10 +30,9 @@ pub fn parse(toc: &str) -> Vec<Dataset> {
     toc.lines()
         .skip(1)
         .filter_map(|line| {
-            let cells: Vec<&str> =
-                line.split('\t').map(|c| c.trim().trim_matches('"').trim()).collect();
-            let (title, code, kind) = (cells.first()?, cells.get(1)?, cells.get(2)?);
-            if !matches!(*kind, "dataset" | "table") || !seen.insert((*code).to_owned()) {
+            let mut cells = line.split('\t').map(|c| c.trim().trim_matches('"').trim());
+            let (title, code, kind) = (cells.next()?, cells.next()?, cells.next()?);
+            if !matches!(kind, "dataset" | "table") || !seen.insert(code) {
                 return None;
             }
             let mut dataset = Dataset::new(
@@ -42,9 +41,9 @@ pub fn parse(toc: &str) -> Vec<Dataset> {
                     "https://ec.europa.eu/eurostat/databrowser/view/{code}/default/table"
                 ),
             )
-            .describe(Some((*code).to_owned()));
+            .describe(Some(code.to_owned()));
             dataset.publisher = Some("Eurostat".to_owned());
-            dataset.updated = cells.get(3).and_then(|d| european_date(d));
+            dataset.updated = cells.next().and_then(european_date);
             dataset.valid()
         })
         .collect()

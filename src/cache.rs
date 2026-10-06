@@ -86,15 +86,17 @@ impl Cache {
     }
 
     /// The entry and whether it is still within `ttl`. Unreadable or
-    /// malformed entries read as absent.
+    /// malformed entries read as absent. The file is checked as UTF-8 once
+    /// and parsed as a `str`, which spares serde_json checking every string
+    /// in a catalog of thousands on its own.
     pub fn load<T: DeserializeOwned>(
         &self,
         kind: Kind,
         key: &str,
         ttl: Duration,
     ) -> Option<(T, Freshness)> {
-        let bytes = std::fs::read(self.path(kind, key)).ok()?;
-        let entry: Entry<T> = serde_json::from_slice(&bytes).ok()?;
+        let json = std::fs::read_to_string(self.path(kind, key)).ok()?;
+        let entry: Entry<T> = serde_json::from_str(&json).ok()?;
         let age = now().saturating_sub(entry.stored);
         let freshness = if age < ttl.as_secs()
             && entry.version == env!("CARGO_PKG_VERSION")

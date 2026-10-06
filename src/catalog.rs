@@ -20,7 +20,8 @@ const STOPWORDS: [&str; 12] = [
 /// The query's meaningful words, lowercase. Falls back to every word when
 /// the query is nothing but stopwords ("the data").
 pub fn terms(query: &str) -> Vec<String> {
-    let all = tokens(query);
+    let all: Vec<String> =
+        words(query).split_whitespace().map(str::to_owned).collect();
     let meaningful: Vec<String> = all
         .iter()
         .filter(|t| !STOPWORDS.contains(&t.as_str()))
@@ -29,10 +30,17 @@ pub fn terms(query: &str) -> Vec<String> {
     if meaningful.is_empty() { all } else { meaningful }
 }
 
-/// How many of `terms` appear as a token prefix in `text`.
-pub fn matched(text: &str, terms: &[String]) -> usize {
-    let haystack = tokens(text).join(" ");
-    terms.iter().filter(|t| contains_token_prefix(&haystack, t)).count()
+/// Each term with a space in front. Matched against [`words`], which also
+/// starts with a space, a needle occurs exactly when some word starts with
+/// its term.
+pub fn needles(terms: &[String]) -> Vec<String> {
+    terms.iter().map(|t| format!(" {t}")).collect()
+}
+
+/// How many of `needles` appear as a word prefix in `text`.
+pub fn matched(text: &str, needles: &[String]) -> usize {
+    let words = words(text);
+    needles.iter().filter(|n| words.contains(n.as_str())).count()
 }
 
 pub fn search(entries: &[Dataset], query: &str, limit: usize) -> Vec<Dataset> {
@@ -40,32 +48,58 @@ pub fn search(entries: &[Dataset], query: &str, limit: usize) -> Vec<Dataset> {
     if terms.is_empty() {
         return Vec::new();
     }
+    let needles = needles(&terms);
     let phrase = terms.join(" ");
-    let mut scored: Vec<(u32, &Dataset)> = entries
+    let (mut title, mut body) = (String::new(), String::new());
+    let mut scored: Vec<(u32, &Dataset, usize)> = entries
         .iter()
-        .filter_map(|entry| score(entry, &terms, &phrase).map(|s| (s, entry)))
+        .enumerate()
+        .filter_map(|(i, entry)| {
+            words_into(&entry.title, &mut title);
+            let score = score(entry, &title, &mut body, &needles, &phrase)?;
+            Some((score, entry, i))
+        })
         .collect();
-    scored.sort_by(|(a, x), (b, y)| {
-        b.cmp(a).then_with(|| x.title.len().cmp(&y.title.len()))
-    });
-    scored.into_iter().take(limit).map(|(_, entry)| entry.clone()).collect()
+    let order = |(a, x, i): &(u32, &Dataset, usize),
+                 (b, y, j): &(u32, &Dataset, usize)| {
+        b.cmp(a)
+            .then_with(|| x.title.len().cmp(&y.title.len()))
+            .then_with(|| i.cmp(j))
+    };
+    if scored.len() > limit {
+        scored.select_nth_unstable_by(limit, order);
+        scored.truncate(limit);
+    }
+    scored.sort_unstable_by(order);
+    scored.into_iter().map(|(_, entry, _)| entry.clone()).collect()
 }
 
-fn score(entry: &Dataset, terms: &[String], phrase: &str) -> Option<u32> {
-    let title = tokens(&entry.title).join(" ");
-    let body = entry
-        .description
-        .as_deref()
-        .map(|d| tokens(d).join(" "))
-        .unwrap_or_default();
+/// The entry's score, or `None` when some term is in neither its title nor
+/// its description. `title` holds the title's [`words`]; the description's
+/// go into `body` only once a term is missing from the title.
+fn score(
+    entry: &Dataset,
+    title: &str,
+    body: &mut String,
+    needles: &[String],
+    phrase: &str,
+) -> Option<u32> {
+    let mut body_read = false;
     let mut total: u32 = 0;
-    for term in terms {
-        let in_title = contains_token_prefix(&title, term);
-        let in_body = contains_token_prefix(&body, term);
-        if !in_title && !in_body {
-            return None;
-        }
-        total = total.saturating_add(if in_title { 3 } else { 1 });
+    for needle in needles {
+        let points = if title.contains(needle.as_str()) {
+            3
+        } else {
+            if !body_read {
+                words_into(entry.description.as_deref().unwrap_or(""), body);
+                body_read = true;
+            }
+            if !body.contains(needle.as_str()) {
+                return None;
+            }
+            1
+        };
+        total = total.saturating_add(points);
     }
     if title.contains(phrase) {
         total = total.saturating_add(10);
@@ -73,18 +107,33 @@ fn score(entry: &Dataset, terms: &[String], phrase: &str) -> Option<u32> {
     Some(total)
 }
 
-/// Whether some token in `haystack` starts with `term`, so "temp" matches
-/// "temperature" but "rain" does not match "terrain".
-fn contains_token_prefix(haystack: &str, term: &str) -> bool {
-    haystack.split(' ').any(|token| token.starts_with(term))
+/// `text` lowercased, split on everything that is not a letter or a digit,
+/// and joined back with a space before every word, so "CO2-emissions"
+/// becomes " co2 emissions".
+fn words(text: &str) -> String {
+    let mut out = String::with_capacity(text.len().saturating_add(1));
+    words_into(text, &mut out);
+    out
 }
 
-fn tokens(text: &str) -> Vec<String> {
-    text.to_lowercase()
-        .split(|c: char| !c.is_alphanumeric())
-        .filter(|t| !t.is_empty())
-        .map(str::to_owned)
-        .collect()
+fn words_into(text: &str, out: &mut String) {
+    out.clear();
+    if text.is_ascii() {
+        for word in text.split(|c: char| !c.is_ascii_alphanumeric()) {
+            if !word.is_empty() {
+                out.push(' ');
+                out.push_str(word);
+            }
+        }
+        out.make_ascii_lowercase();
+    } else {
+        for word in text.to_lowercase().split(|c: char| !c.is_alphanumeric()) {
+            if !word.is_empty() {
+                out.push(' ');
+                out.push_str(word);
+            }
+        }
+    }
 }
 
 #[cfg(test)]
