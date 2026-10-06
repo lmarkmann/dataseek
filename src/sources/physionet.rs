@@ -6,7 +6,7 @@ use serde_json::Value;
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::{Dataset, day, first_text, text};
+use crate::record::{Dataset, day, first_text, number, text};
 
 pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
     let body = ctx
@@ -37,6 +37,7 @@ pub(super) fn parse(body: &Value) -> Result<Vec<Dataset>, SourceError> {
             .describe(text(row, "/abstract"))
             .doi_from(first_text(row, &["/version_doi", "/core_doi"]));
             dataset.license = text(row, "/license/name");
+            dataset.size_bytes = number(row, "/main_storage_size");
             dataset.updated = day(text(row, "/publish_date"));
             dataset.valid()
         })
@@ -68,7 +69,7 @@ mod tests {
                     "Open Data Commons Attribution License v1.0".into()
                 ),
                 updated: Some("1999-08-03".into()),
-                size_bytes: None,
+                size_bytes: Some(663_056_564),
                 popularity: None,
                 aliases: vec![],
             }
