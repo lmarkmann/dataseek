@@ -8,9 +8,10 @@
 //! The text table of contents has no description column. It is a tree, a
 //! folder's title names the topic of what sits in it, and the indentation of
 //! a row (four spaces a level) gives its depth. A description is therefore
-//! the folders above a dataset, without the root: "Population and social
-//! conditions > Labour market > ...". A code can sit in several folders, and
-//! the first one describes it. Comext and PRODCOM datasets (codes starting
+//! the code, so a search by code still finds the dataset, then the folders
+//! above it without the root: "une_rt_m: Population and social conditions >
+//! Labour market > ...". A code can sit in several folders, and the first one
+//! describes it. Comext and PRODCOM datasets (codes starting
 //! `DS-`) are not listed; the Comext catalogue's table of contents answered
 //! 404 (Eurostat, October 2026). No rate limit or key is published for the
 //! catalogue API (Eurostat API documentation, October 2026).
@@ -66,7 +67,7 @@ pub fn parse(toc: &str) -> Vec<Dataset> {
                 title,
                 &format!("{DATA_BROWSER}/{code}/default/table"),
             )
-            .describe(Some(theme));
+            .describe((!theme.is_empty()).then(|| format!("{code}: {theme}")));
             dataset.publisher = Some("Eurostat".to_owned());
             dataset.updated = cells.next().and_then(european_date);
             dataset.valid()
@@ -118,13 +119,24 @@ mod tests {
         assert!(entries[0].url.contains("/view/une_rt_m/"));
         assert_eq!(
             entries[0].description.as_deref(),
-            Some("Economy and finance > National accounts")
+            Some("une_rt_m: Economy and finance > National accounts")
         );
         assert_eq!(
             entries[1].description.as_deref(),
-            Some("Economy and finance > Prices")
+            Some("tec00001: Economy and finance > Prices")
         );
         assert_eq!(entries[2].description, None);
+    }
+
+    #[test]
+    fn a_dataset_is_found_by_its_code() {
+        let datasets = parse(&fixture::text("eurostat.txt"));
+        let found = crate::catalog::search(&datasets, "une_rt_m", 5);
+        assert_eq!(found.len(), 1);
+        assert_eq!(
+            found[0].title,
+            "Unemployment by sex and age - monthly data"
+        );
     }
 
     #[test]
@@ -139,9 +151,9 @@ mod tests {
                       ei_bpm6ca_q/default/table"
                     .into(),
                 description: Some(
-                    "General and regional statistics > European and \
-                     national indicators for short-term analysis > Balance \
-                     of payments"
+                    "ei_bpm6ca_q: General and regional statistics > \
+                     European and national indicators for short-term \
+                     analysis > Balance of payments"
                         .into()
                 ),
                 publisher: Some("Eurostat".into()),
@@ -160,7 +172,7 @@ mod tests {
         assert_eq!(
             datasets[2].description.as_deref(),
             Some(
-                "Population and social conditions > Labour market > \
+                "une_rt_m: Population and social conditions > Labour market > \
                  Employment and unemployment (Labour force survey) > LFS \
                  main indicators > Unemployment - LFS adjusted series"
             )
@@ -172,9 +184,10 @@ mod tests {
         assert_eq!(
             datasets[3].description.as_deref(),
             Some(
-                "Population and social conditions > Labour market > \
-                 Employment and unemployment (Labour force survey) > Labour \
-                 force survey (LFS) series - detailed annual data > Employees"
+                "lfsa_eegan2: Population and social conditions > Labour \
+                 market > Employment and unemployment (Labour force survey) \
+                 > Labour force survey (LFS) series - detailed annual data > \
+                 Employees"
             )
         );
     }
