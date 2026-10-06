@@ -107,7 +107,7 @@ mod tests {
             clipped("sea surface temperature"),
             "sea surface temperature"
         );
-        let longest = "é".repeat(QUERY_CHARS);
+        let longest = "\u{e9}".repeat(QUERY_CHARS);
         assert_eq!(clipped(&longest), longest);
     }
 
@@ -119,7 +119,7 @@ mod tests {
         let ends_on_a_word = format!("{} tail", "a".repeat(QUERY_CHARS));
         assert_eq!(clipped(&ends_on_a_word), "a".repeat(QUERY_CHARS));
 
-        let one_word = "é".repeat(300);
+        let one_word = "\u{e9}".repeat(300);
         assert_eq!(clipped(&one_word).chars().count(), QUERY_CHARS);
     }
 }
