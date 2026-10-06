@@ -55,6 +55,10 @@ msrv-find:
 cov *args:
     cargo llvm-cov nextest --html {{ args }}
 
+# Criterion on this machine: `just bench --save-baseline main`, change, `just bench --baseline main`.
+bench *args:
+    cargo bench --features internals --bench search -- {{ args }}
+
 # Mutate what the branch changed; a survivor is a line the tests run but never check.
 mutants *args:
     #!/usr/bin/env bash
