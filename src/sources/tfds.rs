@@ -23,7 +23,7 @@ pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
     let entries = parse(&page);
     if entries.is_empty() {
         return Err(SourceError::shape(
-            "no catalog links on the overview page",
+            "no All Datasets listing on the overview page",
         ));
     }
     Ok(entries)
