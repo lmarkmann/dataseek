@@ -5,23 +5,24 @@ fmt:
     cargo fmt --all
     cargo clippy --all-targets --all-features --fix --allow-dirty --allow-staged -- -D warnings
 
-# The inner loop: format, lint, test. `ci` is the full gate.
+# Format check, lint, test.
 check:
     cargo fmt --all -- --check
     cargo clippy --all-targets --all-features --locked -- -D warnings
     cargo nextest run --all-features --locked
 
-# Everything CI gates on, in the same order. See docs/development.md.
+# Everything CI gates on, in the same order.
 ci: check cross shear msrv audit
     typos
 
 test *args:
     cargo nextest run {{ args }}
 
-# Inspect changed snapshots one by one; `bless` takes them all unread.
+# Step through changed snapshots.
 review:
     cargo insta review
 
+# Accept every changed snapshot unread.
 bless:
     cargo insta test --accept --unreferenced=reject
 
@@ -31,23 +32,21 @@ run *args:
 build:
     cargo build --release
 
-# Dependencies declared in Cargo.toml but never used.
-# The Windows and macOS compile boundary, checked from this machine the way CI does.
+# Clippy for the Windows and macOS targets, as CI runs it.
 cross:
     rustup target add x86_64-pc-windows-msvc aarch64-apple-darwin
     cargo clippy --all-targets --all-features --locked --target x86_64-pc-windows-msvc -- -D warnings
     cargo clippy --all-targets --all-features --locked --target aarch64-apple-darwin -- -D warnings
 
+# Dependencies declared in Cargo.toml but never used.
 shear:
     cargo shear
 
-# Does the crate still compile on the rust-version it claims? The trailing check
-# command is what makes this match the CI job; cargo-msrv's default is a bare
-# `cargo check`, which skips tests, examples and features.
+# Check the crate on the rust-version it claims.
 msrv:
     cargo msrv verify -- cargo check --all-targets --all-features --locked
 
-# What the MSRV actually is; the trailing check command is what makes it look below the claim.
+# Measure the real MSRV, below the declared one.
 msrv-find:
     cargo msrv find -- cargo check --ignore-rust-version
 
@@ -76,11 +75,6 @@ bloat *args:
 crates-outdated:
     cargo outdated --root-deps-only
 
-# Compares only the components a pin declares, so @v2 is current until a v3 exists,
-# @v0.5 until a v0.6, and @v1.48.0 the moment v1.48.1 ships. Branch pins (@stable,
-# @master) move on their own and are skipped. A hash pin is compared through the
-# version comment pinact writes beside it, which is why that comment is load-bearing
-# rather than decoration. See docs/development.md.
 [doc("Action and hook tags with newer versions available.")]
 actions-outdated:
     #!/usr/bin/env bash
@@ -92,9 +86,6 @@ actions-outdated:
       exit 1
     fi
 
-    # Not deduplicated by repository on purpose. typos is pinned in both ci.yml and
-    # prek.toml and the two are meant to agree, so a disagreement should surface as
-    # two rows rather than collapse into one.
     pins=$({
       grep -rhoE 'uses: [A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+@[A-Za-z0-9_.-]+([[:space:]]*#[[:space:]]*[A-Za-z0-9_.-]+)?' .github/workflows/ |
         sed 's/^uses: //'
@@ -109,10 +100,6 @@ actions-outdated:
       slug=${pin%@*}
       ref=${pin##*@}
 
-      # A hash pin carries its version in the trailing comment, so read the comment
-      # as the ref. Without this the 40-character SHA fails the version test below
-      # and the action drops out of the report unnoticed, which would make pinning
-      # the one change that leaves this repo less current than before.
       if [[ $ref =~ ^[0-9a-f]{40}$ ]]; then
         ref=${comment#\#}
         ref=${ref# }
@@ -143,12 +130,7 @@ actions-outdated:
 # Everything this repo pins, crates and tags alike.
 outdated: crates-outdated actions-outdated
 
-# Re-pin the one hash-pinned workflow. A recipe rather than a line in the docs
-# because the exclusion is not optional: dtolnay/rust-toolchain@stable names a
-# toolchain rather than a version, and a run without it errors on that line.
-# --verify afterwards is what catches a SHA whose version comment has drifted,
-# which is the failure `just actions-outdated` cannot see for itself.
-[doc("Re-pin release-plz.yml to the latest action releases.")]
+[doc("Re-pin every action to its newest release at least a week old.")]
 repin:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -160,21 +142,17 @@ repin:
     pinact run --update --min-age 7
     pinact run --verify --check
 
-# See docs/security.md.
+# Advisories, licenses, bans and sources.
 deny:
     cargo deny check advisories licenses bans sources
 
-# See docs/security.md.
+# Static analysis of the workflows, offline.
 zizmor:
     zizmor .github/workflows/
 
-# See docs/security.md.
 audit: deny zizmor
 
-# No release-plz subcommand has a dry-run flag, so a preview has to run the real
-# update and put the tree back. It refuses to start unless the tree is clean,
-# untracked files included, because the restore is a checkout plus a clean and
-# both need a known starting point. See docs/release.md.
+# Show the diff the next release PR would make, then restore the tree.
 release-preview:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -185,12 +163,9 @@ release-preview:
       exit 1
     fi
 
-    # Restores on every exit path, including release-plz failing part-way through.
     trap 'git reset --quiet && git checkout --quiet -- . && git clean --quiet -fd' EXIT
 
-    release-plz update
-    # A generated CHANGELOG.md lands untracked, and git diff does not show
-    # untracked files; --intent-to-add puts it in the diff without staging it.
+    release-plz update --config .github/release-plz.toml
     git add --intent-to-add --quiet .
     git --no-pager diff
 
@@ -234,4 +209,3 @@ description TEXT:
     gh repo edit --description "$description"
 
     echo "Updated Cargo.toml, README.md, CLI help, and the GitHub repository description."
-

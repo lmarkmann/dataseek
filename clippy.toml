@@ -1,4 +1,3 @@
-# See docs/development.md. The unwrap/panic denials in Cargo.toml apply only to production code.
 allow-unwrap-in-tests = true
 allow-expect-in-tests = true
 allow-panic-in-tests = true
