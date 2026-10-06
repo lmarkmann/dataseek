@@ -29,7 +29,9 @@ jobs:
         with:
           persist-credentials: false
       - name: toolchain
-        run: rustup toolchain install
+        run: |
+          rustup update --no-self-update
+          rustup toolchain install
       - name: cache
         uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:
