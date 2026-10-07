@@ -102,9 +102,15 @@ fn find_dataset(value: Value) -> Option<Value> {
     }
 }
 
+/// `Dataset`, a prefixed `schema:Dataset`, or the full IRI Zenodo writes,
+/// `https://schema.org/Dataset`.
 fn is_dataset(kind: Option<&Value>) -> bool {
     match kind {
-        Some(Value::String(t)) => t == "Dataset" || t.ends_with(":Dataset"),
+        Some(Value::String(t)) => {
+            t == "Dataset"
+                || t.ends_with(":Dataset")
+                || t.ends_with("schema.org/Dataset")
+        }
         Some(Value::Array(ts)) => ts.iter().any(|t| is_dataset(Some(t))),
         _ => false,
     }
@@ -199,6 +205,16 @@ mod tests {
             </script>"#;
         let found = json_ld(page).into_iter().find_map(find_dataset).unwrap();
         assert_eq!(found["name"], "Rain");
+    }
+
+    // Zenodo record pages, as served on 2026-10-07.
+    #[test]
+    fn the_dataset_type_may_be_a_full_schema_org_iri() {
+        let page = include_str!("../tests/fixtures/inspect/zenodo.html");
+        let found = json_ld(page).into_iter().find_map(find_dataset).unwrap();
+        assert_eq!(found["name"], "Monthly water storage levels, Victoria");
+        assert!(is_dataset(Some(&json!("http://schema.org/Dataset"))));
+        assert!(!is_dataset(Some(&json!("https://schema.org/DataCatalog"))));
     }
 
     #[test]
