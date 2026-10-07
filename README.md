@@ -1,4 +1,4 @@
-# dataseek
+![dataseek: every dataset source it searches, set out as a periodic table](docs/assets/dataseek-banner.png)
 
 <!-- repo-description -->
 Search for datasets from the terminal
