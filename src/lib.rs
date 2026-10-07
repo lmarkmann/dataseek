@@ -59,7 +59,7 @@ pub mod internals {
 }
 
 use std::ffi::OsString;
-use std::io::{self, Write};
+use std::io::{self, IsTerminal, Write};
 use std::process::ExitCode;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -284,7 +284,12 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
             out.stdout().write_all(&script)?;
         }
         // Rendered on demand so the page cannot drift from the flags.
-        Command::Man => out.stdout().write_all(&help::man_page()?)?,
+        Command::Man => {
+            let page = help::man_page()?;
+            if !(io::stdout().is_terminal() && help::show_man(&page)) {
+                out.stdout().write_all(&page)?;
+            }
+        }
         Command::Help { topic } => help::run(topic.as_deref(), out)?,
     }
     Ok(())

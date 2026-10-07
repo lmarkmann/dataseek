@@ -358,11 +358,13 @@ pub enum Command {
         shell: Shell,
     },
 
-    /// Print the man page, in roff, to stdout.
+    /// Show the man page; in a pipe, print it in roff.
     #[command(
-        long_about = "Print the man page, in roff, to stdout.\n\nRead it \
-            with `dataseek man | man -l -`, or install it with \
-            `dataseek man > ~/.local/share/man/man1/dataseek.1`."
+        hide = true,
+        long_about = "Show the man page; in a pipe, print it in roff.\n\n\
+            Install it with `dataseek man > \
+            ~/.local/share/man/man1/dataseek.1`, then `man dataseek` finds \
+            it; save it as dsk.1 for `man dsk`."
     )]
     Man,
 

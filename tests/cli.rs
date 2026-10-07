@@ -1183,6 +1183,18 @@ fn cache_dir_moves_the_cache() {
     assert_eq!(info["path"], dir);
 }
 
+// `man` is for installing the page, not for daily use: the help leaves it
+// out, and it still runs.
+#[test]
+fn man_is_hidden_from_help_but_still_runs() {
+    let lists_man =
+        |text: &str| text.lines().any(|l| l.trim_start().starts_with("man "));
+    assert!(!lists_man(&stdout_text(&[])), "overview lists man");
+    assert!(!lists_man(&stdout_text(&["-h"])), "-h lists man");
+    assert!(!lists_man(&stdout_text(&["--help"])), "--help lists man");
+    assert!(stdout_text(&["man"]).starts_with(".ie"));
+}
+
 #[test]
 fn man_renders_roff_with_the_manifest_version() {
     let out = bin().arg("man").output().unwrap();

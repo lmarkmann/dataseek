@@ -107,12 +107,13 @@ For `search`, success means at least one source answered, even with no results: 
 
 ## Completion and the man page
 
-`dataseek completion fish` (or `bash`, `zsh`, ...) prints a completion script to stdout. `dataseek man` prints the man page, in roff, to the same place:
+`dataseek completion fish` (or `bash`, `zsh`, ...) prints a completion script to stdout. `dataseek man` prints the man page, in roff, to the same place when stdout is not a terminal; on a terminal it shows the page through `man`, by way of a temporary file because BSD and macOS `man` cannot read stdin, and prints the roff if `man` is missing. `cargo install` cannot install a man page, so `man dsk` finds nothing until it is saved where `man` looks:
 
 ```sh
-dataseek man | man -l -
-dataseek man > ~/.local/share/man/man1/dataseek.1
+dsk man > ~/.local/share/man/man1/dsk.1        # then: man dsk
 ```
+
+`man` is a hidden command: the overview, `-h` and `--help` leave it out, `dataseek help --json` still lists it, as it lists every command that runs.
 
 Both are data, so both go to stdout, and both are derived from the clap definition rather than maintained by hand. The man page is rendered on demand by `clap_mangen` instead of at build time by a build script, so it cannot drift from the flags. `help::man_page` adds two things clap_mangen does not: a flag hidden from `-h` still gets its description, and the examples, exit codes (from `EXIT_CODES`, like `help exit-codes`) and bug address become EXAMPLES, EXIT STATUS and REPORTING BUGS sections. The tests assert the page carries the manifest version, renders without errors, names every command, describes every option and has those three sections, and that fish parses the completion script.
 
@@ -144,7 +145,7 @@ indicatif parses its color token with `console::Style::from_dotted_str`, which u
 
 ## Extending the CLI
 
-Add a subcommand by adding a variant to `Command` in `src/cli.rs`, a match arm in `run()` in `src/lib.rs`, its name in `COMMANDS` and a line in `GROUPS` in `src/help.rs`. Keep one domain per tool; prefer support subcommands (`doctor`, `cache`) over piling flags onto the root. Add a test in `tests/cli.rs` for every behavior you add, and give a command that takes arguments people get wrong at most three examples, and add its `-h` to the list `every_example_in_help_and_readme_parses` reads.
+Add a subcommand by adding a variant to `Command` in `src/cli.rs`, a match arm in `run()` in `src/lib.rs`, its name in `COMMANDS` and, unless it is hidden like `man`, a line in `GROUPS` in `src/help.rs`. Keep one domain per tool; prefer support subcommands (`doctor`, `cache`) over piling flags onto the root. Add a test in `tests/cli.rs` for every behavior you add, and give a command that takes arguments people get wrong at most three examples, and add its `-h` to the list `every_example_in_help_and_readme_parses` reads.
 
 A flag that takes one of a fixed set of values names them in its own help, as `Colorize output (auto, always, or never)` does, because `-h` does not list them. Build the command through `cli::command()`, never `Cli::command()` directly: it hides clap's `[possible values: ...]` list from `-h` and moves each value's meaning, taken from the `ValueEnum` doc comments, into the long help `--help` shows. The man page alone builds from the plain definition, so roff draws its own list of values.
 

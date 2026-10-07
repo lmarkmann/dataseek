@@ -17,7 +17,6 @@ Commands:
   cache       Show, warm or clear the cache
   doctor      Check the environment, keys and cache, and report readiness
   completion  Print a shell completion script to stdout
-  man         Print the man page, in roff, to stdout
   help        Explain a command or a topic: environment, exit-codes
 
 Options:

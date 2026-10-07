@@ -58,7 +58,6 @@ const GROUPS: [(&str, &[(&str, &str)]); 3] = [
         "shell",
         &[
             ("completion", "print a completion script"),
-            ("man", "print the man page"),
             ("help", "explain a command or topic"),
         ],
     ),
@@ -156,6 +155,22 @@ fn built() -> clap::Command {
     let mut cmd = cli::command().bin_name(crate::invoked_name());
     cmd.build();
     cmd
+}
+
+/// Show `page` through `man`, as a reader on a terminal expects. `man` takes a
+/// file path everywhere (BSD and macOS `man` have no `-l`), so the page goes
+/// through a temporary file. False when `man` is missing or fails, so the
+/// caller prints the roff instead.
+pub fn show_man(page: &[u8]) -> bool {
+    let path = std::env::temp_dir()
+        .join(format!("dataseek-{}.1", std::process::id()));
+    let shown = std::fs::write(&path, page).is_ok()
+        && std::process::Command::new("man")
+            .arg(&path)
+            .status()
+            .is_ok_and(|status| status.success());
+    let _ = std::fs::remove_file(&path);
+    shown
 }
 
 /// The man page, in roff. clap_mangen draws the flags and commands from the
@@ -318,10 +333,7 @@ fn command_json(cmd: &clap::Command) -> Value {
             .filter(|a| !a.is_hide_set())
             .map(arg_json)
             .collect::<Vec<_>>(),
-        "commands": cmd
-            .get_subcommands()
-            .filter(|c| !c.is_hide_set())
-            .map(command_json)
+        "commands": cmd.get_subcommands().map(command_json)
             .collect::<Vec<_>>(),
     })
 }
@@ -418,8 +430,12 @@ mod tests {
             .flat_map(|(_, commands)| commands.iter())
             .map(|(name, _)| name.split(',').next().unwrap_or(name))
             .collect();
+        let hidden = cli::command();
         for command in subcommands() {
-            assert!(shown.contains(&command.as_str()), "{command} missing");
+            let hide = hidden
+                .find_subcommand(&command)
+                .is_some_and(clap::Command::is_hide_set);
+            assert_eq!(shown.contains(&command.as_str()), !hide, "{command}");
         }
     }
 
