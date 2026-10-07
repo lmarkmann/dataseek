@@ -94,10 +94,16 @@ fn say(event: &str, indent: &str, mark: &str, msg: impl Display) {
 }
 
 /// Write one event as a line of JSON on stderr. Also used by the error
-/// printer, which runs whatever the mode is. A failed write is dropped:
-/// stderr is where it would be reported.
+/// printer, which runs whatever the mode is.
 pub fn event_line(event: &serde_json::Value) {
-    let _ = writeln!(anstream::stderr(), "{event}");
+    relay(event);
+}
+
+/// Write `line` on stderr as it is: an event, or a line another dataseek
+/// process wrote to its stderr, as `mcp` relays its tool calls'. A failed
+/// write is dropped: stderr is where it would be reported.
+pub fn relay(line: impl Display) {
+    let _ = writeln!(anstream::stderr(), "{line}");
 }
 
 /// Open a stage of work: `> <msg>`.

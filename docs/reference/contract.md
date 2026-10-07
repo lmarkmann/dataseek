@@ -31,7 +31,7 @@ Secrets never arrive as flags, which leak into shell history and process listing
 
 - A bare `dataseek` prints the overview on **stdout** and exits `0`: the name and version, the commands in three small groups (search, upkeep, shell), and a footer pointing at `-h`. It is orientation, so `dsk | head` shows it. `src/help.rs` holds the groups; a unit test fails when a command is missing from them.
 - `dataseek help <command>` is that command's `--help`. `dataseek help environment` lists the variables that change what it does, `dataseek help exit-codes` every code it returns.
-- `dataseek help --json` describes the whole surface as data for scripts and agents: commands, flags with their value names, possible values, defaults and variables, and the exit codes, all generated from the clap definition. A bare `dataseek --json` prints the same object.
+- `dataseek help --json` describes the whole surface as data for scripts and agents: commands, flags with their type (`boolean`, `integer`, `string` or `count`), value names, possible values, defaults, the `minimum` and `maximum` of a ranged integer, and variables, and the exit codes, all generated from the clap definition. A bare `dataseek --json` prints the same object. `dataseek help <command> --json` prints that command's entry of it: its own flags, with the global ones listed once, on the root.
 
 ## stdout is data, stderr is status
 
@@ -56,9 +56,21 @@ Every `--json` output is one object with a `schema` tag naming its shape and ver
 
 `inspect --json` (`dataseek-inspect/1`) prints `dataset`, the page's own JSON-LD node as the page wrote it, and beside it `files`, dataseek's reading of the file list, so a `files` key on the page is never overwritten. Every string of the page's metadata, keys included, has its control characters (C0 other than newline and tab, DEL, and C1) replaced by a space before it is printed, as text or as JSON, so a page cannot drive the terminal that shows it.
 
+## MCP mode
+
+`dataseek mcp` serves `search`, `sources` and `inspect` to MCP clients over stdio ([ADR 0015](../adr/0015-mcp-server-over-stdio.md)). A client registers it as command `dsk` with arguments `["mcp"]`.
+
+- **Protocol.** Requests naming revision `2026-07-28` in `_meta` are served statelessly, with `server/discover`; clients that open with `initialize` get revision `2025-11-25` or `2025-06-18`. A request naming any other revision gets `-32022` with the supported list.
+- **stdout** carries one JSON-RPC message per line and nothing else. stderr carries the server's own status line, as plain text, and its calls' narration, as `dataseek-events/1` lines. `-q`, `-v`, `--cache-dir` and `--connect-timeout` given to `dataseek mcp` reach every call.
+- **Tools.** Each tool's input schema is its command's `help <command> --json` entry: one property per flag, named by its long form, typed, with its possible values and default; `search`'s words are one `query` string. A call runs `dataseek <command> --json` with those flags, and the result carries the object that prints as `structuredContent` and again as text.
+- **Failures.** A failed call is a result with `isError: true`: the text is the `Error:`, `Cause:` and `Try:` lines the command line prints, and `structuredContent` the error event. A bad or missing argument is such a failure too, since the model can fix it, and so is a call made while four are already running. A JSON-RPC error answers the rest: a line that is not JSON in UTF-8 gets `-32700`, and the session goes on; a request without a string method, or reusing the id of a call still running, `-32600`; an unknown method `-32601`; an unknown tool or `arguments` that is not an object `-32602`; a server fault `-32603`, whose message says what the command left. A notification is never answered.
+- **Deadline.** Every search runs with `--timeout`, the argument or its default of 20 seconds. A `timeout` outside 1 to 300 seconds is refused, so every call ends in a time a client waits for; the schema says so with `minimum` and `maximum`, as it does for every ranged integer.
+- **Keys** come from the environment and `credentials.toml`, as everywhere ([ADR 0009](../adr/0009-keys-and-contact-address.md)); no tool takes one as an argument.
+- **Lifetime.** Closing stdin ends the server at once, and any call still running is killed; so does closing its stdout, which the next response finds. `notifications/cancelled` kills one call, which then gets no answer. Every call runs the binary the server was started as, even after an upgrade replaces it.
+
 ## SIGPIPE
 
-`src/lib.rs` resets `SIGPIPE` to the Unix default so `tool | head` exits quietly instead of panicking.
+`src/lib.rs` resets `SIGPIPE` to the Unix default so `tool | head` exits quietly instead of panicking. `dataseek mcp` is the exception: there a client that closes the pipe must not kill the server outright, so the signal is ignored, the next response fails as a write error, and the server kills the calls still running before it exits.
 
 Both the call and the `signal-hook` dependency are gated to `cfg(unix)`, because signals are a Unix concept: `signal_hook::consts::SIGPIPE` does not exist on Windows, where the crate re-exports only `SIGABRT`, `SIGFPE`, `SIGILL`, `SIGINT`, `SIGSEGV`, and `SIGTERM`. An unconditional import there is not a runtime problem, it is a build failure, and it went unnoticed until Windows joined the CI matrix. Nothing is lost on Windows: a closed pipe surfaces as an ordinary write error, which the broken-pipe arm of `report()` already turns into a quiet success.
 
@@ -74,7 +86,7 @@ Error: <what went wrong>
   Try:   <recovery hint>
 ```
 
-The hint is baked into the thiserror message after a `\n  Try:` marker; `report()` splits it off and prints the `Cause:` chain between the two, so the order is the problem, why, then what to do. A cause is printed once, from the chain; a message that also interpolates its own `{source}` prints it twice. An error with no hint was not anticipated, so its `Try:` line is the issues address. Under `--json` the same three parts are one `error` event on stderr, and clap's usage errors take that shape too.
+The hint is baked into the thiserror message after a `\n  Try:` marker; `report()` splits it off and prints the `Cause:` chain between the two, so the order is the problem, why, then what to do. A cause is printed once, from the chain; a message that also interpolates its own `{source}` prints it twice. An error with no hint was not anticipated, so its `Try:` line is the issues address. Under `--json` the same three parts are one `error` event on stderr, and clap's usage errors take that shape too: the lines clap prints under its first, such as the missing argument or the possible values, are the causes, and clap's tip, when it has one, is the hint.
 
 Expected failures never show a stack trace. `Cargo.toml` denies every route a panic takes into production code, because a panic is a bug and never a way to exit: `unwrap_used`, `expect_used`, `panic`, `panic_in_result_fn`, `unreachable`, `unimplemented`, `todo`, and the two that are easy to overlook because they carry no macro name, `indexing_slicing` and `arithmetic_side_effects`. Exit codes are returned as `ExitCode` from `main` so destructors still run.
 

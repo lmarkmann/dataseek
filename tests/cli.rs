@@ -350,11 +350,28 @@ fn errors_under_json_are_events_on_stderr() {
         .collect();
     assert!(events.iter().any(|e| e["event"] == "note"), "{events:?}");
 
-    // clap's own usage errors take the same shape.
+    // clap's own usage errors take the same shape, with clap's details as
+    // causes.
     let out = bin().args(["--json", "no-such-command"]).output().unwrap();
     assert_eq!(out.status.code(), Some(2));
     let event: Value = serde_json::from_slice(&out.stderr).unwrap();
     assert_eq!(event["event"], "error");
+    let out = bin()
+        .args(["--json", "search", "x", "--sort", "oldest"])
+        .output()
+        .unwrap();
+    let event: Value = serde_json::from_slice(&out.stderr).unwrap();
+    assert_eq!(
+        event["message"],
+        "invalid value 'oldest' for '--sort <ORDER>'"
+    );
+    assert_eq!(
+        event["causes"],
+        json!(["[possible values: relevance, newest]"])
+    );
+    let out = bin().args(["--json", "search"]).output().unwrap();
+    let event: Value = serde_json::from_slice(&out.stderr).unwrap();
+    assert_eq!(event["causes"], json!(["<QUERY>..."]));
 }
 
 // A script written for --jq must fail as a usage error that names the
@@ -1280,6 +1297,19 @@ fn help_json_describes_the_surface() {
     assert_eq!(surface["exit_codes"].as_array().unwrap().len(), 4);
 }
 
+// One command, asked alone or as part of the surface, is one description:
+// its own flags, with the global ones listed once, on the root.
+#[test]
+fn help_for_one_command_matches_its_entry_in_the_surface() {
+    let surface = json_of(&["help", "--json"]);
+    for entry in surface["command"]["commands"].as_array().unwrap() {
+        let name = entry["name"].as_str().unwrap();
+        let alone = json_of(&["help", name, "--json"]);
+        assert_eq!(alone["schema"], "dataseek-command/1");
+        assert_eq!(&alone["command"], entry, "help {name} --json differs");
+    }
+}
+
 /// SIGINT to a search waiting on a host that accepted the connection and
 /// never answers must kill it as the shell expects: by the signal, which the
 /// shell reports as 130.
@@ -1441,4 +1471,435 @@ fn json_shapes_snapshot() {
             serde_json::to_string_pretty(&shapes).unwrap()
         );
     });
+}
+
+/// A `dataseek mcp` process in the sandbox at `dir`, spoken to one line at
+/// a time, as an MCP client speaks to it.
+struct Mcp {
+    child: std::process::Child,
+    stdin: Option<std::process::ChildStdin>,
+    lines: std::io::Lines<std::io::BufReader<std::process::ChildStdout>>,
+}
+
+impl Mcp {
+    /// Every request the server or its children send goes to `proxy`.
+    fn start(dir: &Path, proxy: &str) -> Self {
+        Self::start_as(Path::new(env!("CARGO_BIN_EXE_dataseek")), dir, proxy)
+    }
+
+    /// The server as `program`, a copy of the binary under test.
+    fn start_as(program: &Path, dir: &Path, proxy: &str) -> Self {
+        use std::io::BufRead;
+        use std::process::Stdio;
+
+        let mut child = sandboxed(program, dir)
+            .env("HTTPS_PROXY", proxy)
+            .env("HTTP_PROXY", proxy)
+            .arg("mcp")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
+        let stdin = child.stdin.take();
+        let lines =
+            std::io::BufReader::new(child.stdout.take().unwrap()).lines();
+        Self { child, stdin, lines }
+    }
+
+    fn send(&mut self, message: &Value) {
+        self.send_line(message.to_string().as_bytes());
+    }
+
+    fn send_line(&mut self, line: &[u8]) {
+        use std::io::Write;
+
+        let stdin = self.stdin.as_mut().unwrap();
+        stdin.write_all(line).unwrap();
+        stdin.write_all(b"\n").unwrap();
+        stdin.flush().unwrap();
+    }
+
+    /// The next line on stdout, which must be a JSON-RPC message.
+    fn receive(&mut self) -> Value {
+        let line = self.lines.next().unwrap().unwrap();
+        let message: Value = serde_json::from_str(&line).unwrap();
+        assert_eq!(message.get("jsonrpc"), Some(&json!("2.0")), "{line}");
+        message
+    }
+
+    fn request(&mut self, id: u64, method: &str, params: Value) {
+        let mut request =
+            json!({ "jsonrpc": "2.0", "id": id, "method": method });
+        request.as_object_mut().unwrap().insert("params".into(), params);
+        self.send(&request);
+    }
+
+    /// Send a request and read its response, which must be the next line.
+    fn ask(&mut self, id: u64, method: &str, params: Value) -> Value {
+        self.request(id, method, params);
+        let response = self.receive();
+        assert_eq!(response.get("id"), Some(&json!(id)), "{response}");
+        response
+    }
+
+    fn call(&mut self, id: u64, tool: &str, arguments: Value) -> Value {
+        let mut params = json!({ "name": tool });
+        params.as_object_mut().unwrap().insert("arguments".into(), arguments);
+        let response = self.ask(id, "tools/call", params);
+        response
+            .get("result")
+            .filter(|result| result.is_object())
+            .cloned()
+            .unwrap_or_else(|| panic!("no result: {response}"))
+    }
+
+    /// Close stdin, as a client shutting the server down does; the server
+    /// must exit at once, having written nothing more. Returns its stderr.
+    fn close(mut self) -> String {
+        use std::io::Read;
+
+        drop(self.stdin.take());
+        let status = exit_within_10s(&mut self.child);
+        assert!(status.success(), "{status:?}");
+        assert!(self.lines.next().is_none(), "stdout carried more lines");
+        let mut stderr = String::new();
+        self.child.stderr.take().unwrap().read_to_string(&mut stderr).unwrap();
+        stderr
+    }
+}
+
+/// Wait for `child` to exit, killing it and failing after ten seconds.
+fn exit_within_10s(
+    child: &mut std::process::Child,
+) -> std::process::ExitStatus {
+    let started = std::time::Instant::now();
+    loop {
+        if let Some(status) = child.try_wait().unwrap() {
+            return status;
+        }
+        if started.elapsed() > std::time::Duration::from_secs(10) {
+            child.kill().unwrap();
+            panic!("dataseek mcp did not exit");
+        }
+        std::thread::sleep(std::time::Duration::from_millis(20));
+    }
+}
+
+/// A search over MCP that waits on `proxy`, which accepts its connection
+/// and never answers, for up to a minute.
+fn waiting_search(mcp: &mut Mcp, id: u64) {
+    mcp.request(
+        id,
+        "tools/call",
+        json!({
+            "name": "search",
+            "arguments": {
+                "query": "climate",
+                "source": ["zenodo"],
+                "timeout": 60,
+            },
+        }),
+    );
+}
+
+/// A proxy on 127.0.0.1 that answers every request with `page`, whether the
+/// client tunnels through it with CONNECT or not. Returns its address.
+fn serving(page: &'static str) -> String {
+    use std::io::{BufRead, Write};
+
+    fn head(reader: &mut impl BufRead) -> String {
+        let mut head = String::new();
+        let mut line = String::new();
+        while reader.read_line(&mut line).is_ok_and(|n| n > 2) {
+            head.push_str(&line);
+            line.clear();
+        }
+        head
+    }
+
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let address = format!("http://{}", listener.local_addr().unwrap());
+    std::thread::spawn(move || {
+        for stream in listener.incoming() {
+            let Ok(mut stream) = stream else { continue };
+            let Ok(clone) = stream.try_clone() else { continue };
+            let mut reader = std::io::BufReader::new(clone);
+            if head(&mut reader).starts_with("CONNECT") {
+                let _ = stream
+                    .write_all(b"HTTP/1.1 200 Connection established\r\n\r\n");
+                head(&mut reader);
+            }
+            let _ = write!(
+                stream,
+                "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\
+                 Content-Length: {}\r\nConnection: close\r\n\r\n{page}",
+                page.len()
+            );
+        }
+    });
+    address
+}
+
+// The session a desktop client runs: the handshake, the tool list, a call
+// of each tool and a failing one, then shutdown. Each result is the object
+// the command's --json prints, and stdout carries nothing but responses.
+#[test]
+fn an_mcp_client_drives_a_whole_session_over_stdio() {
+    let dir = tempfile::tempdir().unwrap();
+    seed_rainfall(&dir.path().join("cache").join("dataseek"));
+    let proxy = serving(include_str!("fixtures/inspect/zenodo.html"));
+    let mut mcp = Mcp::start(dir.path(), &proxy);
+
+    let init = mcp.ask(
+        1,
+        "initialize",
+        json!({
+            "protocolVersion": "2025-11-25",
+            "capabilities": {},
+            "clientInfo": { "name": "test", "version": "1" },
+        }),
+    );
+    assert_eq!(init["result"]["protocolVersion"], "2025-11-25");
+    assert_eq!(init["result"]["capabilities"], json!({ "tools": {} }));
+    assert_eq!(
+        init["result"]["serverInfo"]["version"],
+        env!("CARGO_PKG_VERSION")
+    );
+    mcp.send(
+        &json!({ "jsonrpc": "2.0", "method": "notifications/initialized" }),
+    );
+
+    let list = mcp.ask(2, "tools/list", json!({}));
+    let names: Vec<&str> = list["result"]["tools"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|t| t["name"].as_str().unwrap())
+        .collect();
+    assert_eq!(names, ["search", "sources", "inspect"]);
+
+    let sources = mcp.call(3, "sources", json!({}));
+    assert_eq!(sources["isError"], false);
+    assert_eq!(sources["structuredContent"], json_of(&["sources", "--json"]));
+    let text = sources["content"][0]["text"].as_str().unwrap();
+    assert_eq!(
+        serde_json::from_str::<Value>(text).unwrap(),
+        sources["structuredContent"]
+    );
+
+    let search = mcp.call(
+        4,
+        "search",
+        json!({ "query": "rainfall", "source": ["openml"], "offline": true }),
+    );
+    assert_eq!(search["isError"], false, "{search}");
+    let mut report = search["structuredContent"].clone();
+    for source in report["sources"].as_array_mut().unwrap() {
+        source["ms"] = json!(0);
+    }
+    assert_eq!(report, seeded_search_json());
+
+    let url = "http://zenodo.org/records/13135140";
+    let inspect = mcp.call(5, "inspect", json!({ "url": url }));
+    assert_eq!(inspect["isError"], false, "{inspect}");
+    let page = &inspect["structuredContent"];
+    assert_eq!(page["schema"], "dataseek-inspect/1");
+    assert_eq!(page["url"], url);
+    assert_eq!(
+        page["dataset"]["name"],
+        "Evaluation of the influence of rain on air surface temperature \
+         measurements"
+    );
+    assert_eq!(
+        page["dataset"]["identifier"],
+        "https://doi.org/10.5281/zenodo.13135140"
+    );
+
+    let failed = mcp.call(
+        6,
+        "search",
+        json!({ "query": "climate", "source": ["not-a-source"] }),
+    );
+    assert_eq!(failed["isError"], true);
+    let text = failed["content"][0]["text"].as_str().unwrap();
+    assert!(
+        text.starts_with("Error: invalid value 'not-a-source' for '--source")
+            && text.contains("\n  Try:"),
+        "{text}"
+    );
+    assert_eq!(failed["structuredContent"]["event"], "error");
+
+    let stderr = mcp.close();
+    assert!(stderr.contains("searching 1 source"), "{stderr}");
+}
+
+// The stateless revision: no handshake, every request names its version.
+#[test]
+fn an_mcp_client_on_the_current_revision_needs_no_handshake() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut mcp = Mcp::start(dir.path(), "http://127.0.0.1:9");
+    let meta = json!({
+        "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+        "io.modelcontextprotocol/clientCapabilities": {},
+        "io.modelcontextprotocol/clientInfo": { "name": "test", "version": "1" },
+    });
+
+    let discover = mcp.ask(1, "server/discover", json!({ "_meta": meta }));
+    let result = &discover["result"];
+    assert_eq!(result["resultType"], "complete");
+    assert_eq!(result["supportedVersions"][0], "2026-07-28");
+    assert_eq!(result["cacheScope"], "public");
+    assert_eq!(
+        result["_meta"]["io.modelcontextprotocol/serverInfo"]["name"],
+        "dataseek"
+    );
+
+    let sources =
+        mcp.ask(2, "tools/call", json!({ "name": "sources", "_meta": meta }));
+    assert_eq!(sources["result"]["resultType"], "complete");
+    assert_eq!(
+        sources["result"]["structuredContent"]["schema"],
+        "dataseek-sources/1"
+    );
+
+    let mut old = meta.clone();
+    old["io.modelcontextprotocol/protocolVersion"] = json!("1900-01-01");
+    let refused = mcp.ask(3, "tools/list", json!({ "_meta": old }));
+    assert_eq!(refused["error"]["code"], -32022);
+    assert_eq!(refused["error"]["data"]["requested"], "1900-01-01");
+
+    let stderr = mcp.close();
+    assert!(stderr.contains("serving search, sources, inspect"), "{stderr}");
+}
+
+// A line that is not UTF-8 is a parse error like any other, and the session
+// goes on.
+#[test]
+fn an_mcp_line_that_is_not_utf8_leaves_the_session_open() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut mcp = Mcp::start(dir.path(), "http://127.0.0.1:9");
+    mcp.send_line(b"{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"\xff\"}");
+    let refused = mcp.receive();
+    assert_eq!(refused["error"]["code"], -32700, "{refused}");
+    assert_eq!(refused["id"], Value::Null);
+    let ping = mcp.ask(2, "ping", json!({}));
+    assert_eq!(ping["result"]["resultType"], "complete");
+    mcp.close();
+}
+
+// A client that stops reading turns the server's next answer into a write
+// error rather than a SIGPIPE death, so the server still kills the call it
+// was running before it exits.
+#[cfg(unix)]
+#[test]
+fn an_mcp_server_whose_client_stops_reading_ends_its_calls() {
+    use std::io::{Read, Write};
+    use std::os::unix::process::ExitStatusExt;
+
+    let silent = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let proxy = format!("http://{}", silent.local_addr().unwrap());
+    let dir = tempfile::tempdir().unwrap();
+    let mut mcp = Mcp::start(dir.path(), &proxy);
+    waiting_search(&mut mcp, 1);
+    let (mut search, _) = silent.accept().unwrap();
+
+    let Mcp { mut child, stdin, lines } = mcp;
+    drop(lines);
+    let mut stdin = stdin.unwrap();
+    writeln!(stdin, r#"{{"jsonrpc":"2.0","id":2,"method":"ping"}}"#).unwrap();
+    stdin.flush().unwrap();
+    let status = exit_within_10s(&mut child);
+    drop(stdin);
+    assert_eq!(status.signal(), None, "{status:?}");
+    assert!(status.success(), "{status:?}");
+
+    search.set_read_timeout(Some(std::time::Duration::from_secs(5))).unwrap();
+    let read = search.read(&mut [0; 512]);
+    assert!(
+        !read.as_ref().is_err_and(|e| matches!(
+            e.kind(),
+            std::io::ErrorKind::WouldBlock | std::io::ErrorKind::TimedOut
+        )),
+        "the search outlived the server: {read:?}"
+    );
+}
+
+// A value clap refuses comes back with clap's list of the valid ones, and a
+// hint that does not send the model to --help.
+#[test]
+fn an_mcp_value_clap_refuses_comes_back_with_the_valid_ones() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut mcp = Mcp::start(dir.path(), "http://127.0.0.1:9");
+    let refused =
+        mcp.call(1, "search", json!({ "query": "climate", "sort": "oldest" }));
+    assert_eq!(refused["isError"], true);
+    let text = refused["content"][0]["text"].as_str().unwrap();
+    assert!(
+        text.contains("\n  Cause: [possible values: relevance, newest]\n"),
+        "{text}"
+    );
+    assert!(text.contains("Try:   pass the arguments tools/list"), "{text}");
+    mcp.close();
+}
+
+// An upgrade replaces the binary while the server runs. On Linux the running
+// binary's own path then names a deleted file, so calls must use the path
+// the server was started from.
+#[cfg(target_os = "linux")]
+#[test]
+fn an_mcp_server_keeps_working_after_its_binary_is_replaced() {
+    let dir = tempfile::tempdir().unwrap();
+    let program = dir.path().join("dataseek");
+    std::fs::copy(env!("CARGO_BIN_EXE_dataseek"), &program).unwrap();
+    let mut mcp = Mcp::start_as(&program, dir.path(), "http://127.0.0.1:9");
+    assert_eq!(
+        mcp.ask(1, "ping", json!({}))["result"]["resultType"],
+        "complete"
+    );
+
+    std::fs::remove_file(&program).unwrap();
+    std::fs::copy(env!("CARGO_BIN_EXE_dataseek"), &program).unwrap();
+    let sources = mcp.call(2, "sources", json!({}));
+    assert_eq!(sources["structuredContent"]["schema"], "dataseek-sources/1");
+    mcp.close();
+}
+
+// Calls run beside the session: a ping is answered while searches wait, a
+// reused id and a fifth call are refused, a cancelled call never answers,
+// and closing stdin ends the calls still running.
+#[test]
+fn an_mcp_session_keeps_answering_while_calls_run() {
+    let silent = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let proxy = format!("http://{}", silent.local_addr().unwrap());
+    let dir = tempfile::tempdir().unwrap();
+    let mut mcp = Mcp::start(dir.path(), &proxy);
+    for id in 1..=4 {
+        waiting_search(&mut mcp, id);
+    }
+
+    waiting_search(&mut mcp, 1);
+    let reused = mcp.receive();
+    assert_eq!(reused["id"], 1, "{reused}");
+    assert_eq!(reused["error"]["code"], -32600, "{reused}");
+    waiting_search(&mut mcp, 5);
+    let busy = mcp.receive();
+    assert_eq!(busy["id"], 5, "{busy}");
+    assert_eq!(busy["result"]["isError"], true, "{busy}");
+    let text = busy["result"]["content"][0]["text"].as_str().unwrap();
+    assert!(text.starts_with("Error: 4 calls are already running"), "{text}");
+    let ping = mcp.ask(6, "ping", json!({}));
+    assert_eq!(ping["result"]["resultType"], "complete");
+
+    // The cancelled call frees its place and never answers: the next line
+    // is the ping's answer, and close() finds nothing after it.
+    mcp.send(&json!({
+        "jsonrpc": "2.0",
+        "method": "notifications/cancelled",
+        "params": { "requestId": 1 },
+    }));
+    waiting_search(&mut mcp, 7);
+    let ping = mcp.ask(8, "ping", json!({}));
+    assert_eq!(ping["result"]["resultType"], "complete");
+    mcp.close();
 }

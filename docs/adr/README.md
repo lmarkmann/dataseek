@@ -37,3 +37,4 @@ A decision that constrains future work lives here, once, and is cited from where
 | [0012](0012-benchmarks-criterion-local-codspeed-ci.md) | Benchmarks run as Criterion locally and as CodSpeed's CPU simulation in CI | accepted |
 | [0013](0013-opt-in-sources.md) | Opt-in sources are asked only when named | accepted |
 | [0014](0014-system-trust-store-on-every-platform.md) | Every platform trusts the system's root certificates | accepted |
+| [0015](0015-mcp-server-over-stdio.md) | `dsk mcp` is a hand-written stdio server that runs each tool as a child | accepted |

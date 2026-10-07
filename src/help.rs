@@ -2,6 +2,7 @@
 //! `dataseek` prints, the `help` topics (`environment`, `exit-codes`), and
 //! `help --json`, the whole command surface as data for scripts and agents.
 
+use std::any::TypeId;
 use std::collections::BTreeMap;
 use std::io::Write;
 
@@ -11,7 +12,7 @@ use clap::builder::StyledStr;
 use clap::{Arg, ArgAction, CommandFactory};
 use serde_json::{Value, json};
 
-use crate::cli::Cli;
+use crate::cli::{self, Cli};
 use crate::credentials::Key;
 use crate::output::Out;
 use crate::palette;
@@ -19,11 +20,12 @@ use crate::palette;
 /// Every subcommand, as the `help` topic parser and the overview know them.
 /// The parser runs while clap builds `Cli`, so it cannot ask `Cli` itself;
 /// a test holds this list to the real one.
-const COMMANDS: [&str; 9] = [
+const COMMANDS: [&str; 10] = [
     "search",
     "sources",
     "bench",
     "inspect",
+    "mcp",
     "cache",
     "doctor",
     "completion",
@@ -42,6 +44,7 @@ const GROUPS: [(&str, &[(&str, &str)]); 3] = [
             ("sources", "list sources and their keys"),
             ("inspect", "read a dataset page's metadata and files"),
             ("bench", "time and compare sources"),
+            ("mcp", "serve search, sources and inspect over MCP"),
         ],
     ),
     (
@@ -118,9 +121,7 @@ pub fn run(topic: Option<&str>, out: &Out) -> Result<()> {
             Some("exit-codes") => codes_json(),
             Some(command) => json!({
                 "schema": "dataseek-command/1",
-                "command": built()
-                    .find_subcommand(command)
-                    .map_or(Value::Null, command_json),
+                "command": subcommand_json(command).unwrap_or(Value::Null),
             }),
         };
         return out.json(&surface);
@@ -249,6 +250,12 @@ fn surface() -> Value {
     })
 }
 
+/// One command as `help <command> --json` describes it; `mcp` builds its
+/// tool schemas from the same object.
+pub fn subcommand_json(name: &str) -> Option<Value> {
+    Cli::command().find_subcommand(name).map(command_json)
+}
+
 fn command_json(cmd: &clap::Command) -> Value {
     json!({
         "name": cmd.get_name(),
@@ -278,6 +285,17 @@ fn arg_json(arg: &Arg) -> Value {
             | ArgAction::HelpLong
             | ArgAction::Version
     );
+    let integer =
+        [TypeId::of::<u16>(), TypeId::of::<u64>(), TypeId::of::<usize>()]
+            .iter()
+            .any(|id| arg.get_value_parser().type_id() == *id);
+    let kind = match arg.get_action() {
+        ArgAction::Count => "count",
+        _ if flag => "boolean",
+        _ if integer => "integer",
+        _ => "string",
+    };
+    let (minimum, maximum) = bounds(arg);
     let strings = |items: &[&std::ffi::OsStr]| -> Vec<String> {
         items.iter().map(|s| s.to_string_lossy().into_owned()).collect()
     };
@@ -286,6 +304,7 @@ fn arg_json(arg: &Arg) -> Value {
         "long": arg.get_long(),
         "short": arg.get_short().map(String::from),
         "positional": arg.is_positional(),
+        "type": kind,
         "value": (!flag).then(|| {
             arg.get_value_names()
                 .map(|names| names.iter().map(ToString::to_string).collect::<Vec<_>>().join(" "))
@@ -296,6 +315,8 @@ fn arg_json(arg: &Arg) -> Value {
             .map(|v| v.get_name().to_owned())
             .collect::<Vec<_>>(),
         "default": strings(&arg.get_default_values().iter().map(AsRef::as_ref).collect::<Vec<_>>()),
+        "minimum": minimum,
+        "maximum": maximum,
         "env": arg.get_env().map(|e| e.to_string_lossy().into_owned()),
         "required": arg.is_required_set(),
         "repeatable": matches!(arg.get_action(), ArgAction::Append | ArgAction::Count),
@@ -304,8 +325,23 @@ fn arg_json(arg: &Arg) -> Value {
     })
 }
 
+/// The bounds an integer flag's parser enforces. clap keeps a range inside
+/// the parser, where nothing can read it back, so each ranged flag is named
+/// here; a test holds this list to the parsers.
+fn bounds(arg: &Arg) -> (Value, Value) {
+    match arg.get_id().as_str() {
+        "connect_timeout" => (json!(cli::CONNECT_TIMEOUT.start), Value::Null),
+        "per_source" => {
+            (json!(cli::PER_SOURCE.start()), json!(cli::PER_SOURCE.end()))
+        }
+        _ => (Value::Null, Value::Null),
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    use clap::Parser;
+
     use super::*;
 
     fn subcommands() -> Vec<String> {
@@ -351,6 +387,51 @@ mod tests {
         }
     }
 
+    // Every integer flag takes its published bounds and refuses the values
+    // just past them; one with no bound published takes 0, or 65535.
+    #[test]
+    fn published_bounds_are_the_ones_clap_enforces() {
+        let root = command_json(&Cli::command());
+        let leaves = root["commands"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|c| c["commands"] == json!([]))
+            .map(|c| (c["name"].as_str().unwrap(), &c["args"]));
+        let mut checked = Vec::new();
+        for (name, args) in leaves.chain([("sources", &root["args"])]) {
+            let args = args.as_array().unwrap();
+            let words: Vec<&str> = args
+                .iter()
+                .filter(|a| a["positional"] == true && a["required"] == true)
+                .map(|_| "x")
+                .collect();
+            for arg in args.iter().filter(|a| a["type"] == "integer") {
+                let long = arg["long"].as_str().unwrap();
+                let takes = |n: i64| {
+                    let flag = format!("--{long}={n}");
+                    let line = ["dataseek", name, flag.as_str()];
+                    Cli::try_parse_from(line.into_iter().chain(words.clone()))
+                        .is_ok()
+                };
+                let (min, max) =
+                    (arg["minimum"].as_i64(), arg["maximum"].as_i64());
+                let low = min.unwrap_or(0);
+                let high = max.unwrap_or(i64::from(u16::MAX));
+                assert!(takes(low) && takes(high), "{name} --{long}");
+                if let Some(min) = min {
+                    assert!(!takes(min.checked_sub(1).unwrap()), "--{long}");
+                }
+                if let Some(max) = max {
+                    assert!(!takes(max.checked_add(1).unwrap()), "--{long}");
+                }
+                checked.push(long);
+            }
+        }
+        assert!(checked.contains(&"per-source"), "{checked:?}");
+        assert!(checked.contains(&"connect-timeout"), "{checked:?}");
+    }
+
     #[test]
     fn the_surface_describes_flags_with_types_and_defaults() {
         let surface = surface();
@@ -369,6 +450,19 @@ mod tests {
         assert_eq!(limit["short"], "n");
         assert_eq!(limit["default"], json!(["20"]));
         assert_eq!(limit["env"], "DATASEEK_LIMIT");
+        let kind = |long: &str| {
+            search["args"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|a| a["long"] == long)
+                .unwrap()["type"]
+                .clone()
+        };
+        assert_eq!(kind("limit"), "integer");
+        assert_eq!(kind("per-source"), "integer");
+        assert_eq!(kind("sort"), "string");
+        assert_eq!(kind("offline"), "boolean");
         assert_eq!(surface["exit_codes"].as_array().unwrap().len(), 4);
     }
 }
