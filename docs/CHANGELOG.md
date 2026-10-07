@@ -2,6 +2,59 @@
 
 What shipped, newest first. release-plz writes each section from the conventional commits merged since the previous tag; see [`reference/release.md`](reference/release.md).
 
+## 0.8.0 - 2026-10-07
+
+### Added
+
+- Dsk sources shows the notices FRED and the Census Bureau ask for, and the README names each source's attribution terms
+- Dsk help environment wraps each variable's meaning on a terminal
+- Dsk sources sizes its columns to their content and wraps its notes on a terminal
+- Dsk doctor wraps long details under their column on a terminal
+- Dsk inspect fits the terminal: wrapped fields, a file count and total size, and each file's link under its name
+- Dsk completion on a terminal says where to save the script instead of printing it
+- The cache budget reads as 30 MB and DATASEEK_CACHE_MAX_MB sets another
+- The bare overview has Search, Upkeep and Shell headings, the same command lines as -h, bench under Upkeep, and points at both -h and --help
+- Dsk man opens the page in man on a terminal, and drops out of the help it does not belong in
+- Result descriptions on a terminal are cut between 40 and 80 columns, so wide terminals read as prose
+
+### Changed
+
+- Dsk sources writes its table and builds its notes in separate steps
+- The hidden --jq flag is gone, so completions stop offering it; pipe --json into jq
+
+### Docs
+
+- The supply-chain gates move to reference/supply-chain.md so they no longer share a name with the security policy
+- The security policy leaves supported versions open, and the README names SECURITY.md
+- A security policy, a contributing guide and a pull request template, linked from the README
+- The README installs from crates.io, cargo-binstall and uv, and runs once through crgx or uvx
+- The terms table gives each source's registry effect as it stands
+- The ADR index holds decisions and the watch list
+- Dataseek is licensed under MIT or Apache-2.0
+- The README says why dataseek exists, shows a real search, and covers the man page, completions and opt-in sources over MCP
+- The README shows the CI status and the latest release
+- The README installs straight from GitHub and its example comments match what the commands do
+- The README opens with a banner of every source dataseek searches
+- The 0.7.0 changelog lists every change that shipped
+
+### Fixed
+
+- A source's error text can no longer carry escape sequences to the terminal
+- A source that keeps answering 429 rests for 10 minutes instead of being asked again on every search
+- The User-Agent names the repository next to the contact address
+- Dsk man writes the page it opens to a temporary file with a random name only its user can read
+- The man page describes every option and closes with EXAMPLES, EXIT STATUS and REPORTING BUGS
+- Flags with a fixed set of values name them in their help once, as in "Colorize output (auto, always, or never)"
+- The searching line counts only the sources that will be asked and says how many need a key
+- Search result facts are separated by a single-spaced bar
+- Status lines say 1 source, 1 result and "was still downloading its catalog" instead of plurals
+
+### Other
+
+- A PyPI wheel carries dataseek and dsk, and each GitHub release publishes the wheels through trusted publishing
+- The crate is ready for crates.io, packaging only what building needs, and its build script settles without a git checkout
+- Merge commits stay out of the changelog
+
 ## 0.7.0 - 2026-10-07
 
 ### Added
