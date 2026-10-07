@@ -154,7 +154,9 @@ fn property(arg: &Arg) -> Value {
     };
     let mut value = Map::new();
     value.insert("type".into(), json!(kind));
-    if !arg.values.is_empty() {
+    // clap lists a boolean flag's values as the strings "true" and "false",
+    // which a boolean can never equal.
+    if arg.kind == ValueKind::String && !arg.values.is_empty() {
         value.insert("enum".into(), json!(arg.values));
     }
     let mut property = if arg.takes_list() {
@@ -425,6 +427,8 @@ mod tests {
         assert_eq!(p["limit"]["type"], "integer");
         assert_eq!(p["limit"]["default"], 20);
         assert_eq!(p["offline"]["type"], "boolean");
+        assert_eq!(p["offline"].get("enum"), None);
+        assert_eq!(p["refresh"].get("enum"), None);
         assert_eq!(p["sort"]["enum"], json!(["relevance", "newest"]));
         assert_eq!(p["source"]["type"], "array");
         assert!(
