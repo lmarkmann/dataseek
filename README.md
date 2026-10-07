@@ -20,7 +20,7 @@ dsk search mnist -s huggingface,kaggle      # only these sources
 dsk search inflation -c economics,finance   # only these categories
 dsk search census --json | jq -r '.results[].url'
 dsk sources                                 # every source, its protocol, key and docs
-dsk inspect https://zenodo.org/records/1234567   # a page's schema.org or Croissant metadata
+dsk inspect https://zenodo.org/records/13135140  # a page's metadata and the files it lists
 dsk bench                                   # latency and overlap of every source
 dsk cache warm                              # download the catalogs searched locally
 ```
@@ -28,6 +28,20 @@ dsk cache warm                              # download the catalogs searched loc
 `dsk` alone shows the commands, `dsk help environment` the variables it reads, `dsk help exit-codes` what it returns.
 
 Most sources need no key. FRED, Roboflow and Data Commons are skipped without their own; keys for Hugging Face, Kaggle, Data.gov, GitHub and NCBI raise limits. See [`docs/reference/keys-and-cache.md`](docs/reference/keys-and-cache.md).
+
+## MCP
+
+`dsk mcp` serves `search`, `sources` and `inspect` to MCP clients that have no shell. Register it in the client's MCP server configuration:
+
+```json
+{
+  "mcpServers": {
+    "dataseek": { "command": "dsk", "args": ["mcp"] }
+  }
+}
+```
+
+Each tool returns what its command prints with `--json`; keys are read from the environment the client starts it in, or from `credentials.toml`. [`docs/reference/contract.md`](docs/reference/contract.md#mcp-mode) has the details.
 
 ## Development
 

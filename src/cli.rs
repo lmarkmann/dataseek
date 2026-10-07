@@ -73,10 +73,6 @@ pub struct Cli {
     #[arg(long, global = true)]
     pub json: bool,
 
-    /// Filter the JSON output through a jq expression; implies --json.
-    #[arg(long, value_name = "EXPR", global = true)]
-    pub jq: Option<String>,
-
     /// When to colorize output: auto, always, or never.
     #[arg(long, value_name = "WHEN", default_value = "auto", global = true)]
     pub color: ColorChoice,
@@ -184,7 +180,7 @@ pub enum Command {
         after_help = "Examples:
   dsk search unemployment -x google -n 50         skip a source, show more
   dsk search inflation -c economics,finance       only these categories
-  dsk search census --jq '.results[].url'         one field, no jq needed"
+  dsk search census --sort newest                 most recently updated first"
     )]
     Search {
         /// What to look for; several words form one query.
@@ -248,10 +244,18 @@ pub enum Command {
         selection: Selection,
     },
 
-    /// Read a dataset page's schema.org Dataset or Croissant metadata.
-    #[command(after_help = "Examples:
-  dsk inspect https://zenodo.org/records/1234567
-  dsk inspect https://huggingface.co/datasets/stanfordnlp/imdb --json")]
+    /// Read a dataset page's metadata and the files it lists.
+    #[command(
+        long_about = "Read a dataset page's metadata and the files it \
+            lists.\n\nThe metadata is the page's schema.org Dataset, or \
+            Croissant for Hugging Face. The file list comes from the same \
+            metadata: each file's name, format, size, checksum and link, \
+            whichever the page gives; nothing is downloaded. Under --json \
+            the list is .dataset.files.",
+        after_help = "Examples:
+  dsk inspect https://zenodo.org/records/13135140
+  dsk inspect https://huggingface.co/datasets/stanfordnlp/imdb --json"
+    )]
     Inspect {
         /// The dataset's landing page.
         #[arg(value_name = "URL")]
@@ -261,6 +265,16 @@ pub enum Command {
         #[arg(long)]
         offline: bool,
     },
+
+    /// Serve search, sources and inspect to MCP clients over stdio.
+    #[command(
+        long_about = "Serve search, sources and inspect to MCP clients over \
+            stdio.\n\nAn MCP client starts `dsk mcp` and speaks JSON-RPC on \
+            its stdin and stdout. Each tool returns the object its command's \
+            --json prints. stdout carries protocol messages only; narration \
+            goes to stderr."
+    )]
+    Mcp,
 
     /// Show, warm or clear the cache.
     #[command(subcommand)]
@@ -337,7 +351,7 @@ mod tests {
                     Just("--".to_owned()),
                     Just("-s".to_owned()),
                     Just("-n".to_owned()),
-                    Just("--jq".to_owned()),
+                    Just("--sort".to_owned()),
                     Just("--color".to_owned()),
                     Just("search".to_owned()),
                     Just("cache".to_owned()),

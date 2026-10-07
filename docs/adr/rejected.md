@@ -158,7 +158,7 @@ All four are useful and none of them are properties of this project. They are to
 
 ## 2026-07-27: Coverage, mutation testing, and binary-size analysis as CI gates
 
-`cargo-llvm-cov`, `cargo-mutants`, and `cargo-bloat` are in the `justfile` and deliberately out of `just ci` and out of the workflow. Each answers a question you ask occasionally, and none has a threshold that is meaningful to fail a merge on: a coverage percentage gate rewards tests that execute lines without asserting on them, and mutation testing the whole crate takes long enough that people start skipping the pipeline. `just mutants` uses `--in-diff` for the same reason.
+`cargo-llvm-cov`, `cargo-mutants`, and `cargo-bsize` are in the `justfile` and deliberately out of `just ci` and out of the workflow. Each answers a question you ask occasionally, and none has a threshold that is meaningful to fail a merge on: a coverage percentage gate rewards tests that execute lines without asserting on them, and mutation testing the whole crate takes long enough that people start skipping the pipeline. `just mutants` uses `--in-diff` for the same reason.
 
 No Codecov or coverage-upload step either: it needs an account and a token per clone, to display a number nobody is gating on.
 
@@ -298,6 +298,14 @@ Each was weighed in the source research that produced ADR 0004.
 - **re3data**: a registry of 3,534 repositories, not of datasets; useful for pointing at repositories, not for search.
 - **Materials Project core API**: a per-material database rather than a dataset catalog; its contributed datasets (MPContribs) are searched instead.
 
+## 2026-10-07: `panic = "abort"` in the release profile
+
+It would save 864 KiB of the 4.5 MiB shipped at v0.6.0, the second-largest stable lever ([measurement](../bench/2026-10-07-binary-size.md)). Every source runs on its own thread in `search.rs`, and a panic in a dependency unwinds only that thread, so the search reports the source as crashed and still prints the others. Under abort, one malformed response that trips a panic in quick-xml or serde_json ends the whole search with no results. Destructors would also be skipped: a cache write in progress would leave its temp file behind (the target file stays intact, because the rename is atomic) and the progress line would be left half drawn. Tests would not notice, because cargo builds tests with unwinding regardless. Revisit only if adapters stop running on threads that are allowed to fail.
+
+## 2026-10-07: `opt-level = "z"` or `"s"` for dataseek's own code
+
+Building the crate itself for size takes the release binary from 3.79 MB to 2.97 MB on aarch64 macOS, and makes every CPU stage of a search 40% to 300% slower ([measurement](../bench/2026-10-07-binary-size.md)). Dependencies are built at `z` instead, because fat LTO inlines their hot paths into this crate's code, which stays at 3.
+
 ## 2026-10-07: Other ways of merging and ranking results
 
-Measured with the relevance benchmark and left out because none improved the held-out queries beyond the noise ([`../bench/2026-10-07-relevance.md`](../bench/2026-10-07-relevance.md), ADR 0014): a different RRF constant (1 to 200; 40 and up score within 0.006 of 60, smaller ones interleave sources and lose), fusing only each source's top 3 or 5, CombMNZ, list-length-normalized Borda, round robin, per-source weights learned from the judgments, other coverage floors and shapes, title-weighted coverage, a bonus for the whole query in the title, ignoring function words, and treating records with no description and no publisher differently. Source weights deserve the warning: they gained 0.059 on the queries they were fitted on and lost 0.010 on the others, which is what learning the benchmark looks like. A proposal to revisit any of these starts from `just relevance variants`, not from an argument.
+Measured with the relevance benchmark and left out because none improved the held-out queries beyond the noise ([`../bench/2026-10-07-relevance.md`](../bench/2026-10-07-relevance.md), ADR 0016): a different RRF constant (1 to 200; 40 and up score within 0.006 of 60, smaller ones interleave sources and lose), fusing only each source's top 3 or 5, CombMNZ, list-length-normalized Borda, round robin, per-source weights learned from the judgments, other coverage floors and shapes, title-weighted coverage, a bonus for the whole query in the title, ignoring function words, and treating records with no description and no publisher differently. Source weights deserve the warning: they gained 0.059 on the queries they were fitted on and lost 0.010 on the others, which is what learning the benchmark looks like. A proposal to revisit any of these starts from `just relevance variants`, not from an argument.

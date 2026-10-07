@@ -1,0 +1,182 @@
+{
+  "@context": {
+    "@language": "en",
+    "@vocab": "https://schema.org/",
+    "citeAs": "cr:citeAs",
+    "column": "cr:column",
+    "conformsTo": "dct:conformsTo",
+    "cr": "http://mlcommons.org/croissant/",
+    "data": {
+      "@id": "cr:data",
+      "@type": "@json"
+    },
+    "dataBiases": "cr:dataBiases",
+    "dataCollection": "cr:dataCollection",
+    "dataType": {
+      "@id": "cr:dataType",
+      "@type": "@vocab"
+    },
+    "dct": "http://purl.org/dc/terms/",
+    "extract": "cr:extract",
+    "field": "cr:field",
+    "fileProperty": "cr:fileProperty",
+    "fileObject": "cr:fileObject",
+    "fileSet": "cr:fileSet",
+    "format": "cr:format",
+    "includes": "cr:includes",
+    "isLiveDataset": "cr:isLiveDataset",
+    "jsonPath": "cr:jsonPath",
+    "key": "cr:key",
+    "md5": "cr:md5",
+    "parentField": "cr:parentField",
+    "path": "cr:path",
+    "personalSensitiveInformation": "cr:personalSensitiveInformation",
+    "recordSet": "cr:recordSet",
+    "references": "cr:references",
+    "regex": "cr:regex",
+    "repeated": "cr:repeated",
+    "replace": "cr:replace",
+    "sc": "https://schema.org/",
+    "separator": "cr:separator",
+    "source": "cr:source",
+    "subField": "cr:subField",
+    "transform": "cr:transform"
+  },
+  "@type": "sc:Dataset",
+  "distribution": [
+    {
+      "@type": "cr:FileObject",
+      "@id": "repo",
+      "name": "repo",
+      "description": "The Hugging Face git repository.",
+      "contentUrl": "https://huggingface.co/datasets/stanfordnlp/imdb/tree/refs%2Fconvert%2Fparquet",
+      "encodingFormat": "git+https",
+      "sha256": "https://github.com/mlcommons/croissant/issues/80"
+    },
+    {
+      "@type": "cr:FileSet",
+      "@id": "parquet-files-for-config-plain_text",
+      "name": "parquet-files-for-config-plain_text",
+      "description": "The underlying Parquet files as converted by Hugging Face (see: https://huggingface.co/docs/dataset-viewer/parquet).",
+      "containedIn": {
+        "@id": "repo"
+      },
+      "encodingFormat": "application/x-parquet",
+      "includes": "plain_text/*/*.parquet"
+    }
+  ],
+  "recordSet": [
+    {
+      "@type": "cr:RecordSet",
+      "dataType": "cr:Split",
+      "key": {
+        "@id": "plain_text_splits/split_name"
+      },
+      "@id": "plain_text_splits",
+      "name": "plain_text_splits",
+      "description": "Splits for the plain_text config.",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "plain_text_splits/split_name",
+          "name": "split_name",
+          "description": "The name of the split.",
+          "dataType": "sc:Text"
+        }
+      ],
+      "data": [
+        {
+          "plain_text_splits/split_name": "train"
+        },
+        {
+          "plain_text_splits/split_name": "test"
+        },
+        {
+          "plain_text_splits/split_name": "unsupervised"
+        }
+      ]
+    },
+    {
+      "@type": "cr:RecordSet",
+      "@id": "plain_text",
+      "name": "plain_text",
+      "description": "stanfordnlp/imdb - 'plain_text' subset\n\nAdditional information:\n- 3 splits: train, test, unsupervised",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "plain_text/split",
+          "name": "plain_text/split",
+          "description": "Split to which the example belongs to.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-files-for-config-plain_text"
+            },
+            "extract": {
+              "fileProperty": "fullpath"
+            },
+            "transform": {
+              "regex": "plain_text/(?:partial-)?(train|test|unsupervised)/.+parquet$"
+            }
+          },
+          "references": {
+            "field": {
+              "@id": "plain_text_splits/split_name"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "plain_text/text",
+          "name": "plain_text/text",
+          "description": "Column 'text' from the Hugging Face parquet file.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-files-for-config-plain_text"
+            },
+            "extract": {
+              "column": "text"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "plain_text/label",
+          "name": "plain_text/label",
+          "description": "ClassLabel column 'label' from the Hugging Face parquet file.\nLabels:\nneg (0), pos (1)",
+          "dataType": "sc:Integer",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-files-for-config-plain_text"
+            },
+            "extract": {
+              "column": "label"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "conformsTo": "http://mlcommons.org/croissant/1.0",
+  "name": "imdb",
+  "description": "\n\t\n\t\t\n\t\tDataset Card for \"imdb\"\n\t\n\n\n\t\n\t\t\n\t\tDataset Summary\n\t\n\nLarge Movie Review Dataset.\nThis is a dataset for binary sentiment classification containing substantially more data than previous benchmark datasets. We provide a set of 25,000 highly polar movie reviews for training, and 25,000 for testing. There is additional unlabeled data for use as well.\n\n\t\n\t\t\n\t\tSupported Tasks and Leaderboards\n\t\n\nMore Information Needed\n\n\t\n\t\t\n\t\tLanguages\n\t\n\nMore Information Needed\n\n\t\n\t\t\n\t\tDataset Structure… See the full description on the dataset page: https://huggingface.co/datasets/stanfordnlp/imdb.",
+  "alternateName": [
+    "stanfordnlp/imdb",
+    "IMDB"
+  ],
+  "creator": {
+    "@type": "Organization",
+    "name": "Stanford NLP",
+    "url": "https://huggingface.co/stanfordnlp"
+  },
+  "keywords": [
+    "text-classification",
+    "sentiment-classification",
+    "expert-generated",
+    "expert-generated"
+  ],
+  "license": "https://choosealicense.com/licenses/other/",
+  "sameAs": "http://ai.stanford.edu/~amaas/data/sentiment/",
+  "url": "https://huggingface.co/datasets/stanfordnlp/imdb"
+}

@@ -74,7 +74,7 @@ pub(crate) fn cases(queries: &[Query]) -> Result<Vec<Case>> {
 
 /// The ranking a user sees today.
 pub(crate) fn shipped(case: &Case) -> Vec<Hit> {
-    weigh(merge(&case.lists), &case.query.text)
+    weigh(merge(case.lists.clone()), &case.query.text)
 }
 
 pub(crate) fn variant(

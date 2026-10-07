@@ -260,13 +260,13 @@ pub fn priors(evidence: &[(&'static str, f64)]) -> Priors {
 /// the configured depth.
 pub fn candidates(lists: &Lists, config: &Config) -> Vec<Hit> {
     if config.depth >= 10 {
-        return merge(lists);
+        return merge(lists.clone());
     }
     let cut: Lists = lists
         .iter()
         .map(|(s, ds)| (*s, ds.iter().take(config.depth).cloned().collect()))
         .collect();
-    merge(&cut)
+    merge(cut)
 }
 
 /// The hits in `config`'s order, as indices into `hits`, with the dropped
@@ -455,7 +455,7 @@ mod tests {
                 record("Inflation", "https://x.org/3", Some("prices")),
             ],
         )];
-        let hits = merge(&lists);
+        let hits = merge(lists.clone());
         let config = Config { matching: Match::Idf, ..Config::production() };
         let order =
             rank(&hits, &lists, "inflation country", &config, &Priors::new());

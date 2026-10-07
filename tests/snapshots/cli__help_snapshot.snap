@@ -12,7 +12,8 @@ Commands:
   search      Search every source at once, merged, deduplicated and ranked [alias: s]
   sources     List every source: what it covers, its protocol, its key, its docs
   bench       Time every source on real queries and measure their overlap
-  inspect     Read a dataset page's schema.org Dataset or Croissant metadata
+  inspect     Read a dataset page's metadata and the files it lists
+  mcp         Serve search, sources and inspect to MCP clients over stdio
   cache       Show, warm or clear the cache
   doctor      Check the environment, keys and cache, and report readiness
   completion  Print a shell completion script to stdout
@@ -28,9 +29,6 @@ Options:
 
       --json
           Emit JSON to stdout instead of text
-
-      --jq <EXPR>
-          Filter the JSON output through a jq expression; implies --json
 
       --color <WHEN>
           When to colorize output: auto, always, or never

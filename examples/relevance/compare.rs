@@ -51,7 +51,7 @@ pub fn priors(cases: &[Case]) -> Priors {
         .iter()
         .filter(|c| c.query.graded() && c.query.half == Half::Tune);
     for case in tuning {
-        for hit in merge(&case.lists) {
+        for hit in merge(case.lists.clone()) {
             if let Some(g) = case.judged.grade(&hit.dataset) {
                 for source in &hit.sources {
                     evidence.push((*source, f64::from(g) / 2.0));

@@ -1,6 +1,6 @@
 # ADR 0006: Merge by identity, rank by fusion and query coverage
 
-- Status: superseded by [ADR 0014](0014-rank-by-fusion-and-weighted-coverage.md)
+- Status: superseded by [ADR 0016](0016-rank-by-fusion-and-weighted-coverage.md)
 - Date: 2026-10-06
 
 ## Context

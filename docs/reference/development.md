@@ -38,6 +38,8 @@ No test touches the network. `tests/cli.rs` gives every run its own home, config
 
 Every adapter splits its request (`search` or `list`) from a pure `parse`, and every `parse` has one test against a real response stored in `tests/fixtures/sources/<module>.{json,html,xml,txt}`. The test compares the first record field by field, as one `Dataset` literal, with values read off the fixture by hand. Never paste the test's own output in as the expectation: an expectation the code produced cannot catch the code being wrong, and a hand-written fixture built from the adapter's own JSON pointers cannot catch a pointer the real API never fills, which is how most adapter bugs so far were found. One table in `src/sources.rs` holds every live `parse` to the two rules in that module's header: an unrelated body is `SourceError::Shape`, never an empty list, and the result stops at `limit`.
 
+`inspect` reads whole pages, and `tests/fixtures/inspect/` keeps real ones, trimmed to the `<head>` with its `application/ld+json` block. The MCP session test in `tests/cli.rs` serves such a page through a proxy on `127.0.0.1` that answers `CONNECT` and then the page, so `inspect` runs end to end on an `http://` URL without the network.
+
 To re-record a fixture after a source changes, repeat the adapter's request with `xh` and the dataseek User-Agent (`dataseek/<version> (mailto:user@dataseek.dev)`), never with a key, trim arrays to a few rows with `jq 'walk(if type=="array" then .[:4] else . end)'`, shorten long descriptions to a real prefix, replace any individual's e-mail address with `contact@example.org`, and then re-derive the expected record by reading the new file. Sources that need a key (FRED, Roboflow) use the example response from their API docs, linked above the test.
 
 proptest writes the inputs that once failed to `proptest-regressions/`; they are committed so every run replays them first.
@@ -57,6 +59,8 @@ just bench catalog/search         # one group; the filter is a regex over names
 `benches/search.rs` measures the CPU stages of a search at three input sizes each: SDMX and Eurostat catalog parsing, loading a cached catalog, local catalog search, merging 76 source lists, and cleaning remote text, both HTML and prose full of bare ampersands. The library is private, so the bench reaches these through `dataseek::internals`, which exists only with the `internals` feature. `just bench` turns the feature on; a bare `cargo bench` skips the target.
 
 CI runs the same benches through CodSpeed's CPU simulation on every push to main and on pull requests that touch code ([ADR 0012](../adr/0012-benchmarks-criterion-local-codspeed-ci.md)). The simulation counts instructions instead of timing, so its numbers hold steady across runs but are not milliseconds; compare them only with other CodSpeed runs. `cargo codspeed` measures only on Linux. Local wall time is a rough guide: an A/A run on a busy Mac reported identical code up to 52% faster ([baseline](../bench/2026-10-06-baseline.md)). Measured results go in [`../bench/`](../bench/) with the machine they came from.
+
+`merge` takes ownership of the per-source lists, so the merge bench hands it a fresh copy made outside the measurement and cannot see a copy on the way in. That one is a test instead: `ranking_moves_the_records_instead_of_copying_them` in `src/find.rs` counts the bytes allocated between the search loop and printing with `allocation-counter`, which swaps in a counting allocator for the unit-test binary only, and fails if they reach the size of the records themselves.
 
 Startup is measured separately, on the release binary:
 
@@ -149,5 +153,7 @@ just cov       # line coverage, browsable under target/llvm-cov/html
 just mutants   # mutate what the branch changed against main
 just bloat     # where the release binary's size goes
 ```
+
+`just bloat` runs [cargo-bsize](https://crates.io/crates/cargo-bsize) on the `dataseek` binary (`dsk` is the same program). It ranks crates, functions and generic instantiations by the bytes they ship, and lists panic, formatting and unwind overhead beside them. Before a change that might move the size, run `just bloat` and copy the binary it builds, `target/bsize/release/dataseek`, somewhere outside `target/`; afterwards `just bloat --baseline <that copy>` reports what grew and what shrank, by crate and by function. The baseline has to be that build: the release binary is stripped, so there is nothing left in it to attribute bytes to. `just bloat --what-if` rebuilds once per size lever (`opt-level`, LTO mode, `panic`, codegen settings) and reports the measured saving of each, so it takes minutes; nightly-only levers such as `fmt-debug=none` and `build-std` are measured for reference and cannot go into a profile while the toolchain is pinned to stable. The last measurement is in [`../bench/2026-10-07-binary-size.md`](../bench/2026-10-07-binary-size.md).
 
 `just mutants` passes `--in-diff` so it stays in the minutes rather than mutating the whole crate. A surviving mutant means a line the tests execute but never assert on, which is the failure mode coverage percentages hide.

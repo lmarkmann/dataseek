@@ -100,6 +100,12 @@ pub fn event_line(event: &serde_json::Value) {
     let _ = writeln!(anstream::stderr(), "{event}");
 }
 
+/// Pass a line another dataseek process wrote to its stderr on to ours, as
+/// written: `mcp` relays its tool calls' events this way.
+pub fn relay(line: &str) {
+    let _ = writeln!(anstream::stderr(), "{line}");
+}
+
 /// Open a stage of work: `> <msg>`.
 pub fn stage(msg: impl Display) {
     let mark = if unicode() { "▸" } else { ">" };

@@ -1,4 +1,4 @@
-# ADR 0014: Merge by identity, rank by fusion and rarity-weighted coverage
+# ADR 0016: Merge by identity, rank by fusion and rarity-weighted coverage
 
 - Status: accepted; supersedes [ADR 0006](0006-merge-by-identity-rank-by-fusion.md)
 - Date: 2026-10-07
