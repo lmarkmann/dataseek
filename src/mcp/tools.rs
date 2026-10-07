@@ -54,13 +54,25 @@ struct Described {
     args: Vec<Arg>,
 }
 
+/// The value an argument takes, as `help --json` names it. A kind this
+/// list lacks fails the tool list instead of becoming a string.
+#[derive(Clone, Copy, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "lowercase")]
+enum ValueKind {
+    String,
+    Integer,
+    Boolean,
+    /// A flag given n times, such as `-vv`.
+    Count,
+}
+
 #[derive(Deserialize)]
 struct Arg {
     name: String,
     long: Option<String>,
     positional: bool,
     #[serde(rename = "type")]
-    kind: String,
+    kind: ValueKind,
     values: Vec<String>,
     default: Vec<String>,
     required: bool,
@@ -75,18 +87,19 @@ impl Arg {
     }
 
     /// Positionals are joined into one string (`search`'s words form one
-    /// query), so only named flags take lists.
+    /// query), and a count is how often its flag is repeated, so only named
+    /// flags of other kinds take lists.
     fn takes_list(&self) -> bool {
-        self.repeatable && !self.positional
+        self.repeatable && !self.positional && self.kind != ValueKind::Count
     }
 
     fn expected(&self) -> &'static str {
-        match (self.takes_list(), self.kind.as_str()) {
-            (true, "integer") => "a list of integers",
+        match (self.takes_list(), self.kind) {
+            (true, ValueKind::Integer) => "a list of integers",
             (true, _) => "a list of strings",
-            (false, "boolean") => "true or false",
-            (false, "integer" | "count") => "an integer",
-            (false, _) => "a string",
+            (false, ValueKind::Boolean) => "true or false",
+            (false, ValueKind::Integer | ValueKind::Count) => "an integer",
+            (false, ValueKind::String) => "a string",
         }
     }
 }
@@ -118,43 +131,11 @@ pub fn definitions() -> anyhow::Result<Vec<Value>> {
 }
 
 fn input_schema(args: &[Arg]) -> Value {
-    let mut properties = Map::new();
-    let mut required = Vec::new();
-    for arg in args.iter().filter(|a| a.long.is_some() || a.positional) {
-        let kind = match arg.kind.as_str() {
-            "count" => "integer",
-            other => other,
-        };
-        let mut value = Map::new();
-        value.insert("type".into(), json!(kind));
-        if !arg.values.is_empty() {
-            value.insert("enum".into(), json!(arg.values));
-        }
-        let mut property = if arg.takes_list() {
-            let mut list = Map::new();
-            list.insert("type".into(), json!("array"));
-            list.insert("items".into(), Value::Object(value));
-            list
-        } else {
-            value
-        };
-        if let Some(help) = &arg.help {
-            property.insert("description".into(), json!(help));
-        }
-        let defaults: Vec<Value> =
-            arg.default.iter().map(|text| typed(kind, text)).collect();
-        if arg.takes_list() {
-            if !defaults.is_empty() {
-                property.insert("default".into(), Value::Array(defaults));
-            }
-        } else if let Some(default) = defaults.into_iter().next() {
-            property.insert("default".into(), default);
-        }
-        if arg.required {
-            required.push(arg.key().to_owned());
-        }
-        properties.insert(arg.key().to_owned(), Value::Object(property));
-    }
+    let named = || args.iter().filter(|a| a.long.is_some() || a.positional);
+    let properties: Map<String, Value> =
+        named().map(|arg| (arg.key().to_owned(), property(arg))).collect();
+    let required: Vec<&str> =
+        named().filter(|a| a.required).map(Arg::key).collect();
     json!({
         "type": "object",
         "properties": properties,
@@ -163,17 +144,53 @@ fn input_schema(args: &[Arg]) -> Value {
     })
 }
 
+/// One argument's schema: its type and possible values, for each item when
+/// it takes a list, then its help and default.
+fn property(arg: &Arg) -> Value {
+    let kind = match arg.kind {
+        ValueKind::String => "string",
+        ValueKind::Integer | ValueKind::Count => "integer",
+        ValueKind::Boolean => "boolean",
+    };
+    let mut value = Map::new();
+    value.insert("type".into(), json!(kind));
+    if !arg.values.is_empty() {
+        value.insert("enum".into(), json!(arg.values));
+    }
+    let mut property = if arg.takes_list() {
+        let mut list = Map::new();
+        list.insert("type".into(), json!("array"));
+        list.insert("items".into(), Value::Object(value));
+        list
+    } else {
+        value
+    };
+    if let Some(help) = &arg.help {
+        property.insert("description".into(), json!(help));
+    }
+    let mut defaults = arg.default.iter().map(|text| typed(arg.kind, text));
+    let default = if arg.takes_list() {
+        Some(Value::Array(defaults.collect())).filter(|d| d != &json!([]))
+    } else {
+        defaults.next()
+    };
+    if let Some(default) = default {
+        property.insert("default".into(), default);
+    }
+    Value::Object(property)
+}
+
 /// A default from `help --json`, which lists every default as text, in the
 /// argument's own type.
-fn typed(kind: &str, text: &str) -> Value {
+fn typed(kind: ValueKind, text: &str) -> Value {
     match kind {
-        "integer" => {
+        ValueKind::Integer | ValueKind::Count => {
             text.parse::<u64>().map_or_else(|_| json!(text), Value::from)
         }
-        "boolean" => {
+        ValueKind::Boolean => {
             text.parse::<bool>().map_or_else(|_| json!(text), Value::from)
         }
-        _ => json!(text),
+        ValueKind::String => json!(text),
     }
 }
 
@@ -193,11 +210,21 @@ pub fn argv(
             .find(|a| a.key() == key && (a.long.is_some() || a.positional))
             .ok_or_else(|| Error::Unknown { tool, key: key.clone() })?;
         let flag = format!("--{key}");
-        match value {
+        match (arg.kind, value) {
             _ if arg.positional => positional.push(scalar(arg, value)?),
-            Value::Bool(true) if arg.kind == "boolean" => argv.push(flag),
-            Value::Bool(false) if arg.kind == "boolean" => {}
-            Value::Array(items) if arg.takes_list() => {
+            (ValueKind::Boolean, Value::Bool(true)) => argv.push(flag),
+            (ValueKind::Boolean, Value::Bool(false)) => {}
+            (ValueKind::Count, Value::Number(n)) => {
+                let times = n
+                    .as_u64()
+                    .and_then(|times| u8::try_from(times).ok())
+                    .ok_or_else(|| Error::Type {
+                        key: key.clone(),
+                        expected: arg.expected(),
+                    })?;
+                argv.extend((0..times).map(|_| flag.clone()));
+            }
+            (_, Value::Array(items)) if arg.takes_list() => {
                 for item in items {
                     argv.push(format!("{flag}={}", scalar(arg, item)?));
                 }
@@ -209,7 +236,9 @@ pub fn argv(
                 }
                 .into());
             }
-            other => argv.push(format!("{flag}={}", scalar(arg, other)?)),
+            (_, other) => {
+                argv.push(format!("{flag}={}", scalar(arg, other)?));
+            }
         }
     }
     if tool == "search" {
@@ -240,9 +269,11 @@ fn deadline(
 }
 
 fn scalar(arg: &Arg, value: &Value) -> Result<String, Error> {
-    match (arg.kind.as_str(), value) {
-        ("string", Value::String(text)) => Ok(text.clone()),
-        ("integer", Value::Number(n)) if n.is_u64() => Ok(n.to_string()),
+    match (arg.kind, value) {
+        (ValueKind::String, Value::String(text)) => Ok(text.clone()),
+        (ValueKind::Integer, Value::Number(n)) if n.is_u64() => {
+            Ok(n.to_string())
+        }
         _ => Err(Error::Type {
             key: arg.key().to_owned(),
             expected: arg.expected(),
