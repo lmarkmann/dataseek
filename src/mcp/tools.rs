@@ -51,6 +51,10 @@ pub enum Error {
         "`{key}` takes {expected}\n  Try:   tools/list shows the type of each argument"
     )]
     Type { key: String, expected: &'static str },
+    #[error(
+        "`{key}` holds a NUL character, which no command line can carry\n  Try:   pass the value without it"
+    )]
+    Nul { key: String },
     #[error("{tool} needs `{key}`\n  Try:   {USAGE_HINT}")]
     Missing { tool: &'static str, key: String },
     #[error(
@@ -318,6 +322,9 @@ fn deadline(
 
 fn scalar(arg: &Arg, value: &Value) -> Result<String, Error> {
     match (arg.kind, value) {
+        (ValueKind::String, Value::String(text)) if text.contains('\0') => {
+            Err(Error::Nul { key: arg.key().to_owned() })
+        }
         (ValueKind::String, Value::String(text)) => Ok(text.clone()),
         (ValueKind::Integer, Value::Number(n)) if n.is_u64() => {
             Ok(n.to_string())
@@ -632,6 +639,11 @@ mod tests {
                 "`limit` takes an integer",
             ),
             ("search", json!({ "limit": 5 }), "search needs `query`"),
+            (
+                "inspect",
+                json!({ "url": "a\u{0}b" }),
+                "`url` holds a NUL character",
+            ),
             (
                 "search",
                 json!({ "query": "x", "source": "a" }),
