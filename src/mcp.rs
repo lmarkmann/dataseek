@@ -16,6 +16,7 @@ use std::collections::HashMap;
 use std::io::{self, BufRead, Stdout, Write};
 use std::process::Child;
 use std::sync::{Mutex, PoisonError};
+use std::thread::Scope;
 
 use anstream::AutoStream;
 use anyhow::Result;
@@ -70,28 +71,7 @@ pub fn run(globals: &Globals, out: &Out) -> Result<()> {
         tools::TOOLS.join(", ")
     ));
     std::thread::scope(|scope| {
-        let session = (|| -> io::Result<()> {
-            for line in io::stdin().lock().lines() {
-                let line = line?;
-                if line.trim().is_empty() {
-                    continue;
-                }
-                match handle(&line) {
-                    Reply::Now(response) => server.send(&response)?,
-                    Reply::Call { id, argv } => {
-                        if let Some(refusal) = server.start(&id, &argv) {
-                            server.send(&refusal)?;
-                        } else {
-                            let server = &server;
-                            scope.spawn(move || server.finish(&id));
-                        }
-                    }
-                    Reply::Cancel(id) => server.stop(&id),
-                    Reply::Nothing => {}
-                }
-            }
-            Ok(())
-        })();
+        let session = server.serve(scope);
         // stdin closed, the client is shutting the server down, or the
         // connection broke; either way no call can be answered any more.
         server.stop_all();
@@ -107,6 +87,34 @@ struct Server<'a> {
 }
 
 impl Server<'_> {
+    /// Answer each line on stdin, until it closes or a response cannot be
+    /// written.
+    fn serve<'scope>(
+        &'scope self,
+        scope: &'scope Scope<'scope, '_>,
+    ) -> io::Result<()> {
+        let mut stdin = io::stdin().lock();
+        let mut line = Vec::new();
+        loop {
+            line.clear();
+            if stdin.read_until(b'\n', &mut line)? == 0 {
+                return Ok(());
+            }
+            match handle(&line) {
+                Reply::Now(response) => self.send(&response)?,
+                Reply::Call { id, argv } => {
+                    if let Some(refusal) = self.start(&id, &argv) {
+                        self.send(&refusal)?;
+                    } else {
+                        scope.spawn(move || self.finish(&id));
+                    }
+                }
+                Reply::Cancel(id) => self.stop(&id),
+                Reply::Nothing => {}
+            }
+        }
+    }
+
     fn send(&self, message: &Value) -> io::Result<()> {
         let mut w = self.stdout.lock().unwrap_or_else(PoisonError::into_inner);
         writeln!(w, "{message}")?;
@@ -204,9 +212,16 @@ fn end(mut child: Child) {
 
 /// Decide what one line asks for. Pure, so every protocol rule is a unit
 /// test.
-fn handle(line: &str) -> Reply {
-    let Ok(message) = serde_json::from_str::<Value>(line) else {
-        return Reply::Now(error(&Value::Null, PARSE_ERROR, "not JSON"));
+fn handle(line: &[u8]) -> Reply {
+    if line.trim_ascii().is_empty() {
+        return Reply::Nothing;
+    }
+    let Ok(message) = serde_json::from_slice::<Value>(line) else {
+        return Reply::Now(error(
+            &Value::Null,
+            PARSE_ERROR,
+            "not JSON in UTF-8",
+        ));
     };
     let Some(fields) = message.as_object() else {
         return Reply::Now(error(
@@ -215,29 +230,32 @@ fn handle(line: &str) -> Reply {
             "a message is one JSON object; batches are not part of MCP",
         ));
     };
-    let id = fields.get("id");
-    if fields.get("jsonrpc") != Some(&json!("2.0")) {
-        return Reply::Now(error(
-            id.unwrap_or(&Value::Null),
-            INVALID_REQUEST,
-            "jsonrpc must be \"2.0\"",
-        ));
-    }
-    let Some(method) = fields.get("method").and_then(Value::as_str) else {
-        // A response to a request this server never sends.
-        return Reply::Nothing;
-    };
+    let version_ok = fields.get("jsonrpc") == Some(&json!("2.0"));
+    let method = fields.get("method").and_then(Value::as_str);
     let empty = Map::new();
     let params =
         fields.get("params").and_then(Value::as_object).unwrap_or(&empty);
-    let Some(id) = id else {
+    // A notification is never answered, not even to say it is malformed.
+    let Some(id) = fields.get("id") else {
         return match method {
-            "notifications/cancelled" => params
+            Some("notifications/cancelled") if version_ok => params
                 .get("requestId")
                 .cloned()
                 .map_or(Reply::Nothing, Reply::Cancel),
             _ => Reply::Nothing,
         };
+    };
+    // A response to a request this server never sends.
+    if fields.contains_key("result") || fields.contains_key("error") {
+        return Reply::Nothing;
+    }
+    let (Some(method), true) = (method, version_ok) else {
+        let reason = if version_ok {
+            "a request names its method as a string"
+        } else {
+            "jsonrpc must be \"2.0\""
+        };
+        return Reply::Now(error(id, INVALID_REQUEST, reason));
     };
     if !(id.is_string() || id.is_number()) {
         return Reply::Now(error(
@@ -246,6 +264,11 @@ fn handle(line: &str) -> Reply {
             "a request id is a string or a number",
         ));
     }
+    respond(id, method, params)
+}
+
+/// Answer a well-formed request.
+fn respond(id: &Value, method: &str, params: &Map<String, Value>) -> Reply {
     if let Some(refusal) = check_meta(id, params) {
         return Reply::Now(refusal);
     }
@@ -405,7 +428,7 @@ mod tests {
     use super::*;
 
     fn now(line: &str) -> Value {
-        match handle(line) {
+        match handle(line.as_bytes()) {
             Reply::Now(response) => response,
             other => panic!("expected an answer, got {other:?}"),
         }
@@ -423,6 +446,21 @@ mod tests {
     #[test]
     fn malformed_messages_get_the_json_rpc_codes() {
         assert_eq!(now("{not json")["error"]["code"], PARSE_ERROR);
+        assert!(matches!(
+            handle(b"{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"\xff\"}"),
+            Reply::Now(response) if response["error"]["code"] == PARSE_ERROR
+        ));
+        for nameless in [
+            r#"{"jsonrpc":"2.0","id":4}"#,
+            r#"{"jsonrpc":"2.0","id":4,"method":5}"#,
+        ] {
+            let refused = now(nameless);
+            assert_eq!(
+                refused["error"]["code"], INVALID_REQUEST,
+                "{nameless}"
+            );
+            assert_eq!(refused["id"], 4, "{nameless}");
+        }
         assert_eq!(now("[1, 2]")["error"]["code"], INVALID_REQUEST);
         assert_eq!(
             now(r#"{"jsonrpc":"1.0","id":1,"method":"ping"}"#)["error"]["code"],
@@ -439,18 +477,21 @@ mod tests {
 
     #[test]
     fn notifications_and_responses_get_no_answer() {
-        assert!(matches!(
-            handle(
-                r#"{"jsonrpc":"2.0","method":"notifications/initialized"}"#
-            ),
-            Reply::Nothing
-        ));
-        assert!(matches!(
-            handle(r#"{"jsonrpc":"2.0","id":3,"result":{}}"#),
-            Reply::Nothing
-        ));
+        let silent = [
+            r#"{"jsonrpc":"2.0","method":"notifications/initialized"}"#,
+            r#"{"jsonrpc":"2.0","id":3,"result":{}}"#,
+            r#"{"jsonrpc":"2.0","id":3,"error":{"code":1,"message":"no"}}"#,
+            r#"{"jsonrpc":"1.0","method":"notifications/initialized"}"#,
+            r#"{"method":"notifications/cancelled","params":{"requestId":"a"}}"#,
+        ];
+        for line in silent {
+            assert!(
+                matches!(handle(line.as_bytes()), Reply::Nothing),
+                "{line}"
+            );
+        }
         let cancel = handle(
-            r#"{"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":"a"}}"#,
+            br#"{"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":"a"}}"#,
         );
         assert!(matches!(cancel, Reply::Cancel(id) if id == "a"));
     }
@@ -531,7 +572,7 @@ mod tests {
         ));
         assert_eq!(refused["result"]["isError"], true);
         assert!(matches!(
-            handle(&request("tools/call", &json!({"name": "sources"}))),
+            handle(request("tools/call", &json!({"name": "sources"})).as_bytes()),
             Reply::Call { argv, .. } if argv == ["sources", "--json"]
         ));
     }

@@ -1360,23 +1360,38 @@ impl Mcp {
     }
 
     fn send(&mut self, message: &Value) {
+        self.send_line(message.to_string().as_bytes());
+    }
+
+    fn send_line(&mut self, line: &[u8]) {
         use std::io::Write;
 
         let stdin = self.stdin.as_mut().unwrap();
-        writeln!(stdin, "{message}").unwrap();
+        stdin.write_all(line).unwrap();
+        stdin.write_all(b"\n").unwrap();
         stdin.flush().unwrap();
     }
 
-    /// Send a request and read its response, which must be the next line.
-    fn ask(&mut self, id: u64, method: &str, params: Value) -> Value {
+    /// The next line on stdout, which must be a JSON-RPC message.
+    fn receive(&mut self) -> Value {
+        let line = self.lines.next().unwrap().unwrap();
+        let message: Value = serde_json::from_str(&line).unwrap();
+        assert_eq!(message.get("jsonrpc"), Some(&json!("2.0")), "{line}");
+        message
+    }
+
+    fn request(&mut self, id: u64, method: &str, params: Value) {
         let mut request =
             json!({ "jsonrpc": "2.0", "id": id, "method": method });
         request.as_object_mut().unwrap().insert("params".into(), params);
         self.send(&request);
-        let line = self.lines.next().unwrap().unwrap();
-        let response: Value = serde_json::from_str(&line).unwrap();
-        assert_eq!(response.get("jsonrpc"), Some(&json!("2.0")), "{line}");
-        assert_eq!(response.get("id"), Some(&json!(id)), "{line}");
+    }
+
+    /// Send a request and read its response, which must be the next line.
+    fn ask(&mut self, id: u64, method: &str, params: Value) -> Value {
+        self.request(id, method, params);
+        let response = self.receive();
+        assert_eq!(response.get("id"), Some(&json!(id)), "{response}");
         response
     }
 
@@ -1583,4 +1598,19 @@ fn an_mcp_client_on_the_current_revision_needs_no_handshake() {
 
     let stderr = mcp.close();
     assert!(stderr.contains("serving search, sources, inspect"), "{stderr}");
+}
+
+// A line that is not UTF-8 is a parse error like any other, and the session
+// goes on.
+#[test]
+fn an_mcp_line_that_is_not_utf8_leaves_the_session_open() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut mcp = Mcp::start(dir.path(), "http://127.0.0.1:9");
+    mcp.send_line(b"{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"\xff\"}");
+    let refused = mcp.receive();
+    assert_eq!(refused["error"]["code"], -32700, "{refused}");
+    assert_eq!(refused["id"], Value::Null);
+    let ping = mcp.ask(2, "ping", json!({}));
+    assert_eq!(ping["result"]["resultType"], "complete");
+    mcp.close();
 }
