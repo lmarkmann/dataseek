@@ -262,6 +262,16 @@ pub enum Command {
         offline: bool,
     },
 
+    /// Serve search, sources and inspect to MCP clients over stdio.
+    #[command(
+        long_about = "Serve search, sources and inspect to MCP clients over \
+            stdio.\n\nAn MCP client starts `dsk mcp` and speaks JSON-RPC on \
+            its stdin and stdout. Each tool returns the object its command's \
+            --json prints. stdout carries protocol messages only; narration \
+            goes to stderr."
+    )]
+    Mcp,
+
     /// Show, warm or clear the cache.
     #[command(subcommand)]
     Cache(CacheAction),

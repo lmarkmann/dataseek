@@ -33,6 +33,7 @@ mod http;
 mod inspect;
 mod jq;
 mod listing;
+mod mcp;
 mod output;
 mod palette;
 mod paths;
@@ -240,6 +241,15 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
             }
             inspect::run(&url, out)?;
         }
+        Command::Mcp => mcp::run(
+            &mcp::Globals {
+                quiet: cli.quiet,
+                verbose: cli.verbose,
+                cache_dir: cli.cache_dir,
+                connect_timeout: cli.connect_timeout,
+            },
+            out,
+        )?,
         Command::Cache(action) => cache_cmd::run(action, out)?,
         Command::Doctor => doctor::run(out)?,
         // clap_complete::generate panics on a failed write. Generating into a
@@ -294,35 +304,78 @@ fn report(err: &anyhow::Error, out: &Out) -> ExitCode {
     if broken_pipe {
         return ExitCode::SUCCESS;
     }
-    let message = err.to_string();
-    let (what, hint) = match message.split_once("\n  Try:") {
-        Some((what, hint)) => (what.to_owned(), hint.trim().to_owned()),
-        None => (
-            message.clone(),
-            format!(
-                "if this keeps happening, report it at {}/issues",
-                env!("CARGO_PKG_REPOSITORY")
-            ),
-        ),
-    };
-    let causes: Vec<String> =
-        err.chain().skip(1).map(ToString::to_string).collect();
+    let failure = Failure::of(err);
     if out.json {
-        ui::event_line(&serde_json::json!({
+        ui::event_line(&failure.event());
+    } else {
+        let _ = failure.write(&mut out.stderr(), palette::danger());
+    }
+    ExitCode::FAILURE
+}
+
+/// An error as dataseek reports it: what went wrong, the causes under it, and
+/// what to try. `report` prints it; `mcp` returns it as a failed tool call.
+pub(crate) struct Failure {
+    message: String,
+    causes: Vec<String>,
+    hint: String,
+}
+
+impl Failure {
+    /// Typed errors carry their recovery hint in the message after a `Try:`
+    /// marker; an error without one was not anticipated, so the hint becomes
+    /// the bug-report address.
+    pub(crate) fn of(err: &anyhow::Error) -> Self {
+        let message = err.to_string();
+        let (message, hint) = match message.split_once("\n  Try:") {
+            Some((what, hint)) => (what.to_owned(), hint.trim().to_owned()),
+            None => (
+                message,
+                format!(
+                    "if this keeps happening, report it at {}/issues",
+                    env!("CARGO_PKG_REPOSITORY")
+                ),
+            ),
+        };
+        let causes = err.chain().skip(1).map(ToString::to_string).collect();
+        Self { message, causes, hint }
+    }
+
+    /// The failure an error event on stderr describes, as `--json` writes it.
+    pub(crate) fn from_event(event: &serde_json::Value) -> Option<Self> {
+        let text = |key: &str| event.get(key)?.as_str().map(str::to_owned);
+        Some(Self {
+            message: text("message")?,
+            causes: event
+                .get("causes")?
+                .as_array()?
+                .iter()
+                .filter_map(|cause| cause.as_str().map(str::to_owned))
+                .collect(),
+            hint: text("try")?,
+        })
+    }
+
+    pub(crate) fn event(&self) -> serde_json::Value {
+        serde_json::json!({
             "schema": ui::EVENTS_SCHEMA,
             "event": "error",
-            "message": what,
-            "causes": causes,
-            "try": hint,
-        }));
-        return ExitCode::FAILURE;
+            "message": self.message,
+            "causes": self.causes,
+            "try": self.hint,
+        })
     }
-    let mut stderr = out.stderr();
-    let red = palette::danger();
-    let _ = writeln!(stderr, "{red}Error:{red:#} {what}");
-    for cause in &causes {
-        let _ = writeln!(stderr, "  Cause: {cause}");
+
+    /// The Error, Cause and Try lines, with `label` styling the first word.
+    pub(crate) fn write(
+        &self,
+        w: &mut impl Write,
+        label: clap::builder::styling::Style,
+    ) -> io::Result<()> {
+        writeln!(w, "{label}Error:{label:#} {}", self.message)?;
+        for cause in &self.causes {
+            writeln!(w, "  Cause: {cause}")?;
+        }
+        writeln!(w, "  Try:   {}", self.hint)
     }
-    let _ = writeln!(stderr, "  Try:   {hint}");
-    ExitCode::FAILURE
 }

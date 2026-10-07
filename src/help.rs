@@ -2,6 +2,7 @@
 //! `dataseek` prints, the `help` topics (`environment`, `exit-codes`), and
 //! `help --json`, the whole command surface as data for scripts and agents.
 
+use std::any::TypeId;
 use std::collections::BTreeMap;
 use std::io::Write;
 
@@ -19,11 +20,12 @@ use crate::palette;
 /// Every subcommand, as the `help` topic parser and the overview know them.
 /// The parser runs while clap builds `Cli`, so it cannot ask `Cli` itself;
 /// a test holds this list to the real one.
-const COMMANDS: [&str; 9] = [
+const COMMANDS: [&str; 10] = [
     "search",
     "sources",
     "bench",
     "inspect",
+    "mcp",
     "cache",
     "doctor",
     "completion",
@@ -42,6 +44,7 @@ const GROUPS: [(&str, &[(&str, &str)]); 3] = [
             ("sources", "list sources and their keys"),
             ("inspect", "read a dataset page's metadata"),
             ("bench", "time and compare sources"),
+            ("mcp", "serve search to MCP clients"),
         ],
     ),
     (
@@ -118,9 +121,7 @@ pub fn run(topic: Option<&str>, out: &Out) -> Result<()> {
             Some("exit-codes") => codes_json(),
             Some(command) => json!({
                 "schema": "dataseek-command/1",
-                "command": Cli::command()
-                    .find_subcommand(command)
-                    .map_or(Value::Null, command_json),
+                "command": subcommand_json(command).unwrap_or(Value::Null),
             }),
         };
         return out.json(&surface);
@@ -241,6 +242,12 @@ fn surface() -> Value {
     })
 }
 
+/// One command as `help <command> --json` describes it; `mcp` builds its
+/// tool schemas from the same object.
+pub fn subcommand_json(name: &str) -> Option<Value> {
+    Cli::command().find_subcommand(name).map(command_json)
+}
+
 fn command_json(cmd: &clap::Command) -> Value {
     json!({
         "name": cmd.get_name(),
@@ -270,6 +277,16 @@ fn arg_json(arg: &Arg) -> Value {
             | ArgAction::HelpLong
             | ArgAction::Version
     );
+    let integer =
+        [TypeId::of::<u16>(), TypeId::of::<u64>(), TypeId::of::<usize>()]
+            .iter()
+            .any(|id| arg.get_value_parser().type_id() == *id);
+    let kind = match arg.get_action() {
+        ArgAction::Count => "count",
+        _ if flag => "boolean",
+        _ if integer => "integer",
+        _ => "string",
+    };
     let strings = |items: &[&std::ffi::OsStr]| -> Vec<String> {
         items.iter().map(|s| s.to_string_lossy().into_owned()).collect()
     };
@@ -278,6 +295,7 @@ fn arg_json(arg: &Arg) -> Value {
         "long": arg.get_long(),
         "short": arg.get_short().map(String::from),
         "positional": arg.is_positional(),
+        "type": kind,
         "value": (!flag).then(|| {
             arg.get_value_names()
                 .map(|names| names.iter().map(ToString::to_string).collect::<Vec<_>>().join(" "))
@@ -361,6 +379,19 @@ mod tests {
         assert_eq!(limit["short"], "n");
         assert_eq!(limit["default"], json!(["20"]));
         assert_eq!(limit["env"], "DATASEEK_LIMIT");
+        let kind = |long: &str| {
+            search["args"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|a| a["long"] == long)
+                .unwrap()["type"]
+                .clone()
+        };
+        assert_eq!(kind("limit"), "integer");
+        assert_eq!(kind("per-source"), "integer");
+        assert_eq!(kind("sort"), "string");
+        assert_eq!(kind("offline"), "boolean");
         assert_eq!(surface["exit_codes"].as_array().unwrap().len(), 4);
     }
 }

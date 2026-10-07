@@ -1174,3 +1174,258 @@ fn json_shapes_snapshot() {
         );
     });
 }
+
+/// A `dataseek mcp` process in the sandbox at `dir`, spoken to one line at
+/// a time, as an MCP client speaks to it.
+struct Mcp {
+    child: std::process::Child,
+    stdin: Option<std::process::ChildStdin>,
+    lines: std::io::Lines<std::io::BufReader<std::process::ChildStdout>>,
+}
+
+impl Mcp {
+    /// Every request the server or its children send goes to `proxy`.
+    fn start(dir: &Path, proxy: &str) -> Self {
+        use std::io::BufRead;
+        use std::process::Stdio;
+
+        let mut child =
+            sandboxed(Path::new(env!("CARGO_BIN_EXE_dataseek")), dir)
+                .env("HTTPS_PROXY", proxy)
+                .env("HTTP_PROXY", proxy)
+                .arg("mcp")
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped())
+                .spawn()
+                .unwrap();
+        let stdin = child.stdin.take();
+        let lines =
+            std::io::BufReader::new(child.stdout.take().unwrap()).lines();
+        Self { child, stdin, lines }
+    }
+
+    fn send(&mut self, message: &Value) {
+        use std::io::Write;
+
+        let stdin = self.stdin.as_mut().unwrap();
+        writeln!(stdin, "{message}").unwrap();
+        stdin.flush().unwrap();
+    }
+
+    /// Send a request and read its response, which must be the next line.
+    fn ask(&mut self, id: u64, method: &str, params: Value) -> Value {
+        let mut request =
+            json!({ "jsonrpc": "2.0", "id": id, "method": method });
+        request.as_object_mut().unwrap().insert("params".into(), params);
+        self.send(&request);
+        let line = self.lines.next().unwrap().unwrap();
+        let response: Value = serde_json::from_str(&line).unwrap();
+        assert_eq!(response.get("jsonrpc"), Some(&json!("2.0")), "{line}");
+        assert_eq!(response.get("id"), Some(&json!(id)), "{line}");
+        response
+    }
+
+    fn call(&mut self, id: u64, tool: &str, arguments: Value) -> Value {
+        let mut params = json!({ "name": tool });
+        params.as_object_mut().unwrap().insert("arguments".into(), arguments);
+        let response = self.ask(id, "tools/call", params);
+        response
+            .get("result")
+            .filter(|result| result.is_object())
+            .cloned()
+            .unwrap_or_else(|| panic!("no result: {response}"))
+    }
+
+    /// Close stdin, as a client shutting the server down does; the server
+    /// must exit at once, having written nothing more. Returns its stderr.
+    fn close(mut self) -> String {
+        use std::io::Read;
+
+        drop(self.stdin.take());
+        let started = std::time::Instant::now();
+        let status = loop {
+            if let Some(status) = self.child.try_wait().unwrap() {
+                break status;
+            }
+            if started.elapsed() > std::time::Duration::from_secs(10) {
+                self.child.kill().unwrap();
+                panic!("dataseek mcp did not exit after stdin closed");
+            }
+            std::thread::sleep(std::time::Duration::from_millis(20));
+        };
+        assert!(status.success(), "{status:?}");
+        assert!(self.lines.next().is_none(), "stdout carried more lines");
+        let mut stderr = String::new();
+        self.child.stderr.take().unwrap().read_to_string(&mut stderr).unwrap();
+        stderr
+    }
+}
+
+/// A proxy on 127.0.0.1 that answers every request with `page`, whether the
+/// client tunnels through it with CONNECT or not. Returns its address.
+fn serving(page: &'static str) -> String {
+    use std::io::{BufRead, Write};
+
+    fn head(reader: &mut impl BufRead) -> String {
+        let mut head = String::new();
+        let mut line = String::new();
+        while reader.read_line(&mut line).is_ok_and(|n| n > 2) {
+            head.push_str(&line);
+            line.clear();
+        }
+        head
+    }
+
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let address = format!("http://{}", listener.local_addr().unwrap());
+    std::thread::spawn(move || {
+        for stream in listener.incoming() {
+            let Ok(mut stream) = stream else { continue };
+            let Ok(clone) = stream.try_clone() else { continue };
+            let mut reader = std::io::BufReader::new(clone);
+            if head(&mut reader).starts_with("CONNECT") {
+                let _ = stream
+                    .write_all(b"HTTP/1.1 200 Connection established\r\n\r\n");
+                head(&mut reader);
+            }
+            let _ = write!(
+                stream,
+                "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\
+                 Content-Length: {}\r\nConnection: close\r\n\r\n{page}",
+                page.len()
+            );
+        }
+    });
+    address
+}
+
+// The session a desktop client runs: the handshake, the tool list, a call
+// of each tool and a failing one, then shutdown. Each result is the object
+// the command's --json prints, and stdout carries nothing but responses.
+#[test]
+fn an_mcp_client_drives_a_whole_session_over_stdio() {
+    let dir = tempfile::tempdir().unwrap();
+    seed_rainfall(&dir.path().join("cache").join("dataseek"));
+    let proxy = serving(include_str!("fixtures/inspect/zenodo.html"));
+    let mut mcp = Mcp::start(dir.path(), &proxy);
+
+    let init = mcp.ask(
+        1,
+        "initialize",
+        json!({
+            "protocolVersion": "2025-11-25",
+            "capabilities": {},
+            "clientInfo": { "name": "test", "version": "1" },
+        }),
+    );
+    assert_eq!(init["result"]["protocolVersion"], "2025-11-25");
+    assert_eq!(init["result"]["capabilities"], json!({ "tools": {} }));
+    assert_eq!(
+        init["result"]["serverInfo"]["version"],
+        env!("CARGO_PKG_VERSION")
+    );
+    mcp.send(
+        &json!({ "jsonrpc": "2.0", "method": "notifications/initialized" }),
+    );
+
+    let list = mcp.ask(2, "tools/list", json!({}));
+    let names: Vec<&str> = list["result"]["tools"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|t| t["name"].as_str().unwrap())
+        .collect();
+    assert_eq!(names, ["search", "sources", "inspect"]);
+
+    let sources = mcp.call(3, "sources", json!({}));
+    assert_eq!(sources["isError"], false);
+    assert_eq!(sources["structuredContent"], json_of(&["sources", "--json"]));
+    let text = sources["content"][0]["text"].as_str().unwrap();
+    assert_eq!(
+        serde_json::from_str::<Value>(text).unwrap(),
+        sources["structuredContent"]
+    );
+
+    let search = mcp.call(
+        4,
+        "search",
+        json!({ "query": "rainfall", "source": ["openml"], "offline": true }),
+    );
+    assert_eq!(search["isError"], false, "{search}");
+    let mut report = search["structuredContent"].clone();
+    for source in report["sources"].as_array_mut().unwrap() {
+        source["ms"] = json!(0);
+    }
+    assert_eq!(report, seeded_search_json());
+
+    let url = "http://zenodo.org/records/23077368";
+    let inspect = mcp.call(5, "inspect", json!({ "url": url }));
+    assert_eq!(inspect["isError"], false, "{inspect}");
+    let page = &inspect["structuredContent"];
+    assert_eq!(page["schema"], "dataseek-inspect/1");
+    assert_eq!(page["url"], url);
+    assert_eq!(
+        page["dataset"]["name"],
+        "Monthly water storage levels, Victoria"
+    );
+    assert_eq!(
+        page["dataset"]["identifier"],
+        "https://doi.org/10.5281/zenodo.23077368"
+    );
+
+    let failed = mcp.call(
+        6,
+        "search",
+        json!({ "query": "climate", "source": ["not-a-source"] }),
+    );
+    assert_eq!(failed["isError"], true);
+    let text = failed["content"][0]["text"].as_str().unwrap();
+    assert!(
+        text.starts_with("Error: ") && text.contains("\n  Try:"),
+        "{text}"
+    );
+    assert_eq!(failed["structuredContent"]["event"], "error");
+
+    let stderr = mcp.close();
+    assert!(stderr.contains("searching 1 source"), "{stderr}");
+}
+
+// The stateless revision: no handshake, every request names its version.
+#[test]
+fn an_mcp_client_on_the_current_revision_needs_no_handshake() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut mcp = Mcp::start(dir.path(), "http://127.0.0.1:9");
+    let meta = json!({
+        "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+        "io.modelcontextprotocol/clientCapabilities": {},
+        "io.modelcontextprotocol/clientInfo": { "name": "test", "version": "1" },
+    });
+
+    let discover = mcp.ask(1, "server/discover", json!({ "_meta": meta }));
+    let result = &discover["result"];
+    assert_eq!(result["resultType"], "complete");
+    assert_eq!(result["supportedVersions"][0], "2026-07-28");
+    assert_eq!(result["cacheScope"], "public");
+    assert_eq!(
+        result["_meta"]["io.modelcontextprotocol/serverInfo"]["name"],
+        "dataseek"
+    );
+
+    let sources =
+        mcp.ask(2, "tools/call", json!({ "name": "sources", "_meta": meta }));
+    assert_eq!(sources["result"]["resultType"], "complete");
+    assert_eq!(
+        sources["result"]["structuredContent"]["schema"],
+        "dataseek-sources/1"
+    );
+
+    let mut old = meta.clone();
+    old["io.modelcontextprotocol/protocolVersion"] = json!("1900-01-01");
+    let refused = mcp.ask(3, "tools/list", json!({ "_meta": old }));
+    assert_eq!(refused["error"]["code"], -32022);
+    assert_eq!(refused["error"]["data"]["requested"], "1900-01-01");
+
+    let stderr = mcp.close();
+    assert!(stderr.contains("serving search, sources, inspect"), "{stderr}");
+}
