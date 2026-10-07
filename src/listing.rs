@@ -75,6 +75,22 @@ pub fn run(out: &Out) -> Result<()> {
         }
         return Ok(());
     }
+    table(&mut w, &rows)?;
+    writeln!(w)?;
+    // A note that wraps continues two columns in, so each note still
+    // starts at the margin.
+    let muted = palette::muted();
+    let room = output::width().map(|w| w.saturating_sub(2).max(20));
+    for note in notes(&rows) {
+        for (i, line) in output::wrap(&note, room).iter().enumerate() {
+            let indent = if i == 0 { "" } else { "  " };
+            writeln!(w, "{muted}{indent}{line}{muted:#}")?;
+        }
+    }
+    Ok(())
+}
+
+fn table(w: &mut impl Write, rows: &[Row]) -> Result<()> {
     let (head, muted, warn) =
         (palette::accent(), palette::muted(), palette::warning());
     let column = |title: &str, value: &dyn Fn(&Row) -> usize| {
@@ -89,7 +105,7 @@ pub fn run(out: &Out) -> Result<()> {
         "{head}{:<id$} {:<category$} {:<protocol$} {:<search$} key{head:#}",
         "id", "category", "protocol", "search"
     )?;
-    for r in &rows {
+    for r in rows {
         let key = match (r.key, r.key_env) {
             ("missing", Some(var)) => format!("{warn}missing ${var}{warn:#}"),
             ("optional", Some(var)) => {
@@ -105,7 +121,10 @@ pub fn run(out: &Out) -> Result<()> {
             r.id, r.category, r.protocol, r.search
         )?;
     }
-    writeln!(w)?;
+    Ok(())
+}
+
+fn notes(rows: &[Row]) -> Vec<String> {
     let mut notes = vec![format!(
         "{} sources. `local` ones download their catalog once a week and search it on disk.",
         rows.len()
@@ -120,14 +139,5 @@ pub fn run(out: &Out) -> Result<()> {
             r.notice.map(|notice| format!("{}: {notice}", r.id))
         }),
     );
-    // A note that wraps continues two columns in, so each note still
-    // starts at the margin.
-    let room = output::width().map(|w| w.saturating_sub(2).max(20));
-    for note in notes {
-        for (i, line) in output::wrap(&note, room).iter().enumerate() {
-            let indent = if i == 0 { "" } else { "  " };
-            writeln!(w, "{muted}{indent}{line}{muted:#}")?;
-        }
-    }
-    Ok(())
+    notes
 }
