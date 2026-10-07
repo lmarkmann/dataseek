@@ -20,16 +20,16 @@ mod report;
 mod snapshot;
 mod variants;
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::io::{self, Write};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
-use anyhow::{Result, bail};
+use anyhow::{Context, Result, bail};
 use dataseek::internals::{Dataset, Hit, merge, weigh};
 use serde::{Deserialize, Serialize};
 
-use metrics::{DEPTH, Grade, SEED, bootstrap, mean};
+use metrics::{DEPTH, Grade, SEED, bootstrap, mean, real};
 use snapshot::{Answered, Half, Judged, Lists, Query};
 use variants::{Config, Priors};
 
@@ -235,9 +235,18 @@ fn baseline_path() -> PathBuf {
     snapshot::dir().join("baseline.json")
 }
 
-pub(crate) fn baseline() -> Option<Baseline> {
-    let text = fs::read_to_string(baseline_path()).ok()?;
-    serde_json::from_str(&text).ok()
+/// The committed baseline; `None` only when there is none yet.
+pub(crate) fn baseline() -> Result<Option<Baseline>> {
+    baseline_at(&baseline_path())
+}
+
+fn baseline_at(path: &Path) -> Result<Option<Baseline>> {
+    let Some(text) = snapshot::read_if_present(path)? else {
+        return Ok(None);
+    };
+    let baseline = serde_json::from_str(&text)
+        .with_context(|| format!("parsing {}", path.display()))?;
+    Ok(Some(baseline))
 }
 
 fn round(x: f64) -> f64 {
@@ -259,6 +268,77 @@ fn gates(cases: &[Case], scores: &[Score]) -> BTreeMap<Metric, Gate> {
             (m, gate)
         })
         .collect()
+}
+
+/// Per query: nDCG@10 and P@10, or the known item's reciprocal rank.
+fn per_query(cases: &[Case], scores: &[Score]) -> BTreeMap<String, Vec<f64>> {
+    cases
+        .iter()
+        .zip(scores)
+        .map(|(c, s)| {
+            let values = if c.query.graded() {
+                vec![round(s.ndcg), round(s.precision)]
+            } else {
+                vec![round(s.rr)]
+            };
+            (c.query.id.clone(), values)
+        })
+        .collect()
+}
+
+/// How one metric's mean moved against the baseline.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum Change {
+    Fell,
+    Same,
+    Rose,
+    /// The baseline has no value for the metric.
+    Missing,
+}
+
+/// A drop past the tolerance falls; a drop of exactly the tolerance does
+/// not. Both sides are rounded as the baseline is, so float noise never
+/// decides.
+pub(crate) fn change(was: Option<&Gate>, now: f64) -> Change {
+    let Some(was) = was else { return Change::Missing };
+    let delta = round(now - was.mean);
+    if delta < -was.tolerance {
+        Change::Fell
+    } else if delta > was.tolerance {
+        Change::Rose
+    } else {
+        Change::Same
+    }
+}
+
+/// How far one graded query's nDCG@10 may fall against its baseline value
+/// before the gate fails, however the means move.
+const QUERY_DROP: f64 = 0.1;
+
+/// Why one query fails the gate on its own, if it does: a graded query whose
+/// nDCG@10 fell by more than `QUERY_DROP`, or a known item that was in the
+/// top 10 and left it. `was` is the query's baseline values.
+pub(crate) fn slipped(
+    graded: bool,
+    was: &[f64],
+    now: &Score,
+) -> Option<String> {
+    let Some(&first) = was.first() else {
+        return Some("has no baseline value".to_owned());
+    };
+    if graded {
+        (round(first - now.ndcg) > QUERY_DROP).then(|| {
+            format!("nDCG@10 fell from {first:.3} to {:.3}", now.ndcg)
+        })
+    } else {
+        let was_found = first > 0.0 && (1.0 / first).round() <= real(DEPTH);
+        (was_found && !now.found).then(|| {
+            format!(
+                "the known item left the top 10 (RR {first:.3} to {:.3})",
+                now.rr
+            )
+        })
+    }
 }
 
 fn check(queries: &[Query], bless: bool) -> Result<()> {
@@ -293,65 +373,158 @@ fn check(queries: &[Query], bless: bool) -> Result<()> {
     report::unanswered(&mut out, &cases)?;
     report::pollution(&mut out, &cases, &[("shipped", &rankings)])?;
 
-    let current = gates(&cases, &scores);
+    let current = Baseline {
+        metrics: gates(&cases, &scores),
+        queries: per_query(&cases, &scores),
+    };
     if bless {
-        let queries = cases
-            .iter()
-            .zip(&scores)
-            .map(|(c, s)| {
-                let values = if c.query.graded() {
-                    vec![round(s.ndcg), round(s.precision)]
-                } else {
-                    vec![round(s.rr)]
-                };
-                (c.query.id.clone(), values)
-            })
-            .collect();
-        let baseline = Baseline { metrics: current, queries };
-        let text = serde_json::to_string_pretty(&baseline)?;
-        fs::write(baseline_path(), text + "\n")?;
-        writeln!(out, "\nWrote {}.", baseline_path().display())?;
-        return Ok(());
+        return write_baseline(&mut out, &current);
     }
-
-    let Some(baseline) = baseline() else {
+    let Some(baseline) = baseline()? else {
         bail!(
             "there is no baseline to compare with\n  Try:   just relevance --bless"
         );
     };
-    writeln!(out, "\nAgainst the baseline:")?;
-    let mut fell = Vec::new();
-    for metric in Metric::ALL {
-        let (Some(was), Some(now)) =
-            (baseline.metrics.get(&metric), current.get(&metric))
-        else {
+    let failures = gate(&mut out, &cases, &scores, &current, &baseline)?;
+    if !failures.is_empty() {
+        report::moved(&mut out, &cases, &scores, &baseline)?;
+        bail!(
+            "the ranking fell against the baseline:\n  {}\n  Try:   if the trade-off is deliberate, `just relevance --bless` and say why in the commit",
+            failures.join("\n  ")
+        );
+    }
+    Ok(())
+}
+
+/// Prints each metric against the baseline and returns every reason the
+/// gate fails: a mean that fell past its tolerance or is missing from the
+/// baseline, a query set that differs from the baseline's, and any one
+/// query that slipped on its own.
+fn gate(
+    out: &mut impl Write,
+    cases: &[Case],
+    scores: &[Score],
+    current: &Baseline,
+    baseline: &Baseline,
+) -> Result<Vec<String>> {
+    let mut failures: Vec<String> =
+        renamed(current, baseline).into_iter().collect();
+    let rose = means(out, current, baseline, &mut failures)?;
+    for (case, score) in cases.iter().zip(scores) {
+        let Some(was) = baseline.queries.get(&case.query.id) else {
             continue;
         };
-        let change = now.mean - was.mean;
-        let verdict = if change < -was.tolerance {
-            fell.push(metric.label());
-            "REGRESSION"
-        } else if change > was.tolerance {
-            "better"
-        } else {
-            "same"
+        if let Some(why) = slipped(case.query.graded(), was, score) {
+            failures.push(format!("{}: {why}", case.query.id));
+        }
+    }
+    if rose && failures.is_empty() {
+        writeln!(
+            out,
+            "\nThe ranking improved past the tolerance. Run `just relevance --bless` so a later drop is measured from here, and say why in the commit."
+        )?;
+    }
+    Ok(failures)
+}
+
+/// The queries added and removed since the baseline was written, if any.
+fn renamed(current: &Baseline, baseline: &Baseline) -> Option<String> {
+    let now: BTreeSet<&str> =
+        current.queries.keys().map(String::as_str).collect();
+    let was: BTreeSet<&str> =
+        baseline.queries.keys().map(String::as_str).collect();
+    let join = |ids: Vec<&&str>| {
+        ids.into_iter().copied().collect::<Vec<_>>().join(", ")
+    };
+    (now != was).then(|| {
+        format!(
+            "the queries differ from the baseline's (new: {}; gone: {})",
+            join(now.difference(&was).collect()),
+            join(was.difference(&now).collect())
+        )
+    })
+}
+
+/// Prints each metric's mean against the baseline, adds a failure for each
+/// that fell or is missing, and says whether any rose past its tolerance.
+fn means(
+    out: &mut impl Write,
+    current: &Baseline,
+    baseline: &Baseline,
+    failures: &mut Vec<String>,
+) -> Result<bool> {
+    writeln!(out, "\nAgainst the baseline:")?;
+    let mut rose = false;
+    for (metric, now) in &current.metrics {
+        let was = baseline.metrics.get(metric);
+        let verdict = match change(was, now.mean) {
+            Change::Fell => {
+                failures.push(format!(
+                    "{} fell beyond the tolerance",
+                    metric.label()
+                ));
+                "REGRESSION"
+            }
+            Change::Missing => {
+                failures.push(format!(
+                    "{} is missing from the baseline",
+                    metric.label()
+                ));
+                "MISSING"
+            }
+            Change::Rose => {
+                rose = true;
+                "better"
+            }
+            Change::Same => "same",
+        };
+        let Some(was) = was else {
+            writeln!(
+                out,
+                "  {:<15} none -> {:.4}  {verdict}",
+                metric.label(),
+                now.mean
+            )?;
+            continue;
         };
         writeln!(
             out,
-            "  {:<15} {:.4} -> {:.4}  ({change:+.4}, tolerance {:.4})  {verdict}",
+            "  {:<15} {:.4} -> {:.4}  ({:+.4}, tolerance {:.4})  {verdict}",
             metric.label(),
             was.mean,
             now.mean,
+            now.mean - was.mean,
             was.tolerance
         )?;
     }
-    if !fell.is_empty() {
-        report::moved(&mut out, &cases, &scores, &baseline)?;
-        bail!(
-            "{} fell beyond the tolerance\n  Try:   if the trade-off is deliberate, `just relevance --bless` and say why in the commit",
-            fell.join(" and ")
-        );
+    Ok(rose)
+}
+
+/// Writes `current` as the new baseline, after printing the old means
+/// against the new ones.
+fn write_baseline(out: &mut impl Write, current: &Baseline) -> Result<()> {
+    writeln!(out, "\nBaseline, old -> new:")?;
+    let old = match baseline() {
+        Ok(old) => old,
+        Err(e) => {
+            writeln!(out, "  the old baseline is unreadable ({e:#})")?;
+            None
+        }
+    };
+    for metric in Metric::ALL {
+        let was = old
+            .as_ref()
+            .and_then(|b| b.metrics.get(&metric))
+            .map_or_else(|| "none".to_owned(), |g| format!("{:.4}", g.mean));
+        let now = current
+            .metrics
+            .get(&metric)
+            .map_or_else(|| "none".to_owned(), |g| format!("{:.4}", g.mean));
+        writeln!(out, "  {:<15} {was} -> {now}", metric.label())?;
     }
+    let text = serde_json::to_string_pretty(current)?;
+    fs::write(baseline_path(), text + "\n")?;
+    writeln!(out, "\nWrote {}.", baseline_path().display())?;
     Ok(())
 }
 
@@ -365,7 +538,9 @@ mod tests {
     #[test]
     fn the_production_variant_reproduces_the_shipped_ranking() {
         let queries = snapshot::queries().unwrap();
-        for case in cases(&queries).unwrap() {
+        let cases = cases(&queries).unwrap();
+        assert!(!cases.is_empty());
+        for case in cases {
             let urls =
                 |hits: Vec<Hit>| hits.into_iter().map(|h| h.dataset.url);
             let shipped: Vec<String> = urls(shipped(&case)).collect();
@@ -374,5 +549,42 @@ mod tests {
                     .collect();
             assert_eq!(shipped, variant, "{}", case.query.id);
         }
+    }
+
+    fn gate(mean: f64, tolerance: f64) -> Gate {
+        Gate { mean, low: mean, high: mean, tolerance }
+    }
+
+    #[test]
+    fn a_drop_past_the_tolerance_falls_and_one_at_it_does_not() {
+        let was = gate(0.6, 0.01);
+        assert_eq!(change(Some(&was), 0.589_999), Change::Fell);
+        assert_eq!(change(Some(&was), 0.59), Change::Same);
+        assert_eq!(change(Some(&was), 0.6), Change::Same);
+        assert_eq!(change(Some(&was), 0.62), Change::Rose);
+        assert_eq!(change(None, 0.6), Change::Missing);
+    }
+
+    #[test]
+    fn one_query_slipping_fails_whatever_the_means_do() {
+        let graded = |ndcg| Score { ndcg, precision: 1.0, ..Score::default() };
+        assert!(slipped(true, &[0.9, 1.0], &graded(0.6)).is_some());
+        assert!(slipped(true, &[0.9, 1.0], &graded(0.8)).is_none());
+        assert!(slipped(true, &[], &graded(0.8)).is_some());
+        let known = |rr, found| Score { rr, found, ..Score::default() };
+        assert!(slipped(false, &[0.1], &known(0.0, false)).is_some());
+        assert!(slipped(false, &[1.0], &known(0.5, true)).is_none());
+        assert!(slipped(false, &[0.0], &known(0.0, false)).is_none());
+        assert!(slipped(false, &[1.0 / 11.0], &known(0.0, false)).is_none());
+    }
+
+    #[test]
+    fn a_malformed_baseline_is_an_error_and_only_a_missing_one_is_none() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("baseline.json");
+        assert!(baseline_at(&path).unwrap().is_none());
+        fs::write(&path, "{").unwrap();
+        let err = format!("{:#}", baseline_at(&path).err().unwrap());
+        assert!(err.contains("baseline.json"), "{err}");
     }
 }

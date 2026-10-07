@@ -157,7 +157,7 @@ pub fn run(queries: &[Query]) -> Result<()> {
         .map(|(name, config)| Evaluated::new(name, config, &cases, &priors))
         .collect();
     let Some(base) = evaluated.first() else { return Ok(()) };
-    let mrr_tolerance = crate::baseline()
+    let mrr_tolerance = crate::baseline()?
         .and_then(|b| b.metrics.get(&Metric::Mrr).map(|g| g.tolerance))
         .unwrap_or(0.0);
     let mut out = io::stdout().lock();
