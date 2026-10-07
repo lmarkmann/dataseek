@@ -18,7 +18,7 @@ use serde_json::Value;
 
 use crate::find::human_bytes;
 use crate::http::{Http, SourceError};
-use crate::output::Out;
+use crate::output::{self, Out};
 use crate::record::{clean, number, scrub_controls, summary, text};
 use crate::ui;
 
@@ -373,13 +373,22 @@ fn print(out: &Out, url: &str, page: &Page, files: &[File]) -> Result<()> {
             "files": files,
         }));
     }
+    let room = output::room(LABEL);
     let field = |label: &str, value: Option<String>| -> std::io::Result<()> {
-        match value {
-            Some(v) if !v.is_empty() => {
-                writeln!(out.stdout(), "{label:<12} {v}")
-            }
-            _ => Ok(()),
+        let Some(value) = value.filter(|v| !v.is_empty()) else {
+            return Ok(());
+        };
+        let width = if label == "description" {
+            output::prose_width(room)
+        } else {
+            room
+        };
+        let mut w = out.stdout();
+        for (i, line) in output::wrap(&value, width).iter().enumerate() {
+            let label = if i == 0 { label } else { "" };
+            writeln!(w, "{label:<12} {line}")?;
         }
+        Ok(())
     };
     field("name", page.text("name"))?;
     field("url", page.text("url").map(|u| out.link(&u)))?;
@@ -397,15 +406,97 @@ fn print(out: &Out, url: &str, page: &Page, files: &[File]) -> Result<()> {
         page.text("description").as_deref().and_then(summary),
     )?;
     let mut w = out.stdout();
-    for (i, file) in files.iter().enumerate() {
+    let lines = match output::width() {
+        Some(width) if !files.is_empty() => {
+            file_block(files, width, |url| out.link(url))
+        }
+        _ => files.iter().map(|file| listing(out, file)).collect(),
+    };
+    for (i, line) in lines.iter().enumerate() {
         let label = if i == 0 { "files" } else { "" };
-        writeln!(w, "{label:<12} {}", listing(out, file))?;
+        writeln!(w, "{label:<12} {line}")?;
     }
     Ok(())
 }
 
-/// One file on one line: name, format, size, checksum and pattern, whichever
-/// are known, then the link.
+/// Columns the field labels take, the space after them included.
+const LABEL: usize = 13;
+
+/// The file list on a terminal: a count and total size, then per file its
+/// name, size and format on one line and its link and checksum indented
+/// under it. When the name, size and format columns do not fit beside each
+/// other, size and format move to a line of their own.
+fn file_block(
+    files: &[File],
+    width: usize,
+    link: impl Fn(&str) -> String,
+) -> Vec<String> {
+    let size = |f: &File| {
+        f.size_bytes.map(human_bytes).or_else(|| f.size_text.clone())
+    };
+    let name = |f: &File| f.name.clone().unwrap_or_else(|| "-".to_owned());
+    let longest = |text: &dyn Fn(&File) -> String| {
+        files.iter().map(|f| text(f).chars().count()).max().unwrap_or(0)
+    };
+    let name_w = longest(&name);
+    let size_w = longest(&|f| size(f).unwrap_or_default());
+    let kind_w = longest(&|f| f.format.clone().unwrap_or_default());
+    let side_by_side = LABEL
+        .saturating_add(name_w)
+        .saturating_add(size_w)
+        .saturating_add(kind_w)
+        .saturating_add(4)
+        <= width;
+
+    let mut lines = vec![total(files)];
+    for file in files {
+        let facts = [
+            size(file).map(|s| format!("{s:>size_w$}")),
+            file.format.clone(),
+            file.includes.clone(),
+        ]
+        .into_iter()
+        .flatten()
+        .collect::<Vec<_>>()
+        .join("  ");
+        if side_by_side {
+            lines.push(
+                format!("{:<name_w$}  {facts}", name(file))
+                    .trim_end()
+                    .to_owned(),
+            );
+        } else {
+            lines.push(name(file));
+            if !facts.trim().is_empty() {
+                lines.push(format!("  {}", facts.trim_start()));
+            }
+        }
+        let under = [file.url.as_deref().map(&link), file.checksum.clone()]
+            .into_iter()
+            .flatten()
+            .collect::<Vec<_>>()
+            .join("  ");
+        if !under.is_empty() {
+            lines.push(format!("  {under}"));
+        }
+    }
+    lines
+}
+
+/// `7 files, 3.5 GB`; when only some files give a size, which ones count.
+fn total(files: &[File]) -> String {
+    let count = ui::count(files.len(), "file");
+    let sized: Vec<u64> = files.iter().filter_map(|f| f.size_bytes).collect();
+    let bytes = sized.iter().fold(0_u64, |sum, b| sum.saturating_add(*b));
+    match sized.len() {
+        0 => count,
+        n if n == files.len() => format!("{count}, {}", human_bytes(bytes)),
+        n => format!("{count}, {} in the {n} with a size", human_bytes(bytes)),
+    }
+}
+
+/// One file on one line, for a pipe: name, format, size, checksum and
+/// pattern, whichever are known, then the link.
 fn listing(out: &Out, file: &File) -> String {
     [
         file.name.clone(),
@@ -676,5 +767,66 @@ mod tests {
         );
         let file = json!({"sha256": "main", "md5": "z".repeat(32)});
         assert_eq!(checksum(&file), None);
+    }
+
+    fn two_files() -> Vec<File> {
+        vec![
+            File {
+                name: Some("rain.csv".to_owned()),
+                format: Some("text/csv".to_owned()),
+                size_bytes: Some(2_000_000),
+                checksum: Some("md5:00ff".to_owned()),
+                url: Some("https://example.org/rain.csv".to_owned()),
+                ..File::default()
+            },
+            File {
+                name: Some("stations.parquet".to_owned()),
+                size_bytes: Some(512),
+                url: Some("https://example.org/stations.parquet".to_owned()),
+                ..File::default()
+            },
+        ]
+    }
+
+    #[test]
+    fn a_wide_terminal_puts_size_and_format_beside_the_name() {
+        let lines = file_block(&two_files(), 80, str::to_owned);
+        assert_eq!(
+            lines,
+            [
+                "2 files, 2.0 MB",
+                "rain.csv          2.0 MB  text/csv",
+                "  https://example.org/rain.csv  md5:00ff",
+                "stations.parquet   512 B",
+                "  https://example.org/stations.parquet",
+            ]
+        );
+    }
+
+    #[test]
+    fn a_narrow_terminal_puts_size_and_format_under_the_name() {
+        let lines = file_block(&two_files(), 40, str::to_owned);
+        assert_eq!(
+            lines,
+            [
+                "2 files, 2.0 MB",
+                "rain.csv",
+                "  2.0 MB  text/csv",
+                "  https://example.org/rain.csv  md5:00ff",
+                "stations.parquet",
+                "  512 B",
+                "  https://example.org/stations.parquet",
+            ]
+        );
+    }
+
+    #[test]
+    fn the_total_says_which_files_it_counts() {
+        let mut files = two_files();
+        assert_eq!(total(&files), "2 files, 2.0 MB");
+        files[1].size_bytes = None;
+        assert_eq!(total(&files), "2 files, 2.0 MB in the 1 with a size");
+        files[0].size_bytes = None;
+        assert_eq!(total(&files), "2 files");
     }
 }
