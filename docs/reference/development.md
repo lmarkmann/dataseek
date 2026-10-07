@@ -60,6 +60,8 @@ just bench catalog/search         # one group; the filter is a regex over names
 
 CI runs the same benches through CodSpeed's CPU simulation on every push to main and on pull requests that touch code ([ADR 0012](../adr/0012-benchmarks-criterion-local-codspeed-ci.md)). The simulation counts instructions instead of timing, so its numbers hold steady across runs but are not milliseconds; compare them only with other CodSpeed runs. `cargo codspeed` measures only on Linux. Local wall time is a rough guide: an A/A run on a busy Mac reported identical code up to 52% faster ([baseline](../bench/2026-10-06-baseline.md)). Measured results go in [`../bench/`](../bench/) with the machine they came from.
 
+`merge` takes ownership of the per-source lists, so the merge bench hands it a fresh copy made outside the measurement and cannot see a copy on the way in. That one is a test instead: `ranking_moves_the_records_instead_of_copying_them` in `src/find.rs` counts the bytes allocated between the search loop and printing with `allocation-counter`, which swaps in a counting allocator for the unit-test binary only, and fails if they reach the size of the records themselves.
+
 Startup is measured separately, on the release binary:
 
 ```sh
@@ -118,5 +120,7 @@ just cov       # line coverage, browsable under target/llvm-cov/html
 just mutants   # mutate what the branch changed against main
 just bloat     # where the release binary's size goes
 ```
+
+`just bloat` runs [cargo-bsize](https://crates.io/crates/cargo-bsize) on the `dataseek` binary (`dsk` is the same program). It ranks crates, functions and generic instantiations by the bytes they ship, and lists panic, formatting and unwind overhead beside them. Before a change that might move the size, run `just bloat` and copy the binary it builds, `target/bsize/release/dataseek`, somewhere outside `target/`; afterwards `just bloat --baseline <that copy>` reports what grew and what shrank, by crate and by function. The baseline has to be that build: the release binary is stripped, so there is nothing left in it to attribute bytes to. `just bloat --what-if` rebuilds once per size lever (`opt-level`, LTO mode, `panic`, codegen settings) and reports the measured saving of each, so it takes minutes; nightly-only levers such as `fmt-debug=none` and `build-std` are measured for reference and cannot go into a profile while the toolchain is pinned to stable. The last measurement is in [`../bench/2026-10-07-binary-size.md`](../bench/2026-10-07-binary-size.md).
 
 `just mutants` passes `--in-diff` so it stays in the minutes rather than mutating the whole crate. A surviving mutant means a line the tests execute but never assert on, which is the failure mode coverage percentages hide.

@@ -92,7 +92,7 @@ mod tests {
             "Multi-omic profiling reveals age-related immune dynamics in \
              healthy adults"
         );
-        let hits = crate::dedup::merge(&[("cellxgene", entries)]);
+        let hits = crate::dedup::merge(vec![("cellxgene", entries)]);
         assert_eq!(hits.len(), 4);
     }
 

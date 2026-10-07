@@ -114,6 +114,17 @@ fn json_of(args: &[&str]) -> Value {
     serde_json::from_str(&stdout_text(args)).unwrap()
 }
 
+fn result_titles(stdout: &[u8]) -> Vec<String> {
+    let report: Value = serde_json::from_slice(stdout).unwrap();
+    report
+        .get("results")
+        .and_then(Value::as_array)
+        .unwrap()
+        .iter()
+        .map(|r| r.get("title").and_then(Value::as_str).unwrap().to_owned())
+        .collect()
+}
+
 #[test]
 fn version_matches_manifest() {
     bin()
@@ -432,13 +443,16 @@ fn offline_after_an_outage_answers_from_the_cache() {
     seed(&cache, "outages/openml.json", 0, &Value::Null);
     let out = cmd
         .args(["search", "rainfall", "-c", "machine-learning", "--offline"])
-        .args(["--jq", ".results[].title"])
+        .arg("--json")
         .output()
         .unwrap();
     assert!(out.status.success(), "{out:?}");
-    let titles = String::from_utf8(out.stdout).unwrap();
-    assert!(titles.contains("Rainfall in Lisbon"), "{titles}");
-    assert!(titles.contains("rainfall in Porto"), "{titles}");
+    let titles = result_titles(&out.stdout);
+    assert!(titles.iter().any(|t| t == "Rainfall in Lisbon"), "{titles:?}");
+    assert!(
+        titles.iter().any(|t| t == "Monthly rainfall in Porto"),
+        "{titles:?}"
+    );
 }
 
 #[test]
@@ -448,21 +462,21 @@ fn sort_newest_puts_the_latest_update_first() {
         seed_rainfall(&cmd.cache());
         let out = cmd
             .args(["search", "rainfall", "-s", "openml", "--offline"])
-            .args(["--sort", sort, "--jq", ".results[].title"])
+            .args(["--sort", sort, "--json"])
             .output()
             .unwrap();
         assert!(out.status.success(), "{out:?}");
-        String::from_utf8(out.stdout).unwrap()
+        result_titles(&out.stdout)
     };
     // The closer title match ranks first by relevance, the later date by
     // newest, so the two orders disagree.
     assert_eq!(
         titles("relevance"),
-        "Rainfall in Lisbon\nMonthly rainfall in Porto\n"
+        ["Rainfall in Lisbon", "Monthly rainfall in Porto"]
     );
     assert_eq!(
         titles("newest"),
-        "Monthly rainfall in Porto\nRainfall in Lisbon\n"
+        ["Monthly rainfall in Porto", "Rainfall in Lisbon"]
     );
 }
 
@@ -524,31 +538,6 @@ fn opt_in_sources_are_marked_in_the_listing_and_doctor() {
 fn piped_json_is_one_line() {
     let text = stdout_text(&["sources", "--json"]);
     assert_eq!(text.lines().count(), 1);
-}
-
-#[test]
-fn jq_selects_from_the_json_without_a_second_process() {
-    let ids = stdout_text(&["sources", "--jq", ".sources[].id"]);
-    let report = json_of(&["sources", "--json"]);
-    assert_eq!(ids.lines().next(), report["sources"][0]["id"].as_str());
-    assert_eq!(
-        ids.lines().count(),
-        report["sources"].as_array().unwrap().len()
-    );
-}
-
-// A broken expression fails before any work, with the --jq flag named.
-#[test]
-fn a_bad_jq_expression_fails_first() {
-    let out = bin()
-        .args(["search", "climate", "--jq", ".results["])
-        .output()
-        .unwrap();
-    assert_eq!(out.status.code(), Some(1));
-    let stderr = String::from_utf8(out.stderr).unwrap();
-    assert!(stderr.contains("--jq expression"), "{stderr}");
-    assert!(stderr.contains("closing bracket at column 10"), "{stderr}");
-    assert!(!stderr.contains("searching"), "{stderr}");
 }
 
 #[test]
@@ -702,22 +691,6 @@ fn cache_warm_with_failures_says_how_many_and_exits_one() {
     }
 }
 
-// A --jq expression that fails on the report must not hide which catalogs
-// failed: the error names them, with the jq failure as its cause.
-#[test]
-fn cache_warm_failures_survive_a_failing_jq_expression() {
-    let out = bin()
-        .args(["cache", "warm", "-q", "--jq", r#"error("boom")"#])
-        .output()
-        .unwrap();
-    assert_eq!(out.status.code(), Some(1));
-    let event: Value = serde_json::from_slice(&out.stderr).unwrap();
-    let count = format!("{n} of {n} catalogs failed", n = catalog_ids().len());
-    assert!(event["message"].as_str().unwrap().contains(&count), "{event}");
-    let causes = event["causes"].as_array().unwrap();
-    assert!(causes.iter().any(|c| c.as_str().unwrap().contains("boom")));
-}
-
 #[test]
 fn cache_warm_into_an_unwritable_dir_fails_before_downloading() {
     let mut cmd = bin();
@@ -749,6 +722,165 @@ fn inspect_reports_an_unreachable_page() {
         stderr.find("  Try: ").expect(&stderr),
     );
     assert!(error < cause && cause < hint, "{stderr}");
+}
+
+/// A page whose JSON-LD describes one dataset and the file it offers.
+const DATASET_PAGE: &str = r#"<html><head>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "Dataset", "name": "Rainfall",
+ "distribution": [{"@type": "DataDownload", "name": "rain.csv",
+  "encodingFormat": "text/csv", "contentSize": "2 MB",
+  "contentUrl": "https://example.org/rain.csv"}]}
+</script>
+</head></html>"#;
+
+/// The same dataset with no file list.
+const BARE_PAGE: &str = r#"<html><head>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "Dataset", "name": "Rainfall"}
+</script>
+</head></html>"#;
+
+/// A local server answering every request with `page`; its address.
+fn serve_page(page: &'static str) -> String {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let url = format!("http://{}/", listener.local_addr().unwrap());
+    std::thread::spawn(move || {
+        for stream in listener.incoming().flatten() {
+            let _ = answer(stream, page);
+        }
+    });
+    url
+}
+
+/// Read one request head and answer it with `page` as HTML.
+fn answer(
+    mut stream: impl std::io::Read + std::io::Write,
+    page: &str,
+) -> std::io::Result<()> {
+    use std::io::BufRead;
+
+    for line in std::io::BufReader::new(&mut stream).lines() {
+        if line?.is_empty() {
+            break;
+        }
+    }
+    write!(
+        stream,
+        "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{page}",
+        page.len()
+    )?;
+    stream.flush()
+}
+
+/// `inspect` on a local page, with no proxy in the way.
+fn inspect_page(page: &'static str, args: &[&str]) -> std::process::Output {
+    bin()
+        .env_remove("HTTPS_PROXY")
+        .env_remove("HTTP_PROXY")
+        .arg("inspect")
+        .arg(serve_page(page))
+        .args(args)
+        .output()
+        .unwrap()
+}
+
+#[test]
+fn inspect_lists_the_files_a_page_describes() {
+    let out = inspect_page(DATASET_PAGE, &["--json"]);
+    assert!(out.status.success(), "{out:?}");
+    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(
+        report["dataset"]["files"],
+        json!([{
+            "name": "rain.csv",
+            "format": "text/csv",
+            "size_bytes": 2_000_000,
+            "url": "https://example.org/rain.csv",
+        }])
+    );
+
+    let out = inspect_page(DATASET_PAGE, &[]);
+    let text = String::from_utf8(out.stdout).unwrap();
+    let line = format!(
+        "{:<12} rain.csv  text/csv  2.0 MB  https://example.org/rain.csv",
+        "files"
+    );
+    assert!(text.lines().any(|l| l == line), "{text}");
+}
+
+#[test]
+fn inspect_says_when_a_page_lists_no_files() {
+    let out = inspect_page(BARE_PAGE, &["--json"]);
+    assert!(out.status.success(), "{out:?}");
+    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(report["dataset"]["files"], json!([]));
+    let stderr = String::from_utf8(out.stderr).unwrap();
+    assert!(stderr.contains("the page's metadata lists no files"), "{stderr}");
+}
+
+/// On Linux the roots come from the system store, which `SSL_CERT_FILE`
+/// replaces: a page served under a private root, as a TLS-inspecting proxy
+/// serves every page, is trusted once that root is installed.
+#[cfg(target_os = "linux")]
+#[test]
+fn linux_trusts_the_root_certificates_the_system_names() {
+    use std::sync::Arc;
+
+    use rcgen::{
+        BasicConstraints, CertificateParams, CertifiedIssuer, IsCa, KeyPair,
+    };
+    use rustls::pki_types::PrivatePkcs8KeyDer;
+
+    let mut root = CertificateParams::new(Vec::new()).unwrap();
+    root.is_ca = IsCa::Ca(BasicConstraints::Unconstrained);
+    let root =
+        CertifiedIssuer::self_signed(root, KeyPair::generate().unwrap())
+            .unwrap();
+    let key = KeyPair::generate().unwrap();
+    let leaf = CertificateParams::new(vec!["127.0.0.1".to_owned()])
+        .unwrap()
+        .signed_by(&key, &root)
+        .unwrap();
+    let provider = Arc::new(rustls::crypto::ring::default_provider());
+    let config = Arc::new(
+        rustls::ServerConfig::builder_with_provider(provider)
+            .with_safe_default_protocol_versions()
+            .unwrap()
+            .with_no_client_auth()
+            .with_single_cert(
+                vec![leaf.der().clone()],
+                PrivatePkcs8KeyDer::from(key.serialize_der()).into(),
+            )
+            .unwrap(),
+    );
+
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let url = format!("https://{}/", listener.local_addr().unwrap());
+    std::thread::spawn(move || {
+        for tcp in listener.incoming().flatten() {
+            let tls = rustls::ServerConnection::new(Arc::clone(&config));
+            let _ = answer(
+                rustls::StreamOwned::new(tls.unwrap(), tcp),
+                DATASET_PAGE,
+            );
+        }
+    });
+
+    let mut cmd = bin();
+    let roots = cmd.dir.path().join("roots.pem");
+    std::fs::write(&roots, root.pem()).unwrap();
+    let out = cmd
+        .env("SSL_CERT_FILE", &roots)
+        .env_remove("SSL_CERT_DIR")
+        .env_remove("HTTPS_PROXY")
+        .env_remove("HTTP_PROXY")
+        .args(["inspect", &url, "--json"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
+    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(report["dataset"]["name"], "Rainfall");
 }
 
 #[test]
@@ -988,7 +1120,6 @@ fn help_json_describes_the_surface() {
     assert_eq!(surface["schema"], "dataseek-surface/1");
     // An agent's first probe, a bare call, gets the same object.
     assert_eq!(json_of(&["--json"]), surface);
-    assert_eq!(stdout_text(&["--jq", ".schema"]), "dataseek-surface/1\n");
     assert_eq!(surface["version"], env!("CARGO_PKG_VERSION"));
     let names: Vec<&str> = surface["command"]["commands"]
         .as_array()
@@ -1359,7 +1490,7 @@ fn an_mcp_client_drives_a_whole_session_over_stdio() {
     }
     assert_eq!(report, seeded_search_json());
 
-    let url = "http://zenodo.org/records/23077368";
+    let url = "http://zenodo.org/records/13135140";
     let inspect = mcp.call(5, "inspect", json!({ "url": url }));
     assert_eq!(inspect["isError"], false, "{inspect}");
     let page = &inspect["structuredContent"];
@@ -1367,11 +1498,12 @@ fn an_mcp_client_drives_a_whole_session_over_stdio() {
     assert_eq!(page["url"], url);
     assert_eq!(
         page["dataset"]["name"],
-        "Monthly water storage levels, Victoria"
+        "Evaluation of the influence of rain on air surface temperature \
+         measurements"
     );
     assert_eq!(
         page["dataset"]["identifier"],
-        "https://doi.org/10.5281/zenodo.23077368"
+        "https://doi.org/10.5281/zenodo.13135140"
     );
 
     let failed = mcp.call(

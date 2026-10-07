@@ -10,7 +10,7 @@ The version lives only in `Cargo.toml`. Clap reads it via `#[command(version)]`,
 
 - `-h/--help`, `-V/--version`
 - Global `-q/--quiet`, `-v/--verbose` (repeatable)
-- `--json`, `--jq EXPR`, `--color=auto|always|never`, `--no-color`, `--plain`, `--no-progress`
+- `--json`, `--color=auto|always|never`, `--no-color`, `--plain`, `--no-progress`
 - `--cache-dir DIR` and `--connect-timeout SECS`, each with a `DATASEEK_*` variable
 
 `search` reads `-x`, `--per-source`, `-n` and `--timeout` from `DATASEEK_EXCLUDE`, `DATASEEK_PER_SOURCE`, `DATASEEK_LIMIT` and `DATASEEK_TIMEOUT` too. A flag beats its variable, which beats the default; `dataseek help environment` lists them all. A source marked `opt-in` in `dataseek sources` runs only when `-s` names it ([ADR 0013](../adr/0013-opt-in-sources.md)).
@@ -52,11 +52,11 @@ This is why `Cargo.toml` denies `print_stdout` and `print_stderr`: a stray `prin
 
 ## JSON
 
-Every `--json` output is one object with a `schema` tag naming its shape and version (`dataseek-search/1`, `dataseek-sources/1`, `dataseek-doctor/1`, ...). A key that changes meaning or disappears bumps the tag; a new key does not. On a terminal the JSON is indented, in a pipe it is one line. `--jq EXPR` runs a jq expression over the same object (strings come out raw, like `jq -r`), so a script needs no second process; a broken expression fails before any work starts. `completion` and `man` print their script and page whatever the flag. `tests/snapshots/` freezes the search, sources, doctor, cache info, exit-codes and error-event shapes.
+Every `--json` output is one object with a `schema` tag naming its shape and version (`dataseek-search/1`, `dataseek-sources/1`, `dataseek-doctor/1`, ...). A key that changes meaning or disappears bumps the tag; a new key does not. On a terminal the JSON is indented, in a pipe it is one line. To pick fields, pipe it into `jq`. `completion` and `man` print their script and page whatever the flag. `tests/snapshots/` freezes the search, sources, doctor, cache info, exit-codes and error-event shapes.
 
 ## MCP mode
 
-`dataseek mcp` serves `search`, `sources` and `inspect` to MCP clients over stdio ([ADR 0014](../adr/0014-mcp-server-over-stdio.md)). A client registers it as command `dsk` with arguments `["mcp"]`.
+`dataseek mcp` serves `search`, `sources` and `inspect` to MCP clients over stdio ([ADR 0015](../adr/0015-mcp-server-over-stdio.md)). A client registers it as command `dsk` with arguments `["mcp"]`.
 
 - **Protocol.** Requests naming revision `2026-07-28` in `_meta` are served statelessly, with `server/discover`; clients that open with `initialize` get revision `2025-11-25` or `2025-06-18`. A request naming any other revision gets `-32022` with the supported list.
 - **stdout** carries one JSON-RPC message per line and nothing else. The server's status line and its tool calls' narration, as `dataseek-events/1` lines, go to stderr; `-q` and `-v` on `dataseek mcp` reach every call.

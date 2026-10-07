@@ -1,5 +1,5 @@
 //! `mcp`: a Model Context Protocol server on stdin and stdout, so a chat
-//! client without a shell can search (ADR 0014).
+//! client without a shell can search (ADR 0015).
 //!
 //! It speaks the stateless 2026-07-28 revision, where every request carries
 //! its protocol version in `_meta`, and the handshake revisions before it for

@@ -1,4 +1,4 @@
-# ADR 0014: `dsk mcp` is a hand-written stdio server that runs each tool as a child
+# ADR 0015: `dsk mcp` is a hand-written stdio server that runs each tool as a child
 
 - Status: accepted
 - Date: 2026-10-07

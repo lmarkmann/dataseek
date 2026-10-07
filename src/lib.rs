@@ -31,7 +31,6 @@ mod fs;
 mod help;
 mod http;
 mod inspect;
-mod jq;
 mod listing;
 mod mcp;
 mod output;
@@ -107,11 +106,6 @@ pub fn main() -> ExitCode {
     ui::init(&out);
     paths::relocate_cache(cli.cache_dir.clone());
     http::connect_within(Duration::from_secs(cli.connect_timeout));
-    if let Some(filter) = &out.jq
-        && let Err(err) = jq::check(filter)
-    {
-        return report(&err.into(), &out);
-    }
 
     match run(cli, &out) {
         Ok(()) => ExitCode::SUCCESS,
@@ -149,7 +143,6 @@ impl Early {
                         color = ColorChoice::from_str(value, true)
                             .unwrap_or(color);
                     }
-                    json |= other == "--jq" || other.starts_with("--jq=");
                 }
             }
         }

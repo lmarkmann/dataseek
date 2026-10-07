@@ -192,7 +192,7 @@ mod tests {
             ..hits[0].clone()
         };
         let merged =
-            crate::dedup::merge(&[("geo", vec![series, hits[3].clone()])]);
+            crate::dedup::merge(vec![("geo", vec![series, hits[3].clone()])]);
         assert_eq!(merged.len(), 1);
     }
 

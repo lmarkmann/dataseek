@@ -90,7 +90,7 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         if offline { ", offline" } else { "" }
     ));
     let progress = ui::bar(plan.sources.len() as u64, "sources");
-    let outcomes = run(
+    let mut outcomes = run(
         &services,
         refresh,
         &plan,
@@ -113,19 +113,28 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         return Err(failure(&outcomes, offline).into());
     }
 
-    let lists: Vec<_> =
-        outcomes.iter().map(|o| (o.source.id, o.datasets.clone())).collect();
-    let mut hits = weigh(merge(&lists), &query);
+    let sources = reports(&outcomes);
+    let mut hits = ranked(&mut outcomes, &query, sort);
+    let found = hits.len();
+    hits.truncate(limit);
+    print(out, &query, &hits, sources)?;
+    summarize(&query, hits.len(), found, &outcomes);
+    Ok(())
+}
+
+/// Every source's results, moved out of their outcomes, merged and ordered.
+fn ranked(outcomes: &mut [Outcome], query: &str, sort: Sort) -> Vec<Hit> {
+    let lists = outcomes
+        .iter_mut()
+        .map(|o| (o.source.id, std::mem::take(&mut o.datasets)))
+        .collect();
+    let mut hits = weigh(merge(lists), query);
     if sort == Sort::Newest {
         // Stable, so equally dated hits keep their relevance order; `None`
         // sorts below every date.
         hits.sort_by(|a, b| b.dataset.updated.cmp(&a.dataset.updated));
     }
-    let found = hits.len();
-    hits.truncate(limit);
-    print(out, &query, &hits, &outcomes)?;
-    summarize(&query, hits.len(), found, &outcomes);
-    Ok(())
+    hits
 }
 
 /// Which failure every source failing amounts to: all unreachable reads as
@@ -228,27 +237,32 @@ struct SourceReport {
     ms: u128,
 }
 
+/// What each source did, taken before its results move into the merge.
+fn reports(outcomes: &[Outcome]) -> Vec<SourceReport> {
+    outcomes
+        .iter()
+        .map(|o| SourceReport {
+            id: o.source.id,
+            status: o.status.label(),
+            answered: o.status.answered(),
+            results: o.datasets.len(),
+            ms: o.elapsed.as_millis(),
+        })
+        .collect()
+}
+
 fn print(
     out: &Out,
     query: &str,
     hits: &[Hit],
-    outcomes: &[Outcome],
+    sources: Vec<SourceReport>,
 ) -> Result<()> {
     if out.json {
         return out.json(&Report {
             schema: SCHEMA,
             query,
             results: hits,
-            sources: outcomes
-                .iter()
-                .map(|o| SourceReport {
-                    id: o.source.id,
-                    status: o.status.label(),
-                    answered: o.status.answered(),
-                    results: o.datasets.len(),
-                    ms: o.elapsed.as_millis(),
-                })
-                .collect(),
+            sources,
         });
     }
     let mut w = out.stdout();
@@ -327,11 +341,58 @@ fn tabless(text: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::record::Dataset;
+    use crate::sources::SOURCES;
 
     #[test]
     fn sizes_use_decimal_units() {
         assert_eq!(human_bytes(512), "512 B");
         assert_eq!(human_bytes(155_173), "155.2 KB");
         assert_eq!(human_bytes(2_559_248_010_229), "2.6 TB");
+    }
+
+    /// Four sources answering 50 records each, every record carrying a
+    /// 16 KB publisher. Titles stay under the 12 characters a title key
+    /// needs, so neither merging nor weighing reads the publisher, and any
+    /// of its bytes allocated while ranking is a copy.
+    fn answered() -> Vec<Outcome> {
+        SOURCES
+            .iter()
+            .take(4)
+            .map(|source| Outcome {
+                source,
+                status: Status::Fetched,
+                elapsed: Duration::ZERO,
+                datasets: (0..50)
+                    .map(|i| {
+                        let url = format!("https://x.org/{}/{i}", source.id);
+                        let mut d = Dataset::new(&format!("Rain {i}"), &url);
+                        d.publisher = Some("p".repeat(16_000));
+                        d
+                    })
+                    .collect(),
+            })
+            .collect()
+    }
+
+    #[test]
+    fn ranking_moves_the_records_instead_of_copying_them() {
+        let mut outcomes = answered();
+        let carried: usize = outcomes
+            .iter()
+            .flat_map(|o| &o.datasets)
+            .filter_map(|d| d.publisher.as_ref())
+            .map(String::len)
+            .sum();
+        let mut hits = Vec::new();
+        let allocated = allocation_counter::measure(|| {
+            hits = ranked(&mut outcomes, "rain", Sort::Relevance);
+        })
+        .bytes_total;
+        assert_eq!(hits.len(), 200);
+        assert!(
+            allocated < carried as u64,
+            "ranking {carried} bytes of records allocated {allocated}"
+        );
     }
 }

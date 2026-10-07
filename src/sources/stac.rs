@@ -259,7 +259,8 @@ mod tests {
         assert_eq!(entries[0].doi, None);
         assert_eq!(entries[1].doi, None);
         assert_eq!(entries[2].doi, unique);
-        let lists = [("copernicus-dataspace", entries)];
-        assert_eq!(crate::dedup::merge(&lists).len(), 3);
+        let merged =
+            crate::dedup::merge(vec![("copernicus-dataspace", entries)]);
+        assert_eq!(merged.len(), 3);
     }
 }
