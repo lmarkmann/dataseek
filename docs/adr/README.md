@@ -38,4 +38,4 @@ A decision that constrains future work lives here, once, and is cited from where
 | [0014](0014-system-trust-store-on-every-platform.md) | Every platform trusts the system's root certificates | accepted |
 | [0015](0015-mcp-server-over-stdio.md) | `dsk mcp` is a hand-written stdio server that runs each tool as a child | accepted |
 | [0016](0016-rank-by-fusion-and-weighted-coverage.md) | Merge by identity, rank by fusion and rarity-weighted coverage | accepted |
-| [0017](0017-release-wheels-on-a-platform-matrix.md) | Release wheels build on a per-platform matrix | accepted |
+| [0017](0017-release-builds-on-a-platform-matrix.md) | Release builds run on a per-platform matrix | accepted |
