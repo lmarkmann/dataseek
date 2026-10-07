@@ -29,6 +29,20 @@ dsk cache warm                              # download the catalogs searched loc
 
 Most sources need no key. FRED, Roboflow and Data Commons are skipped without their own; keys for Hugging Face, Kaggle, Data.gov, GitHub and NCBI raise limits. See [`docs/reference/keys-and-cache.md`](docs/reference/keys-and-cache.md).
 
+## MCP
+
+`dsk mcp` serves `search`, `sources` and `inspect` to MCP clients that have no shell. Register it in the client's MCP server configuration:
+
+```json
+{
+  "mcpServers": {
+    "dataseek": { "command": "dsk", "args": ["mcp"] }
+  }
+}
+```
+
+Each tool returns what its command prints with `--json`; keys are read from the environment the client starts it in, or from `credentials.toml`. [`docs/reference/contract.md`](docs/reference/contract.md#mcp-mode) has the details.
+
 ## Development
 
 ```sh

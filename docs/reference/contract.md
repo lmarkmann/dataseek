@@ -31,7 +31,7 @@ Secrets never arrive as flags, which leak into shell history and process listing
 
 - A bare `dataseek` prints the overview on **stdout** and exits `0`: the name and version, the commands in three small groups (search, upkeep, shell), and a footer pointing at `-h`. It is orientation, so `dsk | head` shows it. `src/help.rs` holds the groups; a unit test fails when a command is missing from them.
 - `dataseek help <command>` is that command's `--help`. `dataseek help environment` lists the variables that change what it does, `dataseek help exit-codes` every code it returns.
-- `dataseek help --json` describes the whole surface as data for scripts and agents: commands, flags with their value names, possible values, defaults and variables, and the exit codes, all generated from the clap definition. A bare `dataseek --json` prints the same object.
+- `dataseek help --json` describes the whole surface as data for scripts and agents: commands, flags with their type (`boolean`, `integer`, `string` or `count`), value names, possible values, defaults and variables, and the exit codes, all generated from the clap definition. A bare `dataseek --json` prints the same object. `dataseek help <command> --json` prints that command's entry of it: its own flags, with the global ones listed once, on the root.
 
 ## stdout is data, stderr is status
 
@@ -53,6 +53,18 @@ This is why `Cargo.toml` denies `print_stdout` and `print_stderr`: a stray `prin
 ## JSON
 
 Every `--json` output is one object with a `schema` tag naming its shape and version (`dataseek-search/1`, `dataseek-sources/1`, `dataseek-doctor/1`, ...). A key that changes meaning or disappears bumps the tag; a new key does not. On a terminal the JSON is indented, in a pipe it is one line. `--jq EXPR` runs a jq expression over the same object (strings come out raw, like `jq -r`), so a script needs no second process; a broken expression fails before any work starts. `completion` and `man` print their script and page whatever the flag. `tests/snapshots/` freezes the search, sources, doctor, cache info, exit-codes and error-event shapes.
+
+## MCP mode
+
+`dataseek mcp` serves `search`, `sources` and `inspect` to MCP clients over stdio ([ADR 0014](../adr/0014-mcp-server-over-stdio.md)). A client registers it as command `dsk` with arguments `["mcp"]`.
+
+- **Protocol.** Requests naming revision `2026-07-28` in `_meta` are served statelessly, with `server/discover`; clients that open with `initialize` get revision `2025-11-25` or `2025-06-18`. A request naming any other revision gets `-32022` with the supported list.
+- **stdout** carries one JSON-RPC message per line and nothing else. The server's status line and its tool calls' narration, as `dataseek-events/1` lines, go to stderr; `-q` and `-v` on `dataseek mcp` reach every call.
+- **Tools.** Each tool's input schema is its command's `help <command> --json` entry: one property per flag, named by its long form, typed, with its possible values and default; `search`'s words are one `query` string. A call runs `dataseek <command> --json` with those flags, and the result carries the object that prints as `structuredContent` and again as text.
+- **Failures.** A failed call is a result with `isError: true`: the text is the `Error:`, `Cause:` and `Try:` lines the command line prints, and `structuredContent` the error event. A bad argument is such a failure too, since the model can fix it. A malformed message, an unknown method or tool, or a server fault is a JSON-RPC error: `-32700`, `-32600`, `-32601`, `-32602`, `-32603`.
+- **Deadline.** Every search runs with `--timeout`, the argument or its default of 20 seconds; `timeout: 0` is refused.
+- **Keys** come from the environment and `credentials.toml`, as everywhere ([ADR 0009](../adr/0009-keys-and-contact-address.md)); no tool takes one as an argument.
+- **Lifetime.** Closing stdin ends the server at once, and any call still running is killed; `notifications/cancelled` kills one call, which then gets no answer.
 
 ## SIGPIPE
 
