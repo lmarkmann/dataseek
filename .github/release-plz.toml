@@ -46,5 +46,6 @@ commit_parsers = [
   { message = "^chore", group = "other" },
   { message = "^test", skip = true },
   { message = "^ci", skip = true },
+  { message = "^Merge ", skip = true },
   { message = ".*", group = "uncategorized" },
 ]
