@@ -113,7 +113,7 @@ dataseek prints each result's publisher and link. When you reuse a dataset, cite
 
 ## Contributing
 
-[`CONTRIBUTING.md`](CONTRIBUTING.md) covers setup, the commit prefixes that decide each release, the test rules and how to add a source. Report vulnerabilities privately, as the [security policy](docs/SECURITY.md) describes.
+[`CONTRIBUTING.md`](CONTRIBUTING.md) covers setup, the commit prefixes that decide each release, the test rules and how to add a source. Report vulnerabilities privately, as [`SECURITY.md`](docs/SECURITY.md) describes.
 
 ## License
 

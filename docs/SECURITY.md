@@ -8,10 +8,6 @@ A useful report names the version (`dsk --version`), the platform, the command y
 
 You will hear back within a week. The fix ships as a patch release, and the advisory is published with it, crediting you unless you ask not to be named.
 
-## Supported versions
-
-Only the latest release gets fixes. A fix is released automatically once it merges, so upgrading is the fix: run the install command again, or `uv tool upgrade dataseek`.
-
 ## Scope
 
 In scope:
