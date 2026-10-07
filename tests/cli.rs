@@ -1710,3 +1710,36 @@ fn an_mcp_value_clap_refuses_comes_back_with_the_valid_ones() {
     assert!(text.contains("Try:   pass the arguments tools/list"), "{text}");
     mcp.close();
 }
+
+// An upgrade replaces the binary while the server runs. On Linux the running
+// binary's own path then names a deleted file, so calls must use the path
+// the server was started from.
+#[cfg(target_os = "linux")]
+#[test]
+fn an_mcp_server_keeps_working_after_its_binary_is_replaced() {
+    let dir = tempfile::tempdir().unwrap();
+    let program = dir.path().join("dataseek");
+    std::fs::copy(env!("CARGO_BIN_EXE_dataseek"), &program).unwrap();
+    let mut child = sandboxed(&program, dir.path())
+        .arg("mcp")
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::null())
+        .spawn()
+        .unwrap();
+    let stdin = child.stdin.take();
+    let lines = std::io::BufRead::lines(std::io::BufReader::new(
+        child.stdout.take().unwrap(),
+    ));
+    let mut mcp = Mcp { child, stdin, lines };
+    assert_eq!(
+        mcp.ask(1, "ping", json!({}))["result"]["resultType"],
+        "complete"
+    );
+
+    std::fs::remove_file(&program).unwrap();
+    std::fs::copy(env!("CARGO_BIN_EXE_dataseek"), &program).unwrap();
+    let sources = mcp.call(2, "sources", json!({}));
+    assert_eq!(sources["structuredContent"]["schema"], "dataseek-sources/1");
+    mcp.close();
+}

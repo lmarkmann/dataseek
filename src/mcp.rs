@@ -14,6 +14,7 @@ mod tools;
 
 use std::collections::HashMap;
 use std::io::{self, BufRead, Stdout, Write};
+use std::path::PathBuf;
 use std::process::Child;
 use std::sync::{Mutex, PoisonError};
 use std::thread::Scope;
@@ -61,9 +62,13 @@ enum Reply {
 }
 
 pub fn run(globals: &Globals, out: &Out) -> Result<()> {
+    // Resolved once: after an upgrade replaces the binary, the running one's
+    // own path can name a deleted file.
+    let program = std::env::current_exe().map_err(tools::Error::NoProgram)?;
     let server = Server {
         stdout: Mutex::new(out.stdout()),
         calls: Mutex::new(HashMap::new()),
+        program,
         globals,
     };
     ui::stage(format!(
@@ -83,6 +88,8 @@ struct Server<'a> {
     stdout: Mutex<AutoStream<Stdout>>,
     /// Calls in flight, by request id as JSON text.
     calls: Mutex<HashMap<String, Child>>,
+    /// This binary, which every call runs.
+    program: PathBuf,
     globals: &'a Globals,
 }
 
@@ -134,7 +141,7 @@ impl Server<'_> {
                 None,
             ));
         }
-        match tools::spawn(argv, self.globals) {
+        match tools::spawn(&self.program, argv, self.globals) {
             Ok(child) => {
                 calls.insert(key, child);
                 None

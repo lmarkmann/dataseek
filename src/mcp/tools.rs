@@ -12,7 +12,7 @@
 
 use std::collections::VecDeque;
 use std::io::{self, BufRead, BufReader, Read};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::{Child, Command, ExitStatus, Stdio};
 
 use serde::Deserialize;
@@ -51,6 +51,10 @@ pub enum Error {
         "`{key}` takes {expected}\n  Try:   tools/list shows the type of each argument"
     )]
     Type { key: String, expected: &'static str },
+    #[error(
+        "cannot find the path of the running program\n  Try:   start dsk mcp by its full path"
+    )]
+    NoProgram(#[source] io::Error),
     #[error(
         "`{key}` holds a NUL character, which no command line can carry\n  Try:   pass the value without it"
     )]
@@ -336,10 +340,14 @@ fn scalar(arg: &Arg, value: &Value) -> Result<String, Error> {
     }
 }
 
-/// Start `argv` as a child of this binary, with the globals `dsk mcp` was
-/// given; its stdin is closed, its stdout and stderr piped back.
-pub fn spawn(argv: &[String], globals: &Globals) -> io::Result<Child> {
-    let mut command = Command::new(std::env::current_exe()?);
+/// Start `program` with `argv` and the globals `dsk mcp` was given; its
+/// stdin is empty, its stdout and stderr are piped back.
+pub fn spawn(
+    program: &Path,
+    argv: &[String],
+    globals: &Globals,
+) -> io::Result<Child> {
+    let mut command = Command::new(program);
     if globals.quiet {
         command.arg("--quiet");
     }
