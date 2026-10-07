@@ -87,9 +87,9 @@ mutants *args:
     fi
     cargo mutants --in-diff "$diff" --test-tool nextest {{ args }}
 
-# Where the release binary's size goes; the profile already strips and thin-LTOs.
+# Where the release binary's size goes, by crate, function and generic; `--what-if` measures `opt-level = "z"` and `panic = "abort"`, `--what-if --levers=all` every lever, `--baseline BIN` what grew.
 bloat *args:
-    cargo bloat --release --crates {{ args }}
+    cargo bsize --bin dataseek {{ args }}
 
 # Crates with newer versions available.
 crates-outdated:

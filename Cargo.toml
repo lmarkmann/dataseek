@@ -39,10 +39,7 @@ clap = { version = "4", features = ["derive", "env", "wrap_help"] }
 clap_complete = "4"
 clap_mangen = "0.3"
 etcetera = "0.11"
-indicatif = "0.18"
-jaq-core = "3"
-jaq-json = "2"
-jaq-std = "3"
+indicatif = { version = "0.18", default-features = false, features = ["unicode-width"] }
 pulldown-cmark = { version = "0.13", default-features = false }
 quick-xml = "0.42"
 serde = { version = "1", features = ["derive"] }
@@ -50,10 +47,10 @@ serde_json = "1"
 tempfile = "3"
 terminal_size = "0.4"
 thiserror = "2"
-toml = "1"
+toml = { version = "1", default-features = false, features = ["parse", "serde", "std"] }
 
 [target.'cfg(unix)'.dependencies]
-signal-hook = "0.4"
+signal-hook = { version = "0.4", default-features = false }
 
 # TLS per platform: the OS's own stack on Windows and macOS (SChannel,
 # Security.framework), rustls on everything else. ring, rustls' crypto, builds
@@ -79,9 +76,15 @@ proptest = "1"
 
 [profile.release]
 opt-level = 3
-lto = "thin"
+# Fat LTO lets the optimizer drop and merge code across every crate at once.
+lto = "fat"
 codegen-units = 1
 strip = "symbols"
+
+# Dependencies optimized for size; fat LTO inlines the hot ones into this
+# crate's own code, which stays at opt-level 3 (docs/bench/2026-10-07-binary-size.md).
+[profile.release.package."*"]
+opt-level = "z"
 
 # Release as shipped, with line tables kept so CodSpeed flamegraphs resolve
 # symbols (ADR 0012).

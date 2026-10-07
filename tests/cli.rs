@@ -114,6 +114,17 @@ fn json_of(args: &[&str]) -> Value {
     serde_json::from_str(&stdout_text(args)).unwrap()
 }
 
+fn result_titles(stdout: &[u8]) -> Vec<String> {
+    let report: Value = serde_json::from_slice(stdout).unwrap();
+    report
+        .get("results")
+        .and_then(Value::as_array)
+        .unwrap()
+        .iter()
+        .map(|r| r.get("title").and_then(Value::as_str).unwrap().to_owned())
+        .collect()
+}
+
 #[test]
 fn version_matches_manifest() {
     bin()
@@ -346,6 +357,29 @@ fn errors_under_json_are_events_on_stderr() {
     assert_eq!(event["event"], "error");
 }
 
+// A script written for --jq must fail as a usage error that names the
+// replacement, never run a search with "--jq" swallowed into the query.
+#[test]
+fn the_removed_jq_flag_points_at_json_and_jq() {
+    let out = bin()
+        .args(["search", "census", "--jq", ".results[].url", "--offline"])
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(2));
+    assert_eq!(out.stdout, b"");
+    let stderr = String::from_utf8(out.stderr).unwrap();
+    assert!(stderr.contains("pipe --json into jq"), "{stderr}");
+    assert!(!stderr.contains("-- --jq"), "{stderr}");
+
+    let out = bin()
+        .args(["--json", "sources", "--jq", ".sources"])
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(2));
+    let event: Value = serde_json::from_slice(&out.stderr).unwrap();
+    assert_eq!(event["event"], "error");
+}
+
 #[test]
 fn verbose_search_reports_each_source_on_stderr() {
     let out = bin()
@@ -432,13 +466,16 @@ fn offline_after_an_outage_answers_from_the_cache() {
     seed(&cache, "outages/openml.json", 0, &Value::Null);
     let out = cmd
         .args(["search", "rainfall", "-c", "machine-learning", "--offline"])
-        .args(["--jq", ".results[].title"])
+        .arg("--json")
         .output()
         .unwrap();
     assert!(out.status.success(), "{out:?}");
-    let titles = String::from_utf8(out.stdout).unwrap();
-    assert!(titles.contains("Rainfall in Lisbon"), "{titles}");
-    assert!(titles.contains("rainfall in Porto"), "{titles}");
+    let titles = result_titles(&out.stdout);
+    assert!(titles.iter().any(|t| t == "Rainfall in Lisbon"), "{titles:?}");
+    assert!(
+        titles.iter().any(|t| t == "Monthly rainfall in Porto"),
+        "{titles:?}"
+    );
 }
 
 #[test]
@@ -448,21 +485,21 @@ fn sort_newest_puts_the_latest_update_first() {
         seed_rainfall(&cmd.cache());
         let out = cmd
             .args(["search", "rainfall", "-s", "openml", "--offline"])
-            .args(["--sort", sort, "--jq", ".results[].title"])
+            .args(["--sort", sort, "--json"])
             .output()
             .unwrap();
         assert!(out.status.success(), "{out:?}");
-        String::from_utf8(out.stdout).unwrap()
+        result_titles(&out.stdout)
     };
     // The closer title match ranks first by relevance, the later date by
     // newest, so the two orders disagree.
     assert_eq!(
         titles("relevance"),
-        "Rainfall in Lisbon\nMonthly rainfall in Porto\n"
+        ["Rainfall in Lisbon", "Monthly rainfall in Porto"]
     );
     assert_eq!(
         titles("newest"),
-        "Monthly rainfall in Porto\nRainfall in Lisbon\n"
+        ["Monthly rainfall in Porto", "Rainfall in Lisbon"]
     );
 }
 
@@ -524,30 +561,6 @@ fn opt_in_sources_are_marked_in_the_listing_and_doctor() {
 fn piped_json_is_one_line() {
     let text = stdout_text(&["sources", "--json"]);
     assert_eq!(text.lines().count(), 1);
-}
-
-#[test]
-fn jq_selects_from_the_json_without_a_second_process() {
-    let ids = stdout_text(&["sources", "--jq", ".sources[].id"]);
-    let report = json_of(&["sources", "--json"]);
-    assert_eq!(ids.lines().next(), report["sources"][0]["id"].as_str());
-    assert_eq!(
-        ids.lines().count(),
-        report["sources"].as_array().unwrap().len()
-    );
-}
-
-// A broken expression fails before any work, with the --jq flag named.
-#[test]
-fn a_bad_jq_expression_fails_first() {
-    let out = bin()
-        .args(["search", "climate", "--jq", ".results["])
-        .output()
-        .unwrap();
-    assert_eq!(out.status.code(), Some(1));
-    let stderr = String::from_utf8(out.stderr).unwrap();
-    assert!(stderr.contains("--jq expression"), "{stderr}");
-    assert!(!stderr.contains("searching"), "{stderr}");
 }
 
 #[test]
@@ -971,7 +984,6 @@ fn help_json_describes_the_surface() {
     assert_eq!(surface["schema"], "dataseek-surface/1");
     // An agent's first probe, a bare call, gets the same object.
     assert_eq!(json_of(&["--json"]), surface);
-    assert_eq!(stdout_text(&["--jq", ".schema"]), "dataseek-surface/1\n");
     assert_eq!(surface["version"], env!("CARGO_PKG_VERSION"));
     let names: Vec<&str> = surface["command"]["commands"]
         .as_array()

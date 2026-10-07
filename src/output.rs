@@ -28,7 +28,6 @@ impl Verbosity {
 pub struct Out {
     pub verbosity: Verbosity,
     pub json: bool,
-    pub jq: Option<String>,
     pub plain: bool,
     pub progress: bool,
     color: ColorChoice,
@@ -38,8 +37,7 @@ impl Out {
     pub fn resolve(cli: &Cli) -> Self {
         Self {
             verbosity: Verbosity::from_counts(cli.quiet, cli.verbose),
-            json: cli.json || cli.jq.is_some(),
-            jq: cli.jq.clone(),
+            json: cli.json,
             plain: cli.plain,
             progress: !cli.no_progress,
             color: resolve_color(cli.color, cli.no_color, cli.plain),
@@ -56,15 +54,11 @@ impl Out {
         stream(std::io::stderr(), self.color)
     }
 
-    /// The one way a command prints `--json`: through `--jq` when given,
-    /// indented for a person at a terminal, one line for a pipe.
+    /// The one way a command prints `--json`: indented for a person at a
+    /// terminal, one line for a pipe.
     pub fn json(&self, value: &impl Serialize) -> anyhow::Result<()> {
         let mut w = self.stdout();
-        if let Some(filter) = &self.jq {
-            for line in crate::jq::run(filter, &serde_json::to_vec(value)?)? {
-                writeln!(w, "{line}")?;
-            }
-        } else if std::io::stdout().is_terminal() {
+        if std::io::stdout().is_terminal() {
             writeln!(w, "{}", serde_json::to_string_pretty(value)?)?;
         } else {
             writeln!(w, "{}", serde_json::to_string(value)?)?;
@@ -180,13 +174,13 @@ mod tests {
             quiet: false,
             verbose: 0,
             json: false,
-            jq: None,
             color: ColorChoice::Auto,
             no_color: false,
             plain: false,
             no_progress: false,
             cache_dir: None,
             connect_timeout: 10,
+            jq: None,
             command: Some(Command::Doctor),
         };
         build(&mut cli);
@@ -225,11 +219,6 @@ mod tests {
     fn color_always_survives_a_pipe() {
         assert!(out(|c| c.color = ColorChoice::Always).color_on_stdout());
         assert!(!out(|c| c.color = ColorChoice::Never).color_on_stdout());
-    }
-
-    #[test]
-    fn jq_implies_json() {
-        assert!(out(|c| c.jq = Some(".".to_owned())).json);
     }
 
     #[test]

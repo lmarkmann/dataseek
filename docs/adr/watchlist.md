@@ -75,3 +75,15 @@ Trigger: the next change to `openneuro.rs`, or `dataseek bench` showing OpenNeur
 `POST https://data360api.worldbank.org/data360/searchv2` with `{"count":true,"search":"poverty headcount","top":20,"skip":0,"select":"series_description/idno, series_description/name, series_description/database_id"}` returns relevance-ranked indicators with a score and `@odata.count` (1,375 for that query), pages with `top` and `skip`, and is newer than the v2 indicator list (it carries the 2021 PPP series). Parked because the API is marked Beta, its documentation and terms could not be read, and adopting it means moving `worldbank` from `listed` to `live`.
 
 Trigger: published documentation and terms for the API, or the v2 indicator list going away.
+
+## Nightly size levers
+
+`-Zfmt-debug=none` (-224 KiB), `-Zlocation-detail=none` (-96 KiB) and the `optimize_for_size` std feature through `build-std` (-288 KiB) all shrink the release binary further ([measurement](../bench/2026-10-07-binary-size.md)). Parked because `rust-toolchain.toml` pins stable and a release profile cannot set them there.
+
+Trigger: any of them stabilizes as a `[profile]` key or a stable `-C` flag. Re-run `just bloat --what-if --levers=<that lever>` before adopting it.
+
+## ureq without the bundled root store on macOS and Windows
+
+`src/http.rs` verifies through the platform's trust store there, yet ureq's `native-tls` feature also links `webpki-root-certs`. `native-tls-no-default` would drop it, but ureq 3.4.2 compiles its native-tls connector only under `native-tls`, so that build panics on the first HTTPS request.
+
+Trigger: a ureq release whose native-tls connector works under `native-tls-no-default`. A live `dataseek search` on macOS is the test, because no test here makes a real TLS connection.
