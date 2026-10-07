@@ -171,6 +171,8 @@ pub struct Source {
     pub persist: bool,
     /// Why this source is asked only when `--source` names it.
     pub opt_in: Option<&'static str>,
+    /// The notice its terms ask every application that uses it to show.
+    pub notice: Option<&'static str>,
     pub adapter: Adapter,
 }
 
@@ -356,6 +358,7 @@ const fn live(
         key: None,
         persist: true,
         opt_in: None,
+        notice: None,
         adapter: Adapter::Live(run),
     }
 }
@@ -377,6 +380,7 @@ const fn listed(
         key: None,
         persist: true,
         opt_in: None,
+        notice: None,
         adapter: Adapter::Catalog(list),
     }
 }
@@ -388,6 +392,11 @@ const fn keyed(mut source: Source, key: Key, need: Need) -> Source {
 
 const fn opt_in(mut source: Source, reason: &'static str) -> Source {
     source.opt_in = Some(reason);
+    source
+}
+
+const fn notice(mut source: Source, text: &'static str) -> Source {
+    source.notice = Some(text);
     source
 }
 
@@ -408,6 +417,7 @@ const fn via(
         key: None,
         persist: true,
         opt_in: None,
+        notice: None,
         adapter,
     }
 }
@@ -850,17 +860,23 @@ pub static SOURCES: &[Source] = &[
         "https://docs.owid.io/projects/etl/api/search-api/",
         owid::search,
     ),
-    keyed(
-        live(
-            "fred",
-            "FRED",
-            Finance,
-            "FRED API",
-            "https://fred.stlouisfed.org/docs/api/fred/series_search.html",
-            fred::search,
+    notice(
+        keyed(
+            live(
+                "fred",
+                "FRED",
+                Finance,
+                "FRED API",
+                "https://fred.stlouisfed.org/docs/api/fred/series_search.html",
+                fred::search,
+            ),
+            Key::Fred,
+            Need::Required,
         ),
-        Key::Fred,
-        Need::Required,
+        "This product uses the FRED\u{ae} API but is not endorsed or \
+         certified by the Federal Reserve Bank of St. Louis. Using it means \
+         agreeing to the FRED\u{ae} API Terms of Use: \
+         https://fred.stlouisfed.org/docs/api/terms_of_use.html",
     ),
     via(
         "bundesbank",
@@ -878,13 +894,17 @@ pub static SOURCES: &[Source] = &[
         "https://fiscaldata.treasury.gov/api-documentation/",
         fiscal::list,
     ),
-    listed(
-        "census",
-        "U.S. Census Bureau API",
-        Statistics,
-        "DCAT data.json, listed",
-        "https://census.gov/data/developers/updates/new-discovery-tool.html",
-        census::list,
+    notice(
+        listed(
+            "census",
+            "U.S. Census Bureau API",
+            Statistics,
+            "DCAT data.json, listed",
+            "https://census.gov/data/developers/updates/new-discovery-tool.html",
+            census::list,
+        ),
+        "This product uses the Census Bureau Data API but is not endorsed or \
+         certified by the Census Bureau.",
     ),
     listed(
         "who",

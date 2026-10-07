@@ -93,6 +93,15 @@ just run search climate temperature   # the CLI built from this checkout
 - [`docs/bench/`](docs/bench/): measured speed of the search stages and of startup, each with the machine it ran on.
 - [`docs/synthesis/`](docs/synthesis/): how the sources' search interfaces differ, and the bench that measures them.
 
+## Data sources
+
+dataseek prints each result's publisher and link. When you reuse a dataset, cite or acknowledge its source the way that source asks.
+
+- This product uses the FRED&reg; API but is not endorsed or certified by the Federal Reserve Bank of St. Louis. By using dataseek's `fred` source you agree to the [FRED&reg; API Terms of Use](https://fred.stlouisfed.org/docs/api/terms_of_use.html).
+- This product uses the Census Bureau Data API but is not endorsed or certified by the Census Bureau.
+- NCBI results come through the E-utilities; NCBI's [disclaimer and copyright notice](https://www.ncbi.nlm.nih.gov/About/disclaimer.html) applies.
+- WHO asks that its data be cited as "World Health Organization {YEAR} data.who.int, {ITEM_NAME} [{ITEM_TYPE}]. {URL} (Accessed on {ACCESS DATE})".
+
 ## License
 
 Licensed under either of [Apache License, Version 2.0](LICENSE-APACHE) or [MIT license](LICENSE-MIT), at your option.

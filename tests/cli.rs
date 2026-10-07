@@ -593,6 +593,20 @@ fn opt_in_sources_are_marked_in_the_listing_and_doctor() {
 }
 
 #[test]
+fn sources_shows_the_notices_fred_and_census_require() {
+    let text = stdout_text(&["sources"]);
+    assert!(
+        text.contains("fred: This product uses the FRED\u{ae} API but"),
+        "{text}"
+    );
+    assert!(text.contains("stlouisfed.org/docs/api/terms_of_use"), "{text}");
+    assert!(
+        text.contains("census: This product uses the Census Bureau Data API"),
+        "{text}"
+    );
+}
+
+#[test]
 fn piped_json_is_one_line() {
     let text = stdout_text(&["sources", "--json"]);
     assert_eq!(text.lines().count(), 1);

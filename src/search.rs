@@ -258,6 +258,7 @@ mod tests {
             key: None,
             persist: true,
             opt_in: None,
+            notice: None,
             adapter: Adapter::Live(run),
         }
     }

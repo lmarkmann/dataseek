@@ -24,6 +24,8 @@ struct Row {
     docs: &'static str,
     /// Why the source is asked only when `--source` names it.
     opt_in: Option<&'static str>,
+    /// The notice the source's terms ask dataseek to show.
+    notice: Option<&'static str>,
 }
 
 pub fn run(out: &Out) -> Result<()> {
@@ -46,6 +48,7 @@ pub fn run(out: &Out) -> Result<()> {
             key_env: s.key.map(|(key, _)| key.env_var()),
             docs: s.docs,
             opt_in: s.opt_in,
+            notice: s.notice,
         })
         .collect();
 
@@ -112,6 +115,11 @@ pub fn run(out: &Out) -> Result<()> {
             format!("{} is asked only when named with -s: {reason}.", r.id)
         })
     }));
+    notes.extend(
+        rows.iter().filter_map(|r| {
+            r.notice.map(|notice| format!("{}: {notice}", r.id))
+        }),
+    );
     // A note that wraps continues two columns in, so each note still
     // starts at the margin.
     let room = output::width().map(|w| w.saturating_sub(2).max(20));

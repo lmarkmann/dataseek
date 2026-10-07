@@ -199,6 +199,7 @@ expression: "serde_json::to_string_pretty(&shapes).unwrap()"
       "key": "none",
       "key_env": null,
       "name": "DataCite",
+      "notice": null,
       "opt_in": null,
       "protocol": "DataCite REST",
       "search": "live"
