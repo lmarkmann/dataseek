@@ -120,8 +120,15 @@ pub fn run(topic: Option<&str>, out: &Out) -> Result<()> {
         Some("environment") => {
             let vars = environment();
             let width = vars.keys().map(String::len).max().unwrap_or(0);
+            let indent = width.saturating_add(4);
+            let room = crate::output::room(indent);
             for (var, meaning) in &vars {
-                writeln!(w, "  {var:<width$}  {meaning}")?;
+                let mut lines = crate::output::wrap(meaning, room).into_iter();
+                let first = lines.next().unwrap_or_default();
+                writeln!(w, "  {var:<width$}  {first}")?;
+                for line in lines {
+                    writeln!(w, "{:indent$}{line}", "")?;
+                }
             }
         }
         Some("exit-codes") => {
