@@ -68,7 +68,7 @@ Every `--json` output is one object with a `schema` tag naming its shape and ver
 
 ## SIGPIPE
 
-`src/lib.rs` resets `SIGPIPE` to the Unix default so `tool | head` exits quietly instead of panicking.
+`src/lib.rs` resets `SIGPIPE` to the Unix default so `tool | head` exits quietly instead of panicking. `dataseek mcp` is the exception: there a client that closes the pipe must not kill the server outright, so the signal is ignored, the next response fails as a write error, and the server kills the calls still running before it exits.
 
 Both the call and the `signal-hook` dependency are gated to `cfg(unix)`, because signals are a Unix concept: `signal_hook::consts::SIGPIPE` does not exist on Windows, where the crate re-exports only `SIGABRT`, `SIGFPE`, `SIGILL`, `SIGINT`, `SIGSEGV`, and `SIGTERM`. An unconditional import there is not a runtime problem, it is a build failure, and it went unnoticed until Windows joined the CI matrix. Nothing is lost on Windows: a closed pipe surfaces as an ordinary write error, which the broken-pipe arm of `report()` already turns into a quiet success.
 

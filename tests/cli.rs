@@ -1412,23 +1412,47 @@ impl Mcp {
         use std::io::Read;
 
         drop(self.stdin.take());
-        let started = std::time::Instant::now();
-        let status = loop {
-            if let Some(status) = self.child.try_wait().unwrap() {
-                break status;
-            }
-            if started.elapsed() > std::time::Duration::from_secs(10) {
-                self.child.kill().unwrap();
-                panic!("dataseek mcp did not exit after stdin closed");
-            }
-            std::thread::sleep(std::time::Duration::from_millis(20));
-        };
+        let status = exit_within_10s(&mut self.child);
         assert!(status.success(), "{status:?}");
         assert!(self.lines.next().is_none(), "stdout carried more lines");
         let mut stderr = String::new();
         self.child.stderr.take().unwrap().read_to_string(&mut stderr).unwrap();
         stderr
     }
+}
+
+/// Wait for `child` to exit, killing it and failing after ten seconds.
+fn exit_within_10s(
+    child: &mut std::process::Child,
+) -> std::process::ExitStatus {
+    let started = std::time::Instant::now();
+    loop {
+        if let Some(status) = child.try_wait().unwrap() {
+            return status;
+        }
+        if started.elapsed() > std::time::Duration::from_secs(10) {
+            child.kill().unwrap();
+            panic!("dataseek mcp did not exit");
+        }
+        std::thread::sleep(std::time::Duration::from_millis(20));
+    }
+}
+
+/// A search over MCP that waits on `proxy`, which accepts its connection
+/// and never answers, for up to a minute.
+fn waiting_search(mcp: &mut Mcp, id: u64) {
+    mcp.request(
+        id,
+        "tools/call",
+        json!({
+            "name": "search",
+            "arguments": {
+                "query": "climate",
+                "source": ["zenodo"],
+                "timeout": 60,
+            },
+        }),
+    );
 }
 
 /// A proxy on 127.0.0.1 that answers every request with `page`, whether the
@@ -1613,4 +1637,41 @@ fn an_mcp_line_that_is_not_utf8_leaves_the_session_open() {
     let ping = mcp.ask(2, "ping", json!({}));
     assert_eq!(ping["result"]["resultType"], "complete");
     mcp.close();
+}
+
+// A client that stops reading turns the server's next answer into a write
+// error rather than a SIGPIPE death, so the server still kills the call it
+// was running before it exits.
+#[cfg(unix)]
+#[test]
+fn an_mcp_server_whose_client_stops_reading_ends_its_calls() {
+    use std::io::{Read, Write};
+    use std::os::unix::process::ExitStatusExt;
+
+    let silent = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let proxy = format!("http://{}", silent.local_addr().unwrap());
+    let dir = tempfile::tempdir().unwrap();
+    let mut mcp = Mcp::start(dir.path(), &proxy);
+    waiting_search(&mut mcp, 1);
+    let (mut search, _) = silent.accept().unwrap();
+
+    let Mcp { mut child, stdin, lines } = mcp;
+    drop(lines);
+    let mut stdin = stdin.unwrap();
+    writeln!(stdin, r#"{{"jsonrpc":"2.0","id":2,"method":"ping"}}"#).unwrap();
+    stdin.flush().unwrap();
+    let status = exit_within_10s(&mut child);
+    drop(stdin);
+    assert_eq!(status.signal(), None, "{status:?}");
+    assert!(status.success(), "{status:?}");
+
+    search.set_read_timeout(Some(std::time::Duration::from_secs(5))).unwrap();
+    let read = search.read(&mut [0; 512]);
+    assert!(
+        !read.as_ref().is_err_and(|e| matches!(
+            e.kind(),
+            std::io::ErrorKind::WouldBlock | std::io::ErrorKind::TimedOut
+        )),
+        "the search outlived the server: {read:?}"
+    );
 }

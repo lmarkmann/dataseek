@@ -57,6 +57,8 @@ pub mod internals {
 use std::ffi::OsString;
 use std::io::{self, Write};
 use std::process::ExitCode;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 
 use clap::error::ErrorKind::{
@@ -69,27 +71,30 @@ use output::Out;
 
 /// Rust ignores SIGPIPE, so `dataseek search x | head` would panic on the next
 /// write. Restore the default: die quietly with 141. Unix only; Windows reports
-/// a closed pipe as a write error, which [`report`] handles.
+/// a closed pipe as a write error, which [`report`] handles. Returns the
+/// switch that keeps the default on: `mcp` turns it off, so a client that
+/// closes the pipe is a write error and the server still stops its calls.
 #[cfg(unix)]
-fn restore_sigpipe() {
-    use std::sync::Arc;
-    use std::sync::atomic::AtomicBool;
-
+fn restore_sigpipe() -> Arc<AtomicBool> {
+    let sigpipe_kills = Arc::new(AtomicBool::new(true));
     let _ = signal_hook::flag::register_conditional_default(
         signal_hook::consts::SIGPIPE,
-        Arc::new(AtomicBool::new(true)),
+        Arc::clone(&sigpipe_kills),
     );
+    sigpipe_kills
 }
 
 #[cfg(not(unix))]
-fn restore_sigpipe() {}
+fn restore_sigpipe() -> Arc<AtomicBool> {
+    Arc::new(AtomicBool::new(true))
+}
 
 /// Run the command line named by the process arguments. Shared by the
 /// `dataseek` and `dsk` binaries; clap reads the invoked name from `argv[0]`,
 /// so usage lines and completions follow whichever name was typed.
 #[must_use]
 pub fn main() -> ExitCode {
-    restore_sigpipe();
+    let sigpipe_kills = restore_sigpipe();
 
     let args: Vec<OsString> = std::env::args_os().collect();
     let early = Early::scan(&args);
@@ -102,6 +107,9 @@ pub fn main() -> ExitCode {
         Err(err) => return usage(&err, &early),
     };
 
+    if matches!(cli.command, Some(Command::Mcp)) {
+        sigpipe_kills.store(false, Ordering::Relaxed);
+    }
     let out = Out::resolve(&cli);
     ui::init(&out);
     paths::relocate_cache(cli.cache_dir.clone());
