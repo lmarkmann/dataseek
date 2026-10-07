@@ -56,9 +56,9 @@ signal-hook = { version = "0.4", default-features = false }
 # Security.framework), rustls on everything else. ring, rustls' crypto, builds
 # C against the target's system headers, which the Linux CI runner does not
 # have for Windows or macOS, so this split is what lets ADR 0002's
-# cross-checks compile. Every platform trusts the OS's root certificates;
-# platform-verifier gives rustls the system store (ADR 0014). src/http.rs
-# picks the matching provider.
+# cross-checks compile (ADR 0011). Every platform trusts the OS's root
+# certificates; platform-verifier gives rustls the system store (ADR 0014).
+# src/http.rs picks the matching provider.
 [target.'cfg(any(windows, target_os = "macos"))'.dependencies]
 ureq = { version = "3", default-features = false, features = ["json", "gzip", "native-tls"] }
 

@@ -267,9 +267,9 @@ struct File {
     includes: Option<String>,
 }
 
-/// A size written with its unit, such as Zenodo's "8.19 MB": decimal units
-/// up to PB, binary ones up to PiB. `None` for anything else, rather than a
-/// guess.
+/// A size written with its unit, such as "8.19 MB", the way Zenodo writes
+/// a record's total: decimal units up to PB, binary ones up to PiB. `None`
+/// for anything else, rather than a guess.
 fn with_unit(size: &str) -> Option<u64> {
     let unit_at = size.find(|c: char| !c.is_ascii_digit() && c != '.')?;
     let (value, unit) = size.split_at(unit_at);
