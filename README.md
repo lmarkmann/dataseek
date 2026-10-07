@@ -111,6 +111,10 @@ dataseek prints each result's publisher and link. When you reuse a dataset, cite
 - NCBI results come through the E-utilities; NCBI's [disclaimer and copyright notice](https://www.ncbi.nlm.nih.gov/About/disclaimer.html) applies.
 - WHO asks that its data be cited as "World Health Organization {YEAR} data.who.int, {ITEM_NAME} [{ITEM_TYPE}]. {URL} (Accessed on {ACCESS DATE})".
 
+## Contributing
+
+[`CONTRIBUTING.md`](CONTRIBUTING.md) covers setup, the commit prefixes that decide each release, the test rules and how to add a source. Report vulnerabilities privately, as the [security policy](docs/SECURITY.md) describes.
+
 ## License
 
 Licensed under either of [Apache License, Version 2.0](LICENSE-APACHE) or [MIT license](LICENSE-MIT), at your option.
