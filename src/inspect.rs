@@ -521,46 +521,91 @@ mod tests {
 
     #[test]
     fn zenodo_lists_each_file_by_format_and_link() {
-        let files = page_in(&fixture::read("inspect", "zenodo.html")).files();
-        assert_eq!(files.len(), 3);
+        let csv = |url: &str| File {
+            format: Some("text/csv".into()),
+            url: Some(url.into()),
+            ..File::default()
+        };
         assert_eq!(
-            files[0],
-            File {
-                format: Some("text/csv".into()),
-                url: Some("https://zenodo.org/api/records/13135140/files/Dataset_reference.csv/content".into()),
-                ..File::default()
-            }
+            page_in(&fixture::read("inspect", "zenodo.html")).files(),
+            [
+                csv(
+                    "https://zenodo.org/api/records/13135140/files/Dataset_reference.csv/content"
+                ),
+                csv(
+                    "https://zenodo.org/api/records/13135140/files/Dataset_DUT2.csv/content"
+                ),
+                csv(
+                    "https://zenodo.org/api/records/13135140/files/Dataset_DUT1.csv/content"
+                ),
+            ]
         );
     }
 
     #[test]
     fn dataverse_lists_names_sizes_and_formats() {
-        let files = standalone("dataverse-schema-org.json").files();
-        assert_eq!(files.len(), 2);
         assert_eq!(
-            files[0],
-            File {
-                name: Some("RF_dry_transposed.tab".into()),
-                format: Some("text/tab-separated-values".into()),
-                size_bytes: Some(748_311),
-                url: Some("https://dataverse.harvard.edu/api/access/datafile/4288346".into()),
-                ..File::default()
-            }
+            standalone("dataverse-schema-org.json").files(),
+            [
+                File {
+                    name: Some("RF_dry_transposed.tab".into()),
+                    format: Some("text/tab-separated-values".into()),
+                    size_bytes: Some(748_311),
+                    url: Some("https://dataverse.harvard.edu/api/access/datafile/4288346".into()),
+                    ..File::default()
+                },
+                File {
+                    name: Some("RF_wet_transposed.xlsx.tab".into()),
+                    format: Some("text/tab-separated-values".into()),
+                    size_bytes: Some(922_421),
+                    url: Some("https://dataverse.harvard.edu/api/access/datafile/4288345".into()),
+                    ..File::default()
+                },
+            ]
         );
     }
 
     #[test]
     fn croissant_file_objects_carry_their_checksums() {
         assert_eq!(
-            standalone("dataverse-croissant.json").files()[1],
-            File {
-                name: Some("RF_wet_transposed.xlsx.csv".into()),
-                format: Some("text/csv".into()),
-                size_bytes: Some(1_140_008),
-                checksum: Some("md5:921e382a0751e5c6d77f0cb30069c3d0".into()),
-                url: Some("https://dataverse.harvard.edu/api/access/datafile/4288345?format=original".into()),
+            standalone("dataverse-croissant.json").files(),
+            [
+                File {
+                    name: Some("RF_dry_transposed.csv".into()),
+                    format: Some("text/csv".into()),
+                    size_bytes: Some(966_982),
+                    checksum: Some("md5:14cc8ff3a3018fa8d74c703e252c6e27".into()),
+                    url: Some("https://dataverse.harvard.edu/api/access/datafile/4288346?format=original".into()),
+                    ..File::default()
+                },
+                File {
+                    name: Some("RF_wet_transposed.xlsx.csv".into()),
+                    format: Some("text/csv".into()),
+                    size_bytes: Some(1_140_008),
+                    checksum: Some("md5:921e382a0751e5c6d77f0cb30069c3d0".into()),
+                    url: Some("https://dataverse.harvard.edu/api/access/datafile/4288345?format=original".into()),
+                    ..File::default()
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn a_single_distribution_object_is_one_file() {
+        let dataset = json!({"@type": "Dataset", "distribution": {
+            "@type": "DataDownload",
+            "name": "rain.nc",
+            "encodingFormat": "application/x-netcdf",
+            "contentUrl": "https://example.org/rain.nc",
+        }});
+        assert_eq!(
+            Page { dataset, graph: Vec::new() }.files(),
+            [File {
+                name: Some("rain.nc".into()),
+                format: Some("application/x-netcdf".into()),
+                url: Some("https://example.org/rain.nc".into()),
                 ..File::default()
-            }
+            }]
         );
     }
 
