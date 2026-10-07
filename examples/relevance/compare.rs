@@ -122,11 +122,25 @@ pub fn configs(cases: &[Case], priors: &Priors) -> Vec<(String, Config)> {
 
 /// The adoption rule: on the held-out half, the paired 95% interval of the
 /// change in nDCG@10 lies above zero, and known-item MRR falls by no more
-/// than the gate's tolerance.
+/// than the gate's tolerance. Unjudged results in either held-out top 10
+/// score as not relevant, so while any is left there is no decision.
 struct Verdict {
     shift: Interval,
     mrr: f64,
     adopt: bool,
+    unjudged: usize,
+}
+
+impl Verdict {
+    fn decision(&self) -> &'static str {
+        if self.unjudged > 0 {
+            "unjudged"
+        } else if self.adopt {
+            "ADOPT"
+        } else {
+            "reject"
+        }
+    }
 }
 
 fn verdict(
@@ -142,7 +156,18 @@ fn verdict(
     );
     let mrr = Metric::Mrr.mean(cases, candidate, HELD)
         - Metric::Mrr.mean(cases, base, HELD);
-    Verdict { shift, mrr, adopt: shift.low > 0.0 && mrr >= -mrr_tolerance }
+    let unjudged = cases
+        .iter()
+        .zip(base.iter().zip(candidate))
+        .filter(|(c, _)| c.query.graded() && c.query.half == Half::Held)
+        .map(|(_, (b, s))| b.unjudged.len().saturating_add(s.unjudged.len()))
+        .sum();
+    Verdict {
+        shift,
+        mrr,
+        adopt: shift.low > 0.0 && mrr >= -mrr_tolerance,
+        unjudged,
+    }
 }
 
 fn interval(i: Interval) -> String {
@@ -177,7 +202,7 @@ pub fn run(queries: &[Query]) -> Result<()> {
             f.name,
             interval(v.shift),
             v.mrr,
-            if v.adopt { "ADOPT" } else { "reject" }
+            v.decision()
         )?;
     }
 
@@ -401,4 +426,41 @@ fn zeros(
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use dataseek::internals::Dataset;
+
+    use super::*;
+    use crate::snapshot::{Judged, Kind};
+
+    fn held(id: &str) -> Case {
+        Case {
+            query: Query {
+                id: id.into(),
+                text: id.into(),
+                kind: Kind::Topical,
+                half: Half::Held,
+                targets: Vec::new(),
+            },
+            lists: Vec::new(),
+            sources: Vec::new(),
+            judged: Judged::new(&[], id).unwrap(),
+            targets: Vec::new(),
+        }
+    }
+
+    #[test]
+    fn a_winner_with_unjudged_held_out_results_gets_no_verdict() {
+        let cases = [held("a"), held("b")];
+        let base = vec![Score { ndcg: 0.5, ..Score::default() }; 2];
+        let mut better = vec![Score { ndcg: 0.7, ..Score::default() }; 2];
+        let judged = verdict(&cases, &base, &better, 0.0);
+        assert_eq!(judged.decision(), "ADOPT");
+        better[1].unjudged.push(Dataset::new("t", "https://x.org"));
+        let open = verdict(&cases, &base, &better, 0.0);
+        assert!(open.adopt);
+        assert_eq!(open.decision(), "unjudged");
+    }
 }
