@@ -46,6 +46,8 @@ Every byte of stdout goes through a handle from `src/output.rs`, including the t
 
 So a piped search still announces itself at once and sums up at the end, and no spinner frame can reach a log. What must never happen is a frame on stdout, and that is guaranteed by the layer only ever writing to stderr. `doctor` does not narrate: its checks take milliseconds, so it prints only its report.
 
+`search` opens with the number of sources it will ask. A source missing its required key is skipped before any request, so it is left out of that number and counted after it (`1 needs a key, see dataseek doctor`); when no chosen source can run, there is no opening line, only the error.
+
 `search` prints its summary after the results, so the last line says how many matched, how many sources answered and how to see more. An empty result is a stderr line, never text on stdout.
 
 Each text result is four lines: the rank and title, the URL, a muted line of facts, and the description. The facts are the sources that found it, then publisher, date, size, license and DOI, whichever are known, separated by ` | `.

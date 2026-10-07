@@ -421,6 +421,23 @@ fn sources_without_their_required_key_are_skipped_not_failed() {
     assert!(stderr.contains("dataseek sources"), "{stderr}");
 }
 
+// A source without its key is never asked, so the opening line does not
+// count it, and says how many were left out.
+#[test]
+fn the_searching_line_counts_only_sources_that_will_be_asked() {
+    let mut cmd = bin();
+    seed_rainfall(&cmd.cache());
+    let out = cmd
+        .args(["search", "rainfall", "-s", "roboflow,openml", "--offline"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    let line = "searching 1 source for \"rainfall\", offline; \
+                1 needs a key, see `dataseek doctor`";
+    assert!(stderr.contains(line), "{stderr}");
+}
+
 // --offline never touches the network, so it must never mark a source as
 // down either: the next online search would skip it for ten minutes.
 #[test]

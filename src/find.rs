@@ -88,12 +88,31 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         return Err(Error::NoneSelected.into());
     }
 
-    ui::stage(format!(
-        "searching {} for \"{query}\"{}",
-        ui::count(plan.sources.len(), "source"),
-        if offline { ", offline" } else { "" }
-    ));
-    let progress = ui::bar(plan.sources.len() as u64, "sources");
+    // A source without its required key is skipped before any request, so
+    // the line counts only the sources that will be asked.
+    let keyless = plan
+        .sources
+        .iter()
+        .filter(|s| s.missing_key(&services.creds).is_some())
+        .count();
+    let asked = plan.sources.len().saturating_sub(keyless);
+    if asked > 0 {
+        let need = if keyless == 1 { "needs" } else { "need" };
+        let keys = if keyless > 0 {
+            format!(
+                "; {keyless} {need} a key, see `{} doctor`",
+                crate::invoked_name()
+            )
+        } else {
+            String::new()
+        };
+        ui::stage(format!(
+            "searching {} for \"{query}\"{}{keys}",
+            ui::count(asked, "source"),
+            if offline { ", offline" } else { "" }
+        ));
+    }
+    let progress = ui::bar(asked as u64, "sources");
     let mut outcomes = run(
         &services,
         refresh,
