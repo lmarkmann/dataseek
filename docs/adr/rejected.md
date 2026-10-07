@@ -297,3 +297,7 @@ Each was weighed in the source research that produced ADR 0004.
 - **Academic Torrents**: asks clients to read its RSS feeds rather than search; small.
 - **re3data**: a registry of 3,534 repositories, not of datasets; useful for pointing at repositories, not for search.
 - **Materials Project core API**: a per-material database rather than a dataset catalog; its contributed datasets (MPContribs) are searched instead.
+
+## 2026-10-07: Other ways of merging and ranking results
+
+Measured with the relevance benchmark and left out because none improved the held-out queries beyond the noise ([`../bench/2026-10-07-relevance.md`](../bench/2026-10-07-relevance.md), ADR 0014): a different RRF constant (1 to 200; 40 and up score within 0.006 of 60, smaller ones interleave sources and lose), fusing only each source's top 3 or 5, CombMNZ, list-length-normalized Borda, round robin, per-source weights learned from the judgments, other coverage floors and shapes, title-weighted coverage, a bonus for the whole query in the title, ignoring function words, and treating records with no description and no publisher differently. Source weights deserve the warning: they gained 0.059 on the queries they were fitted on and lost 0.010 on the others, which is what learning the benchmark looks like. A proposal to revisit any of these starts from `just relevance variants`, not from an argument.
