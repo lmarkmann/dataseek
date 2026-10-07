@@ -16,6 +16,7 @@ use std::collections::HashMap;
 use std::io::{self, BufRead, Stdout, Write};
 use std::path::PathBuf;
 use std::process::Child;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Mutex, PoisonError};
 use std::thread::Scope;
 
@@ -68,6 +69,7 @@ pub fn run(globals: &Globals, out: &Out) -> Result<()> {
     let server = Server {
         stdout: Mutex::new(out.stdout()),
         calls: Mutex::new(HashMap::new()),
+        serials: AtomicU64::new(0),
         program,
         globals,
     };
@@ -87,7 +89,9 @@ pub fn run(globals: &Globals, out: &Out) -> Result<()> {
 struct Server<'a> {
     stdout: Mutex<AutoStream<Stdout>>,
     /// Calls in flight, by request id as JSON text.
-    calls: Mutex<HashMap<String, Child>>,
+    calls: Mutex<HashMap<String, Call>>,
+    /// The serial the next call gets.
+    serials: AtomicU64,
     /// This binary, which every call runs.
     program: PathBuf,
     globals: &'a Globals,
@@ -109,13 +113,12 @@ impl Server<'_> {
             }
             match handle(&line) {
                 Reply::Now(response) => self.send(&response)?,
-                Reply::Call { id, argv } => {
-                    if let Some(refusal) = self.start(&id, &argv) {
-                        self.send(&refusal)?;
-                    } else {
-                        scope.spawn(move || self.finish(&id));
+                Reply::Call { id, argv } => match self.start(&id, &argv) {
+                    Ok(serial) => {
+                        scope.spawn(move || self.finish(&id, serial));
                     }
-                }
+                    Err(refusal) => self.send(&refusal)?,
+                },
                 Reply::Cancel(id) => self.stop(&id),
                 Reply::Nothing => {}
             }
@@ -128,13 +131,14 @@ impl Server<'_> {
         w.flush()
     }
 
-    /// Spawn the call's child and record it, or say why it could not start.
-    fn start(&self, id: &Value, argv: &[String]) -> Option<Value> {
+    /// Spawn the call's child and record it under a new serial, or say why
+    /// it could not start.
+    fn start(&self, id: &Value, argv: &[String]) -> Result<u64, Value> {
         let mut calls =
             self.calls.lock().unwrap_or_else(PoisonError::into_inner);
         let key = id.to_string();
         if calls.contains_key(&key) {
-            return Some(error(
+            return Err(error(
                 id,
                 INVALID_REQUEST,
                 "a request with this id is still running",
@@ -143,10 +147,11 @@ impl Server<'_> {
         }
         match tools::spawn(&self.program, argv, self.globals) {
             Ok(child) => {
-                calls.insert(key, child);
-                None
+                let serial = self.serials.fetch_add(1, Ordering::Relaxed);
+                calls.insert(key, Call { serial, child });
+                Ok(serial)
             }
-            Err(e) => Some(error(
+            Err(e) => Err(error(
                 id,
                 INTERNAL_ERROR,
                 &format!("cannot start {}: {e}", crate::invoked_name()),
@@ -155,24 +160,20 @@ impl Server<'_> {
         }
     }
 
-    /// Wait for the call's child, then answer, unless it was stopped.
-    fn finish(&self, id: &Value) {
+    /// Wait for the call's child, then answer, unless it was stopped. The
+    /// serial keeps a stopped call's thread off a later call with its id.
+    fn finish(&self, id: &Value, serial: u64) {
         let key = id.to_string();
         let pipes = {
             let mut calls =
                 self.calls.lock().unwrap_or_else(PoisonError::into_inner);
-            calls
-                .get_mut(&key)
-                .map(|child| (child.stdout.take(), child.stderr.take()))
+            calls.get_mut(&key).filter(|call| call.serial == serial).map(
+                |call| (call.child.stdout.take(), call.child.stderr.take()),
+            )
         };
         let Some((stdout, stderr)) = pipes else { return };
         let output = tools::collect(stdout, stderr);
-        let call = self
-            .calls
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner)
-            .remove(&key);
-        let Some(mut child) = call else { return };
+        let Some(mut child) = self.take(&key, serial) else { return };
         let response = match (child.wait(), output) {
             (Ok(status), Ok(output)) => tools::result(status, &output),
             (Err(e), _) => Err(format!("cannot wait for the command: {e}")),
@@ -189,6 +190,17 @@ impl Server<'_> {
         }
     }
 
+    /// The child of the call recorded under `key`, removed, if it is still
+    /// the call with this serial.
+    fn take(&self, key: &str, serial: u64) -> Option<Child> {
+        let mut calls =
+            self.calls.lock().unwrap_or_else(PoisonError::into_inner);
+        if calls.get(key)?.serial != serial {
+            return None;
+        }
+        calls.remove(key).map(|call| call.child)
+    }
+
     fn stop(&self, id: &Value) {
         let call = self
             .calls
@@ -199,22 +211,29 @@ impl Server<'_> {
     }
 
     fn stop_all(&self) {
-        let calls: Vec<Child> = self
+        let calls: Vec<Call> = self
             .calls
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
             .drain()
-            .map(|(_, child)| child)
+            .map(|(_, call)| call)
             .collect();
         calls.into_iter().for_each(end);
     }
 }
 
+/// A call in flight: its child, and a serial that tells it from a later
+/// call reusing its request id.
+struct Call {
+    serial: u64,
+    child: Child,
+}
+
 /// Kill a call's child and reap it. Its thread then reads the closed pipes
 /// and, finding the call gone, answers nothing.
-fn end(mut child: Child) {
-    let _ = child.kill();
-    let _ = child.wait();
+fn end(mut call: Call) {
+    let _ = call.child.kill();
+    let _ = call.child.wait();
 }
 
 /// Decide what one line asks for. Pure, so every protocol rule is a unit
@@ -453,6 +472,37 @@ mod tests {
 
     fn current() -> Value {
         json!({ "_meta": { VERSION_KEY: CURRENT, CAPABILITIES_KEY: {} } })
+    }
+
+    // A call stopped and replaced by a newer one with the same id: the
+    // stopped call's thread must leave the newer call running.
+    #[cfg(unix)]
+    #[test]
+    fn a_stopped_call_never_collects_a_newer_call_with_its_id() {
+        let globals = Globals {
+            quiet: false,
+            verbose: 0,
+            cache_dir: None,
+            connect_timeout: 1,
+        };
+        let server = Server {
+            stdout: Mutex::new(AutoStream::never(io::stdout())),
+            calls: Mutex::new(HashMap::new()),
+            serials: AtomicU64::new(0),
+            program: PathBuf::from("/bin/sh"),
+            globals: &globals,
+        };
+        let id = json!(1);
+        let sleep = ["-c".to_owned(), "exec sleep 10".to_owned()];
+        let stopped = server.start(&id, &sleep).unwrap();
+        server.stop(&id);
+        let newer = server.start(&id, &sleep).unwrap();
+        let started = std::time::Instant::now();
+        server.finish(&id, stopped);
+        assert!(started.elapsed() < std::time::Duration::from_secs(5));
+        let serial = server.calls.lock().unwrap().get("1").map(|c| c.serial);
+        assert_eq!(serial, Some(newer));
+        server.stop_all();
     }
 
     #[test]
