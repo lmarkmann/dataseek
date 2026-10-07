@@ -35,6 +35,11 @@ pub enum Error {
         "no source could be reached; this machine looks offline\n  Try:   check the connection, or add --offline to search what is cached"
     )]
     Offline,
+    /// The hint from [`crate::http::certificate_hint`].
+    #[error(
+        "no source's certificate could be verified, so none answered\n  Try:   {0}"
+    )]
+    Certificate(String),
     #[error(
         "nothing cached answers this query\n  Try:   run it once without --offline, or `dataseek cache warm` while online"
     )]
@@ -90,7 +95,7 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         if offline { ", offline" } else { "" }
     ));
     let progress = ui::bar(plan.sources.len() as u64, "sources");
-    let outcomes = run(
+    let mut outcomes = run(
         &services,
         refresh,
         &plan,
@@ -113,23 +118,33 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         return Err(failure(&outcomes, offline).into());
     }
 
-    let lists: Vec<_> =
-        outcomes.iter().map(|o| (o.source.id, o.datasets.clone())).collect();
-    let mut hits = weigh(merge(&lists), &query);
+    let sources = reports(&outcomes);
+    let mut hits = ranked(&mut outcomes, &query, sort);
+    let found = hits.len();
+    hits.truncate(limit);
+    print(out, &query, &hits, sources)?;
+    summarize(&query, hits.len(), found, &outcomes);
+    Ok(())
+}
+
+/// Every source's results, moved out of their outcomes, merged and ordered.
+fn ranked(outcomes: &mut [Outcome], query: &str, sort: Sort) -> Vec<Hit> {
+    let lists = outcomes
+        .iter_mut()
+        .map(|o| (o.source.id, std::mem::take(&mut o.datasets)))
+        .collect();
+    let mut hits = weigh(merge(lists), query);
     if sort == Sort::Newest {
         // Stable, so equally dated hits keep their relevance order; `None`
         // sorts below every date.
         hits.sort_by(|a, b| b.dataset.updated.cmp(&a.dataset.updated));
     }
-    let found = hits.len();
-    hits.truncate(limit);
-    print(out, &query, &hits, &outcomes)?;
-    summarize(&query, hits.len(), found, &outcomes);
-    Ok(())
+    hits
 }
 
 /// Which failure every source failing amounts to: all unreachable reads as
-/// an offline machine, all skipped by `--offline` as an empty cache.
+/// an offline machine, all refusing their certificates as a missing or
+/// replaced trust store, all skipped by `--offline` as an empty cache.
 fn failure(outcomes: &[Outcome], offline: bool) -> Error {
     let failed =
         || outcomes.iter().filter(|o| o.status.attempted()).map(|o| &o.status);
@@ -139,6 +154,10 @@ fn failure(outcomes: &[Outcome], offline: bool) -> Error {
         .all(|s| matches!(s, Status::Failed(SourceError::Unreachable(_))))
     {
         Error::Offline
+    } else if failed()
+        .all(|s| matches!(s, Status::Failed(SourceError::Certificate(_))))
+    {
+        Error::Certificate(crate::http::certificate_hint())
     } else {
         Error::AllFailed
     }
@@ -228,27 +247,32 @@ struct SourceReport {
     ms: u128,
 }
 
+/// What each source did, taken before its results move into the merge.
+fn reports(outcomes: &[Outcome]) -> Vec<SourceReport> {
+    outcomes
+        .iter()
+        .map(|o| SourceReport {
+            id: o.source.id,
+            status: o.status.label(),
+            answered: o.status.answered(),
+            results: o.datasets.len(),
+            ms: o.elapsed.as_millis(),
+        })
+        .collect()
+}
+
 fn print(
     out: &Out,
     query: &str,
     hits: &[Hit],
-    outcomes: &[Outcome],
+    sources: Vec<SourceReport>,
 ) -> Result<()> {
     if out.json {
         return out.json(&Report {
             schema: SCHEMA,
             query,
             results: hits,
-            sources: outcomes
-                .iter()
-                .map(|o| SourceReport {
-                    id: o.source.id,
-                    status: o.status.label(),
-                    answered: o.status.answered(),
-                    results: o.datasets.len(),
-                    ms: o.elapsed.as_millis(),
-                })
-                .collect(),
+            sources,
         });
     }
     let mut w = out.stdout();
@@ -327,11 +351,124 @@ fn tabless(text: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::record::Dataset;
+    use crate::sources::SOURCES;
 
     #[test]
     fn sizes_use_decimal_units() {
         assert_eq!(human_bytes(512), "512 B");
         assert_eq!(human_bytes(155_173), "155.2 KB");
         assert_eq!(human_bytes(2_559_248_010_229), "2.6 TB");
+    }
+
+    fn failed_with(errors: Vec<SourceError>) -> Vec<Outcome> {
+        SOURCES
+            .iter()
+            .zip(errors)
+            .map(|(source, error)| Outcome {
+                source,
+                status: Status::Failed(error),
+                elapsed: Duration::ZERO,
+                datasets: Vec::new(),
+            })
+            .collect()
+    }
+
+    #[test]
+    fn refused_certificates_everywhere_are_a_trust_store_problem() {
+        let refused =
+            || SourceError::Certificate("invalid peer certificate".into());
+        let error = failure(&failed_with(vec![refused(), refused()]), false);
+        assert!(matches!(error, Error::Certificate(_)), "{error}");
+        let hint = crate::http::certificate_hint();
+        assert!(error.to_string().ends_with(&hint), "{error}");
+
+        let mixed = vec![refused(), SourceError::Status(503)];
+        let error = failure(&failed_with(mixed), false);
+        assert!(matches!(error, Error::AllFailed), "{error}");
+    }
+
+    const PUBLISHER_BYTES: usize = 16_000;
+    /// What ranking [`answered`] allocated when the test was written: keys,
+    /// the owner map, hits, the text weighing reads. One publisher copied
+    /// on top of it reaches the bound.
+    const RANKING_BYTES: usize = 409_516;
+
+    fn rain(url: &str, publisher: bool) -> Dataset {
+        let mut d = Dataset::new("Rain", url);
+        d.publisher = publisher.then(|| "p".repeat(PUBLISHER_BYTES));
+        d
+    }
+
+    /// Four sources answering 50 records each, most carrying a 16 KB
+    /// publisher. The first source's first 25 come back from the second,
+    /// first without a publisher and then with one, so merging hands it
+    /// over. The third source's first 25 lack one too; the fourth lists each
+    /// under another link with a publisher, then bridges the two links, so
+    /// absorbing one hit into another hands it over. The title is shorter
+    /// than the 12 characters a title key needs, so neither merging nor
+    /// weighing reads the publisher, and any of its bytes allocated while
+    /// ranking is a copy.
+    fn answered() -> Vec<Outcome> {
+        let url = |path: String| format!("https://x.org/{path}");
+        let lists: [Vec<Dataset>; 4] = [
+            (0..50)
+                .map(|i| match i {
+                    0..25 => rain(&url(format!("a/{i}")), false),
+                    _ => rain(&url(format!("0/{i}")), true),
+                })
+                .collect(),
+            (0..50)
+                .map(|i| match i {
+                    0..25 => rain(&url(format!("a/{i}")), true),
+                    _ => rain(&url(format!("1/{i}")), true),
+                })
+                .collect(),
+            (0..50)
+                .map(|i| match i {
+                    0..25 => rain(&url(format!("b/{i}")), false),
+                    _ => rain(&url(format!("2/{i}")), true),
+                })
+                .collect(),
+            (0..25)
+                .map(|i| rain(&url(format!("c/{i}")), true))
+                .chain((0..25).map(|i| {
+                    let mut bridge = rain(&url(format!("b/{i}")), false);
+                    bridge.aliases.push(url(format!("c/{i}")));
+                    bridge
+                }))
+                .collect(),
+        ];
+        SOURCES
+            .iter()
+            .zip(lists)
+            .map(|(source, datasets)| Outcome {
+                source,
+                status: Status::Fetched,
+                elapsed: Duration::ZERO,
+                datasets,
+            })
+            .collect()
+    }
+
+    #[test]
+    fn ranking_moves_the_records_instead_of_copying_them() {
+        let mut outcomes = answered();
+        let mut hits = Vec::new();
+        let allocated = allocation_counter::measure(|| {
+            hits = ranked(&mut outcomes, "rain", Sort::Relevance);
+        })
+        .bytes_total;
+        assert_eq!(hits.len(), 125);
+        assert_eq!(hits.iter().filter(|h| h.sources.len() == 2).count(), 50);
+        assert!(hits.iter().all(|h| {
+            h.dataset.publisher.as_ref().map(String::len)
+                == Some(PUBLISHER_BYTES)
+        }));
+        let bound = RANKING_BYTES.saturating_add(PUBLISHER_BYTES) as u64;
+        assert!(
+            allocated < bound,
+            "ranking allocated {allocated} bytes, {RANKING_BYTES} expected"
+        );
     }
 }

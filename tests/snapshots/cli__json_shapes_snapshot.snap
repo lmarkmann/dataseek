@@ -131,6 +131,32 @@ expression: "serde_json::to_string_pretty(&shapes).unwrap()"
   "help search": {
     "schema": "dataseek-command/1"
   },
+  "inspect": {
+    "dataset": {
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      "distribution": [
+        {
+          "@type": "DataDownload",
+          "contentSize": "2 MB",
+          "contentUrl": "https://example.org/rain.csv",
+          "encodingFormat": "text/csv",
+          "name": "rain.csv"
+        }
+      ],
+      "name": "Rainfall"
+    },
+    "files": [
+      {
+        "format": "text/csv",
+        "name": "rain.csv",
+        "size_bytes": 2000000,
+        "url": "https://example.org/rain.csv"
+      }
+    ],
+    "schema": "dataseek-inspect/1",
+    "url": "http://[LOCAL_ADDR]/"
+  },
   "search": {
     "query": "rainfall",
     "results": [

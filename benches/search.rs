@@ -21,7 +21,8 @@ use std::hint::black_box;
 use std::time::Duration;
 
 use criterion::{
-    BenchmarkId, Criterion, Throughput, criterion_group, criterion_main,
+    BatchSize, BenchmarkId, Criterion, Throughput, criterion_group,
+    criterion_main,
 };
 use dataseek::internals::{
     Cache, Dataset, Kind, catalog_search, clean, eurostat_toc, merge,
@@ -272,7 +273,13 @@ fn fusion(c: &mut Criterion) {
             BenchmarkId::from_parameter(SOURCES * records),
             &lists,
             |b, lists| {
-                b.iter(|| weigh(merge(black_box(lists)), black_box(QUERY)));
+                // merge consumes its lists, so every run gets a fresh copy,
+                // made outside the measurement.
+                b.iter_batched(
+                    || lists.clone(),
+                    |lists| weigh(merge(lists), black_box(QUERY)),
+                    BatchSize::LargeInput,
+                );
             },
         );
     }

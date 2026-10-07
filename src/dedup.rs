@@ -31,13 +31,15 @@ pub struct Hit {
 }
 
 /// Fuse per-source result lists, each already in that source's rank order.
-pub fn merge(lists: &[(&'static str, Vec<Dataset>)]) -> Vec<Hit> {
+/// Records are moved, never cloned: the first becomes the hit, a later one
+/// hands over only the fields the hit lacks.
+pub fn merge(lists: Vec<(&'static str, Vec<Dataset>)>) -> Vec<Hit> {
     let mut hits: Vec<Option<Building>> = Vec::new();
     let mut owner: HashMap<String, usize> = HashMap::new();
 
     for (source, datasets) in lists {
-        for (rank, dataset) in datasets.iter().enumerate() {
-            let keys = identity_keys(dataset);
+        for (rank, dataset) in datasets.into_iter().enumerate() {
+            let keys = identity_keys(&dataset);
             let mut targets: Vec<usize> = keys
                 .iter()
                 .filter_map(|k| {
@@ -100,14 +102,10 @@ impl Building {
     fn new(
         source: &'static str,
         rank: usize,
-        dataset: &Dataset,
+        dataset: Dataset,
         keys: &[String],
     ) -> Self {
-        Self {
-            dataset: dataset.clone(),
-            best_rank: vec![(source, rank)],
-            keys: keys.to_vec(),
-        }
+        Self { dataset, best_rank: vec![(source, rank)], keys: keys.to_vec() }
     }
 
     fn has(&self, source: &str) -> bool {
@@ -118,7 +116,7 @@ impl Building {
         &mut self,
         source: &'static str,
         rank: usize,
-        dataset: &Dataset,
+        dataset: Dataset,
         keys: &[String],
     ) {
         match self.best_rank.iter_mut().find(|(s, _)| *s == source) {
@@ -140,7 +138,7 @@ impl Building {
                 None => self.best_rank.push((source, rank)),
             }
         }
-        fill(&mut self.dataset, &other.dataset);
+        fill(&mut self.dataset, other.dataset);
         for key in other.keys {
             if !self.keys.contains(&key) {
                 self.keys.push(key);
@@ -184,21 +182,21 @@ fn fusion(rank: usize) -> f64 {
 }
 
 /// Keep the first source's fields; take only what it lacked from later ones.
-fn fill(target: &mut Dataset, other: &Dataset) {
+fn fill(target: &mut Dataset, other: Dataset) {
     if target.description.is_none() {
-        target.description.clone_from(&other.description);
+        target.description = other.description;
     }
     if target.publisher.is_none() {
-        target.publisher.clone_from(&other.publisher);
+        target.publisher = other.publisher;
     }
     if target.doi.is_none() {
-        target.doi.clone_from(&other.doi);
+        target.doi = other.doi;
     }
     if target.license.is_none() {
-        target.license.clone_from(&other.license);
+        target.license = other.license;
     }
     if target.updated.is_none() {
-        target.updated.clone_from(&other.updated);
+        target.updated = other.updated;
     }
     if target.size_bytes.is_none() {
         target.size_bytes = other.size_bytes;
@@ -404,7 +402,7 @@ mod tests {
             c in prop::collection::vec(colliding(), 0..5),
         ) {
             let lists = [("a", a), ("b", b), ("c", c)];
-            let hits = merge(&lists);
+            let hits = merge(lists.to_vec());
             let mut groups: Vec<BTreeSet<&str>> = hits
                 .iter()
                 .map(|h| h.sources.iter().copied().collect())
@@ -424,7 +422,7 @@ mod tests {
         let mut a = ds("Global temps", "https://zenodo.org/records/1");
         a.doi = Some("10.5281/zenodo.1".into());
         let b = ds("Global temperatures", "https://doi.org/10.5281/ZENODO.1");
-        let hits = merge(&[("zenodo", vec![a]), ("datacite", vec![b])]);
+        let hits = merge(vec![("zenodo", vec![a]), ("datacite", vec![b])]);
         assert_eq!(hits.len(), 1);
         assert_eq!(hits[0].sources, vec!["zenodo", "datacite"]);
     }
@@ -435,7 +433,7 @@ mod tests {
         v1.aliases.push("10.5281/zenodo.10".into());
         let mut v2 = ds("BirthClim", "https://doi.org/10.5281/zenodo.12");
         v2.aliases.push("10.5281/zenodo.10".into());
-        let hits = merge(&[("datacite", vec![v1, v2])]);
+        let hits = merge(vec![("datacite", vec![v1, v2])]);
         assert_eq!(hits.len(), 1);
         assert_eq!(hits[0].sources, vec!["datacite"]);
     }
@@ -447,8 +445,11 @@ mod tests {
         b.doi = Some("10.1234/x".into());
         let mut bridge = ds("C", "https://example.org/a/");
         bridge.doi = Some("10.1234/x".into());
-        let hits =
-            merge(&[("s1", vec![a]), ("s2", vec![b]), ("s3", vec![bridge])]);
+        let hits = merge(vec![
+            ("s1", vec![a]),
+            ("s2", vec![b]),
+            ("s3", vec![bridge]),
+        ]);
         assert_eq!(hits.len(), 1);
         assert_eq!(hits[0].sources.len(), 3);
     }
@@ -458,7 +459,7 @@ mod tests {
         let shared = ds("Shared", "https://example.org/shared");
         let solo = ds("Solo", "https://example.org/solo");
         let filler = ds("Filler", "https://example.org/filler");
-        let hits = merge(&[
+        let hits = merge(vec![
             ("s1", vec![solo, filler.clone(), shared.clone()]),
             ("s2", vec![filler, shared]),
         ]);
@@ -474,7 +475,8 @@ mod tests {
         b.publisher = Some("Data Commons".into());
         let mut c = ds("Unemployment rate by sex", "https://mirror.org/c");
         c.publisher = Some("Data Commons".into());
-        let hits = merge(&[("datacommons", vec![a, b]), ("mirror", vec![c])]);
+        let hits =
+            merge(vec![("datacommons", vec![a, b]), ("mirror", vec![c])]);
         assert_eq!(hits.len(), 2);
         assert_eq!(hits[0].sources, vec!["datacommons", "mirror"]);
     }
@@ -486,7 +488,7 @@ mod tests {
         let mut b = ds("T", "https://example.org/x");
         b.license = Some("MIT".into());
         b.size_bytes = Some(5);
-        let hits = merge(&[("a", vec![a]), ("b", vec![b])]);
+        let hits = merge(vec![("a", vec![a]), ("b", vec![b])]);
         assert_eq!(hits[0].dataset.license.as_deref(), Some("CC0"));
         assert_eq!(hits[0].dataset.size_bytes, Some(5));
     }
@@ -498,7 +500,7 @@ mod tests {
         let partial = ds("Lung function tests", "https://x.org/2");
         let full =
             ds("Single-cell atlas of the human lung", "https://x.org/3");
-        let hits = merge(&[("a", vec![off_topic, partial, full])]);
+        let hits = merge(vec![("a", vec![off_topic, partial, full])]);
         let titles: Vec<String> = weigh(hits, "single cell lung")
             .into_iter()
             .map(|h| h.dataset.title)

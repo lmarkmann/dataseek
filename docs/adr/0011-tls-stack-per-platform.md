@@ -1,6 +1,6 @@
 # ADR 0011: The TLS stack is chosen per platform
 
-- Status: accepted
+- Status: amended by [ADR 0014](0014-system-trust-store-on-every-platform.md) (Linux roots)
 - Date: 2026-10-06
 
 ## Context

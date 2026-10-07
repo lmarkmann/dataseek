@@ -12,7 +12,7 @@ Commands:
   search      Search every source at once, merged, deduplicated and ranked [alias: s]
   sources     List every source: what it covers, its protocol, its key, its docs
   bench       Time every source on real queries and measure their overlap
-  inspect     Read a dataset page's schema.org Dataset or Croissant metadata
+  inspect     Read a dataset page's metadata and the files it lists
   cache       Show, warm or clear the cache
   doctor      Check the environment, keys and cache, and report readiness
   completion  Print a shell completion script to stdout

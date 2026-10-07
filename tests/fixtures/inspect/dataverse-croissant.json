@@ -1,0 +1,221 @@
+{
+  "@context": {
+    "@language": "en",
+    "@vocab": "https://schema.org/",
+    "citeAs": "cr:citeAs",
+    "column": "cr:column",
+    "conformsTo": "dct:conformsTo",
+    "cr": "http://mlcommons.org/croissant/",
+    "rai": "http://mlcommons.org/croissant/RAI/",
+    "data": {
+      "@id": "cr:data",
+      "@type": "@json"
+    },
+    "dataType": {
+      "@id": "cr:dataType",
+      "@type": "@vocab"
+    },
+    "dct": "http://purl.org/dc/terms/",
+    "examples": {
+      "@id": "cr:examples",
+      "@type": "@json"
+    },
+    "extract": "cr:extract",
+    "field": "cr:field",
+    "fileProperty": "cr:fileProperty",
+    "fileObject": "cr:fileObject",
+    "fileSet": "cr:fileSet",
+    "format": "cr:format",
+    "includes": "cr:includes",
+    "isLiveDataset": "cr:isLiveDataset",
+    "jsonPath": "cr:jsonPath",
+    "key": "cr:key",
+    "md5": "cr:md5",
+    "parentField": "cr:parentField",
+    "path": "cr:path",
+    "recordSet": "cr:recordSet",
+    "references": "cr:references",
+    "regex": "cr:regex",
+    "repeated": "cr:repeated",
+    "replace": "cr:replace",
+    "sc": "https://schema.org/",
+    "separator": "cr:separator",
+    "source": "cr:source",
+    "subField": "cr:subField",
+    "transform": "cr:transform",
+    "wd": "https://www.wikidata.org/wiki/"
+  },
+  "@type": "sc:Dataset",
+  "conformsTo": "http://mlcommons.org/croissant/1.0",
+  "name": "Station Rainfall Data for Hawaii (Wet and Dry)",
+  "url": "https://doi.org/10.7910/DVN/A4DIA5",
+  "creator": [
+    {
+      "@type": "Person",
+      "givenName": "Kristen",
+      "familyName": "Sanfilippo",
+      "affiliation": {
+        "@type": "Organization",
+        "name": "University of Hawaii Manoa"
+      },
+      "name": "Sanfilippo, Kristen"
+    }
+  ],
+  "description": "These datasets contain observation station data for rainfall in Hawaii. Wet and dry season data are in separate files. This data is used in statistical downscaling and can be used to replicate the procedure in the project entitled Predictor Selection and Model Evaluation for Future Rainfall Projection in Hawaiʻi",
+  "keywords": [
+    "Earth and Environmental Sciences",
+    "Other",
+    "Rainfall",
+    "Hawai'i"
+  ],
+  "license": "http://creativecommons.org/publicdomain/zero/1.0",
+  "datePublished": "2021-01-07",
+  "dateModified": "2021-01-07",
+  "includedInDataCatalog": {
+    "@type": "DataCatalog",
+    "name": "Harvard Dataverse",
+    "url": "https://dataverse.harvard.edu"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Harvard Dataverse"
+  },
+  "version": "1.0",
+  "citeAs": "@data{DVN/A4DIA5_2021,author = {Sanfilippo, Kristen},publisher = {Harvard Dataverse},title = {Station Rainfall Data for Hawaii (Wet and Dry)},year = {2021},url = {https://doi.org/10.7910/DVN/A4DIA5}}",
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Sanfilippo, K. et al. Predictor Selection and Model Evaluation for Future Rainfall Projection in Hawaiʻi, unpublished."
+    }
+  ],
+  "distribution": [
+    {
+      "@type": "cr:FileObject",
+      "@id": "RF_dry_transposed.csv",
+      "name": "RF_dry_transposed.csv",
+      "encodingFormat": "text/csv",
+      "md5": "14cc8ff3a3018fa8d74c703e252c6e27",
+      "contentSize": "966982",
+      "description": "rainfall data for dry season",
+      "contentUrl": "https://dataverse.harvard.edu/api/access/datafile/4288346?format=original"
+    },
+    {
+      "@type": "cr:FileObject",
+      "@id": "RF_wet_transposed.xlsx.csv",
+      "name": "RF_wet_transposed.xlsx.csv",
+      "encodingFormat": "text/csv",
+      "md5": "921e382a0751e5c6d77f0cb30069c3d0",
+      "contentSize": "1140008",
+      "description": "rainfall data for wet season",
+      "contentUrl": "https://dataverse.harvard.edu/api/access/datafile/4288345?format=original"
+    }
+  ],
+  "recordSet": [
+    {
+      "@type": "cr:RecordSet",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "name": "year",
+          "description": "year",
+          "dataType": "sc:Integer",
+          "source": {
+            "@id": "23308253",
+            "fileObject": {
+              "@id": "RF_dry_transposed.csv"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "name": "1",
+          "description": "1",
+          "dataType": "sc:Float",
+          "source": {
+            "@id": "23308159",
+            "fileObject": {
+              "@id": "RF_dry_transposed.csv"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "name": "1.1",
+          "description": "1.1",
+          "dataType": "sc:Float",
+          "source": {
+            "@id": "23308304",
+            "fileObject": {
+              "@id": "RF_dry_transposed.csv"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "name": "1.2",
+          "description": "1.2",
+          "dataType": "sc:Float",
+          "source": {
+            "@id": "23308001",
+            "fileObject": {
+              "@id": "RF_dry_transposed.csv"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "@type": "cr:RecordSet",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "name": "year",
+          "description": "year",
+          "dataType": "sc:Integer",
+          "source": {
+            "@id": "23309904",
+            "fileObject": {
+              "@id": "RF_wet_transposed.xlsx.csv"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "name": "1",
+          "description": "1",
+          "dataType": "sc:Float",
+          "source": {
+            "@id": "23311071",
+            "fileObject": {
+              "@id": "RF_wet_transposed.xlsx.csv"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "name": "1.1",
+          "description": "1.1",
+          "dataType": "sc:Float",
+          "source": {
+            "@id": "23310497",
+            "fileObject": {
+              "@id": "RF_wet_transposed.xlsx.csv"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "name": "1.2",
+          "description": "1.2",
+          "dataType": "sc:Float",
+          "source": {
+            "@id": "23309811",
+            "fileObject": {
+              "@id": "RF_wet_transposed.xlsx.csv"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

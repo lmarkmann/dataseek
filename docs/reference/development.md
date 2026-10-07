@@ -40,6 +40,8 @@ Every adapter splits its request (`search` or `list`) from a pure `parse`, and e
 
 To re-record a fixture after a source changes, repeat the adapter's request with `xh` and the dataseek User-Agent (`dataseek/<version> (mailto:user@dataseek.dev)`), never with a key, trim arrays to a few rows with `jq 'walk(if type=="array" then .[:4] else . end)'`, shorten long descriptions to a real prefix, replace any individual's e-mail address with `contact@example.org`, and then re-derive the expected record by reading the new file. Sources that need a key (FRED, Roboflow) use the example response from their API docs, linked above the test.
 
+`inspect` reads its file lists from recorded pages in `tests/fixtures/inspect/`, recorded under the same rules. Its `--json` shape is part of `json_shapes_snapshot` in `tests/cli.rs`, read from a page served on a random local port that a snapshot filter replaces with `[LOCAL_ADDR]`.
+
 proptest writes the inputs that once failed to `proptest-regressions/`; they are committed so every run replays them first.
 
 Not every test can live in `tests/cli.rs`. That file runs the compiled binary, so it can assert on flags, exit codes, and stdout, but it cannot reach into the crate: the library's modules are private, so there is nothing for an integration test to import. Anything that needs a Rust value rather than a process is a `#[cfg(test)]` module beside the code, which is why `palette`, `ui`, `fs`, and `cli` each carry one.
@@ -57,6 +59,8 @@ just bench catalog/search         # one group; the filter is a regex over names
 `benches/search.rs` measures the CPU stages of a search at three input sizes each: SDMX and Eurostat catalog parsing, loading a cached catalog, local catalog search, merging 76 source lists, and cleaning remote text, both HTML and prose full of bare ampersands. The library is private, so the bench reaches these through `dataseek::internals`, which exists only with the `internals` feature. `just bench` turns the feature on; a bare `cargo bench` skips the target.
 
 CI runs the same benches through CodSpeed's CPU simulation on every push to main and on pull requests that touch code ([ADR 0012](../adr/0012-benchmarks-criterion-local-codspeed-ci.md)). The simulation counts instructions instead of timing, so its numbers hold steady across runs but are not milliseconds; compare them only with other CodSpeed runs. `cargo codspeed` measures only on Linux. Local wall time is a rough guide: an A/A run on a busy Mac reported identical code up to 52% faster ([baseline](../bench/2026-10-06-baseline.md)). Measured results go in [`../bench/`](../bench/) with the machine they came from.
+
+`merge` takes ownership of the per-source lists, so the merge bench hands it a fresh copy made outside the measurement and cannot see a copy on the way in. That one is a test instead: `ranking_moves_the_records_instead_of_copying_them` in `src/find.rs` counts the bytes `ranked` allocates, from the search loop's outcomes to the merged and weighed hits, with `allocation-counter`, which swaps in a counting allocator for the unit-test binary only. Its records carry 16 KB publishers that merging has to hand from one record to another, both when a later record joins a hit and when one hit absorbs another. It fails once the count reaches the figure measured when the test was written plus one publisher's bytes, so a single copied publisher trips it; a change that legitimately allocates more moves that figure.
 
 Startup is measured separately, on the release binary:
 

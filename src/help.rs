@@ -40,7 +40,7 @@ const GROUPS: [(&str, &[(&str, &str)]); 3] = [
         &[
             ("search, s", "search every source at once"),
             ("sources", "list sources and their keys"),
-            ("inspect", "read a dataset page's metadata"),
+            ("inspect", "read a dataset page's metadata and files"),
             ("bench", "time and compare sources"),
         ],
     ),
@@ -194,6 +194,14 @@ fn environment() -> BTreeMap<String, String> {
             "proxy for every request; else HTTPS_PROXY, then HTTP_PROXY",
         ),
         ("NO_PROXY", "hosts that skip the proxy"),
+        (
+            "SSL_CERT_FILE",
+            "Linux: PEM file of root certificates trusted instead of the system's",
+        ),
+        (
+            "SSL_CERT_DIR",
+            "Linux: directories of root certificates trusted instead of the system's",
+        ),
         (
             "XDG_CONFIG_HOME",
             "parent of the config directory (credentials.toml)",
