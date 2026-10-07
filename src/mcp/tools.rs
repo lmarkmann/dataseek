@@ -24,6 +24,10 @@ use crate::{Failure, help, ui};
 /// The tools, in the order `tools/list` returns them.
 pub const TOOLS: [&str; 3] = ["search", "sources", "inspect"];
 
+/// The longest deadline a search over MCP may have, in seconds, so a call
+/// always ends in a time a client waits for.
+const MAX_TIMEOUT: u64 = 300;
+
 /// What to try after a bad argument: the command line's hint, to run
 /// `--help`, is no use to a model.
 const USAGE_HINT: &str =
@@ -53,6 +57,10 @@ pub enum Error {
         "timeout 0 waits for every source, and a search over MCP always has a deadline\n  Try:   pass a timeout of 1 or more seconds, or leave it out for the default"
     )]
     NoDeadline,
+    #[error(
+        "timeout {0} is past the {MAX_TIMEOUT} second deadline a search over MCP may have\n  Try:   pass a timeout from 1 to {MAX_TIMEOUT} seconds, or leave it out for the default"
+    )]
+    LongDeadline(u64),
 }
 
 /// A command as `help <command> --json` describes it, keeping the keys the
@@ -84,6 +92,8 @@ struct Arg {
     kind: ValueKind,
     values: Vec<String>,
     default: Vec<String>,
+    minimum: Option<u64>,
+    maximum: Option<u64>,
     required: bool,
     repeatable: bool,
     help: Option<String>,
@@ -113,10 +123,20 @@ impl Arg {
     }
 }
 
+/// The command behind `tool`, with `search`'s timeout held to the bounds
+/// [`deadline`] enforces.
 fn described(tool: &str) -> anyhow::Result<Described> {
     let command = help::subcommand_json(tool)
         .ok_or_else(|| anyhow::anyhow!("no `{tool}` command to describe"))?;
-    Ok(serde_json::from_value(command)?)
+    let mut command: Described = serde_json::from_value(command)?;
+    if tool == "search" {
+        for arg in &mut command.args {
+            if arg.key() == "timeout" {
+                (arg.minimum, arg.maximum) = (Some(1), Some(MAX_TIMEOUT));
+            }
+        }
+    }
+    Ok(command)
 }
 
 /// The tool whose name is `name`, as the static string the rest uses.
@@ -167,6 +187,12 @@ fn property(arg: &Arg) -> Value {
     // which a boolean can never equal.
     if arg.kind == ValueKind::String && !arg.values.is_empty() {
         value.insert("enum".into(), json!(arg.values));
+    }
+    if let Some(minimum) = arg.minimum {
+        value.insert("minimum".into(), json!(minimum));
+    }
+    if let Some(maximum) = arg.maximum {
+        value.insert("maximum".into(), json!(maximum));
     }
     let mut property = if arg.takes_list() {
         let mut list = Map::new();
@@ -270,13 +296,17 @@ pub fn argv(
 }
 
 /// ADR 0007's deadline, made explicit for every search: the flag beats an
-/// inherited `DATASEEK_TIMEOUT`, and 0, which waits for all, is refused.
+/// inherited `DATASEEK_TIMEOUT`, 0, which waits for all, is refused, and so
+/// is a deadline past [`MAX_TIMEOUT`].
 fn deadline(
     args: &[Arg],
     arguments: &Map<String, Value>,
 ) -> Result<Option<String>, Error> {
-    match arguments.get("timeout") {
-        Some(given) if given.as_u64() == Some(0) => Err(Error::NoDeadline),
+    match arguments.get("timeout").map(Value::as_u64) {
+        Some(Some(0)) => Err(Error::NoDeadline),
+        Some(Some(secs)) if secs > MAX_TIMEOUT => {
+            Err(Error::LongDeadline(secs))
+        }
         Some(_) => Ok(None),
         None => Ok(args
             .iter()
@@ -504,6 +534,15 @@ mod tests {
         assert_eq!(p["query"]["type"], "string");
         assert_eq!(p["limit"]["type"], "integer");
         assert_eq!(p["limit"]["default"], 20);
+        assert_eq!(p["limit"]["minimum"], Value::Null);
+        assert_eq!(
+            (&p["per-source"]["minimum"], &p["per-source"]["maximum"]),
+            (&json!(1), &json!(100))
+        );
+        assert_eq!(
+            (&p["timeout"]["minimum"], &p["timeout"]["maximum"]),
+            (&json!(1), &json!(300))
+        );
         assert_eq!(p["offline"]["type"], "boolean");
         assert_eq!(p["offline"].get("enum"), None);
         assert_eq!(p["refresh"].get("enum"), None);
@@ -578,34 +617,51 @@ mod tests {
         );
     }
 
+    // A refusal names what is wrong, so the model can fix the call.
     #[test]
-    fn unknown_or_mistyped_arguments_are_named() {
-        let unknown = argv("sources", &arguments(json!({ "verbose": true })));
-        assert!(unknown.unwrap_err().to_string().contains("`verbose`"));
-        let mistyped = argv(
-            "search",
-            &arguments(json!({ "query": "x", "limit": "five" })),
-        );
-        assert!(mistyped.unwrap_err().to_string().contains("an integer"));
-        let missing = argv("search", &arguments(json!({ "limit": 5 })));
-        let missing = missing.unwrap_err().to_string();
-        assert!(missing.starts_with("search needs `query`"), "{missing}");
-        let single = argv(
-            "search",
-            &arguments(json!({ "query": "x", "source": "zenodo" })),
-        );
-        assert!(single.unwrap_err().to_string().contains("a list of strings"));
+    fn bad_arguments_are_refused_by_name() {
+        let refusals = [
+            (
+                "sources",
+                json!({ "verbose": true }),
+                "sources has no argument `verbose`",
+            ),
+            (
+                "search",
+                json!({ "query": "x", "limit": "5" }),
+                "`limit` takes an integer",
+            ),
+            ("search", json!({ "limit": 5 }), "search needs `query`"),
+            (
+                "search",
+                json!({ "query": "x", "source": "a" }),
+                "`source` takes a list of strings",
+            ),
+            (
+                "search",
+                json!({ "query": "x", "timeout": 0 }),
+                "timeout 0 waits for every source, and a search over MCP always has a deadline",
+            ),
+            (
+                "search",
+                json!({ "query": "x", "timeout": u64::MAX }),
+                "the 300 second deadline",
+            ),
+        ];
+        for (tool, call, says) in refusals {
+            let refusal =
+                argv(tool, &arguments(call)).unwrap_err().to_string();
+            assert!(refusal.contains(says), "{refusal}");
+        }
     }
 
     #[test]
     fn every_search_has_a_deadline() {
-        let given =
-            argv("search", &arguments(json!({ "query": "x", "timeout": 5 })))
-                .unwrap();
-        assert!(given.contains(&"--timeout=5".to_owned()));
-        let refused =
-            argv("search", &arguments(json!({ "query": "x", "timeout": 0 })));
-        assert!(refused.unwrap_err().to_string().contains("deadline"));
+        let line = |call: Value| argv("search", &arguments(call)).unwrap();
+        let default = line(json!({ "query": "x" }));
+        assert!(default.contains(&"--timeout=20".to_owned()), "{default:?}");
+        let longest = line(json!({ "query": "x", "timeout": 300 }));
+        assert!(longest.contains(&"--timeout=300".to_owned()), "{longest:?}");
     }
 
     fn exit(success: bool) -> ExitStatus {
