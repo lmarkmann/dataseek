@@ -1,0 +1,358 @@
+# The relevance benchmark's queries. `just relevance` scores the merged
+# ranking of each against judgments.tsv, from the per-source lists frozen in
+# retrieval/; docs/reference/development.md explains the workflow.
+#
+# kind:
+#   known    names one dataset; scored by where its first target lands
+#   topical  keywords, the way a person types them; scored by graded labels
+#   natural  a sentence, the way an agent phrases a need; graded labels
+#
+# category is the domain the query belongs to, using the `--category` names;
+# every query is still run against every default source, as a plain search
+# would be.
+#
+# half splits the set before any ranking change is tuned: changes are chosen
+# on `tune` and adopted only if they also help `held`. Within each kind the
+# queries are sorted by category and id and assigned alternately. Never move
+# a query between halves after looking at its scores.
+#
+# targets (known only) are the dataset's identifiers: DOIs and the canonical
+# landing pages on the hubs dataseek searches. A hit matches when it shares
+# any identity key with a target. evidence says where each identifier was
+# confirmed.
+
+[[query]]
+id = "gbif-backbone"
+text = "GBIF backbone taxonomy"
+kind = "known"
+category = "ecology"
+half = "tune"
+
+[[query]]
+id = "penn-world-table"
+text = "Penn World Table"
+kind = "known"
+category = "economics"
+half = "held"
+
+[[query]]
+id = "world-development-indicators"
+text = "World Development Indicators"
+kind = "known"
+category = "economics"
+half = "tune"
+
+[[query]]
+id = "ecb-exchange-rates"
+text = "ECB euro foreign exchange reference rates"
+kind = "known"
+category = "finance"
+half = "held"
+
+[[query]]
+id = "era5"
+text = "ERA5 hourly reanalysis"
+kind = "known"
+category = "geospatial"
+half = "tune"
+
+[[query]]
+id = "ersst"
+text = "ERSST version 5 sea surface temperature"
+kind = "known"
+category = "geospatial"
+half = "held"
+
+[[query]]
+id = "modis-land-cover"
+text = "MODIS land cover type MCD12Q1"
+kind = "known"
+category = "geospatial"
+half = "tune"
+
+[[query]]
+id = "nyc-311"
+text = "NYC 311 service requests"
+kind = "known"
+category = "government"
+half = "held"
+
+[[query]]
+id = "tabula-sapiens"
+text = "Tabula Sapiens"
+kind = "known"
+category = "life-sciences"
+half = "tune"
+
+[[query]]
+id = "iris"
+text = "Iris flower dataset"
+kind = "known"
+category = "machine-learning"
+half = "held"
+
+[[query]]
+id = "mnist"
+text = "MNIST handwritten digits"
+kind = "known"
+category = "machine-learning"
+half = "tune"
+
+[[query]]
+id = "squad"
+text = "SQuAD question answering"
+kind = "known"
+category = "machine-learning"
+half = "held"
+
+[[query]]
+id = "mimic-iv"
+text = "MIMIC-IV clinical database"
+kind = "known"
+category = "neuroscience"
+half = "tune"
+
+[[query]]
+id = "higgs-challenge"
+text = "ATLAS Higgs boson machine learning challenge"
+kind = "known"
+category = "physics"
+half = "held"
+
+[[query]]
+id = "european-social-survey"
+text = "European Social Survey"
+kind = "known"
+category = "social-science"
+half = "tune"
+
+[[query]]
+id = "american-community-survey"
+text = "American Community Survey 5-year estimates"
+kind = "known"
+category = "statistics"
+half = "held"
+
+[[query]]
+id = "source-code"
+text = "python source code"
+kind = "topical"
+category = "code"
+half = "tune"
+
+[[query]]
+id = "bird-occurrence"
+text = "bird species occurrence"
+kind = "topical"
+category = "ecology"
+half = "held"
+
+[[query]]
+id = "consumer-price-index"
+text = "consumer price index"
+kind = "topical"
+category = "economics"
+half = "tune"
+
+[[query]]
+id = "stock-prices"
+text = "stock market daily prices"
+kind = "topical"
+category = "finance"
+half = "held"
+
+[[query]]
+id = "climate-temperature"
+text = "climate temperature"
+kind = "topical"
+category = "geospatial"
+half = "tune"
+
+[[query]]
+id = "sst-monthly"
+text = "sea surface temperature monthly"
+kind = "topical"
+category = "geospatial"
+half = "held"
+
+[[query]]
+id = "air-quality"
+text = "air quality"
+kind = "topical"
+category = "government"
+half = "tune"
+
+[[query]]
+id = "traffic-accidents"
+text = "traffic accidents"
+kind = "topical"
+category = "government"
+half = "held"
+
+[[query]]
+id = "gene-expression-cancer"
+text = "gene expression cancer"
+kind = "topical"
+category = "life-sciences"
+half = "tune"
+
+[[query]]
+id = "single-cell-lung"
+text = "single cell RNA-seq lung"
+kind = "topical"
+category = "life-sciences"
+half = "held"
+
+[[query]]
+id = "image-classification"
+text = "image classification"
+kind = "topical"
+category = "machine-learning"
+half = "tune"
+
+[[query]]
+id = "eeg-motor-imagery"
+text = "EEG motor imagery"
+kind = "topical"
+category = "neuroscience"
+half = "held"
+
+[[query]]
+id = "band-gap"
+text = "crystal structure band gap"
+kind = "topical"
+category = "physics"
+half = "tune"
+
+[[query]]
+id = "household-income"
+text = "household income survey"
+kind = "topical"
+category = "social-science"
+half = "held"
+
+[[query]]
+id = "population-census"
+text = "population census"
+kind = "topical"
+category = "statistics"
+half = "tune"
+
+[[query]]
+id = "unemployment-rate"
+text = "unemployment rate"
+kind = "topical"
+category = "statistics"
+half = "held"
+
+[[query]]
+id = "github-issues"
+text = "GitHub issues and pull requests for training code models"
+kind = "natural"
+category = "code"
+half = "tune"
+
+[[query]]
+id = "wolf-sightings"
+text = "where have wolves been observed in Europe"
+kind = "natural"
+category = "ecology"
+half = "held"
+
+[[query]]
+id = "inflation-by-country"
+text = "monthly inflation by country since 2000"
+kind = "natural"
+category = "economics"
+half = "tune"
+
+[[query]]
+id = "euro-dollar"
+text = "historical exchange rates of the euro against the dollar"
+kind = "natural"
+category = "finance"
+half = "held"
+
+[[query]]
+id = "amazon-deforestation"
+text = "deforestation in the Amazon from satellite imagery"
+kind = "natural"
+category = "geospatial"
+half = "tune"
+
+[[query]]
+id = "germany-rainfall"
+text = "daily rainfall measurements for weather stations in Germany"
+kind = "natural"
+category = "geospatial"
+half = "held"
+
+[[query]]
+id = "covid-admissions"
+text = "COVID-19 hospital admissions by week"
+kind = "natural"
+category = "government"
+half = "tune"
+
+[[query]]
+id = "sars-cov-2-structures"
+text = "protein structures of SARS-CoV-2"
+kind = "natural"
+category = "life-sciences"
+half = "held"
+
+[[query]]
+id = "chest-xray"
+text = "chest x-rays labeled for pneumonia"
+kind = "natural"
+category = "machine-learning"
+half = "tune"
+
+[[query]]
+id = "skin-lesions"
+text = "labeled images of skin lesions for melanoma detection"
+kind = "natural"
+category = "machine-learning"
+half = "held"
+
+[[query]]
+id = "fmri-movies"
+text = "fMRI recordings of people watching movies"
+kind = "natural"
+category = "neuroscience"
+half = "tune"
+
+[[query]]
+id = "lhc-collisions"
+text = "particle collision events from the Large Hadron Collider"
+kind = "natural"
+category = "physics"
+half = "held"
+
+[[query]]
+id = "co2-per-country"
+text = "CO2 emissions per country per year"
+kind = "natural"
+category = "research"
+half = "tune"
+
+[[query]]
+id = "household-electricity"
+text = "hourly electricity consumption of households"
+kind = "natural"
+category = "research"
+half = "held"
+
+[[query]]
+id = "trust-in-government"
+text = "survey of trust in government across European countries"
+kind = "natural"
+category = "social-science"
+half = "tune"
+
+[[query]]
+id = "county-population"
+text = "how many people live in each US county"
+kind = "natural"
+category = "statistics"
+half = "held"
