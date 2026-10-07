@@ -40,9 +40,6 @@ clap_complete = "4"
 clap_mangen = "0.3"
 etcetera = "0.11"
 indicatif = { version = "0.18", default-features = false, features = ["unicode-width"] }
-jaq-core = "3"
-jaq-json = "2"
-jaq-std = "3"
 pulldown-cmark = { version = "0.13", default-features = false }
 quick-xml = "0.42"
 serde = { version = "1", features = ["derive"] }

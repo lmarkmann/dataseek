@@ -73,10 +73,6 @@ pub struct Cli {
     #[arg(long, global = true)]
     pub json: bool,
 
-    /// Filter the JSON output through a jq expression; implies --json.
-    #[arg(long, value_name = "EXPR", global = true)]
-    pub jq: Option<String>,
-
     /// When to colorize output: auto, always, or never.
     #[arg(long, value_name = "WHEN", default_value = "auto", global = true)]
     pub color: ColorChoice,
@@ -184,7 +180,7 @@ pub enum Command {
         after_help = "Examples:
   dsk search unemployment -x google -n 50         skip a source, show more
   dsk search inflation -c economics,finance       only these categories
-  dsk search census --jq '.results[].url'         one field, no jq needed"
+  dsk search census --sort newest                 most recently updated first"
     )]
     Search {
         /// What to look for; several words form one query.
@@ -337,7 +333,7 @@ mod tests {
                     Just("--".to_owned()),
                     Just("-s".to_owned()),
                     Just("-n".to_owned()),
-                    Just("--jq".to_owned()),
+                    Just("--sort".to_owned()),
                     Just("--color".to_owned()),
                     Just("search".to_owned()),
                     Just("cache".to_owned()),

@@ -29,9 +29,6 @@ Options:
       --json
           Emit JSON to stdout instead of text
 
-      --jq <EXPR>
-          Filter the JSON output through a jq expression; implies --json
-
       --color <WHEN>
           When to colorize output: auto, always, or never
 
