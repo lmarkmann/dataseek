@@ -7,7 +7,7 @@ use anyhow::Result;
 use serde::Serialize;
 
 use crate::credentials::Credentials;
-use crate::output::Out;
+use crate::output::{self, Out};
 use crate::palette;
 use crate::sources::{Need, SOURCES};
 
@@ -74,9 +74,16 @@ pub fn run(out: &Out) -> Result<()> {
     }
     let (head, muted, warn) =
         (palette::accent(), palette::muted(), palette::warning());
+    let column = |title: &str, value: &dyn Fn(&Row) -> usize| {
+        rows.iter().map(value).max().unwrap_or(0).max(title.len())
+    };
+    let id = column("id", &|r| r.id.len());
+    let category = column("category", &|r| r.category.len());
+    let protocol = column("protocol", &|r| r.protocol.len());
+    let search = column("search", &|r| r.search.len());
     writeln!(
         w,
-        "{head}{:<22} {:<22} {:<22} {:<6} key{head:#}",
+        "{head}{:<id$} {:<category$} {:<protocol$} {:<search$} key{head:#}",
         "id", "category", "protocol", "search"
     )?;
     for r in &rows {
@@ -91,23 +98,27 @@ pub fn run(out: &Out) -> Result<()> {
         };
         writeln!(
             w,
-            "{:<22} {:<22} {:<22} {:<6} {key}",
+            "{:<id$} {:<category$} {:<protocol$} {:<search$} {key}",
             r.id, r.category, r.protocol, r.search
         )?;
     }
     writeln!(w)?;
-    writeln!(
-        w,
-        "{muted}{} sources. `local` ones download their catalog once a week and search it on disk.{muted:#}",
+    let mut notes = vec![format!(
+        "{} sources. `local` ones download their catalog once a week and search it on disk.",
         rows.len()
-    )?;
-    for r in &rows {
-        if let Some(reason) = r.opt_in {
-            writeln!(
-                w,
-                "{muted}{} is asked only when named with -s: {reason}.{muted:#}",
-                r.id
-            )?;
+    )];
+    notes.extend(rows.iter().filter_map(|r| {
+        r.opt_in.map(|reason| {
+            format!("{} is asked only when named with -s: {reason}.", r.id)
+        })
+    }));
+    // A note that wraps continues two columns in, so each note still
+    // starts at the margin.
+    let room = output::width().map(|w| w.saturating_sub(2).max(20));
+    for note in notes {
+        for (i, line) in output::wrap(&note, room).iter().enumerate() {
+            let indent = if i == 0 { "" } else { "  " };
+            writeln!(w, "{muted}{indent}{line}{muted:#}")?;
         }
     }
     Ok(())
