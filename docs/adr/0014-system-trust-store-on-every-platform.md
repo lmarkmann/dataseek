@@ -1,4 +1,4 @@
-# ADR NNNN: Every platform trusts the system's root certificates
+# ADR 0014: Every platform trusts the system's root certificates
 
 - Status: accepted; supersedes [ADR 0011](0011-tls-stack-per-platform.md)
 - Date: 2026-10-06

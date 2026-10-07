@@ -10,10 +10,10 @@ The version lives only in `Cargo.toml`. Clap reads it via `#[command(version)]`,
 
 - `-h/--help`, `-V/--version`
 - Global `-q/--quiet`, `-v/--verbose` (repeatable)
-- `--json`, `--jq EXPR`, `--color=auto|always|never`, `--no-color`, `--plain`, `--no-progress`
+- `--json`, `--color=auto|always|never`, `--no-color`, `--plain`, `--no-progress`
 - `--cache-dir DIR` and `--connect-timeout SECS`, each with a `DATASEEK_*` variable
 
-`search` reads `-x`, `--per-source`, `-n` and `--timeout` from `DATASEEK_EXCLUDE`, `DATASEEK_PER_SOURCE`, `DATASEEK_LIMIT` and `DATASEEK_TIMEOUT` too. A flag beats its variable, which beats the default; `dataseek help environment` lists them all.
+`search` reads `-x`, `--per-source`, `-n` and `--timeout` from `DATASEEK_EXCLUDE`, `DATASEEK_PER_SOURCE`, `DATASEEK_LIMIT` and `DATASEEK_TIMEOUT` too. A flag beats its variable, which beats the default; `dataseek help environment` lists them all. A source marked `opt-in` in `dataseek sources` runs only when `-s` names it ([ADR 0013](../adr/0013-opt-in-sources.md)).
 
 `-v` is verbose, never version. `--color` follows the ecosystem standard used by git, ripgrep, and fd:
 
@@ -52,7 +52,7 @@ This is why `Cargo.toml` denies `print_stdout` and `print_stderr`: a stray `prin
 
 ## JSON
 
-Every `--json` output is one object with a `schema` tag naming its shape and version (`dataseek-search/1`, `dataseek-sources/1`, `dataseek-doctor/1`, ...). A key that changes meaning or disappears bumps the tag; a new key does not. On a terminal the JSON is indented, in a pipe it is one line. `--jq EXPR` runs a jq expression over the same object (strings come out raw, like `jq -r`), so a script needs no second process; a broken expression fails before any work starts. `completion` and `man` print their script and page whatever the flag. `tests/snapshots/` freezes the search, sources, doctor, cache info, exit-codes and error-event shapes.
+Every `--json` output is one object with a `schema` tag naming its shape and version (`dataseek-search/1`, `dataseek-sources/1`, `dataseek-doctor/1`, ...). A key that changes meaning or disappears bumps the tag; a new key does not. On a terminal the JSON is indented, in a pipe it is one line. To pick fields, pipe it into `jq`. `completion` and `man` print their script and page whatever the flag. `tests/snapshots/` freezes the search, sources, doctor, cache info, exit-codes and error-event shapes.
 
 ## SIGPIPE
 

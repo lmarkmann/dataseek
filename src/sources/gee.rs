@@ -1,7 +1,11 @@
 //! The Google Earth Engine public data catalog, read from its catalog page
-//! (every dataset's id, title, description snippet and providers in one
-//! document) and searched locally. The STAC mirror of the same catalog would
-//! take one request per dataset.
+//! and searched locally. One request of about 2 MB returns every dataset's id,
+//! title, description snippet and providers (867 cards); the page carries no
+//! license, DOI or update date, and its robots.txt allows it. Four cards are
+//! titled "[deprecated]" and stay as the page lists them (Earth Engine,
+//! October 2026). The STAC mirror of the same catalog is 133 provider
+//! catalogs, each linking one file per dataset, so it would take over a
+//! thousand requests (Earth Engine STAC, October 2026).
 
 use super::Ctx;
 use crate::http::SourceError;

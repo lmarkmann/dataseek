@@ -12,4 +12,6 @@ What reads across several dataset sources at once: how registries such as Huggin
 | file | covers |
 |---|---|
 | [search-methods.md](search-methods.md) | endpoint, query syntax, matching, ranking, paging and rate limits of every search interface, plus the quirks that shaped the adapters |
+| [terms.md](terms.md) | each source's terms verdict for a public release, the quoted sentence it rests on, the date checked, and what the terms ask the tool to show |
+| [capabilities.md](capabilities.md) | what each source offers for filters, file lists, paging, hit counts, related records and machine-readable metadata, one row per source |
 | [bench-2026-10-06.md](bench-2026-10-06.md) | latency, answer rate, results and overlap per source from `dataseek bench` |

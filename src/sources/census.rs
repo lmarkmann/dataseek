@@ -1,6 +1,16 @@
 //! The U.S. Census Bureau's API datasets (ACS, decennial census, economic
 //! census, CPS, ...), listed from the bureau's DCAT `data.json` and searched
-//! locally. Each dataset's link is its variables page on the API host.
+//! locally. Each dataset's link is its page on the API host, which links on
+//! to its variables, geography and examples.
+//!
+//! - `data.json` is the Census Data API Discovery Tool, "a machine-readable
+//!   dataset discovery service" (Census Bureau, updated October 2021). It
+//!   lists 1,809 datasets in 5 MB and needs no key, while the user guide now
+//!   says a key "must be used with all data queries" (Census Data API User
+//!   Guide, May 2026; probe, October 2026).
+//! - Every service that uses the API should show the notice "This product
+//!   uses the Census Bureau Data API but is not endorsed or certified by the
+//!   Census Bureau" (Census API Terms of Service, October 2026).
 
 use serde_json::Value;
 

@@ -1,7 +1,10 @@
 //! The Registry of Open Data on AWS, read from the registry's index page,
-//! which lists every entry with its name and one-paragraph description.
-//! Searched locally. The source YAML lives on GitHub but would cost one
-//! request per entry.
+//! which lists every entry with its name and a description the site cuts at
+//! about 600 characters: 1,215 entries in one 2.3 MB page (AWS, October
+//! 2026). Searched locally. The source YAML lives on GitHub under Apache-2.0
+//! and the hosted `datasets.yaml` only lists one URL per entry, so reading
+//! either would cost one request per entry (AWS, October 2026). A few entries
+//! show "..." where the description should be, which is no description.
 
 use super::Ctx;
 use crate::http::SourceError;
@@ -36,7 +39,9 @@ fn parse(page: &str) -> Vec<Dataset> {
                 .find(|p| {
                     let tags = p.starts_with("<span");
                     let link = p.starts_with("<a ") && p.ends_with("</a>");
-                    !tags && !link && !clean(p).is_empty()
+                    !tags
+                        && !link
+                        && clean(p).chars().any(char::is_alphanumeric)
                 });
             Dataset::new(
                 title,
@@ -84,7 +89,7 @@ mod tests {
     #[test]
     fn records_map_from_a_recorded_list() {
         let hits = parse(&fixture::text("aws.html"));
-        assert_eq!(hits.len(), 3);
+        assert_eq!(hits.len(), 4);
         assert_eq!(
             hits[0],
             Dataset {
@@ -116,5 +121,7 @@ mod tests {
             "{}",
             described(2)
         );
+        assert_eq!(hits[3].title, "NOAA Joint Polar Satellite System (JPSS)");
+        assert_eq!(hits[3].description, None);
     }
 }

@@ -1,5 +1,14 @@
-//! DBnomics: official statistics from about 90 providers (IMF, OECD,
+//! DBnomics: official statistics from over 90 providers (IMF, OECD,
 //! Eurostat, ECB, BIS, ILO, national statistics offices) behind one search.
+//!
+//! The index lists 94 providers (DBnomics, October 2026). A page holds up to
+//! 100 datasets and a `limit` above that answers 400; `--per-source` stops at
+//! 100 too, so one request answers every search, and `offset` pages further
+//! (DBnomics API spec, October 2026). The search matches dataset names and
+//! codes, not descriptions, and a query with no match returns an empty
+//! `docs` list (probed October 2026). The API docs ask for no key and state
+//! no rate limit; they recommend a cache on the client (DBnomics, October
+//! 2026).
 
 use serde_json::Value;
 

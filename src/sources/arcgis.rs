@@ -1,5 +1,15 @@
 //! ArcGIS Hub's global search (OGC API Records) over public ArcGIS Online
-//! items, limited to the `dataset` collection so maps and apps stay out.
+//! items, limited to the `dataset` collection so maps and apps stay out (the
+//! other collections are `appAndMap`, `document`, `site` and `all`; Hub Search
+//! API, October 2026). `limit` is at most 100 per request, the same as
+//! `--per-source`, so one request is enough (Hub Search API definition,
+//! October 2026). Results come in relevance order, and a request that reaches
+//! past the 10,000th match answers HTTP 500 (probed October 2026). `license`
+//! is an SPDX id, with `none` and `custom` for items that set nothing usable
+//! (Hub aggregations, October 2026). Responses carry an
+//! `X-RateLimit-Limit-PORTAL_SEARCH_THROTTLER` header of 10 with a reset of 1;
+//! the docs state no limit (October 2026). `size` is bytes and `modified` is
+//! epoch milliseconds (ArcGIS REST item reference, October 2026).
 
 use serde_json::Value;
 

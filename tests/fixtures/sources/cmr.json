@@ -1,22 +1,16 @@
 {
-  "feed": {
-    "updated": "2026-10-06T15:31:23.010Z",
-    "id": "https://cmr.earthdata.nasa.gov:443/search/collections.json?keyword=sea+ice&page_size=10",
-    "title": "ECHO dataset metadata",
-    "entry": [
-      {
-        "processing_level_id": "3",
-        "cloud_hosted": true,
-        "boxes": [
-          "-88 -180 88 180"
-        ],
-        "has_combine": false,
-        "time_start": "2018-10-14T00:00:00.000Z",
-        "version_id": "007",
-        "dataset_id": "ATLAS/ICESat-2 L3A Sea Ice Freeboard V007",
-        "entry_id": "ATL10_007",
-        "has_spatial_subsetting": true,
-        "has_transforms": false,
+  "hits": 3224,
+  "took": 78,
+  "items": [
+    {
+      "meta": {
+        "revision-id": 724,
+        "deleted": false,
+        "format": "application/iso19115+xml",
+        "provider-id": "NSIDC_CPRD",
+        "has-combine": false,
+        "user-id": "crumlyd",
+        "has-formats": false,
         "associations": {
           "services": [
             "S3107386427-NSIDC_CPRD",
@@ -34,748 +28,1290 @@
             "CIT4321025421-ESDIS"
           ]
         },
-        "has_variables": true,
-        "data_center": "NSIDC_CPRD",
-        "short_name": "ATL10",
-        "organizations": [
-          "NASA NSIDC DAAC",
-          "NASA/GSFC/SED/ESD/I2-SIPS"
+        "s3-links": [
+          "nsidc-cumulus-prod-protected/ATLAS/ATL10/007",
+          "nsidc-cumulus-prod-public/ATLAS/ATL10/007"
         ],
-        "title": "ATLAS/ICESat-2 L3A Sea Ice Freeboard V007",
-        "coordinate_system": "CARTESIAN",
-        "summary": "ATL10 contains along-track sea ice freeboard calculated for 10 km swath segments. The data were acquired by the Advanced Topographic Laser Altimeter System (ATLAS) instrument on board the ICESat-2 observatory.",
-        "service_features": {
-          "harmony": {
-            "has_formats": false,
-            "has_variables": true,
-            "has_transforms": false,
-            "has_combine": false,
-            "has_spatial_subsetting": true,
-            "has_temporal_subsetting": true
-          },
-          "opendap": {
-            "has_formats": false,
-            "has_variables": false,
-            "has_transforms": false,
-            "has_combine": false,
-            "has_spatial_subsetting": false,
-            "has_temporal_subsetting": false
-          },
-          "esi": {
-            "has_formats": false,
-            "has_variables": false,
-            "has_transforms": false,
-            "has_combine": false,
-            "has_spatial_subsetting": false,
-            "has_temporal_subsetting": false
-          }
-        },
-        "orbit_parameters": {},
-        "id": "C3565574246-NSIDC_CPRD",
-        "has_formats": false,
-        "score": 1.32,
-        "consortiums": [
-          "EOSDIS",
-          "GEOSS"
-        ],
-        "original_format": "ISO19115",
-        "archive_center": "NASA NSIDC DAAC",
-        "has_temporal_subsetting": true,
-        "browse_flag": false,
-        "platforms": [
-          "ICESat-2"
-        ],
-        "association_details": {
+        "has-spatial-subsetting": true,
+        "native-id": "ATLAS/ICESat-2 L3A Sea Ice Freeboard V007",
+        "has-transforms": false,
+        "association-details": {
           "services": [
             {
-              "concept_id": "S3107386427-NSIDC_CPRD"
+              "concept-id": "S3107386427-NSIDC_CPRD"
             },
             {
-              "concept_id": "S2472217299-NSIDC_CPRD"
+              "concept-id": "S2472217299-NSIDC_CPRD"
             },
             {
-              "concept_id": "S2836723123-XYZ_PROV"
+              "concept-id": "S2836723123-XYZ_PROV"
             },
             {
-              "concept_id": "S3213793274-NSIDC_CPRD"
+              "concept-id": "S3213793274-NSIDC_CPRD"
             }
           ],
           "tools": [
             {
-              "concept_id": "TL3914225088-NSIDC_CPRD"
+              "concept-id": "TL3914225088-NSIDC_CPRD"
             },
             {
-              "concept_id": "TL2778507100-NSIDC_CPRD"
+              "concept-id": "TL2778507100-NSIDC_CPRD"
             },
             {
-              "concept_id": "TL3914227378-NSIDC_CPRD"
+              "concept-id": "TL3914227378-NSIDC_CPRD"
             },
             {
-              "concept_id": "TL3010466318-NSIDC_CPRD"
+              "concept-id": "TL3010466318-NSIDC_CPRD"
             }
           ],
           "citations": [
             {
-              "concept_id": "CIT4321025421-ESDIS"
+              "concept-id": "CIT4321025421-ESDIS"
             }
           ]
         },
-        "online_access_flag": true,
-        "links": [
-          {
-            "length": "0.0KB",
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
-            "hreflang": "en-US",
-            "href": "https://search.earthdata.nasa.gov/search/granules?p=C3565574246-NSIDC_CPRD"
-          },
-          {
-            "length": "0.0KB",
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/data/data-access-tool/ATL10/versions/7"
-          },
-          {
-            "length": "0.0KB",
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
-            "hreflang": "en-US",
-            "href": "https://cmr.earthdata.nasa.gov/virtual-directory/collections/C3565574246-NSIDC_CPRD"
-          },
-          {
-            "length": "0.0KB",
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
-            "hreflang": "en-US",
-            "href": "https://openaltimetry.earthdatacloud.nasa.gov/data/"
-          },
-          {
-            "length": "0.0KB",
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
-            "hreflang": "en-US",
-            "href": "https://earthaccess.readthedocs.io/en/stable/"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/metadata#",
-            "hreflang": "en-US",
-            "href": "https://doi.org/10.5067/ATLAS/ATL10.007"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://doi.org/10.5067/ATLAS/ATL10.007"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/documents/user-guide/atl10-v007-userguide_0.pdf"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/documents/technical-reference/icesat2_atl07_10_known_issues_v007_0.pdf"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/documents/technical-reference/icesat2_atl10_data_dict_v007.pdf"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/documents/technical-reference/icesat2_atl07_10_20_21_atbd_v007.pdf"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/documents/technical-reference/icesat-2-major-activities.xlsx"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/documents/technical-reference/icesat-2_data_gaps.xlsx"
-          }
-        ]
+        "has-variables": true,
+        "concept-id": "C3565574246-NSIDC_CPRD",
+        "revision-date": "2026-10-02T16:46:26.698Z",
+        "has-temporal-subsetting": true,
+        "concept-type": "collection"
       },
-      {
-        "processing_level_id": "3",
-        "cloud_hosted": true,
-        "boxes": [
-          "-88 -180 88 180"
-        ],
-        "has_combine": false,
-        "time_start": "2018-10-14T00:00:00.000Z",
-        "version_id": "007",
-        "dataset_id": "ATLAS/ICESat-2 L3A Sea Ice Height V007",
-        "entry_id": "ATL07_007",
-        "has_spatial_subsetting": true,
-        "has_transforms": false,
-        "associations": {
-          "services": [
-            "S2472217299-NSIDC_CPRD",
-            "S3213793274-NSIDC_CPRD",
-            "S2836723123-XYZ_PROV",
-            "S3107386427-NSIDC_CPRD"
-          ],
-          "tools": [
-            "TL3914225088-NSIDC_CPRD",
-            "TL3010466318-NSIDC_CPRD",
-            "TL3914227378-NSIDC_CPRD",
-            "TL4019511337-NSIDC_CPRD"
-          ]
-        },
-        "has_variables": true,
-        "data_center": "NSIDC_CPRD",
-        "short_name": "ATL07",
-        "organizations": [
-          "NASA NSIDC DAAC",
-          "NASA/GSFC/SED/ESD/I2-SIPS"
-        ],
-        "title": "ATLAS/ICESat-2 L3A Sea Ice Height V007",
-        "coordinate_system": "CARTESIAN",
-        "summary": "ATL07 contains along-track sea surface height and sea ice height for segments of variable lengths for all beams as well as fixed 10-meter segments for strong beams. Heights are also computed using the DDA-Bifurcation algorithm for strong beams.",
-        "service_features": {
-          "harmony": {
-            "has_formats": false,
-            "has_variables": true,
-            "has_transforms": false,
-            "has_combine": false,
-            "has_spatial_subsetting": true,
-            "has_temporal_subsetting": true
-          },
-          "opendap": {
-            "has_formats": false,
-            "has_variables": false,
-            "has_transforms": false,
-            "has_combine": false,
-            "has_spatial_subsetting": false,
-            "has_temporal_subsetting": false
-          },
-          "esi": {
-            "has_formats": false,
-            "has_variables": false,
-            "has_transforms": false,
-            "has_combine": false,
-            "has_spatial_subsetting": false,
-            "has_temporal_subsetting": false
+      "umm": {
+        "DataLanguage": "eng; usa",
+        "CollectionCitations": [
+          {
+            "Title": "ATLAS/ICESat-2 L3A Sea Ice Freeboard V007",
+            "Publisher": "NASA National Snow and Ice Data Center Distributed Active Archive Center",
+            "Version": "007"
           }
-        },
-        "orbit_parameters": {},
-        "id": "C3564876395-NSIDC_CPRD",
-        "has_formats": false,
-        "score": 1.32,
-        "consortiums": [
-          "EOSDIS",
-          "GEOSS"
         ],
-        "original_format": "ISO19115",
-        "archive_center": "NASA NSIDC DAAC",
-        "has_temporal_subsetting": true,
-        "browse_flag": false,
-        "platforms": [
-          "ICESat-2"
-        ],
-        "association_details": {
-          "services": [
-            {
-              "concept_id": "S2472217299-NSIDC_CPRD"
-            },
-            {
-              "concept_id": "S3213793274-NSIDC_CPRD"
-            },
-            {
-              "concept_id": "S2836723123-XYZ_PROV"
-            },
-            {
-              "concept_id": "S3107386427-NSIDC_CPRD"
-            }
-          ],
-          "tools": [
-            {
-              "concept_id": "TL3914225088-NSIDC_CPRD"
-            },
-            {
-              "concept_id": "TL3010466318-NSIDC_CPRD"
-            },
-            {
-              "concept_id": "TL3914227378-NSIDC_CPRD"
-            },
-            {
-              "concept_id": "TL4019511337-NSIDC_CPRD"
-            }
-          ]
-        },
-        "online_access_flag": true,
-        "links": [
+        "AdditionalAttributes": [
           {
-            "length": "0.0KB",
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
-            "hreflang": "en-US",
-            "href": "https://search.earthdata.nasa.gov/search/granules?p=C3564876395-NSIDC_CPRD"
+            "Name": "identifier_product_doi",
+            "Description": "Digital object identifier that uniquely identifies this data product",
+            "DataType": "STRING"
           },
           {
-            "length": "0.0KB",
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
-            "hreflang": "en-US",
-            "href": "https://openaltimetry.earthdatacloud.nasa.gov/data/"
-          },
-          {
-            "length": "0.0KB",
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
-            "hreflang": "en-US",
-            "href": "https://cmr.earthdata.nasa.gov/virtual-directory/collections/C3564876395-NSIDC_CPRD"
-          },
-          {
-            "length": "0.0KB",
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/data/data-access-tool/ATL07/versions/7/"
-          },
-          {
-            "length": "0.0KB",
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
-            "hreflang": "en-US",
-            "href": "https://earthaccess.readthedocs.io/en/stable/"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/metadata#",
-            "hreflang": "en-US",
-            "href": "https://doi.org/10.5067/ATLAS/ATL07.007"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://doi.org/10.5067/ATLAS/ATL07.007"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/documents/user-guide/atl07-v007-userguide.pdf"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/documents/technical-reference/icesat2_atl07_10_known_issues_v007_0.pdf"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/documents/technical-reference/icesat2_atl07_data_dict_v007.pdf"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/documents/technical-reference/icesat2_atl07_10_20_21_atbd_v007.pdf"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/documents/technical-reference/icesat-2-major-activities.xlsx"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/documents/technical-reference/icesat-2_data_gaps.xlsx"
+            "Name": "identifier_product_doi_authority",
+            "Description": "URL of the digital object identifier resolving authority",
+            "DataType": "STRING"
           }
-        ]
-      },
-      {
-        "processing_level_id": "3",
-        "cloud_hosted": true,
-        "boxes": [
-          "-90 -180 -39.23 180",
-          "30.98 -180 90 180"
         ],
-        "has_combine": false,
-        "time_start": "1978-10-26T00:00:00.000Z",
-        "version_id": "2",
-        "dataset_id": "Sea Ice Concentrations from Nimbus-7 SMMR and DMSP SSM/I-SSMIS Passive Microwave Data V002",
-        "entry_id": "NSIDC-0051_2",
-        "has_spatial_subsetting": false,
-        "has_transforms": false,
-        "associations": {
-          "services": [
-            "S3107386427-NSIDC_CPRD",
-            "S2472217299-NSIDC_CPRD"
-          ],
-          "tools": [
-            "TL4019511337-NSIDC_CPRD",
-            "TL4019517520-NSIDC_CPRD",
-            "TL3010466318-NSIDC_CPRD"
-          ],
-          "citations": [
-            "CIT3804169304-ESDIS",
-            "CIT3804204120-ESDIS",
-            "CIT3804354085-ESDIS",
-            "CIT4106692278-ESDIS"
-          ],
-          "visualizations": [
-            "VIS3609427342-ESDIS",
-            "VIS3608843224-ESDIS"
-          ]
+        "SpatialExtent": {
+          "SpatialCoverageType": "HORIZONTAL",
+          "HorizontalSpatialDomain": {
+            "ZoneIdentifier": "WGS 84 (EPSG:4326)",
+            "Geometry": {
+              "CoordinateSystem": "CARTESIAN",
+              "BoundingRectangles": [
+                {
+                  "WestBoundingCoordinate": -180.0,
+                  "NorthBoundingCoordinate": 88.0,
+                  "EastBoundingCoordinate": 180.0,
+                  "SouthBoundingCoordinate": -88.0
+                }
+              ]
+            },
+            "ResolutionAndCoordinateSystem": {
+              "HorizontalDataResolution": {
+                "VariesResolution": "Varies"
+              }
+            }
+          },
+          "GranuleSpatialRepresentation": "GEODETIC"
         },
-        "has_variables": false,
-        "data_center": "NSIDC_CPRD",
-        "short_name": "NSIDC-0051",
-        "organizations": [
-          "NASA NSIDC DAAC"
-        ],
-        "title": "Sea Ice Concentrations from Nimbus-7 SMMR and DMSP SSM/I-SSMIS Passive Microwave Data V002",
-        "coordinate_system": "CARTESIAN",
-        "summary": "This data set is generated from brightness temperature data and is designed to provide a consistent time series of sea ice concentrations spanning the coverage of several passive microwave instruments.The data are provided in the polar stereographic projection at a grid cell size of 25 x 25 km.",
-        "time_end": "2025-12-31T23:59:59.999Z",
-        "service_features": {
-          "opendap": {
-            "has_formats": false,
-            "has_variables": false,
-            "has_transforms": false,
-            "has_combine": false,
-            "has_spatial_subsetting": false,
-            "has_temporal_subsetting": false
-          },
-          "esi": {
-            "has_formats": false,
-            "has_variables": false,
-            "has_transforms": false,
-            "has_combine": false,
-            "has_spatial_subsetting": false,
-            "has_temporal_subsetting": false
-          },
-          "harmony": {
-            "has_formats": false,
-            "has_variables": false,
-            "has_transforms": false,
-            "has_combine": false,
-            "has_spatial_subsetting": false,
-            "has_temporal_subsetting": false
+        "CollectionProgress": "ACTIVE",
+        "StandardProduct": true,
+        "ScienceKeywords": [
+          {
+            "Category": "EARTH SCIENCE",
+            "Topic": "CRYOSPHERE",
+            "Term": "SEA ICE",
+            "VariableLevel1": "FREEBOARD"
           }
-        },
-        "orbit_parameters": {},
-        "id": "C3177837840-NSIDC_CPRD",
-        "has_formats": false,
-        "score": 1.32,
-        "consortiums": [
-          "GEOSS",
-          "EOSDIS"
         ],
-        "original_format": "ISO19115",
-        "archive_center": "NASA NSIDC DAAC",
-        "has_temporal_subsetting": false,
-        "browse_flag": false,
-        "platforms": [
-          "DMSP 5D-2/F11",
-          "DMSP 5D-2/F13",
-          "DMSP 5D-2/F8",
-          "DMSP 5D-3/F17"
-        ],
-        "association_details": {
-          "services": [
-            {
-              "concept_id": "S3107386427-NSIDC_CPRD"
-            },
-            {
-              "concept_id": "S2472217299-NSIDC_CPRD"
+        "TemporalExtents": [
+          {
+            "EndsAtPresentFlag": true,
+            "RangeDateTimes": [
+              {
+                "BeginningDateTime": "2018-10-14T00:00:00.000Z"
+              }
+            ],
+            "TemporalResolution": {
+              "Unit": "Day",
+              "Value": 91
             }
-          ],
-          "tools": [
-            {
-              "concept_id": "TL4019511337-NSIDC_CPRD"
-            },
-            {
-              "concept_id": "TL4019517520-NSIDC_CPRD"
-            },
-            {
-              "concept_id": "TL3010466318-NSIDC_CPRD"
-            }
-          ],
-          "citations": [
-            {
-              "concept_id": "CIT3804169304-ESDIS"
-            },
-            {
-              "concept_id": "CIT3804204120-ESDIS"
-            },
-            {
-              "concept_id": "CIT3804354085-ESDIS"
-            },
-            {
-              "concept_id": "CIT4106692278-ESDIS"
-            }
-          ],
-          "visualizations": [
-            {
-              "concept_id": "VIS3609427342-ESDIS"
-            },
-            {
-              "concept_id": "VIS3608843224-ESDIS"
-            }
-          ]
-        },
-        "online_access_flag": true,
-        "links": [
-          {
-            "length": "0.0KB",
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
-            "hreflang": "en-US",
-            "href": "https://search.earthdata.nasa.gov/search/granules?p=C3177837840-NSIDC_CPRD"
-          },
-          {
-            "length": "0.0KB",
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
-            "hreflang": "en-US",
-            "href": "https://cmr.earthdata.nasa.gov/virtual-directory/collections/C3177837840-NSIDC_CPRD"
-          },
-          {
-            "length": "0.0KB",
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/data/data-access-tool/NSIDC-0051/versions/2/"
-          },
-          {
-            "length": "0.0KB",
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
-            "hreflang": "en-US",
-            "href": "https://earthaccess.readthedocs.io/en/stable/"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/metadata#",
-            "hreflang": "en-US",
-            "href": "https://doi.org/10.5067/MPYG15WAA4WX"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://doi.org/10.5067/MPYG15WAA4WX"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/documents/user-guide/nsidc-0051-v002-userguide.pdf"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/19960008457_2.pdf"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/documents/technical-reference/smmr-ssmi-ssmis-sensors.pdf"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/nasa20technical20memorandum20104647_0.pdf"
           }
-        ]
-      },
-      {
-        "processing_level_id": "3",
-        "cloud_hosted": true,
-        "boxes": [
-          "-89.24 -180 -39.23 180",
-          "30.98 -180 89.24 180"
         ],
-        "has_combine": false,
-        "time_start": "2002-06-01T00:00:00.000Z",
-        "version_id": "1",
-        "dataset_id": "AMSR-E/AMSR2 Unified L3 Daily 12.5 km Brightness Temperatures, Sea Ice Concentration, Motion & Snow Depth Polar Grids V001",
-        "entry_id": "AU_SI12_1",
-        "has_spatial_subsetting": false,
-        "has_transforms": false,
-        "associations": {
-          "services": [
-            "S3107386427-NSIDC_CPRD",
-            "S2472217299-NSIDC_CPRD"
-          ],
-          "tools": [
-            "TL3914225088-NSIDC_CPRD",
-            "TL4019511337-NSIDC_CPRD",
-            "TL4019526230-NSIDC_CPRD",
-            "TL3010466318-NSIDC_CPRD"
-          ],
-          "citations": [
-            "CIT3804033364-ESDIS",
-            "CIT4321025421-ESDIS",
-            "CIT4106700096-ESDIS",
-            "CIT3804163951-ESDIS"
-          ],
-          "visualizations": [
-            "VIS3618975467-ESDIS",
-            "VIS3619866366-ESDIS",
-            "VIS3618975588-ESDIS",
-            "VIS3618975493-ESDIS"
-          ]
+        "ProcessingLevel": {
+          "Id": "3"
         },
-        "has_variables": false,
-        "data_center": "NSIDC_CPRD",
-        "short_name": "AU_SI12",
-        "organizations": [
-          "NASA NSIDC DAAC",
-          "NASA/MSFC/AMSR-E SIPS"
+        "DOI": {
+          "DOI": "10.5067/ATLAS/ATL10.007"
+        },
+        "ShortName": "ATL10",
+        "EntryTitle": "ATLAS/ICESat-2 L3A Sea Ice Freeboard V007",
+        "ISOTopicCategories": [
+          "CLIMATOLOGY/METEOROLOGY/ATMOSPHERE"
         ],
-        "title": "AMSR-E/AMSR2 Unified L3 Daily 12.5 km Brightness Temperatures, Sea Ice Concentration, Motion & Snow Depth Polar Grids V001",
-        "coordinate_system": "CARTESIAN",
-        "summary": "This data set reports average daily horizontally and vertically polarized brightness temperatures; sea ice concentrations; and snow depths over sea ice on 12.5 km resolution north and south polar stereographic grids. Ungridded sea ice motion data are also available for the Arctic.",
-        "service_features": {
-          "opendap": {
-            "has_formats": false,
-            "has_variables": false,
-            "has_transforms": false,
-            "has_combine": false,
-            "has_spatial_subsetting": false,
-            "has_temporal_subsetting": false
+        "DirectDistributionInformation": {
+          "Region": "us-west-2",
+          "S3BucketAndObjectPrefixNames": [
+            "nsidc-cumulus-prod-protected/ATLAS/ATL10/007",
+            "nsidc-cumulus-prod-public/ATLAS/ATL10/007"
+          ],
+          "S3CredentialsAPIEndpoint": "https://data.nsidc.earthdatacloud.nasa.gov/s3credentials",
+          "S3CredentialsAPIDocumentationURL": "https://data.nsidc.earthdatacloud.nasa.gov/s3credentialsREADME"
+        },
+        "AccessConstraints": {
+          "Description": " These data are freely, openly, and fully accessible, provided that you are logged into your NASA Earthdata profile (https://urs.earthdata.nasa.gov/)."
+        },
+        "RelatedUrls": [
+          {
+            "Description": "Search and order NASA Earth Science data using spatial and temporal filters. Reformatting, reprojecting, and subsetting options are available for some data sets.",
+            "URLContentType": "DistributionURL",
+            "Type": "GET DATA",
+            "Subtype": "Earthdata Search",
+            "URL": "https://search.earthdata.nasa.gov/search/granules?p=C3565574246-NSIDC_CPRD",
+            "GetData": {
+              "Format": "Not provided",
+              "Size": 0.0,
+              "Unit": "KB"
+            }
           },
-          "esi": {
-            "has_formats": false,
-            "has_variables": false,
-            "has_transforms": false,
-            "has_combine": false,
-            "has_spatial_subsetting": false,
-            "has_temporal_subsetting": false
+          {
+            "Description": "Search data by spatial and/or temporal ranges or file name. Choose from various download options, including a Python script.",
+            "URLContentType": "DistributionURL",
+            "Type": "GET DATA",
+            "Subtype": "Data Access Tool",
+            "URL": "https://nsidc.org/data/data-access-tool/ATL10/versions/7",
+            "GetData": {
+              "Format": "Not provided",
+              "Size": 0.0,
+              "Unit": "KB"
+            }
           },
-          "harmony": {
-            "has_formats": false,
-            "has_variables": false,
-            "has_transforms": false,
-            "has_combine": false,
-            "has_spatial_subsetting": false,
-            "has_temporal_subsetting": false
+          {
+            "Description": "Quickly download a few files using a web browser, or access data through a command-line utility such as WGET.",
+            "URLContentType": "DistributionURL",
+            "Type": "GET DATA",
+            "Subtype": "DIRECT DOWNLOAD",
+            "URL": "https://cmr.earthdata.nasa.gov/virtual-directory/collections/C3565574246-NSIDC_CPRD",
+            "GetData": {
+              "Format": "Not provided",
+              "Size": 0.0,
+              "Unit": "KB"
+            }
+          },
+          {
+            "Description": "Discover, access, and visualize data from NASA's ICESat and ICESat-2 missions.",
+            "URLContentType": "DistributionURL",
+            "Type": "GET DATA",
+            "Subtype": "OpenAltimetry",
+            "URL": "https://openaltimetry.earthdatacloud.nasa.gov/data/",
+            "GetData": {
+              "Format": "Not provided",
+              "Size": 0.0,
+              "Unit": "KB"
+            }
           }
+        ],
+        "ContactGroups": [
+          {
+            "Roles": [
+              "User Services"
+            ],
+            "ContactInformation": {
+              "Addresses": [
+                {
+                  "City": "Boulder",
+                  "StateProvince": "Colorado",
+                  "Country": "USA"
+                }
+              ]
+            },
+            "GroupName": "NASA National Snow and Ice Data Center Distributed Active Archive Center"
+          }
+        ],
+        "DataDates": [
+          {
+            "Date": "2025-10-07T14:10:50.000Z",
+            "Type": "CREATE"
+          }
+        ],
+        "Abstract": "ATL10 contains along-track sea ice freeboard calculated for 10 km swath segments. The data were acquired by the Advanced Topographic Laser Altimeter System (ATLAS) instrument on board the ICESat-2 observatory.",
+        "Purpose": "Scientific Research",
+        "LocationKeywords": [
+          {
+            "Category": "GEOGRAPHIC REGION",
+            "Type": "SOUTHERN HEMISPHERE"
+          },
+          {
+            "Category": "GEOGRAPHIC REGION",
+            "Type": "NORTHERN HEMISPHERE"
+          }
+        ],
+        "MetadataDates": [
+          {
+            "Date": "2025-10-07T00:00:00.000Z",
+            "Type": "CREATE"
+          },
+          {
+            "Date": "2026-09-08T00:00:00.000Z",
+            "Type": "UPDATE"
+          }
+        ],
+        "VersionDescription": "Introduced interpolation of reference surface heights when computing freeboard heights. In previous releases, a static value of the 10 km reference surface was used to compute freeboard heights. In v7, reference surface heights are interpolated (if neighboring reference surfaces are available) to the freeboard height location before freeboard height computation; Introduced option to include height",
+        "Version": "007",
+        "UseConstraints": {
+          "LicenseText": " These data are freely, openly, and fully available to use without restrictions, provided that you cite the data according to the recommended citation at https://nsidc.org/about/data-use-and-copyright. For more information on the NASA ESDIS Data Use Guidance, see https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance."
         },
-        "orbit_parameters": {},
-        "id": "C3243521611-NSIDC_CPRD",
-        "has_formats": false,
-        "score": 1.32,
-        "consortiums": [
-          "GEOSS",
-          "EOSDIS"
+        "ContactPersons": [
+          {
+            "Roles": [
+              "Technical Contact"
+            ],
+            "ContactInformation": {
+              "ContactMechanisms": [
+                {
+                  "Type": "Telephone",
+                  "Value": "1 303 492 6199"
+                },
+                {
+                  "Type": "Fax",
+                  "Value": "1 303 492 2468"
+                },
+                {
+                  "Type": "Email",
+                  "Value": "nsidc@nsidc.org"
+                }
+              ],
+              "Addresses": [
+                {
+                  "StreetAddresses": [
+                    "CIRES, 449 UCB",
+                    "University of Colorado"
+                  ],
+                  "City": "Boulder",
+                  "StateProvince": "CO",
+                  "Country": "USA",
+                  "PostalCode": "80309-0449"
+                }
+              ]
+            },
+            "FirstName": "NSIDC",
+            "MiddleName": "User",
+            "LastName": "Services"
+          },
+          {
+            "Roles": [
+              "Technical Contact"
+            ],
+            "ContactInformation": {
+              "Addresses": [
+                {
+                  "StreetAddresses": [
+                    "Jet Propulsion Laboratory (JPL)",
+                    "California Institute of Technology"
+                  ],
+                  "City": "Pasadena",
+                  "StateProvince": "CA",
+                  "Country": "USA"
+                }
+              ]
+            },
+            "FirstName": "Ron",
+            "LastName": "Kwok"
+          },
+          {
+            "Roles": [
+              "Technical Contact"
+            ],
+            "FirstName": "Alek",
+            "MiddleName": "A",
+            "LastName": "Petty"
+          },
+          {
+            "Roles": [
+              "Technical Contact"
+            ],
+            "FirstName": "Glenn",
+            "LastName": "Cunningham"
+          }
         ],
-        "original_format": "ISO19115",
-        "archive_center": "NASA NSIDC DAAC",
-        "has_temporal_subsetting": false,
-        "browse_flag": true,
-        "platforms": [
-          "Aqua",
-          "GCOM-W1"
+        "DataCenters": [
+          {
+            "Roles": [
+              "ARCHIVER"
+            ],
+            "ShortName": "NASA NSIDC DAAC",
+            "ContactInformation": {
+              "RelatedUrls": [
+                {
+                  "Description": "Archiving Data Center",
+                  "URLContentType": "DataCenterURL",
+                  "Type": "HOME PAGE",
+                  "URL": "https://nsidc.org/daac"
+                }
+              ],
+              "ContactMechanisms": [
+                {
+                  "Type": "Telephone",
+                  "Value": "1 303 492 6199"
+                },
+                {
+                  "Type": "Email",
+                  "Value": "nsidc@nsidc.org"
+                }
+              ],
+              "Addresses": [
+                {
+                  "StreetAddresses": [
+                    "National Snow and Ice Data Center",
+                    "CIRES, 449 UCB",
+                    "University of Colorado"
+                  ],
+                  "City": "Boulder",
+                  "StateProvince": "CO",
+                  "Country": "USA",
+                  "PostalCode": "80309-0449"
+                }
+              ]
+            }
+          },
+          {
+            "Roles": [
+              "DISTRIBUTOR"
+            ],
+            "ShortName": "NASA NSIDC DAAC",
+            "ContactInformation": {
+              "RelatedUrls": [
+                {
+                  "Description": "Archiving Data Center",
+                  "URLContentType": "DataCenterURL",
+                  "Type": "HOME PAGE",
+                  "URL": "https://nsidc.org/daac"
+                }
+              ],
+              "ContactMechanisms": [
+                {
+                  "Type": "Telephone",
+                  "Value": "1 303 492 6199"
+                },
+                {
+                  "Type": "Email",
+                  "Value": "nsidc@nsidc.org"
+                }
+              ],
+              "Addresses": [
+                {
+                  "StreetAddresses": [
+                    "National Snow and Ice Data Center",
+                    "CIRES, 449 UCB",
+                    "University of Colorado"
+                  ],
+                  "City": "Boulder",
+                  "StateProvince": "CO",
+                  "Country": "USA",
+                  "PostalCode": "80309-0449"
+                }
+              ]
+            }
+          },
+          {
+            "Roles": [
+              "PROCESSOR"
+            ],
+            "ShortName": "NASA/GSFC/SED/ESD/I2-SIPS",
+            "ContactInformation": {
+              "RelatedUrls": [
+                {
+                  "Description": "Originating Data Center",
+                  "URLContentType": "DataCenterURL",
+                  "Type": "HOME PAGE",
+                  "URL": "https://icesat-2.gsfc.nasa.gov/"
+                }
+              ]
+            }
+          },
+          {
+            "Roles": [
+              "ORIGINATOR"
+            ],
+            "ShortName": "NASA/GSFC/SED/ESD/I2-SIPS",
+            "ContactInformation": {
+              "RelatedUrls": [
+                {
+                  "Description": "Originating Data Center",
+                  "URLContentType": "DataCenterURL",
+                  "Type": "HOME PAGE",
+                  "URL": "https://icesat-2.gsfc.nasa.gov/"
+                }
+              ]
+            }
+          }
         ],
-        "association_details": {
-          "services": [
+        "Platforms": [
+          {
+            "Type": "Earth Observation Satellites",
+            "ShortName": "ICESat-2",
+            "LongName": "Ice, Cloud, and land Elevation Satellite-2",
+            "Instruments": [
+              {
+                "ShortName": "ATLAS",
+                "LongName": "Advanced Topographic Laser Altimeter System",
+                "Technique": "instrument",
+                "NumberOfInstruments": 1,
+                "ComposedOf": [
+                  {
+                    "ShortName": "ATLAS",
+                    "LongName": "Advanced Topographic Laser Altimeter System"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "MetadataSpecification": {
+          "URL": "https://cdn.earthdata.nasa.gov/umm/collection/v1.18.6",
+          "Name": "UMM-C",
+          "Version": "1.18.6"
+        },
+        "ArchiveAndDistributionInformation": {
+          "FileDistributionInformation": [
             {
-              "concept_id": "S3107386427-NSIDC_CPRD"
-            },
-            {
-              "concept_id": "S2472217299-NSIDC_CPRD"
-            }
-          ],
-          "tools": [
-            {
-              "concept_id": "TL3914225088-NSIDC_CPRD"
-            },
-            {
-              "concept_id": "TL4019511337-NSIDC_CPRD"
-            },
-            {
-              "concept_id": "TL4019526230-NSIDC_CPRD"
-            },
-            {
-              "concept_id": "TL3010466318-NSIDC_CPRD"
-            }
-          ],
-          "citations": [
-            {
-              "concept_id": "CIT3804033364-ESDIS"
-            },
-            {
-              "concept_id": "CIT4321025421-ESDIS"
-            },
-            {
-              "concept_id": "CIT4106700096-ESDIS"
-            },
-            {
-              "concept_id": "CIT3804163951-ESDIS"
-            }
-          ],
-          "visualizations": [
-            {
-              "concept_id": "VIS3618975467-ESDIS"
-            },
-            {
-              "concept_id": "VIS3619866366-ESDIS"
-            },
-            {
-              "concept_id": "VIS3618975588-ESDIS"
-            },
-            {
-              "concept_id": "VIS3618975493-ESDIS"
+              "FormatType": "Native",
+              "Format": "HDF5",
+              "FormatDescription": "HTTPS"
             }
           ]
-        },
-        "online_access_flag": true,
-        "links": [
-          {
-            "length": "0.0KB",
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
-            "hreflang": "en-US",
-            "href": "https://search.earthdata.nasa.gov/search/granules?p=C3243521611-NSIDC_CPRD"
-          },
-          {
-            "length": "0.0KB",
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
-            "hreflang": "en-US",
-            "href": "https://cmr.earthdata.nasa.gov/virtual-directory/collections/C3243521611-NSIDC_CPRD"
-          },
-          {
-            "length": "0.0KB",
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/data/data-access-tool/AU_SI12/versions/1/"
-          },
-          {
-            "length": "0.0KB",
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
-            "hreflang": "en-US",
-            "href": "https://earthaccess.readthedocs.io/en/stable/"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/browse#",
-            "hreflang": "en-US",
-            "href": "https://worldview.earthdata.nasa.gov/?p=arctic&l=BlueMarble_NextGeneration,AMSRU2_Sea_Ice_Concentration_12km,Coastlines"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/metadata#",
-            "hreflang": "en-US",
-            "href": "https://doi.org/10.5067/RA1MIJOYPK3P"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://doi.org/10.5067/RA1MIJOYPK3P"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/au_si12-v001-userguide_1.pdf"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/amsr-e20pole20hole.pdf"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/2017_meier_ivanoff_amsr2_seaice_intercal_published_0.pdf"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/amsr2_seaice_atbd_v2.pdf"
-          },
-          {
-            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
-            "hreflang": "en-US",
-            "href": "https://nsidc.org/sites/default/files/markuscavalieri_nt2_amsre_jremsensjapan_2009.pdf"
-          }
-        ]
+        }
       }
-    ]
-  }
+    },
+    {
+      "meta": {
+        "revision-id": 6,
+        "deleted": false,
+        "format": "application/vnd.nasa.cmr.umm+json",
+        "provider-id": "LANCEAMSR2",
+        "has-combine": false,
+        "user-id": "tstevens",
+        "has-formats": false,
+        "associations": {
+          "visualizations": [
+            "VIS3618978408-ESDIS",
+            "VIS3618978427-ESDIS",
+            "VIS3618978422-ESDIS"
+          ]
+        },
+        "has-spatial-subsetting": false,
+        "native-id": "NRT AMSR2 Unified L3 Daily 12.5 km Brightness Temperature &#x26; Sea Ice Concentration V4",
+        "has-transforms": false,
+        "association-details": {
+          "visualizations": [
+            {
+              "concept-id": "VIS3618978408-ESDIS"
+            },
+            {
+              "concept-id": "VIS3618978427-ESDIS"
+            },
+            {
+              "concept-id": "VIS3618978422-ESDIS"
+            }
+          ]
+        },
+        "has-variables": false,
+        "concept-id": "C1886605827-LANCEAMSR2",
+        "revision-date": "2026-05-18T15:05:10.764Z",
+        "has-temporal-subsetting": false,
+        "concept-type": "collection"
+      },
+      "umm": {
+        "CollectionCitations": [
+          {
+            "OtherCitationDetails": "Meier, Walt, Josefino C Comiso, and Thorsten Markus.2019. NRT AMSR2 Unified L3 Daily 12.5 km Brightness Temperature & Sea Ice Concentration [indicate subset used]. Dataset available online from the NASA Global Hydrology Resource Center DAAC, Huntsville, Alabama, U.S.A. DOI: http://dx.doi.org/10.5067/AMSRU/AU_SI12_NRT_R04"
+          }
+        ],
+        "AdditionalAttributes": [
+          {
+            "Value": "10.5067/AMSRU/AU_SI12_NRT_R04",
+            "Name": "identifier_product_doi",
+            "Description": "Product DOI",
+            "DataType": "STRING"
+          },
+          {
+            "Value": "http://dx.doi.org",
+            "Name": "identifier_product_doi_authority",
+            "Description": "DOI authority",
+            "DataType": "STRING"
+          }
+        ],
+        "SpatialExtent": {
+          "SpatialCoverageType": "HORIZONTAL",
+          "HorizontalSpatialDomain": {
+            "Geometry": {
+              "CoordinateSystem": "CARTESIAN",
+              "BoundingRectangles": [
+                {
+                  "WestBoundingCoordinate": -180,
+                  "NorthBoundingCoordinate": 89,
+                  "EastBoundingCoordinate": 180,
+                  "SouthBoundingCoordinate": -89
+                }
+              ]
+            }
+          },
+          "GranuleSpatialRepresentation": "CARTESIAN"
+        },
+        "CollectionProgress": "ACTIVE",
+        "ScienceKeywords": [
+          {
+            "Category": "Earth Science",
+            "Topic": "Oceans",
+            "Term": "Sea Ice",
+            "VariableLevel1": "Sea Ice Concentration"
+          },
+          {
+            "Category": "Earth Science",
+            "Topic": "Cryosphere",
+            "Term": "Sea Ice",
+            "VariableLevel1": "Sea Ice Concentration"
+          },
+          {
+            "Category": "Earth Science",
+            "Topic": "Spectral/Engineering",
+            "Term": "Microwave",
+            "VariableLevel1": "Brightness Temperature"
+          }
+        ],
+        "TemporalExtents": [
+          {
+            "EndsAtPresentFlag": false,
+            "RangeDateTimes": [
+              {
+                "BeginningDateTime": "2020-06-29T08:00:00.000Z"
+              }
+            ]
+          }
+        ],
+        "ProcessingLevel": {
+          "Id": "3"
+        },
+        "DOI": {
+          "DOI": "10.5067/AMSRU/AU_SI12_NRT_R04"
+        },
+        "ShortName": "AU_SI12_NRT_R04",
+        "EntryTitle": "NRT AMSR2 Unified L3 Daily 12.5 km Brightness Temperature & Sea Ice Concentration V4",
+        "AccessConstraints": {
+          "Description": "This product has full public access.",
+          "Value": 0
+        },
+        "RelatedUrls": [
+          {
+            "Description": "Files may be downloaded directly to your workstation from this link",
+            "URLContentType": "DistributionURL",
+            "Type": "GET DATA",
+            "URL": "https://lance.nsstc.nasa.gov/amsr2-science/data/level3/seaice12/R04/hdfeos5/"
+          },
+          {
+            "Description": "Files may be downloaded directly to your workstation from this link",
+            "URLContentType": "DistributionURL",
+            "Type": "GET DATA",
+            "Subtype": "LANCE",
+            "URL": "https://lance.itsc.uah.edu/amsr2-science/data/level3/seaice12/R04/hdfeos5/"
+          },
+          {
+            "Description": "Interactively browse imagery in EOSDIS Worldview",
+            "URLContentType": "VisualizationURL",
+            "Type": "GET RELATED VISUALIZATION",
+            "Subtype": "WORLDVIEW",
+            "URL": "https://worldview.earthdata.nasa.gov/?l=MODIS_Terra_CorrectedReflectance_TrueColor,AMSRU2_Sea_Ice_Concentration_12km,Coastlines"
+          },
+          {
+            "Description": "Data Format Conversion Recipes",
+            "URLContentType": "PublicationURL",
+            "Type": "VIEW RELATED INFORMATION",
+            "Subtype": "DATA RECIPE",
+            "URL": "https://ghrc.nsstc.nasa.gov/home/all-data-recipes#drp-formatcon"
+          }
+        ],
+        "DataDates": [
+          {
+            "Date": "2020-06-30T08:00:00.000Z",
+            "Type": "CREATE"
+          },
+          {
+            "Date": "2020-06-30T09:00:00.000Z",
+            "Type": "UPDATE"
+          }
+        ],
+        "Abstract": "The Advanced Microwave Scanning Radiometer 2 (AMSR2) instrument on the Global Change Observation Mission - Water 1 (GCOM-W1) provides global passive microwave measurements of terrestrial, oceanic, and atmospheric parameters for the investigation of global water and energy cycles. Near real-time (NRT) products are generated within 3 hours of the last observations in the file, by the Land Atmosphere",
+        "LocationKeywords": [
+          {
+            "Category": "GEOGRAPHIC REGION",
+            "Type": "POLAR"
+          }
+        ],
+        "Version": "4",
+        "Projects": [
+          {
+            "ShortName": "LANCE",
+            "LongName": "Land, Atmosphere Near real-time Capability for Earth observation"
+          }
+        ],
+        "CollectionDataType": "NEAR_REAL_TIME",
+        "DataCenters": [
+          {
+            "Roles": [
+              "DISTRIBUTOR"
+            ],
+            "ShortName": "NASA/MSFC/AMSR SIPS/LANCE",
+            "ContactInformation": {
+              "ContactMechanisms": [
+                {
+                  "Type": "Telephone",
+                  "Value": "+1 256-961-7932"
+                },
+                {
+                  "Type": "Fax",
+                  "Value": "+1 256-824-5149"
+                },
+                {
+                  "Type": "Email",
+                  "Value": "support-ghrc@earthdata.nasa.gov"
+                }
+              ],
+              "Addresses": [
+                {
+                  "StreetAddresses": [
+                    "320 Sparkman Drive"
+                  ],
+                  "City": "Huntsville",
+                  "StateProvince": "Alabama",
+                  "Country": "USA",
+                  "PostalCode": "35805"
+                }
+              ]
+            }
+          }
+        ],
+        "TemporalKeywords": [
+          "Daily - < Weekly"
+        ],
+        "Platforms": [
+          {
+            "Instruments": [
+              {
+                "ShortName": "AMSR2",
+                "LongName": "Advanced Microwave Scanning Radiometer 2"
+              }
+            ],
+            "Type": "Earth Observation Satellites",
+            "ShortName": "GCOM-W1",
+            "LongName": "Global Change Observation Mission 1st-Water"
+          }
+        ],
+        "MetadataSpecification": {
+          "URL": "https://cdn.earthdata.nasa.gov/umm/collection/v1.18.6",
+          "Name": "UMM-C",
+          "Version": "1.18.6"
+        },
+        "ArchiveAndDistributionInformation": {
+          "FileDistributionInformation": [
+            {
+              "FormatType": "Native",
+              "Fees": "0.0",
+              "Format": "HDF-EOS5"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "meta": {
+        "revision-id": 10,
+        "deleted": false,
+        "format": "application/dif10+xml",
+        "provider-id": "AU_AADC",
+        "has-combine": false,
+        "user-id": "sritz",
+        "has-formats": false,
+        "has-spatial-subsetting": false,
+        "native-id": "SOE_seaice",
+        "has-transforms": false,
+        "has-variables": false,
+        "concept-id": "C1214313696-AU_AADC",
+        "revision-date": "2021-08-11T22:07:19.849Z",
+        "has-temporal-subsetting": false,
+        "concept-type": "collection"
+      },
+      "umm": {
+        "DataLanguage": "eng",
+        "AncillaryKeywords": [
+          "SEA ICE",
+          "SEA ICE CONCENTRATION",
+          "STATE OF THE ENVIRONMENT",
+          "SEA ICE EXTENT"
+        ],
+        "CollectionCitations": [
+          {
+            "SeriesName": "CAASM Metadata",
+            "Creator": "Allison, I.",
+            "Title": "Southern Ocean Sea Ice Extent and Area",
+            "OnlineResource": {
+              "Linkage": "https://data.aad.gov.au/metadata/records/SOE_seaice"
+            },
+            "Publisher": "Australian Antarctic Data Centre",
+            "ReleaseDate": "2001-09-03T00:00:00.000Z",
+            "Version": "1"
+          }
+        ],
+        "SpatialExtent": {
+          "SpatialCoverageType": "HORIZONTAL",
+          "HorizontalSpatialDomain": {
+            "Geometry": {
+              "CoordinateSystem": "CARTESIAN",
+              "BoundingRectangles": [
+                {
+                  "WestBoundingCoordinate": -180.0,
+                  "NorthBoundingCoordinate": -60.0,
+                  "EastBoundingCoordinate": 180.0,
+                  "SouthBoundingCoordinate": -80.0
+                }
+              ]
+            }
+          },
+          "GranuleSpatialRepresentation": "NO_SPATIAL"
+        },
+        "CollectionProgress": "COMPLETE",
+        "ScienceKeywords": [
+          {
+            "Category": "EARTH SCIENCE",
+            "Topic": "CRYOSPHERE",
+            "Term": "SEA ICE",
+            "VariableLevel1": "ICE EXTENT"
+          },
+          {
+            "Category": "EARTH SCIENCE",
+            "Topic": "CRYOSPHERE",
+            "Term": "SEA ICE",
+            "VariableLevel1": "SEA ICE CONCENTRATION"
+          },
+          {
+            "Category": "EARTH SCIENCE",
+            "Topic": "OCEANS",
+            "Term": "SEA ICE",
+            "VariableLevel1": "ICE EXTENT"
+          },
+          {
+            "Category": "EARTH SCIENCE",
+            "Topic": "OCEANS",
+            "Term": "SEA ICE",
+            "VariableLevel1": "SEA ICE CONCENTRATION"
+          }
+        ],
+        "TemporalExtents": [
+          {
+            "EndsAtPresentFlag": false,
+            "RangeDateTimes": [
+              {
+                "BeginningDateTime": "1980-01-01T00:00:00.000Z"
+              }
+            ]
+          }
+        ],
+        "ProcessingLevel": {
+          "Id": "Not provided"
+        },
+        "DOI": {
+          "DOI": "doi:10.26179/5d37f84cbf569"
+        },
+        "ShortName": "SOE_seaice",
+        "EntryTitle": "Southern Ocean Sea Ice Extent and Area",
+        "PublicationReferences": [
+          {
+            "PublicationDate": "1981-01-01T00:00:00.000Z",
+            "Series": "Sea level, ice and climate change.",
+            "Title": "Antarctic sea ice growth and oceanic heat flux.",
+            "Pages": "161-170",
+            "Volume": "131",
+            "Publisher": "IAHS Publication",
+            "Author": "Allison, I."
+          },
+          {
+            "PublicationDate": "1998-01-01T00:00:00.000Z",
+            "Series": "Annals of Glaciology",
+            "Title": "East Antarctic Sea ice: Observations and Modelling.",
+            "Pages": "427-432",
+            "Volume": "27",
+            "Author": "Worby, A.P., Wu, X."
+          }
+        ],
+        "Quality": {
+          "Summary": "This indicator is now OBSOLETE.  These data are no longer archived in this location, and are therefore not up-to-date.\n\nSea ice extent and concentration is measured using satellite based passive microwave instruments. The outer limit of the pack ice is defined as 15% concentration. The monthly and daily averaged sea ice concentrations are freely available via ftp from the National Snow and Ice Dat"
+        },
+        "ISOTopicCategories": [
+          "OCEANS"
+        ],
+        "AccessConstraints": {
+          "Description": "The data from this indicator are available for download from the provided URL."
+        },
+        "RelatedUrls": [
+          {
+            "Description": "Download the data",
+            "URLContentType": "DistributionURL",
+            "Type": "GET DATA",
+            "URL": "https://data.aad.gov.au/eds/3637/download"
+          },
+          {
+            "Description": "The monthly and daily averaged sea ice concentrations available via ftp from the National Snow and Ice Data Center (NSIDC)",
+            "URLContentType": "DistributionURL",
+            "Type": "GET DATA",
+            "URL": "http://nsidc.org/data/index.html"
+          },
+          {
+            "Description": "Citation reference for this metadata record and dataset",
+            "URLContentType": "PublicationURL",
+            "Type": "VIEW RELATED INFORMATION",
+            "URL": "http://data.aad.gov.au/aadc/metadata/citation.cfm?entry_id=SOE_seaice"
+          }
+        ],
+        "Abstract": "This indicator is no longer maintained, and is considered OBSOLETE.\n\nINDICATOR DEFINITION\nThe northern limit of the pack ice as defined by the 15% concentration of sea ice determined by the SSM/I instrument or its replacement.\n\nTYPE OF INDICATOR\nThere are three types of indicators used in this report:\n1.Describes the CONDITION of important elements of a system;\n2.Show the extent of the major PRESS",
+        "LocationKeywords": [
+          {
+            "Category": "OCEAN",
+            "Type": "SOUTHERN OCEAN"
+          },
+          {
+            "Category": "GEOGRAPHIC REGION",
+            "Type": "POLAR"
+          }
+        ],
+        "MetadataDates": [
+          {
+            "Date": "2001-09-02T00:00:00.000Z",
+            "Type": "CREATE"
+          },
+          {
+            "Date": "2019-07-24T00:00:00.000Z",
+            "Type": "UPDATE"
+          }
+        ],
+        "DirectoryNames": [
+          {
+            "ShortName": "AMD/AU"
+          },
+          {
+            "ShortName": "CEOS"
+          },
+          {
+            "ShortName": "AMD"
+          },
+          {
+            "ShortName": "ACE/CRC"
+          }
+        ],
+        "Version": "1",
+        "UseConstraints": {
+          "Description": "This data set conforms to the CCBY Attribution License (http://creativecommons.org/licenses/by/4.0/).\n\nPlease follow instructions listed in the citation reference provided at http://data.aad.gov.au/aadc/metadata/citation.cfm?entry_id=SOE_seaice when using these data."
+        },
+        "ContactPersons": [
+          {
+            "Roles": [
+              "Investigator",
+              "Technical Contact"
+            ],
+            "ContactInformation": {
+              "Addresses": [
+                {
+                  "StreetAddresses": [
+                    "Australian Antarctic Division",
+                    "203 Channel Highway"
+                  ],
+                  "City": "Kingston",
+                  "StateProvince": "Tasmania",
+                  "Country": "Australia",
+                  "PostalCode": "7050"
+                }
+              ]
+            },
+            "FirstName": "IAN",
+            "LastName": "ALLISON"
+          },
+          {
+            "Roles": [
+              "Metadata Author"
+            ],
+            "ContactInformation": {
+              "Addresses": [
+                {
+                  "StreetAddresses": [
+                    "Australian Antarctic Division",
+                    "203 Channel Highway"
+                  ],
+                  "City": "Kingston",
+                  "StateProvince": "Tasmania",
+                  "Country": "Australia",
+                  "PostalCode": "7050"
+                }
+              ]
+            },
+            "FirstName": "COLIN",
+            "MiddleName": "JOHN",
+            "LastName": "DAVIS"
+          }
+        ],
+        "DataCenters": [
+          {
+            "Roles": [
+              "ARCHIVER",
+              "DISTRIBUTOR"
+            ],
+            "ShortName": "AU/AADC",
+            "LongName": "Australian Antarctic Data Centre, Australia",
+            "ContactPersons": [
+              {
+                "Roles": [
+                  "Data Center Contact"
+                ],
+                "ContactInformation": {
+                  "ContactMechanisms": [
+                    {
+                      "Type": "Email",
+                      "Value": "metadata@aad.gov.au"
+                    },
+                    {
+                      "Type": "Fax",
+                      "Value": "+61 3 6232 3351"
+                    },
+                    {
+                      "Type": "Telephone",
+                      "Value": "+61 3 6232 3244"
+                    }
+                  ],
+                  "Addresses": [
+                    {
+                      "StreetAddresses": [
+                        "Australian Antarctic Division",
+                        "203 Channel Highway"
+                      ],
+                      "City": "Kingston",
+                      "StateProvince": "Tasmania",
+                      "Country": "Australia",
+                      "PostalCode": "7050"
+                    }
+                  ]
+                },
+                "FirstName": "DATA OFFICER",
+                "LastName": "AADC"
+              }
+            ],
+            "ContactInformation": {
+              "RelatedUrls": [
+                {
+                  "URLContentType": "DataCenterURL",
+                  "Type": "HOME PAGE",
+                  "URL": "http://data.aad.gov.au"
+                }
+              ]
+            }
+          }
+        ],
+        "Platforms": [
+          {
+            "ShortName": "FIELD SURVEYS",
+            "Instruments": [
+              {
+                "ShortName": "VISUAL OBSERVATIONS"
+              }
+            ]
+          }
+        ],
+        "MetadataSpecification": {
+          "URL": "https://cdn.earthdata.nasa.gov/umm/collection/v1.18.6",
+          "Name": "UMM-C",
+          "Version": "1.18.6"
+        }
+      }
+    },
+    {
+      "meta": {
+        "revision-id": 83,
+        "deleted": false,
+        "format": "application/dif10+xml",
+        "provider-id": "AMD_USAPDC",
+        "has-combine": false,
+        "user-id": "mmorahan",
+        "has-formats": false,
+        "has-spatial-subsetting": false,
+        "native-id": "USAP-1744759_1",
+        "has-transforms": false,
+        "has-variables": false,
+        "concept-id": "C2545372296-AMD_USAPDC",
+        "revision-date": "2026-08-04T21:26:26.382Z",
+        "has-temporal-subsetting": false,
+        "concept-type": "collection"
+      },
+      "umm": {
+        "DataLanguage": "eng",
+        "AncillaryKeywords": [
+          "USAP-DC",
+          "Amd/Us",
+          "SEA ICE",
+          "USA/NSF"
+        ],
+        "SpatialExtent": {
+          "SpatialCoverageType": "HORIZONTAL",
+          "GranuleSpatialRepresentation": "CARTESIAN"
+        },
+        "CollectionProgress": "COMPLETE",
+        "ScienceKeywords": [
+          {
+            "Category": "EARTH SCIENCE",
+            "Topic": "CRYOSPHERE",
+            "Term": "SEA ICE"
+          }
+        ],
+        "TemporalExtents": [
+          {
+            "EndsAtPresentFlag": false,
+            "RangeDateTimes": [
+              {
+                "BeginningDateTime": "2018-06-01T00:00:00.000Z",
+                "EndingDateTime": "2022-05-31T23:59:59.999Z"
+              }
+            ]
+          }
+        ],
+        "ProcessingLevel": {
+          "Id": "1"
+        },
+        "DOI": {
+          "MissingReason": "Unknown",
+          "Explanation": "It is unknown if this record has a DOI."
+        },
+        "ShortName": "USAP-1744759",
+        "EntryTitle": "Collaborative Research: Do Ocean Wave Impacts Pose a Hazard to the Stability of West Antarctic Ice Shelves?",
+        "ISOTopicCategories": [
+          "GEOSCIENTIFIC INFORMATION",
+          "CLIMATOLOGY/METEOROLOGY/ATMOSPHERE",
+          "OCEANS",
+          "BIOTA"
+        ],
+        "RelatedUrls": [
+          {
+            "Description": "NSF Award Abstract",
+            "URLContentType": "PublicationURL",
+            "Type": "VIEW RELATED INFORMATION",
+            "URL": "http://www.nsf.gov/awardsearch/showAward.do?AwardNumber=1246151"
+          },
+          {
+            "Description": "NSF Award Abstract",
+            "URLContentType": "PublicationURL",
+            "Type": "VIEW RELATED INFORMATION",
+            "URL": "http://www.nsf.gov/awardsearch/showAward.do?AwardNumber=1744958"
+          },
+          {
+            "Description": "NSF Award Abstract",
+            "URLContentType": "PublicationURL",
+            "Type": "VIEW RELATED INFORMATION",
+            "URL": "http://www.nsf.gov/awardsearch/showAward.do?AwardNumber=1744856"
+          },
+          {
+            "Description": "NSF Award Abstract",
+            "URLContentType": "PublicationURL",
+            "Type": "VIEW RELATED INFORMATION",
+            "URL": "http://www.nsf.gov/awardsearch/showAward.do?AwardNumber=1744759"
+          }
+        ],
+        "DataDates": [
+          {
+            "Date": "2022-05-16T00:00:00.000Z",
+            "Type": "CREATE"
+          },
+          {
+            "Date": "2022-05-16T00:00:00.000Z",
+            "Type": "UPDATE"
+          }
+        ],
+        "Abstract": "Understanding and being able to more reliably forecast ice mass loss from Antarctica is a critical research priority for Antarctic Science. Massive ice shelves buttress marine terminating glaciers, slowing the rate that land ice reaches the sea and, in turn, restraining the rate of sea level rise. To date, most work has focused on the destabilizing impacts of warmer air and water temperatures, res",
+        "LocationKeywords": [
+          {
+            "Category": "CONTINENT",
+            "Type": "ANTARCTICA"
+          },
+          {
+            "Category": "OCEAN",
+            "Type": "SOUTHERN OCEAN"
+          }
+        ],
+        "MetadataDates": [
+          {
+            "Date": "2022-05-16T00:00:00.000Z",
+            "Type": "CREATE"
+          },
+          {
+            "Date": "2025-03-17T00:00:00.000Z",
+            "Type": "UPDATE"
+          }
+        ],
+        "DirectoryNames": [
+          {
+            "ShortName": "AMD"
+          },
+          {
+            "ShortName": "AMD/US"
+          },
+          {
+            "ShortName": "CEOS"
+          },
+          {
+            "ShortName": "USA/NSF"
+          }
+        ],
+        "Version": "1",
+        "Projects": [
+          {
+            "ShortName": "NSF/OPP",
+            "LongName": "Office of Polar Programs, National Science Foundation"
+          }
+        ],
+        "ContactPersons": [
+          {
+            "Roles": [
+              "Investigator"
+            ],
+            "ContactInformation": {
+              "ContactMechanisms": [
+                {
+                  "Type": "Email",
+                  "Value": "contact@example.org"
+                }
+              ],
+              "Addresses": [
+                {
+                  "StreetAddresses": [
+                    "Stanford University"
+                  ]
+                }
+              ]
+            },
+            "FirstName": "Eric",
+            "LastName": "Dunham"
+          },
+          {
+            "Roles": [
+              "Investigator"
+            ],
+            "ContactInformation": {
+              "ContactMechanisms": [
+                {
+                  "Type": "Email",
+                  "Value": "contact@example.org"
+                }
+              ],
+              "Addresses": [
+                {
+                  "StreetAddresses": [
+                    "Scripps Inst. of Oceanography"
+                  ]
+                }
+              ]
+            },
+            "FirstName": "Peter",
+            "LastName": "Bromirski"
+          },
+          {
+            "Roles": [
+              "Investigator"
+            ],
+            "ContactInformation": {
+              "ContactMechanisms": [
+                {
+                  "Type": "Email",
+                  "Value": "contact@example.org"
+                }
+              ],
+              "Addresses": [
+                {
+                  "StreetAddresses": [
+                    "University of Washington/CICOES, and NOAA/Pacific Marine Environmental Laboratory"
+                  ]
+                }
+              ]
+            },
+            "FirstName": "Yong",
+            "LastName": "Wei"
+          }
+        ],
+        "CollectionDataType": "SCIENCE_QUALITY",
+        "DataCenters": [
+          {
+            "Roles": [
+              "ARCHIVER",
+              "DISTRIBUTOR"
+            ],
+            "ShortName": "USAP-DC",
+            "LongName": "United States Polar Program - Data Center",
+            "ContactPersons": [
+              {
+                "Roles": [
+                  "Data Center Contact"
+                ],
+                "ContactInformation": {
+                  "ContactMechanisms": [
+                    {
+                      "Type": "Email",
+                      "Value": "info@usap-dc.org"
+                    }
+                  ],
+                  "Addresses": [
+                    {
+                      "StreetAddresses": [
+                        "Lamont-Doherty Earth Observatory",
+                        "61 Route 9W"
+                      ],
+                      "City": "Palisades",
+                      "StateProvince": "NY",
+                      "Country": "USA",
+                      "PostalCode": "10964"
+                    }
+                  ]
+                },
+                "FirstName": "Data",
+                "LastName": "Manager"
+              }
+            ],
+            "ContactInformation": {
+              "RelatedUrls": [
+                {
+                  "URLContentType": "DataCenterURL",
+                  "Type": "HOME PAGE",
+                  "URL": "https://www.usap-dc.org/"
+                }
+              ]
+            }
+          }
+        ],
+        "Platforms": [
+          {
+            "Type": "Models/Analyses",
+            "ShortName": "COMPUTERS",
+            "LongName": "COMPUTERS"
+          },
+          {
+            "Type": "Models/Analyses",
+            "ShortName": "MODELS",
+            "LongName": "MODELS"
+          }
+        ],
+        "MetadataSpecification": {
+          "URL": "https://cdn.earthdata.nasa.gov/umm/collection/v1.18.6",
+          "Name": "UMM-C",
+          "Version": "1.18.6"
+        }
+      }
+    }
+  ]
 }

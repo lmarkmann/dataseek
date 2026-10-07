@@ -4,7 +4,7 @@
 Search for datasets from the terminal
 <!-- /repo-description -->
 
-One query, 76 dataset sources, one deduplicated list: machine-learning hubs (Hugging Face, Kaggle, OpenML), research repositories and DOI registries (DataCite, Zenodo, Dataverse), government portals (data.europa.eu, Data.gov, CKAN and Socrata portals), economics and finance (DBnomics, IMF, OECD, ECB, BIS, Bundesbank, FRED), earth observation (NASA CMR, STAC catalogs, Copernicus), life sciences, neuroscience, physics and social science archives, and Google Dataset Search. `dsk` is the same program under a shorter name.
+One query, 76 dataset sources, one deduplicated list: machine-learning hubs (Hugging Face, Kaggle, OpenML), research repositories and DOI registries (DataCite, Zenodo, Dataverse), government portals (data.europa.eu, Data.gov, CKAN and Socrata portals), economics and finance (DBnomics, IMF, OECD, ECB, BIS, Bundesbank, FRED), earth observation (NASA CMR, STAC catalogs, Copernicus), life sciences, neuroscience, physics and social science archives. Google Dataset Search and Mendeley Data answer only when named with `-s` ([ADR 0013](docs/adr/0013-opt-in-sources.md)). `dsk` is the same program under a shorter name.
 
 ## Install
 
@@ -15,7 +15,7 @@ cargo install --path .   # installs dataseek and dsk
 ## Usage
 
 ```sh
-dsk search sea surface temperature          # every source, merged and ranked
+dsk search sea surface temperature          # every default source, merged and ranked
 dsk search mnist -s huggingface,kaggle      # only these sources
 dsk search inflation -c economics,finance   # only these categories
 dsk search census --json | jq -r '.results[].url'
@@ -27,7 +27,7 @@ dsk cache warm                              # download the catalogs searched loc
 
 `dsk` alone shows the commands, `dsk help environment` the variables it reads, `dsk help exit-codes` what it returns.
 
-No key is needed; keys for Hugging Face, Kaggle, Data.gov, GitHub, FRED, Roboflow, Data Commons and NCBI raise limits or unlock a source. See [`docs/reference/keys-and-cache.md`](docs/reference/keys-and-cache.md).
+Most sources need no key. FRED, Roboflow and Data Commons are skipped without their own; keys for Hugging Face, Kaggle, Data.gov, GitHub and NCBI raise limits. See [`docs/reference/keys-and-cache.md`](docs/reference/keys-and-cache.md).
 
 ## Development
 

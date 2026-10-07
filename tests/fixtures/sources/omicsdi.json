@@ -1,14 +1,14 @@
 {
-  "count": 262855,
+  "count": 26242,
   "datasets": [
     {
-      "id": "MTBLS15103",
+      "id": "MTBLS10232",
       "source": "metabolights_dataset",
-      "title": "Low-temperature induced neuro-oxidative stress and metabolic reprogramming in the brain of juvenile fourfinger threadfin (Eleutheronema tetradactylum)",
-      "description": "This study investigated the effects of low-temperature stress on the brain metabolome of juvenile fourfinger threadfin (Eleutheronema tetradactylum). Using UHPLC-Q-TOF-MS-based untargeted metabolomics, we analyzed brain tissues from fish exposed to 28°C (control) and 18°C for 7 and 14 days.",
+      "title": "Distinct microbes, metabolites, and the host genome define the multi-omics profiles in right-sided and left-sided colon cancer",
+      "description": "<p><strong>BACKGROUND:</strong> Studies have reported clinical heterogeneity between right-sided colon cancer (RCC) and left-sided colon cancer (LCC). However, none of these studies used multi-omics analysis combining genetic regulation, microbiota and metabolites to explain the site-specific difference.",
       "keywords": null,
       "organisms": null,
-      "publicationDate": "20260722",
+      "publicationDate": "20241216",
       "score": null,
       "omicsType": [
         "Metabolomics"
@@ -26,16 +26,21 @@
       "claimable": false
     },
     {
-      "id": "MTBLS4933",
-      "source": "metabolights_dataset",
-      "title": "Sodium Butyrate mediates Histone Crotonylation and Alleviated Neonatal Rats Hypoxic-Ischemic Brain Injury Through Gut-Brain Axis (targeted SCFA brain metabolomics)",
-      "description": "<p>Neonatal hypoxic-ischemic encephalopathy (HIE) refers to nervous system damage caused by perinatal hypoxia, which is the major cause of long-term neuro-developmental disorders in surviving infants. However, the mechanisms still require further investigation.",
+      "id": "E-GEOD-73370",
+      "source": "biostudies-arrayexpress",
+      "title": "FOXM1 Cistrome Predicts Breast Cancer Metastatic Outcome Better Than FOXM1 Expression Levels or Tumor Proliferation Index [RNA-Seq]",
+      "description": "FOXM1 is a key transcription factor regulating cell cycle progression, DNA damage response, and a host of other hallmark cancer features, but the role of the FOXM1 cistrome in driving estrogen receptor-positive (ER+) vs. ER- breast cancer clinical outcomes remains undefined.",
       "keywords": null,
-      "organisms": null,
-      "publicationDate": "20221012",
+      "organisms": [
+        {
+          "acc": "",
+          "name": "Homo sapiens"
+        }
+      ],
+      "publicationDate": "20151026",
       "score": null,
       "omicsType": [
-        "Metabolomics"
+        "Transcriptomics"
       ],
       "citationsCount": 0,
       "connectionsCount": 0,
@@ -50,16 +55,21 @@
       "claimable": false
     },
     {
-      "id": "MTBLS12481",
-      "source": "metabolights_dataset",
-      "title": "Role of breast milk lipid composition in postnatal brain development.",
-      "description": "<p>Lipids in the brain play a crucial role as structural and signaling molecules, accounting for approximately 60% of the brain’s dry weight.",
+      "id": "E-GEOD-58135",
+      "source": "biostudies-arrayexpress",
+      "title": "Breast Cancer RNA-seq",
+      "description": "RNA-seq was performed on breast cancer cell lines and primary tumors RNA-seq was performed on 28 breast cancer cell lines, 42 Triple Negative Breast Cancer (TNBC) primary tumors, and 42 Estrogen Receptor Positive (ER+) and HER2 Negative Breast Cancer primary tumors, 30 uninovlved breast tissue samples that were adjacent to ER+ primary tumors, 5 breast tissue samples from reduction mammoplasty",
       "keywords": null,
-      "organisms": null,
-      "publicationDate": "20250925",
+      "organisms": [
+        {
+          "acc": "",
+          "name": "Homo sapiens"
+        }
+      ],
+      "publicationDate": "20140611",
       "score": null,
       "omicsType": [
-        "Metabolomics"
+        "Transcriptomics"
       ],
       "citationsCount": 0,
       "connectionsCount": 0,
@@ -74,16 +84,21 @@
       "claimable": false
     },
     {
-      "id": "MTBLS13554",
-      "source": "metabolights_dataset",
-      "title": "Targeted metabolomics of pancancer brain metastasis",
-      "description": "<p> The molecular heterogeneity of brain metastases hampers therapeutic development for cures.",
+      "id": "E-GEOD-41586",
+      "source": "biostudies-arrayexpress",
+      "title": "Expression data for HT29 cells treated with 5-aza-deoxy-cytidine [RNA-Seq]",
+      "description": "The RNA samples from HT-29 (ATCC) colon cancer cell line were reverse transcribed to build cDNA libraries and categorized into 3 groups with different concentrations of 5-aza-deoxy-cytidine (5-Aza); in each group three replicative 150 mm cultures were treated with: 1) dimethyl sulfoxide (vehicle alone, 0 μM 5-Aza); 2) 5μM 5-Aza and 3) 10 μM 5-Aza; for five days.",
       "keywords": null,
-      "organisms": null,
-      "publicationDate": "20251222",
+      "organisms": [
+        {
+          "acc": "",
+          "name": "Homo sapiens"
+        }
+      ],
+      "publicationDate": "20130917",
       "score": null,
       "omicsType": [
-        "Metabolomics"
+        "Transcriptomics"
       ],
       "citationsCount": 0,
       "connectionsCount": 0,
@@ -102,108 +117,108 @@
     {
       "id": "repository",
       "label": "Repository",
-      "total": 23,
+      "total": 19,
       "facetValues": [
         {
           "label": "ExpressionAtlas",
           "value": "ExpressionAtlas",
-          "count": "125"
+          "count": "23"
         },
         {
           "label": "BioModels",
           "value": "BioModels",
-          "count": "58"
+          "count": "2"
         },
         {
           "label": "biostudies-arrayexpress",
           "value": "biostudies-arrayexpress",
-          "count": "7497"
+          "count": "2752"
         },
         {
-          "label": "Cell Collective",
-          "value": "Cell Collective",
-          "count": "3"
+          "label": "dbGaP",
+          "value": "dbGaP",
+          "count": "30"
         }
       ]
     },
     {
       "id": "tissue",
       "label": "Tissue",
-      "total": 790,
+      "total": 154,
       "facetValues": [
         {
-          "label": "Brain",
-          "value": "brain",
-          "count": "2312"
+          "label": "Uterine cervix",
+          "value": "uterine cervix",
+          "count": "2"
         },
         {
-          "label": "Kidney",
-          "value": "kidney",
-          "count": "162"
+          "label": "Breast",
+          "value": "breast",
+          "count": "14"
         },
         {
-          "label": "Liver",
-          "value": "liver",
-          "count": "189"
+          "label": "Esophagus",
+          "value": "esophagus",
+          "count": "3"
         },
         {
-          "label": "Heart",
-          "value": "heart",
-          "count": "134"
+          "label": "Stomach",
+          "value": "stomach",
+          "count": "6"
         }
       ]
     },
     {
       "id": "disease",
       "label": "Disease",
-      "total": 724,
+      "total": 357,
       "facetValues": [
         {
           "label": "Normal",
           "value": "normal",
-          "count": "69"
+          "count": "7"
         },
         {
-          "label": "Alzheimer's disease",
-          "value": "Alzheimer's disease",
-          "count": "244"
+          "label": "Small cell lung carcinoma",
+          "value": "small cell lung carcinoma",
+          "count": "4"
         },
         {
-          "label": "Prostate adenocarcinoma",
-          "value": "prostate adenocarcinoma",
-          "count": "10"
+          "label": "Chondrosarcoma",
+          "value": "chondrosarcoma",
+          "count": "3"
         },
         {
-          "label": "Hepatocellular carcinoma",
-          "value": "hepatocellular carcinoma",
-          "count": "5"
+          "label": "Mesothelioma",
+          "value": "mesothelioma",
+          "count": "3"
         }
       ]
     },
     {
       "id": "technology_type",
       "label": "Technology Type",
-      "total": 66,
+      "total": 70,
       "facetValues": [
         {
           "label": "Illumina HiSeq 2000",
           "value": "Illumina HiSeq 2000",
-          "count": "21"
+          "count": "14"
         },
         {
-          "label": "ILLUMINA, Illumina HiSeq 2500",
-          "value": "ILLUMINA, Illumina HiSeq 2500",
-          "count": "6"
-        },
-        {
-          "label": "ILLUMINA, Illumina HiSeq 2000",
-          "value": "ILLUMINA, Illumina HiSeq 2000",
-          "count": "6"
+          "label": "Illumina HiSeq 2500, ILLUMINA",
+          "value": "Illumina HiSeq 2500, ILLUMINA",
+          "count": "5"
         },
         {
           "label": "Illumina HiSeq 2000, ILLUMINA",
           "value": "Illumina HiSeq 2000, ILLUMINA",
-          "count": "6"
+          "count": "4"
+        },
+        {
+          "label": "ILLUMINA, NextSeq 500",
+          "value": "ILLUMINA, NextSeq 500",
+          "count": "3"
         }
       ]
     }

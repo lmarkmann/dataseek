@@ -3,22 +3,36 @@
     {
       "name": "carrier_transport",
       "title": "Carrier Transport",
-      "description": "\nAb-initio electronic transport database for inorganic materials."
+      "long_title": "Electronic Transport Properties",
+      "description": "\nAb-initio electronic transport database for inorganic materials. Complex multivariable BoltzTraP\nsimulation data is condensed down into tabular form of two main motifs.",
+      "license": "CCA4"
     },
     {
       "name": "defect_genome_pcfc_materials",
       "title": "Defect Genome PCFC",
-      "description": "Defect Genome of Cubic Perovskites for Fuel Cell Applications."
+      "long_title": "Defect Genome of Cubic Perovskites for Fuel Cells",
+      "description": "Defect Genome of Cubic Perovskites for Fuel Cell Applications. Employing computationally tractable ab initio models driven by highly scalable workflows, to study formation and interaction of various point defects (e.g., O vacancies, H interstitials, and Y substitutional dopant), in over 80 cubic perovskites, for potential proton-conducting ceramic fuel cell (PCFC) applications.",
+      "license": "CCA4"
     },
     {
       "name": "esters",
       "title": "Esters BiSe",
-      "description": "More accurate c-axis lattice parameter than what is currently on MP. The downside is that this calculation increases the error of the a-axis lattice parameter from 1.9% to 2.5%."
+      "long_title": "Improved c-axis parameter for BiSe",
+      "description": "More accurate c-axis lattice parameter than what is currently on MP. The downside is that this calculation increases the error of the a-axis lattice parameter from 1.9% to 2.5%. The error in the c-axis lattice parameter, however, is decreased from 4.9% to 2.8%, and the error in the cell volume decreases from 8.9% to 7.9%.",
+      "license": "CCA4"
     },
     {
       "name": "lsdi_nmr",
       "title": "29Si Benchmark",
-      "description": "A collection of experimentally measured 29Si tensors collected from literature for the purpose of benchmarking computational NMR calculations."
+      "long_title": "Experimental 29Si Tensors from Literature",
+      "description": "A collection of experimentally measured 29Si tensors collected from literature for the purpose of benchmarking computational NMR calculations.",
+      "license": "CCA4"
+    },
+    {
+      "name": "pycroscopy",
+      "title": "PyCroscopy",
+      "description": "Scientific Analysis of nanoscience Data",
+      "license": "CCA4"
     }
   ],
   "has_more": false,

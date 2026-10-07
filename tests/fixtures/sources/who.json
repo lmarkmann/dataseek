@@ -2,8 +2,13 @@
   "@odata.context": "https://ghoapi.azureedge.net/api/$metadata#Indicator",
   "value": [
     {
-      "IndicatorCode": "NCD_BMI_18C",
-      "IndicatorName": "Underweight among adults, BMI < 18.5 kg/m2 (crude estimate) (%)",
+      "IndicatorCode": "HCF_NO_ELECTRICITY",
+      "IndicatorName": "Percentage of health-care facilities with no access to any electricity supply (%)",
+      "Language": "EN"
+    },
+    {
+      "IndicatorCode": "HIV_0000000006",
+      "IndicatorName": "Number of people dying from HIV-related causes",
       "Language": "EN"
     },
     {
@@ -12,13 +17,18 @@
       "Language": "EN"
     },
     {
-      "IndicatorCode": "HCF_NO_ELECTRICITY",
-      "IndicatorName": "Percentage of health-care facilities with no access to any electricity supply (%)",
+      "IndicatorCode": "NCD_BMI_18C",
+      "IndicatorName": "Underweight among adults, BMI < 18.5 kg/m2 (crude estimate) (%)",
       "Language": "EN"
     },
     {
-      "IndicatorCode": "HIV_0000000006",
-      "IndicatorName": "Number of people dying from HIV-related causes",
+      "IndicatorCode": "SDGIPV",
+      "IndicatorName": "See SDGIPVLT and SDGIPV12M",
+      "Language": "EN"
+    },
+    {
+      "IndicatorCode": "Adult_curr_cig_smoking",
+      "IndicatorName": "Archived, see TOBACCO_INDICATOR",
       "Language": "EN"
     }
   ]

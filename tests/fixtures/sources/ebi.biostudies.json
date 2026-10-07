@@ -1,0 +1,74 @@
+{
+  "hitCount": 126,
+  "entries": [
+    {
+      "acc": "S-SCDT-EMBOR-2019-49239V1",
+      "id": "S-SCDT-EMBOR-2019-49239V1",
+      "source": "biostudies-other",
+      "fields": {
+        "name": [
+          "TCF20 dysfunction leads to cortical neurogenesis defects and autistic-like behaviors in mice"
+        ],
+        "description": [],
+        "abstract": [
+          "Recently, de novo mutations of transcription factor 20 (TCF20) were found in patients with autism by large-scale exome sequencing. However, how TCF20 modulates brain development and whether its dysfunction causes ASD remain unclear. Here, we show that TCF20 deficits impair neurogenesis in mouse."
+        ],
+        "release_date": [
+          "20200902"
+        ]
+      }
+    },
+    {
+      "acc": "S-SCDT-EMBOJ-2020-105693",
+      "id": "S-SCDT-EMBOJ-2020-105693",
+      "source": "biostudies-other",
+      "fields": {
+        "name": [
+          "Quantitative proteomics establishes the cell type-resolved mouse brain secretome"
+        ],
+        "description": [],
+        "abstract": [
+          "To understand how cells communicate in the nervous system, it is essential to define their secretome, which is challenging for primary cells because of large cell numbers being required."
+        ],
+        "release_date": [
+          "20220906"
+        ]
+      }
+    },
+    {
+      "acc": "S-SCDT-10_15252-EMMM_202216556",
+      "id": "S-SCDT-10_15252-EMMM_202216556",
+      "source": "biostudies-other",
+      "fields": {
+        "name": [
+          "Active immunotherapy reduces NOTCH3 deposition in brain capillaries in a CADASIL mouse model"
+        ],
+        "description": [],
+        "abstract": [
+          "Cerebral autosomal dominant arteriopathy with subcortical infarcts and leukoencephalopathy (CADASIL) is the most common monogenic form of familial small vessel disease; no preventive or curative therapy is available."
+        ],
+        "release_date": [
+          "20230131"
+        ]
+      }
+    },
+    {
+      "acc": "S-SCDT-EMBOJ-2020-106423",
+      "id": "S-SCDT-EMBOJ-2020-106423",
+      "source": "biostudies-other",
+      "fields": {
+        "name": [
+          "Activation of endogenous retroviruses during brain development causes an inflammatory response"
+        ],
+        "description": [],
+        "abstract": [
+          "Endogenous retroviruses (ERVs) make up a large fraction of mammalian genomes and are thought to contribute to human disease, including brain disorders."
+        ],
+        "release_date": [
+          "20210720"
+        ]
+      }
+    }
+  ],
+  "facets": []
+}

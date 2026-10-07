@@ -17,13 +17,20 @@ use std::time::Duration;
 use serde_json::Value;
 
 static OFFLINE: AtomicBool = AtomicBool::new(false);
-static CONNECT_SECS: AtomicU64 = AtomicU64::new(10);
+/// `--connect-timeout` unless the user sets it. A host that misses a limit the
+/// user chose is not down, only slower than they asked for.
+pub const DEFAULT_CONNECT_SECS: u64 = 10;
+static CONNECT_SECS: AtomicU64 = AtomicU64::new(DEFAULT_CONNECT_SECS);
 
 /// From now on every request fails at once with [`SourceError::Offline`],
 /// which the search loop answers from the cache and never records as an
 /// outage. Set once, from `main`, for `--offline`.
 pub fn go_offline() {
     OFFLINE.store(true, Ordering::Relaxed);
+}
+
+pub fn is_offline() -> bool {
+    OFFLINE.load(Ordering::Relaxed)
 }
 
 /// How long a host gets to accept the connection, for clients built after
@@ -48,6 +55,8 @@ pub enum SourceError {
     Unreachable(String),
     #[error("timed out")]
     Timeout,
+    #[error("did not connect within --connect-timeout ({0} s)")]
+    ConnectLimit(u64),
     #[error("rate limited by the source")]
     RateLimited,
     #[error("rejected the credentials (HTTP {0})")]
@@ -72,6 +81,7 @@ impl SourceError {
             Self::RateLimited
             | Self::Unauthorized(_)
             | Self::Shape(_)
+            | Self::ConnectLimit(_)
             | Self::Offline => false,
         }
     }
@@ -242,14 +252,19 @@ impl<'a> Call<'a> {
         };
         let mut response = result.map_err(|e| Retry::Fail(transport(&e)))?;
         let status = response.status().as_u16();
-        if status == 429 {
+        if status == 429 || (status == 403 && quota_spent(response.headers()))
+        {
             let wait = response
                 .headers()
                 .get("retry-after")
                 .and_then(|v| v.to_str().ok())
                 .and_then(|v| v.trim().parse::<u64>().ok())
-                .map_or(Duration::from_secs(1), Duration::from_secs);
-            return Err(Retry::After(wait));
+                .map(Duration::from_secs);
+            return Err(match (status, wait) {
+                (_, Some(wait)) => Retry::After(wait),
+                (429, None) => Retry::After(Duration::from_secs(1)),
+                _ => Retry::Fail(SourceError::RateLimited),
+            });
         }
         let body = response
             .body_mut()
@@ -286,10 +301,23 @@ impl Retry {
 }
 
 fn transport(error: &ureq::Error) -> SourceError {
+    let limit = CONNECT_SECS.load(Ordering::Relaxed);
     match error {
+        ureq::Error::Timeout(ureq::Timeout::Connect)
+            if limit != DEFAULT_CONNECT_SECS =>
+        {
+            SourceError::ConnectLimit(limit)
+        }
         ureq::Error::Timeout(_) => SourceError::Timeout,
         other => SourceError::Unreachable(other.to_string()),
     }
+}
+
+/// GitHub and other hosts answer an exhausted quota with 403 rather than
+/// 429, marked by a spent `x-ratelimit-remaining` or a `retry-after`.
+fn quota_spent(headers: &ureq::http::HeaderMap) -> bool {
+    headers.get("x-ratelimit-remaining").is_some_and(|v| v.as_bytes() == b"0")
+        || headers.contains_key("retry-after")
 }
 
 /// Cloudflare and similar bot walls answer 403 with an HTML interstitial.
@@ -311,6 +339,7 @@ mod tests {
         for (error, outage) in [
             (SourceError::Unreachable("dns".into()), true),
             (SourceError::Timeout, true),
+            (SourceError::ConnectLimit(2), false),
             (SourceError::Blocked, true),
             (SourceError::Status(503), true),
             (SourceError::Status(500), true),
@@ -321,6 +350,20 @@ mod tests {
         ] {
             assert_eq!(error.is_outage(), outage, "{error:?}");
         }
+    }
+
+    #[test]
+    fn a_connect_timeout_the_user_chose_is_not_an_outage() {
+        let connect = ureq::Error::Timeout(ureq::Timeout::Connect);
+        assert!(transport(&connect).is_outage(), "the default limit missed");
+
+        connect_within(Duration::from_secs(2));
+        let error = transport(&connect);
+        assert!(!error.is_outage(), "{error:?}");
+        assert!(error.to_string().contains("--connect-timeout"), "{error}");
+
+        let slow_answer = ureq::Error::Timeout(ureq::Timeout::Global);
+        assert!(transport(&slow_answer).is_outage(), "a hung host is down");
     }
 
     /// A local server that answers each connection with the next canned
@@ -391,6 +434,32 @@ mod tests {
         );
         assert!(started.elapsed() < Duration::from_secs(5));
         assert_eq!(server.join().unwrap().len(), 1);
+    }
+
+    #[test]
+    fn a_403_with_a_spent_quota_is_rate_limited_and_any_other_403_is_not() {
+        for (headers, expected_limited) in [
+            (vec!["X-RateLimit-Remaining: 0"], true),
+            (vec!["Retry-After: 60"], true),
+            (vec!["X-RateLimit-Remaining: 12"], false),
+            (vec![], false),
+        ] {
+            let (url, server) =
+                serve(vec![response("403 Forbidden", &headers, b"")]);
+            let outcome = Http::new().get(&url).text();
+            assert_eq!(
+                matches!(outcome, Err(SourceError::RateLimited)),
+                expected_limited,
+                "{headers:?}: {outcome:?}"
+            );
+            if !expected_limited {
+                assert!(
+                    matches!(outcome, Err(SourceError::Unauthorized(403))),
+                    "{headers:?}: {outcome:?}"
+                );
+            }
+            server.join().unwrap();
+        }
     }
 
     #[test]

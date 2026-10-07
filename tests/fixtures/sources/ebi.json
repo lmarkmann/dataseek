@@ -1,5 +1,5 @@
 {
-  "hitCount": 7497,
+  "hitCount": 3296,
   "entries": [
     {
       "acc": "E-GEOD-22131",
@@ -12,24 +12,9 @@
         "description": [
           "Genomic imprinting results in the preferential expression of the paternal, or maternal allele of certain genes.  We have performed a genome-wide characterization of imprinting in the mouse embryonic and adult brain using F1 hybrid mice generated from reciprocal crosses of CASTEiJ and C57BL/6J mice."
         ],
-        "publication_date": [
+        "abstract": [],
+        "release_date": [
           "20100708"
-        ]
-      }
-    },
-    {
-      "acc": "E-GEOD-48934",
-      "id": "E-GEOD-48934",
-      "source": "biostudies-arrayexpress",
-      "fields": {
-        "name": [
-          "MicroRNA profiling of brain metastasis competent cell-derived exosomes"
-        ],
-        "description": [
-          "Objective of this work was to characterize the miRNA profile of exosomes isolated from brain-homing cell lines (MDA-MB-231BR, CTC1BMSM, and 70W) with their respective parental non-brain metastatic cell lines (MDA-MB-231P, CTC1P and MeWo). Exosomes derived from the six cell lines were isolated."
-        ],
-        "publication_date": [
-          "20130716"
         ]
       }
     },
@@ -44,24 +29,43 @@
         "description": [
           "Since normal brain function depends upon continuous oxygen delivery and short periods of hypoxia can precondition against subsequent ischemia, this study examined the effects of brief hypoxia on the whole genome transcriptional response in adult mouse brain."
         ],
-        "publication_date": [
+        "abstract": [],
+        "release_date": [
           "20111230"
         ]
       }
     },
     {
-      "acc": "E-GEOD-5208",
-      "id": "E-GEOD-5208",
+      "acc": "E-GEOD-22653",
+      "id": "E-GEOD-22653",
       "source": "biostudies-arrayexpress",
       "fields": {
         "name": [
-          "Analysis of gene expression profiling of normal retina and brain cortices"
+          "Deep sequencing analysis of the developing mouse brain reveals a novel microRNA"
         ],
         "description": [
-          "Using a canine custom retinal cDNA microarray our aim is to identify normal gene expression profiling for retina and frontal, occipital and temporal brain cortices Total RNA was isolated using Trizol reagent (Invitrogen, Carlsbad, CA) and further purified by Rneasy mini kit (Qiagen, Valencia, CA)."
+          "MicroRNAs (miRNAs) are small non-coding RNAs that can exert multilevel inhibition/repression at a post-transcriptional or protein synthesis level during disease or development. Characterisation of miRNAs in adult mammalian brains by deep sequencing has been reported previously."
         ],
-        "publication_date": [
-          "20100701"
+        "abstract": [],
+        "release_date": [
+          "20110404"
+        ]
+      }
+    },
+    {
+      "acc": "E-GEOD-6355",
+      "id": "E-GEOD-6355",
+      "source": "biostudies-arrayexpress",
+      "fields": {
+        "name": [
+          "Connexin-dependent transcellular transcriptomic networks in mouse brain"
+        ],
+        "description": [
+          "Microarray experiments have generally focused on magnitude of gene expression changes in pathological conditions, thereby using the method as a high throughput screen to identify candidate marker genes and/or to validate phenotypic differences."
+        ],
+        "abstract": [],
+        "release_date": [
+          "20100609"
         ]
       }
     }

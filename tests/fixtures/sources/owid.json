@@ -1,17 +1,16 @@
 {
-  "query": "water",
+  "query": "life expectancy",
   "results": [
     {
-      "title": "Share using safely managed drinking water",
-      "slug": "proportion-using-safely-managed-drinking-water",
-      "subtitle": "Safely managed drinking water service means an improved water source is located on the premises, available when needed, and free from contamination.",
+      "title": "Sex gap in life expectancy",
+      "slug": "difference-in-female-and-male-life-expectancy-at-birth",
+      "subtitle": "Difference between female and male life expectancy at birth. Positive values indicate higher female life expectancy; negative values indicate higher male life expectancy.",
       "variantName": "",
       "type": "chart",
       "availableEntities": [
         "Bosnia and Herzegovina",
         "Czechia",
-        "Democratic Republic of Congo",
-        "Eswatini"
+        "Democratic Republic of Congo"
       ],
       "availableTabs": [
         "Table",
@@ -19,41 +18,20 @@
         "LineChart",
         "DiscreteBar"
       ],
-      "publishedAt": "2018-03-15T20:51:30.000Z",
-      "updatedAt": "2026-05-11T11:23:07.000Z",
-      "url": "https://ourworldindata.org/grapher/proportion-using-safely-managed-drinking-water"
+      "publishedAt": "2018-08-03T10:24:52.000Z",
+      "updatedAt": "2025-10-22T22:29:04.000Z",
+      "url": "https://ourworldindata.org/grapher/difference-in-female-and-male-life-expectancy-at-birth"
     },
     {
-      "title": "Drinking water service usage",
-      "slug": "access-drinking-water-stacked",
-      "subtitle": "Share of population using five different levels of drinking water services: safely managed, basic, limited, unimproved and surface water.",
-      "variantName": "",
+      "title": "Life expectancy",
+      "slug": "life-expectancy-hmd-unwpp",
+      "subtitle": "The period life expectancy at birth, in a given year.",
+      "variantName": "HMD, UN WPP",
       "type": "chart",
       "availableEntities": [
         "Bosnia and Herzegovina",
         "Czechia",
-        "Democratic Republic of Congo",
-        "Eswatini"
-      ],
-      "availableTabs": [
-        "Table",
-        "StackedDiscreteBar"
-      ],
-      "publishedAt": "2021-07-01T13:44:56.000Z",
-      "updatedAt": "2026-05-11T11:20:41.000Z",
-      "url": "https://ourworldindata.org/grapher/access-drinking-water-stacked"
-    },
-    {
-      "title": "Share of population using at least a basic drinking water source",
-      "slug": "population-using-at-least-basic-drinking-water",
-      "subtitle": "A basic drinking water service is water from an improved water source that can be collected within a 30-minute round trip, including queuing.",
-      "variantName": "",
-      "type": "chart",
-      "availableEntities": [
-        "Bosnia and Herzegovina",
-        "Czechia",
-        "Democratic Republic of Congo",
-        "Eswatini"
+        "Democratic Republic of Congo"
       ],
       "availableTabs": [
         "Table",
@@ -61,23 +39,22 @@
         "LineChart",
         "DiscreteBar"
       ],
-      "publishedAt": "2018-03-15T21:01:20.000Z",
-      "updatedAt": "2026-05-11T11:22:20.000Z",
-      "url": "https://ourworldindata.org/grapher/population-using-at-least-basic-drinking-water"
+      "publishedAt": "2023-10-18T16:11:39.000Z",
+      "updatedAt": "2026-07-11T15:30:53.000Z",
+      "url": "https://ourworldindata.org/grapher/life-expectancy-hmd-unwpp"
     },
     {
-      "title": "Share of the population using safely managed drinking water",
-      "containerTitle": "Water, Sanitation and Hygiene (WASH)",
-      "slug": "water-and-sanitation",
-      "subtitle": "Proportion of people using an improved drinking water source that is located on premises, available when needed and free from fecal and priority chemical contamination.",
-      "variantName": "Share of the population using safely managed drinking water",
+      "title": "Life expectancy at birth",
+      "containerTitle": "Population & Demography",
+      "slug": "population-and-demography",
+      "subtitle": "Period life expectancy at birth.",
+      "variantName": "Life expectancy at birth",
       "type": "explorerView",
-      "queryParams": "?Resource=Drinking+water&Level+of+Use%2FAccess=Safely+managed&Residence=Total&Relative+to+population=Share+of+population",
+      "queryParams": "?indicator=Life+expectancy&Sex=Both+sexes&Age=At+birth&Projection+scenario=None",
       "availableEntities": [
         "Bosnia and Herzegovina",
         "Czechia",
-        "Democratic Republic of Congo",
-        "Eswatini"
+        "Democratic Republic of Congo"
       ],
       "availableTabs": [
         "Table",
@@ -86,12 +63,34 @@
         "DiscreteBar"
       ],
       "publishedAt": "2023-06-01T19:11:31.000Z",
-      "updatedAt": "2026-09-10T19:02:49.000Z",
-      "url": "https://ourworldindata.org/explorers/water-and-sanitation?Resource=Drinking+water&Level+of+Use%2FAccess=Safely+managed&Residence=Total&Relative+to+population=Share+of+population"
+      "updatedAt": "2026-09-10T18:58:59.000Z",
+      "url": "https://ourworldindata.org/explorers/population-and-demography?indicator=Life+expectancy&Sex=Both+sexes&Age=At+birth&Projection+scenario=None"
+    },
+    {
+      "title": "School life expectancy in primary education",
+      "containerTitle": "Years of schooling",
+      "slug": "years-of-schooling",
+      "subtitle": "For each year, this shows how many years a child starting school then can expect to spend in primary education if current enrollment patterns stay the same. It includes repeated grades.",
+      "type": "multiDimView",
+      "queryParams": "?level=primary&metric_type=expected_years_schooling&sex=both",
+      "availableEntities": [
+        "Afghanistan",
+        "Albania",
+        "Algeria"
+      ],
+      "availableTabs": [
+        "Table",
+        "WorldMap",
+        "LineChart",
+        "DiscreteBar"
+      ],
+      "publishedAt": "2026-10-05T19:14:42.259Z",
+      "updatedAt": "2026-10-05T19:14:42.259Z",
+      "url": "https://ourworldindata.org/grapher/years-of-schooling?level=primary&metric_type=expected_years_schooling&sex=both"
     }
   ],
-  "nbHits": 423,
+  "nbHits": 120,
   "page": 0,
-  "nbPages": 22,
-  "hitsPerPage": 20
+  "nbPages": 2,
+  "hitsPerPage": 100
 }

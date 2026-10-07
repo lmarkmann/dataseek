@@ -80,6 +80,14 @@ use crate::record::Dataset;
 pub type Live = fn(&Ctx<'_>, &str, usize) -> Result<Vec<Dataset>, SourceError>;
 pub type Listing = fn(&Ctx<'_>) -> Result<Vec<Dataset>, SourceError>;
 
+/// What a source answered: the records, and the failure that sent a catalog
+/// search to an expired copy when it did, so the answer reads stale, not ok.
+#[derive(Debug)]
+pub struct Answer {
+    pub datasets: Vec<Dataset>,
+    pub stale: Option<SourceError>,
+}
+
 /// What an adapter gets to work with.
 pub struct Ctx<'a> {
     pub http: &'a Http,
@@ -161,6 +169,8 @@ pub struct Source {
     pub key: Option<(Key, Need)>,
     /// False where the terms forbid storing results (Kaggle).
     pub persist: bool,
+    /// Why this source is asked only when `--source` names it.
+    pub opt_in: Option<&'static str>,
     pub adapter: Adapter,
 }
 
@@ -187,8 +197,8 @@ impl Source {
         ctx: &Ctx<'_>,
         query: &str,
         limit: usize,
-    ) -> Result<Vec<Dataset>, SourceError> {
-        match &self.adapter {
+    ) -> Result<Answer, SourceError> {
+        let fresh = match &self.adapter {
             Adapter::Live(run) => run(ctx, query, limit),
             Adapter::Ckan(portal) => ckan::search(ctx, portal, query, limit),
             Adapter::Dataverse(base) => {
@@ -198,9 +208,10 @@ impl Source {
             Adapter::Socrata(base) => socrata::search(ctx, base, query, limit),
             Adapter::Ebi(domain) => ebi::search(ctx, domain, query, limit),
             Adapter::Catalog(_) | Adapter::Stac(_) | Adapter::Sdmx(_) => {
-                self.local(ctx, query, limit)
+                return self.local(ctx, query, limit);
             }
-        }
+        };
+        fresh.map(|datasets| Answer { datasets, stale: None })
     }
 
     /// Download and cache this source's catalog now; `None` for live
@@ -234,7 +245,8 @@ impl Source {
     }
 
     /// Search the cached catalog, downloading it when it is missing or
-    /// expired. A failed or empty download falls back to an expired copy.
+    /// expired. A failed or empty download falls back to an expired copy,
+    /// and the answer carries the failure so it reads stale.
     /// `--refresh` does not apply: catalogs have their own TTL and `cache
     /// warm`.
     fn local(
@@ -242,34 +254,37 @@ impl Source {
         ctx: &Ctx<'_>,
         query: &str,
         limit: usize,
-    ) -> Result<Vec<Dataset>, SourceError> {
+    ) -> Result<Answer, SourceError> {
         let cached = ctx.cache.load::<Vec<Dataset>>(
             Kind::Catalog,
             self.id,
             CATALOG_TTL,
         );
-        let entries = match cached {
-            Some((entries, Freshness::Fresh)) => entries,
-            stale => match self.download(ctx).unwrap_or_else(|| {
+        let (entries, stale) = match cached {
+            Some((entries, Freshness::Fresh)) => (entries, None),
+            expired => match self.download(ctx).unwrap_or_else(|| {
                 Err(SourceError::shape("a live source has no catalog"))
             }) {
                 Ok(entries) => {
                     ctx.cache.store(Kind::Catalog, self.id, &entries);
-                    entries
+                    (entries, None)
                 }
-                Err(error) => match stale {
-                    Some((entries, _)) => entries,
+                Err(error) => match expired {
+                    Some((entries, _)) => (entries, Some(error)),
                     None => return Err(error),
                 },
             },
         };
-        Ok(crate::catalog::search(&entries, query, limit))
+        Ok(Answer {
+            datasets: crate::catalog::search(&entries, query, limit),
+            stale,
+        })
     }
 }
 
-/// The registry rows to ask: the named ones (or all), narrowed to the given
-/// categories, minus exclusions, in registry order. Ids were validated by
-/// clap.
+/// The registry rows to ask: the named ones (or all but the opt-in ones),
+/// narrowed to the given categories, minus exclusions, in registry order. An
+/// opt-in source is asked only when named. Ids were validated by clap.
 pub fn select(
     only: &[String],
     exclude: &[String],
@@ -277,7 +292,10 @@ pub fn select(
 ) -> Vec<&'static Source> {
     SOURCES
         .iter()
-        .filter(|s| only.is_empty() || only.iter().any(|id| id == s.id))
+        .filter(|s| {
+            let named = only.iter().any(|id| id == s.id);
+            named || (only.is_empty() && s.opt_in.is_none())
+        })
         .filter(|s| categories.is_empty() || categories.contains(&s.category))
         .filter(|s| !exclude.iter().any(|id| id == s.id))
         .collect()
@@ -336,6 +354,7 @@ const fn live(
         docs,
         key: None,
         persist: true,
+        opt_in: None,
         adapter: Adapter::Live(run),
     }
 }
@@ -356,12 +375,18 @@ const fn listed(
         docs,
         key: None,
         persist: true,
+        opt_in: None,
         adapter: Adapter::Catalog(list),
     }
 }
 
 const fn keyed(mut source: Source, key: Key, need: Need) -> Source {
     source.key = Some((key, need));
+    source
+}
+
+const fn opt_in(mut source: Source, reason: &'static str) -> Source {
+    source.opt_in = Some(reason);
     source
 }
 
@@ -381,6 +406,7 @@ const fn via(
         docs,
         key: None,
         persist: true,
+        opt_in: None,
         adapter,
     }
 }
@@ -418,13 +444,16 @@ pub static SOURCES: &[Source] = &[
         "https://graph.openaire.eu/docs/apis/graph-api/",
         openaire::search,
     ),
-    live(
-        "google",
-        "Google Dataset Search",
-        Aggregator,
-        "results page data",
-        "https://datasetsearch.research.google.com/help",
-        google::search,
+    opt_in(
+        live(
+            "google",
+            "Google Dataset Search",
+            Aggregator,
+            "results page data",
+            "https://datasetsearch.research.google.com/help",
+            google::search,
+        ),
+        "it has no API, so dataseek reads its results page (ADR 0013)",
     ),
     via(
         "b2find",
@@ -441,7 +470,7 @@ pub static SOURCES: &[Source] = &[
             "Hugging Face Hub",
             MachineLearning,
             "Hub API",
-            "https://huggingface.co/docs/hub/api",
+            "https://huggingface.co/docs/huggingface_hub/package_reference/hf_api",
             huggingface::search,
         ),
         Key::HuggingFace,
@@ -591,13 +620,16 @@ pub static SOURCES: &[Source] = &[
         "https://share.osf.io/trove/docs",
         osf::search,
     ),
-    live(
-        "mendeley",
-        "Mendeley Data",
-        Research,
-        "site search API",
-        "https://data.mendeley.com/api/docs/",
-        mendeley::search,
+    opt_in(
+        live(
+            "mendeley",
+            "Mendeley Data",
+            Research,
+            "site search API",
+            "https://data.mendeley.com/api/docs/",
+            mendeley::search,
+        ),
+        "its terms bar automated access without written permission",
     ),
     // Government open data.
     live(
@@ -657,7 +689,7 @@ pub static SOURCES: &[Source] = &[
         "Humanitarian Data Exchange",
         Government,
         "CKAN",
-        "https://data.humdata.org/faqs/devs",
+        "https://docs.humdata.org/build/hdx-apis/metadata-endpoints/package_search",
         Adapter::Ckan(&ckan::HDX),
     ),
     via(
@@ -681,7 +713,7 @@ pub static SOURCES: &[Source] = &[
         "OpenDataSoft hub",
         Government,
         "OpenDataSoft Explore",
-        "https://help.opendatasoft.com/apis/ods-explore-v2/",
+        "https://help.huwise.com/apis/ods-explore-v2/",
         opendatasoft::search,
     ),
     live(
@@ -746,7 +778,7 @@ pub static SOURCES: &[Source] = &[
         "IMF",
         Economics,
         "SDMX",
-        "https://portal.api.imf.org/",
+        "https://data.imf.org/en/Resource-Pages/IMF-API",
         Adapter::Sdmx(&sdmx::IMF),
     ),
     via(
@@ -754,7 +786,7 @@ pub static SOURCES: &[Source] = &[
         "OECD",
         Economics,
         "SDMX",
-        "https://sdmx.oecd.org/public/rest/",
+        "https://www.oecd.org/en/data/insights/data-explainers/2024/09/api.html",
         Adapter::Sdmx(&sdmx::OECD),
     ),
     via(
@@ -786,7 +818,7 @@ pub static SOURCES: &[Source] = &[
         "ILOSTAT",
         Economics,
         "SDMX",
-        "https://ilostat.ilo.org/resources/sdmx-tools/",
+        "https://www.ilo.org/resource/other/ilostat-sdmx-user-guide",
         Adapter::Sdmx(&sdmx::ILO),
     ),
     via(
@@ -807,14 +839,14 @@ pub static SOURCES: &[Source] = &[
             datacommons::search,
         ),
         Key::DataCommons,
-        Need::Optional,
+        Need::Required,
     ),
     live(
         "owid",
         "Our World in Data",
         Statistics,
-        "site search API",
-        "https://docs.owid.io/projects/etl/api/",
+        "Search API",
+        "https://docs.owid.io/projects/etl/api/search-api/",
         owid::search,
     ),
     keyed(
@@ -834,7 +866,7 @@ pub static SOURCES: &[Source] = &[
         "Deutsche Bundesbank",
         Finance,
         "SDMX",
-        "https://www.bundesbank.de/en/statistics/time-series-databases/help-for-sdmx-web-service",
+        "https://statistiken.bundesbank.de/content/991208",
         Adapter::Sdmx(&sdmx::BUNDESBANK),
     ),
     listed(
@@ -850,7 +882,7 @@ pub static SOURCES: &[Source] = &[
         "U.S. Census Bureau API",
         Statistics,
         "DCAT data.json, listed",
-        "https://www.census.gov/data/developers/guidance/api-user-guide.html",
+        "https://census.gov/data/developers/updates/new-discovery-tool.html",
         census::list,
     ),
     listed(
@@ -1035,7 +1067,7 @@ pub static SOURCES: &[Source] = &[
         "Materials Project (MPContribs)",
         Physics,
         "MPContribs, listed",
-        "https://api.materialsproject.org/docs",
+        "https://contribs-api.materialsproject.org/",
         materials::list,
     ),
     listed(
@@ -1107,6 +1139,27 @@ mod tests {
         assert!(!SOURCES.iter().find(|s| s.id == "kaggle").unwrap().persist);
     }
 
+    #[test]
+    fn data_commons_needs_the_users_own_key() {
+        let source = SOURCES.iter().find(|s| s.id == "datacommons").unwrap();
+        assert!(matches!(
+            source.key,
+            Some((Key::DataCommons, Need::Required))
+        ));
+    }
+
+    #[test]
+    fn an_opt_in_source_is_asked_only_when_named() {
+        let everyone = select(&[], &[], &[]);
+        assert!(everyone.iter().all(|s| s.opt_in.is_none()));
+        for id in ["google", "mendeley"] {
+            assert!(everyone.iter().all(|s| s.id != id), "{id}");
+            assert_eq!(select(&[id.to_owned()], &[], &[]).len(), 1, "{id}");
+        }
+        let aggregators = select(&[], &[], &[Category::Aggregator]);
+        assert!(aggregators.iter().all(|s| s.id != "google"));
+    }
+
     fn catalog(list: Listing) -> Source {
         listed("fake", "Fake", Research, "test", "https://x.org", list)
     }
@@ -1157,8 +1210,9 @@ mod tests {
         let rig = rig();
         let ctx = rig.services.ctx(true);
         ctx.cache.store(Kind::Catalog, "fake", &vec![entry("Rainfall")]);
-        let hits = catalog(untouchable).search(&ctx, "rain", 10).unwrap();
-        assert_eq!(hits, vec![entry("Rainfall")]);
+        let answer = catalog(untouchable).search(&ctx, "rain", 10).unwrap();
+        assert_eq!(answer.datasets, vec![entry("Rainfall")]);
+        assert!(answer.stale.is_none());
     }
 
     #[test]
@@ -1170,8 +1224,9 @@ mod tests {
             "fake",
             &vec![entry("Rainfall")],
         );
-        let hits = catalog(down).search(&ctx, "rain", 10).unwrap();
-        assert_eq!(hits, vec![entry("Rainfall")]);
+        let answer = catalog(down).search(&ctx, "rain", 10).unwrap();
+        assert_eq!(answer.datasets, vec![entry("Rainfall")]);
+        assert!(matches!(answer.stale, Some(SourceError::Timeout)));
 
         let empty = rig();
         let without =
@@ -1188,15 +1243,18 @@ mod tests {
             "fake",
             &vec![entry("Rainfall")],
         );
-        let hits = catalog(nothing).search(&ctx, "rain", 10).unwrap();
-        assert_eq!(hits, vec![entry("Rainfall")]);
+        let answer = catalog(nothing).search(&ctx, "rain", 10).unwrap();
+        assert_eq!(answer.datasets, vec![entry("Rainfall")]);
+        assert!(matches!(answer.stale, Some(SourceError::Shape(_))));
     }
 
     #[test]
     fn a_downloaded_catalog_is_stored_fresh() {
         let rig = rig();
         let ctx = rig.services.ctx(false);
-        assert_eq!(catalog(rain).search(&ctx, "snow", 10).unwrap().len(), 1);
+        let answer = catalog(rain).search(&ctx, "snow", 10).unwrap();
+        assert_eq!(answer.datasets.len(), 1);
+        assert!(answer.stale.is_none());
         let (stored, freshness) = cached(&ctx).unwrap();
         assert_eq!(stored, rain(&ctx).unwrap());
         assert_eq!(freshness, Freshness::Fresh);
@@ -1264,8 +1322,8 @@ mod tests {
                 huggingface::parse(b, &["temperature".to_owned()], n)
             }),
             ("ncbi", |b, n| {
-                let ids =
-                    ["200304969", "200279746", "200279384"].map(String::from);
+                let ids = ["200304969", "200279746", "200279384", "5662"]
+                    .map(String::from);
                 ncbi::parse(&ids, b, n)
             }),
         ]

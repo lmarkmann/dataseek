@@ -1,6 +1,6 @@
 # ADR 0008: Google Dataset Search is read from its results page data
 
-- Status: accepted
+- Status: superseded by [ADR 0013](0013-opt-in-sources.md)
 - Date: 2026-10-06
 
 ## Context

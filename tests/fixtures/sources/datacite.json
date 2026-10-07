@@ -1,505 +1,29 @@
 {
   "data": [
     {
-      "id": "10.15468/zrsahs",
+      "id": "10.34740/kaggle/dsv/7121545",
       "type": "dois",
       "attributes": {
-        "doi": "10.15468/zrsahs",
-        "identifiers": [
-          {
-            "identifier": "c0eddfec-c87b-47c5-977a-dd2c7c7e5dec",
-            "identifierType": "UUID"
-          }
-        ],
-        "creators": [
-          {
-            "affiliation": [
-              "Department of Botany, Jagannath University"
-            ],
-            "name": "NUSRAT SULTANA",
-            "nameIdentifiers": []
-          },
-          {
-            "affiliation": [
-              "Department of Botany, Jagannath University"
-            ],
-            "name": "Sadia Islam Proma",
-            "nameIdentifiers": []
-          },
-          {
-            "affiliation": [
-              "Department of Botany, Jagannath University"
-            ],
-            "name": "Md Rajon Mia",
-            "nameIdentifiers": []
-          },
-          {
-            "affiliation": [
-              "Department of Botany, Jagannath University"
-            ],
-            "name": "Moriom Akter",
-            "nameIdentifiers": []
-          },
-          {
-            "affiliation": [
-              "Department of Botany, Jagannath University"
-            ],
-            "name": "Umme Habiba",
-            "nameIdentifiers": []
-          }
-        ],
-        "titles": [
-          {
-            "title": "Crop Wild Relatives (CWRs) of Bangladesh: An Integrated Database of Species Occurrence, Distribution, Habitat and Herbarium Records"
-          }
-        ],
-        "publisher": "Jagannath University",
-        "container": {},
-        "publicationYear": 2026,
-        "subjects": [
-          {
-            "subject": "Bangladesh",
-            "subjectScheme": "None"
-          },
-          {
-            "subject": "vascular plants",
-            "subjectScheme": "None"
-          },
-          {
-            "subject": "crop diversity",
-            "subjectScheme": "None"
-          },
-          {
-            "subject": "agrobiodiversity",
-            "subjectScheme": "None"
-          },
-          {
-            "subject": "herbarium specimens",
-            "subjectScheme": "None"
-          }
-        ],
-        "contributors": [
-          {
-            "affiliation": [
-              "Department of Botany, Jagannath University"
-            ],
-            "name": "NUSRAT SULTANA",
-            "contributorType": "DataCurator",
-            "nameIdentifiers": []
-          },
-          {
-            "affiliation": [
-              "Global Biodiversity Information Facility (GBIF), Asia Regional Support Team"
-            ],
-            "name": "Lily Shrestha",
-            "contributorType": "RelatedPerson",
-            "nameIdentifiers": []
-          },
-          {
-            "affiliation": [
-              "Department of Botany, Jagannath University"
-            ],
-            "name": "NUSRAT SULTANA",
-            "contributorType": "RelatedPerson",
-            "nameIdentifiers": []
-          }
-        ],
-        "dates": [
-          {
-            "date": "2026-10-06",
-            "dateType": "Created"
-          },
-          {
-            "date": "2026-10-06",
-            "dateType": "Updated"
-          }
-        ],
-        "language": "en",
-        "types": {
-          "schemaOrg": "Dataset",
-          "resourceTypeGeneral": "Dataset",
-          "citeproc": "dataset",
-          "bibtex": "misc",
-          "ris": "DATA",
-          "resourceType": "OCCURRENCE"
-        },
-        "relatedIdentifiers": [],
-        "relatedItems": [],
-        "sizes": [],
-        "formats": [],
-        "version": null,
-        "rightsList": [
-          {
-            "rightsIdentifierScheme": "SPDX",
-            "rightsUri": "https://creativecommons.org/licenses/by/4.0/legalcode",
-            "schemeUri": "https://spdx.org/licenses/",
-            "rights": "Creative Commons Attribution 4.0 International",
-            "rightsIdentifier": "cc-by-4.0"
-          }
-        ],
-        "descriptions": [
-          {
-            "descriptionType": "Abstract",
-            "description": "This dataset compiles occurrence records of crop wild relatives (CWR) of cultivated crops in Bangladesh. Cultivated crops occurring in Bangladesh were identified and categorized based on information from the Food and Agriculture Organization (FAO) FAOSTAT database and Banglapedia."
-          }
-        ],
-        "geoLocations": [
-          {
-            "geoLocationBox": {
-              "northBoundLatitude": 26.63,
-              "southBoundLatitude": 20.57,
-              "eastBoundLongitude": 92.68,
-              "westBoundLongitude": 88.01
-            },
-            "geoLocationPlace": "Bangladesh"
-          }
-        ],
-        "fundingReferences": [],
-        "url": "https://www.gbif.org/dataset/c0eddfec-c87b-47c5-977a-dd2c7c7e5dec",
-        "contentUrl": null,
-        "metadataVersion": 1,
-        "schemaVersion": "http://datacite.org/schema/kernel-4",
-        "source": "api",
-        "isActive": true,
-        "state": "findable",
-        "reason": null,
-        "viewCount": 0,
-        "downloadCount": 0,
-        "referenceCount": 0,
-        "citationCount": 0,
-        "partCount": 0,
-        "partOfCount": 0,
-        "versionCount": 0,
-        "versionOfCount": 0,
-        "created": "2026-10-06T10:09:10Z",
-        "registered": "2026-10-06T10:09:10Z",
-        "published": null,
-        "updated": "2026-10-06T10:10:11Z"
-      },
-      "relationships": {
-        "client": {
-          "data": {
-            "id": "gbif.gbif",
-            "type": "clients"
-          }
-        }
-      }
-    },
-    {
-      "id": "10.5281/zenodo.23111497",
-      "type": "dois",
-      "attributes": {
-        "doi": "10.5281/zenodo.23111497",
+        "doi": "10.34740/kaggle/dsv/7121545",
         "identifiers": [],
         "creators": [
           {
-            "nameType": "Personal",
-            "affiliation": [
-              "University of Oxford Botanic Garden & Arboretum",
-              "University of Oxford, Department of Biology"
-            ],
-            "givenName": "B. M.",
-            "familyName": "Jones",
-            "name": "Jones, B. M.",
-            "nameIdentifiers": [
-              {
-                "nameIdentifierScheme": "ORCID",
-                "nameIdentifier": "0000-0003-1430-004X"
-              }
-            ]
-          }
-        ],
-        "titles": [
-          {
-            "title": "Vascular Plants of Japan Database (VPJD): Geography Release v1.0.0"
-          }
-        ],
-        "publisher": "Zenodo",
-        "container": {},
-        "publicationYear": 2026,
-        "subjects": [
-          {
-            "subject": "Vascular Plants of Japan Database"
-          },
-          {
-            "subject": "VPJD"
-          },
-          {
-            "subject": "Vascular Plants"
-          },
-          {
-            "subject": "Japan"
-          },
-          {
-            "subject": "Plant distribution"
-          }
-        ],
-        "contributors": [],
-        "dates": [
-          {
-            "date": "2026-10-02",
-            "dateType": "Issued"
-          }
-        ],
-        "language": null,
-        "types": {
-          "schemaOrg": "Dataset",
-          "resourceTypeGeneral": "Dataset",
-          "citeproc": "dataset",
-          "bibtex": "misc",
-          "ris": "DATA",
-          "resourceType": ""
-        },
-        "relatedIdentifiers": [
-          {
-            "relationType": "IsSupplementTo",
-            "resourceTypeGeneral": "Dataset",
-            "relatedIdentifier": "10.5281/zenodo.23017356",
-            "relatedIdentifierType": "DOI"
-          },
-          {
-            "relationType": "HasVersion",
-            "relatedIdentifier": "10.5281/zenodo.23111498",
-            "relatedIdentifierType": "DOI"
-          }
-        ],
-        "relatedItems": [],
-        "sizes": [],
-        "formats": [],
-        "version": "1.0.0",
-        "rightsList": [
-          {
-            "rightsIdentifierScheme": "SPDX",
-            "rightsUri": "https://creativecommons.org/licenses/by/4.0/legalcode",
-            "schemeUri": "https://spdx.org/licenses/",
-            "rights": "Creative Commons Attribution 4.0 International",
-            "rightsIdentifier": "cc-by-4.0"
-          }
-        ],
-        "descriptions": [
-          {
-            "descriptionType": "Abstract",
-            "description": "Vascular Plants of Japan Database (VPJD): Geography Release v1.0.0\n\nThis release provides the geographic evidence layer associated with the Vascular Plants of Japan Database (VPJD) Taxonomic Release v1.0.0."
-          }
-        ],
-        "geoLocations": [],
-        "fundingReferences": [],
-        "url": "https://zenodo.org/doi/10.5281/zenodo.23111497",
-        "contentUrl": null,
-        "metadataVersion": 6,
-        "schemaVersion": "http://datacite.org/schema/kernel-4",
-        "source": "api",
-        "isActive": true,
-        "state": "findable",
-        "reason": null,
-        "viewCount": 0,
-        "downloadCount": 0,
-        "referenceCount": 0,
-        "citationCount": 1,
-        "partCount": 0,
-        "partOfCount": 0,
-        "versionCount": 2,
-        "versionOfCount": 0,
-        "created": "2026-10-02T22:00:58Z",
-        "registered": "2026-10-02T22:00:59Z",
-        "published": null,
-        "updated": "2026-10-03T20:39:34Z"
-      },
-      "relationships": {
-        "client": {
-          "data": {
-            "id": "cern.zenodo",
-            "type": "clients"
-          }
-        }
-      }
-    },
-    {
-      "id": "10.5281/zenodo.23111498",
-      "type": "dois",
-      "attributes": {
-        "doi": "10.5281/zenodo.23111498",
-        "identifiers": [
-          {
-            "identifier": "oai:zenodo.org:23111498",
-            "identifierType": "oai"
-          }
-        ],
-        "creators": [
-          {
-            "nameType": "Personal",
-            "affiliation": [
-              "University of Oxford Botanic Garden & Arboretum",
-              "University of Oxford, Department of Biology"
-            ],
-            "givenName": "B. M.",
-            "familyName": "Jones",
-            "name": "Jones, B. M.",
-            "nameIdentifiers": [
-              {
-                "nameIdentifierScheme": "ORCID",
-                "nameIdentifier": "0000-0003-1430-004X"
-              }
-            ]
-          }
-        ],
-        "titles": [
-          {
-            "title": "Vascular Plants of Japan Database (VPJD): Geography Release v1.0.0"
-          }
-        ],
-        "publisher": "Zenodo",
-        "container": {},
-        "publicationYear": 2026,
-        "subjects": [
-          {
-            "subject": "Vascular Plants of Japan Database"
-          },
-          {
-            "subject": "VPJD"
-          },
-          {
-            "subject": "Vascular Plants"
-          },
-          {
-            "subject": "Japan"
-          },
-          {
-            "subject": "Plant distribution"
-          }
-        ],
-        "contributors": [],
-        "dates": [
-          {
-            "date": "2026-10-02",
-            "dateType": "Issued"
-          }
-        ],
-        "language": null,
-        "types": {
-          "schemaOrg": "Dataset",
-          "resourceTypeGeneral": "Dataset",
-          "citeproc": "dataset",
-          "bibtex": "misc",
-          "ris": "DATA",
-          "resourceType": ""
-        },
-        "relatedIdentifiers": [
-          {
-            "relationType": "IsSupplementTo",
-            "resourceTypeGeneral": "Dataset",
-            "relatedIdentifier": "10.5281/zenodo.23017356",
-            "relatedIdentifierType": "DOI"
-          },
-          {
-            "relationType": "IsVersionOf",
-            "relatedIdentifier": "10.5281/zenodo.23111497",
-            "relatedIdentifierType": "DOI"
-          }
-        ],
-        "relatedItems": [],
-        "sizes": [],
-        "formats": [],
-        "version": "1.0.0",
-        "rightsList": [
-          {
-            "rightsIdentifierScheme": "SPDX",
-            "rightsUri": "https://creativecommons.org/licenses/by/4.0/legalcode",
-            "schemeUri": "https://spdx.org/licenses/",
-            "rights": "Creative Commons Attribution 4.0 International",
-            "rightsIdentifier": "cc-by-4.0"
-          }
-        ],
-        "descriptions": [
-          {
-            "descriptionType": "Abstract",
-            "description": "Vascular Plants of Japan Database (VPJD): Geography Release v1.0.0\n\nThis release provides the geographic evidence layer associated with the Vascular Plants of Japan Database (VPJD) Taxonomic Release v1.0.0."
-          }
-        ],
-        "geoLocations": [],
-        "fundingReferences": [],
-        "url": "https://zenodo.org/doi/10.5281/zenodo.23111498",
-        "contentUrl": null,
-        "metadataVersion": 3,
-        "schemaVersion": "http://datacite.org/schema/kernel-4",
-        "source": "api",
-        "isActive": true,
-        "state": "findable",
-        "reason": null,
-        "viewCount": 0,
-        "downloadCount": 0,
-        "referenceCount": 0,
-        "citationCount": 1,
-        "partCount": 0,
-        "partOfCount": 0,
-        "versionCount": 0,
-        "versionOfCount": 1,
-        "created": "2026-10-02T22:00:58Z",
-        "registered": "2026-10-02T22:00:58Z",
-        "published": null,
-        "updated": "2026-10-03T20:39:33Z"
-      },
-      "relationships": {
-        "client": {
-          "data": {
-            "id": "cern.zenodo",
-            "type": "clients"
-          }
-        }
-      }
-    },
-    {
-      "id": "10.15468/dl.4j2zvq",
-      "type": "dois",
-      "attributes": {
-        "doi": "10.15468/dl.4j2zvq",
-        "identifiers": [
-          {
-            "identifier": "0007014-260928105237408",
-            "identifierType": "GBIF"
-          }
-        ],
-        "creators": [
-          {
-            "nameType": "Organizational",
-            "name": "GBIF.org User",
+            "name": "The world air quality index",
             "affiliation": [],
             "nameIdentifiers": []
           }
         ],
         "titles": [
           {
-            "title": "Occurrence Download"
+            "title": "Air Quality Index May 2019 - April 2020 Pakistan"
           }
         ],
-        "publisher": "The Global Biodiversity Information Facility",
+        "publisher": "Kaggle",
         "container": {},
-        "publicationYear": 2026,
-        "subjects": [
-          {
-            "subject": "GBIF",
-            "lang": "eng"
-          },
-          {
-            "subject": "biodiversity",
-            "lang": "eng"
-          },
-          {
-            "subject": "species occurrences",
-            "lang": "eng"
-          }
-        ],
+        "publicationYear": 2023,
+        "subjects": [],
         "contributors": [],
-        "dates": [
-          {
-            "date": "2026-10-02",
-            "dateType": "Created"
-          },
-          {
-            "date": "2026-10-02",
-            "dateType": "Updated"
-          }
-        ],
+        "dates": [],
         "language": null,
         "types": {
           "schemaOrg": "Dataset",
@@ -508,54 +32,19 @@
           "bibtex": "misc",
           "ris": "DATA"
         },
-        "relatedIdentifiers": [
-          {
-            "relationType": "IsDerivedFrom",
-            "relatedIdentifier": "10.15468/ue7xyn",
-            "relatedIdentifierType": "DOI"
-          },
-          {
-            "relationType": "HasMetadata",
-            "relatedIdentifier": "https://api.gbif.org/v1/occurrence/download/0007014-260928105237408",
-            "relatedIdentifierType": "URL"
-          },
-          {
-            "relationType": "HasMetadata",
-            "relatedIdentifier": "https://api.gbif.org/v1/occurrence/download/0007014-260928105237408/datasets",
-            "relatedIdentifierType": "URL"
-          }
-        ],
+        "relatedIdentifiers": [],
         "relatedItems": [],
-        "sizes": [
-          "162932"
-        ],
-        "formats": [
-          "text/tab-separated-values",
-          "application/zip"
-        ],
+        "sizes": [],
+        "formats": [],
         "version": null,
-        "rightsList": [
-          {
-            "rightsIdentifierScheme": "SPDX",
-            "rightsUri": "https://creativecommons.org/licenses/by-nc/4.0/legalcode",
-            "schemeUri": "https://spdx.org/licenses/",
-            "rights": "Creative Commons Attribution Non Commercial 4.0 International",
-            "rightsIdentifier": "cc-by-nc-4.0"
-          }
-        ],
-        "descriptions": [
-          {
-            "descriptionType": "Abstract",
-            "description": "A dataset containing 3682 species occurrences available in GBIF matching the query:\n{\n \"DatasetKey\" : [\n \"is Flora of Sumatra : Vascular plant collection from Batang Toru Forest deposited in ANDA Herbarium\"\n ]\n}\n\n The dataset includes 3682 records from 1 constituent datasets; see https://api.gbif.org/v1/occurrence/download/0007014-260928105237408/datasets/export for details.\n \nData from some individual datasets included in this download may be licensed under less restrictive terms.",
-            "lang": "eng"
-          }
-        ],
+        "rightsList": [],
+        "descriptions": [],
         "geoLocations": [],
         "fundingReferences": [],
-        "url": "https://www.gbif.org/occurrence/download/0007014-260928105237408",
+        "url": "https://www.kaggle.com/dsv/7121545",
         "contentUrl": null,
         "metadataVersion": 0,
-        "schemaVersion": "http://datacite.org/schema/kernel-4",
+        "schemaVersion": null,
         "source": "api",
         "isActive": true,
         "state": "findable",
@@ -568,128 +57,378 @@
         "partOfCount": 0,
         "versionCount": 0,
         "versionOfCount": 0,
-        "created": "2026-10-02T00:48:27Z",
-        "registered": "2026-10-02T00:48:27Z",
+        "created": "2023-12-04T14:21:30Z",
+        "registered": "2023-12-04T14:21:30Z",
         "published": null,
-        "updated": "2026-10-02T00:48:27Z"
+        "updated": "2023-12-04T14:21:30Z"
       },
       "relationships": {
         "client": {
           "data": {
-            "id": "gbif.gbif",
+            "id": "kaggle.kaggle",
             "type": "clients"
           }
         }
       }
     },
     {
-      "id": "10.3886/e255804v1",
+      "id": "10.34740/kaggle/dsv/6909048",
       "type": "dois",
       "attributes": {
-        "doi": "10.3886/e255804v1",
+        "doi": "10.34740/kaggle/dsv/6909048",
         "identifiers": [],
         "creators": [
           {
-            "nameType": "Organizational",
-            "name": "Department of the Interior",
+            "name": "The world air quality index",
             "affiliation": [],
-            "nameIdentifiers": []
-          },
-          {
-            "nameType": "Organizational",
-            "name": "National Park Service",
-            "affiliation": [],
-            "nameIdentifiers": []
-          },
-          {
-            "nameType": "Personal",
-            "affiliation": [
-              "United States Department of the Interior. National Park Service"
-            ],
-            "givenName": "Rochefort",
-            "familyName": "Regina",
-            "name": "Regina, Rochefort",
             "nameIdentifiers": []
           }
         ],
         "titles": [
           {
-            "lang": "en",
-            "title": "NCCN Inventory Exotic Plants Mount Rainier, North Cascades, and Olympic National Parks"
+            "title": "Air Quality Index May 2019 - April 2020 Pakistan"
           }
         ],
-        "publisher": "ICPSR - Interuniversity Consortium for Political and Social Research",
+        "publisher": "Kaggle",
         "container": {},
-        "publicationYear": 2026,
+        "publicationYear": 2023,
+        "subjects": [],
+        "contributors": [],
+        "dates": [],
+        "language": null,
+        "types": {
+          "schemaOrg": "Dataset",
+          "resourceTypeGeneral": "Dataset",
+          "citeproc": "dataset",
+          "bibtex": "misc",
+          "ris": "DATA"
+        },
+        "relatedIdentifiers": [],
+        "relatedItems": [],
+        "sizes": [],
+        "formats": [],
+        "version": null,
+        "rightsList": [],
+        "descriptions": [],
+        "geoLocations": [],
+        "fundingReferences": [],
+        "url": "https://www.kaggle.com/dsv/6909048",
+        "contentUrl": null,
+        "metadataVersion": 0,
+        "schemaVersion": null,
+        "source": "api",
+        "isActive": true,
+        "state": "findable",
+        "reason": null,
+        "viewCount": 0,
+        "downloadCount": 0,
+        "referenceCount": 0,
+        "citationCount": 0,
+        "partCount": 0,
+        "partOfCount": 0,
+        "versionCount": 0,
+        "versionOfCount": 0,
+        "created": "2023-11-07T11:37:12Z",
+        "registered": "2023-11-07T11:37:13Z",
+        "published": null,
+        "updated": "2023-11-07T11:37:13Z"
+      },
+      "relationships": {
+        "client": {
+          "data": {
+            "id": "kaggle.kaggle",
+            "type": "clients"
+          }
+        }
+      }
+    },
+    {
+      "id": "10.7910/dvn/xuutmy",
+      "type": "dois",
+      "attributes": {
+        "doi": "10.7910/dvn/xuutmy",
+        "identifiers": [],
+        "creators": [
+          {
+            "nameType": "Organizational",
+            "affiliation": [
+              "Environmental Protection Agency"
+            ],
+            "name": "Office of Air Quality Planning and Standards",
+            "nameIdentifiers": []
+          }
+        ],
+        "titles": [
+          {
+            "title": "Extracted Data From: National Emissions Inventory &amp; Air Emissions"
+          },
+          {
+            "titleType": "AlternativeTitle",
+            "title": "NEI"
+          }
+        ],
+        "publisher": "Harvard Dataverse",
+        "container": {},
+        "publicationYear": 2025,
         "subjects": [
           {
-            "subject": "species richness",
-            "lang": "en"
+            "subject": "Earth and Environmental Sciences"
           },
           {
-            "subject": "biota",
-            "lang": "en"
+            "schemeUri": "https://tools.niehs.nih.gov/cchhglossary/",
+            "subject": "Air Pollution"
           },
           {
-            "subject": "environment",
-            "lang": "en"
+            "subject": "Anthropogenic Emissions"
           },
           {
-            "subject": "exotic",
-            "lang": "en"
-          },
-          {
-            "subject": "invasive",
-            "lang": "en"
+            "subject": "Greenhouse Gas"
           }
         ],
-        "contributors": [],
+        "contributors": [
+          {
+            "nameType": "Personal",
+            "affiliation": [
+              "Boston University School of Public Health"
+            ],
+            "givenName": "Allison",
+            "familyName": "James",
+            "name": "James, Allison",
+            "contributorType": "Distributor",
+            "nameIdentifiers": []
+          },
+          {
+            "nameType": "Personal",
+            "affiliation": [],
+            "name": "CAFE",
+            "nameIdentifiers": [],
+            "contributorType": "ContactPerson"
+          }
+        ],
         "dates": [
           {
-            "date": "2001-07-01/2002-10-01",
-            "dateType": "Collected"
+            "date": "2024-12-17",
+            "dateType": "Issued"
+          },
+          {
+            "date": "2024-12-17",
+            "dateType": "Submitted"
+          },
+          {
+            "date": "2025-01-14",
+            "dateType": "Available"
+          },
+          {
+            "date": "2025-02-11",
+            "dateType": "Updated"
+          },
+          {
+            "date": "1990-01-01/2024-12-31",
+            "dateType": "Other",
+            "dateInformation": "Time period covered by the data"
           }
         ],
-        "language": "en",
+        "language": null,
         "types": {
           "schemaOrg": "Dataset",
           "resourceTypeGeneral": "Dataset",
           "citeproc": "dataset",
           "bibtex": "misc",
           "ris": "DATA",
-          "resourceType": "geographic information system (GIS) data, observational data"
+          "resourceType": "Extracted Data"
+        },
+        "relatedIdentifiers": [],
+        "relatedItems": [],
+        "sizes": [
+          "2267084892",
+          "29778637",
+          "31520013",
+          "31299062",
+          "1446708780",
+          "29573892",
+          "25014442",
+          "9206645537",
+          "322274856",
+          "44351313",
+          "189689612",
+          "47077288",
+          "40791297",
+          "1089789207",
+          "48096707",
+          "51850176",
+          "2433005027",
+          "1571465824",
+          "2803386530",
+          "27480381",
+          "82026"
+        ],
+        "formats": [
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/pdf"
+        ],
+        "version": "3.0",
+        "rightsList": [
+          {
+            "rightsUri": "info:eu-repo/semantics/openAccess"
+          },
+          {
+            "rightsIdentifierScheme": "SPDX",
+            "rightsUri": "https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+            "schemeUri": "https://spdx.org/licenses/",
+            "rights": "Creative Commons Zero v1.0 Universal",
+            "lang": "en",
+            "rightsIdentifier": "cc0-1.0"
+          }
+        ],
+        "descriptions": [
+          {
+            "descriptionType": "Abstract",
+            "description": "This submission includes publicly available data extracted in its original form. &lt;br&gt;\n\nWelcome to the one-stop shop for NEI-based data, organized by Inventory Year.\nSome inventory years do not include all of our data products."
+          },
+          {
+            "descriptionType": "Methods",
+            "description": "\"<b>Terms of Use for Geospatial Data</b>\n<br><br>\nThese geospatial data and corresponding cartographic materials have been approved for use by the U.S. Environmental Protection Agency (EPA) as advised by the EPA Geospatial Advisory Committee (EGAC). This approved release is on the condition that neither the EPA nor the U.S. Government may be held liable for any damages resulting from its authorize"
+          },
+          {
+            "descriptionType": "Other",
+            "description": "This submission includes publicly available data extracted in its original form. Please reference the Related Publication listed here for source and citation information.\n\nAir Emissions Inventory data was downloaded by\nAllison James on 2024-12-17"
+          }
+        ],
+        "geoLocations": [],
+        "fundingReferences": [],
+        "url": "https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/XUUTMY",
+        "contentUrl": null,
+        "metadataVersion": 4,
+        "schemaVersion": "http://datacite.org/schema/kernel-4",
+        "source": "mds",
+        "isActive": true,
+        "state": "findable",
+        "reason": null,
+        "viewCount": 186,
+        "downloadCount": 14,
+        "referenceCount": 0,
+        "citationCount": 0,
+        "partCount": 0,
+        "partOfCount": 0,
+        "versionCount": 0,
+        "versionOfCount": 0,
+        "created": "2024-12-17T22:09:49Z",
+        "registered": "2025-01-14T18:39:03Z",
+        "published": null,
+        "updated": "2026-04-21T08:40:27Z"
+      },
+      "relationships": {
+        "client": {
+          "data": {
+            "id": "gdcc.harvard-dv",
+            "type": "clients"
+          }
+        }
+      }
+    },
+    {
+      "id": "10.17632/y6p778djzj.1",
+      "type": "dois",
+      "attributes": {
+        "doi": "10.17632/y6p778djzj.1",
+        "identifiers": [],
+        "creators": [
+          {
+            "nameType": "Personal",
+            "givenName": "Nitiraj",
+            "familyName": "Kulkarni",
+            "name": "Kulkarni, Nitiraj",
+            "affiliation": [],
+            "nameIdentifiers": []
+          }
+        ],
+        "titles": [
+          {
+            "title": "Dataset: Daily Air Quality Index and Pollutant Concentrations for Pune, India"
+          }
+        ],
+        "publisher": "Mendeley Data",
+        "container": {},
+        "publicationYear": 2026,
+        "subjects": [
+          {
+            "subject": "Air Quality"
+          },
+          {
+            "subject": "Urban Air Quality"
+          },
+          {
+            "subject": "Air Quality Study"
+          }
+        ],
+        "contributors": [],
+        "dates": [
+          {
+            "date": "2026-01-28T13:05:58Z",
+            "dateType": "Issued"
+          }
+        ],
+        "language": null,
+        "types": {
+          "schemaOrg": "Dataset",
+          "resourceTypeGeneral": "Dataset",
+          "citeproc": "dataset",
+          "bibtex": "misc",
+          "ris": "DATA",
+          "resourceType": "Dataset"
         },
         "relatedIdentifiers": [
           {
             "relationType": "IsVersionOf",
-            "relatedIdentifier": "10.3886/e255804",
+            "resourceTypeGeneral": "Dataset",
+            "relatedIdentifier": "10.17632/y6p778djzj",
             "relatedIdentifierType": "DOI"
           }
         ],
         "relatedItems": [],
         "sizes": [],
         "formats": [],
-        "version": "v1",
-        "rightsList": [],
+        "version": null,
+        "rightsList": [
+          {
+            "rightsUri": "info:eu-repo/semantics/openAccess"
+          },
+          {
+            "rightsIdentifierScheme": "SPDX",
+            "rightsUri": "https://creativecommons.org/licenses/by/4.0/legalcode",
+            "schemeUri": "https://spdx.org/licenses/",
+            "rights": "Creative Commons Attribution 4.0 International",
+            "rightsIdentifier": "cc-by-4.0"
+          }
+        ],
         "descriptions": [
           {
             "descriptionType": "Abstract",
-            "description": "Exotic plant inventory in Mount Rainier, North Cascades, and Olympic National Parks, 2001-2002.",
-            "lang": "en"
-          },
-          {
-            "descriptionType": "Methods",
-            "description": "Collection 9688: Inventory and Monitoring Division Programs, Natural Resources Stewardship and Science Directorate &gt; Program 2195782: North Coast and Cascades Inventory and Monitoring Network (NCCN) &gt; Project 2229723: NCCN Inventory Exotic Plants Mount Rainier, North Cascades, and Olympic National Parks\nOriginal product folder: Exotic Plant Inventories in Mount Rainier, North Cascades, and Olympic National Parks tabular data -&gt; Exotic_Plant_Inventories_in_Mount_Rainier,_North_Cascades,_and_Olympic_National\nOriginal product folder: Exotic plant inventories in Mount Rainier, North Cascades, and Olympic National Parks -&gt; Exotic_plant_inventories_in_Mount_Rainier,_North_Cascades,_and_Olympic_Nationa_2 (Downloaded 2026-09-26)",
-            "lang": "en"
+            "description": "This dataset contains daily air quality measurements and Air Quality Index values for Pune, India, compiled from multiple Maharashtra Pollution Control Board monitoring stations across the city. The data spans from June 2019 to January 2026 and reflects long term air quality conditions across residential, educational, traffic influenced, and peri urban areas of Pune.\n\nThe dataset includes station "
           }
         ],
-        "geoLocations": [
-          {
-            "geoLocationPlace": "Washington"
-          }
-        ],
+        "geoLocations": [],
         "fundingReferences": [],
-        "url": "https://www.datalumos.org/datalumos/project/255804/version/V1/view",
+        "url": "https://data.mendeley.com/datasets/y6p778djzj/1",
         "contentUrl": null,
         "metadataVersion": 0,
         "schemaVersion": "http://datacite.org/schema/kernel-4",
@@ -705,15 +444,275 @@
         "partOfCount": 0,
         "versionCount": 0,
         "versionOfCount": 1,
-        "created": "2026-09-30T03:18:43Z",
-        "registered": "2026-09-30T03:18:43Z",
+        "created": "2026-01-28T13:06:00Z",
+        "registered": "2026-01-28T13:06:00Z",
         "published": null,
-        "updated": "2026-09-30T03:18:43Z"
+        "updated": "2026-01-28T13:06:00Z"
       },
       "relationships": {
         "client": {
           "data": {
-            "id": "gesis.icpsr",
+            "id": "bl.mendeley",
+            "type": "clients"
+          }
+        }
+      }
+    },
+    {
+      "id": "10.17632/y6p778djzj",
+      "type": "dois",
+      "attributes": {
+        "doi": "10.17632/y6p778djzj",
+        "identifiers": [],
+        "creators": [
+          {
+            "nameType": "Personal",
+            "givenName": "Nitiraj",
+            "familyName": "Kulkarni",
+            "name": "Kulkarni, Nitiraj",
+            "affiliation": [],
+            "nameIdentifiers": []
+          }
+        ],
+        "titles": [
+          {
+            "title": "Dataset: Daily Air Quality Index and Pollutant Concentrations for Pune, India"
+          }
+        ],
+        "publisher": "Mendeley Data",
+        "container": {},
+        "publicationYear": 2026,
+        "subjects": [
+          {
+            "subject": "Air Quality"
+          },
+          {
+            "subject": "Urban Air Quality"
+          },
+          {
+            "subject": "Air Quality Study"
+          }
+        ],
+        "contributors": [],
+        "dates": [
+          {
+            "date": "2026-01-28T13:05:58Z",
+            "dateType": "Issued"
+          }
+        ],
+        "language": null,
+        "types": {
+          "schemaOrg": "Dataset",
+          "resourceTypeGeneral": "Dataset",
+          "citeproc": "dataset",
+          "bibtex": "misc",
+          "ris": "DATA",
+          "resourceType": "Dataset"
+        },
+        "relatedIdentifiers": [
+          {
+            "relationType": "HasVersion",
+            "resourceTypeGeneral": "Dataset",
+            "relatedIdentifier": "10.17632/y6p778djzj.1",
+            "relatedIdentifierType": "DOI"
+          }
+        ],
+        "relatedItems": [],
+        "sizes": [],
+        "formats": [],
+        "version": null,
+        "rightsList": [
+          {
+            "rightsUri": "info:eu-repo/semantics/openAccess"
+          },
+          {
+            "rightsIdentifierScheme": "SPDX",
+            "rightsUri": "https://creativecommons.org/licenses/by/4.0/legalcode",
+            "schemeUri": "https://spdx.org/licenses/",
+            "rights": "Creative Commons Attribution 4.0 International",
+            "rightsIdentifier": "cc-by-4.0"
+          }
+        ],
+        "descriptions": [
+          {
+            "descriptionType": "Abstract",
+            "description": "This dataset contains daily air quality measurements and Air Quality Index values for Pune, India, compiled from multiple Maharashtra Pollution Control Board monitoring stations across the city. The data spans from June 2019 to January 2026 and reflects long term air quality conditions across residential, educational, traffic influenced, and peri urban areas of Pune.\n\nThe dataset includes station "
+          }
+        ],
+        "geoLocations": [],
+        "fundingReferences": [],
+        "url": "https://data.mendeley.com/datasets/y6p778djzj",
+        "contentUrl": null,
+        "metadataVersion": 0,
+        "schemaVersion": "http://datacite.org/schema/kernel-4",
+        "source": "api",
+        "isActive": true,
+        "state": "findable",
+        "reason": null,
+        "viewCount": 65,
+        "downloadCount": 19,
+        "referenceCount": 0,
+        "citationCount": 0,
+        "partCount": 0,
+        "partOfCount": 0,
+        "versionCount": 1,
+        "versionOfCount": 0,
+        "created": "2026-01-28T13:05:58Z",
+        "registered": "2026-01-28T13:05:59Z",
+        "published": null,
+        "updated": "2026-01-28T13:05:59Z"
+      },
+      "relationships": {
+        "client": {
+          "data": {
+            "id": "bl.mendeley",
+            "type": "clients"
+          }
+        }
+      }
+    },
+    {
+      "id": "10.17632/3h635bg8mh",
+      "type": "dois",
+      "attributes": {
+        "doi": "10.17632/3h635bg8mh",
+        "identifiers": [],
+        "creators": [
+          {
+            "nameType": "Personal",
+            "givenName": "Jagadish",
+            "familyName": "Tawade",
+            "name": "Tawade, Jagadish",
+            "nameIdentifiers": [
+              {
+                "nameIdentifierScheme": "ORCID",
+                "schemeUri": "https://orcid.org",
+                "nameIdentifier": "https://orcid.org/0000-0003-2070-1763"
+              }
+            ],
+            "affiliation": []
+          }
+        ],
+        "titles": [
+          {
+            "title": "Dataset: Air Quality Index (AQI) of Major Indian Cities and Stations 21/4/2024"
+          }
+        ],
+        "publisher": "Mendeley Data",
+        "container": {},
+        "publicationYear": 2024,
+        "subjects": [
+          {
+            "subject": "Air Pollution"
+          },
+          {
+            "subject": "Air Quality"
+          },
+          {
+            "subject": "Urban Air Quality"
+          },
+          {
+            "subject": "Air Quality Study"
+          },
+          {
+            "subject": "Air Property"
+          }
+        ],
+        "contributors": [
+          {
+            "nameType": "Personal",
+            "givenName": "Nitiraj",
+            "familyName": "Kulkarni",
+            "name": "Kulkarni, Nitiraj",
+            "nameIdentifiers": [
+              {
+                "nameIdentifierScheme": "ORCID",
+                "schemeUri": "https://orcid.org",
+                "nameIdentifier": "https://orcid.org/0009-0009-5423-6119"
+              }
+            ],
+            "contributorType": "Other",
+            "affiliation": []
+          }
+        ],
+        "dates": [
+          {
+            "date": "2024-04-23T07:05:12Z",
+            "dateType": "Issued"
+          }
+        ],
+        "language": null,
+        "types": {
+          "schemaOrg": "Dataset",
+          "resourceTypeGeneral": "Dataset",
+          "citeproc": "dataset",
+          "bibtex": "misc",
+          "ris": "DATA",
+          "resourceType": "Dataset"
+        },
+        "relatedIdentifiers": [
+          {
+            "relationType": "HasVersion",
+            "resourceTypeGeneral": "Dataset",
+            "relatedIdentifier": "10.17632/3h635bg8mh.2",
+            "relatedIdentifierType": "DOI"
+          },
+          {
+            "relationType": "HasVersion",
+            "resourceTypeGeneral": "Dataset",
+            "relatedIdentifier": "10.17632/3h635bg8mh.1",
+            "relatedIdentifierType": "DOI"
+          }
+        ],
+        "relatedItems": [],
+        "sizes": [],
+        "formats": [],
+        "version": null,
+        "rightsList": [
+          {
+            "rightsUri": "info:eu-repo/semantics/openAccess"
+          },
+          {
+            "rightsIdentifierScheme": "SPDX",
+            "rightsUri": "https://creativecommons.org/licenses/by/4.0/legalcode",
+            "schemeUri": "https://spdx.org/licenses/",
+            "rights": "Creative Commons Attribution 4.0 International",
+            "rightsIdentifier": "cc-by-4.0"
+          }
+        ],
+        "descriptions": [
+          {
+            "descriptionType": "Abstract",
+            "description": "The dataset contains air quality information for various cities across India. It includes parameters such as Air Quality Index (AQI), concentrations of particulate matter (PM2.5 and PM10), ozone (O3), nitrogen dioxide (NO2), sulfur dioxide (SO2), carbon monoxide (CO), as well as geographical coordinates and time stamps. This dataset enables analysis and comparison of air quality levels among diffe"
+          }
+        ],
+        "geoLocations": [],
+        "fundingReferences": [],
+        "url": "https://data.mendeley.com/datasets/3h635bg8mh",
+        "contentUrl": null,
+        "metadataVersion": 1,
+        "schemaVersion": "http://datacite.org/schema/kernel-4",
+        "source": "api",
+        "isActive": true,
+        "state": "findable",
+        "reason": null,
+        "viewCount": 144,
+        "downloadCount": 42,
+        "referenceCount": 0,
+        "citationCount": 0,
+        "partCount": 0,
+        "partOfCount": 0,
+        "versionCount": 2,
+        "versionOfCount": 0,
+        "created": "2024-04-22T15:08:02Z",
+        "registered": "2024-04-22T15:08:02Z",
+        "published": null,
+        "updated": "2025-05-01T05:14:52Z"
+      },
+      "relationships": {
+        "client": {
+          "data": {
+            "id": "bl.mendeley",
             "type": "clients"
           }
         }
@@ -721,12 +720,12 @@
     }
   ],
   "meta": {
-    "total": 4827,
-    "totalPages": 242,
+    "total": 33355,
+    "totalPages": 500,
     "page": 1
   },
   "links": {
-    "self": "https://api.datacite.org/dois?query=vascular+plant+occurrence&resource-type-id=dataset&page%5Bsize%5D=20&affiliation=false&mailto=user%40dataseek.dev",
-    "next": "https://api.datacite.org/dois?affiliation=false&page%5Bnumber%5D=2&page%5Bsize%5D=20&query=vascular+plant+occurrence&resource-type-id=dataset"
+    "self": "https://api.datacite.org/dois?query=air+quality&resource-type-id=dataset&page%5Bsize%5D=20&affiliation=false&sort=relevance&mailto=user%40dataseek.dev",
+    "next": "https://api.datacite.org/dois?affiliation=false&page%5Bnumber%5D=2&page%5Bsize%5D=20&query=air+quality&resource-type-id=dataset"
   }
 }
