@@ -158,6 +158,58 @@ fn built() -> clap::Command {
     cmd
 }
 
+/// The man page, in roff. clap_mangen draws the flags and commands from the
+/// plain definition, because roff would run together the value lists that
+/// `cli::command()` writes into the long help. Two fixes on top:
+///
+/// - A flag hidden from `-h` has no long help of its own, and clap_mangen
+///   would print it with no description, so its help becomes its long help.
+/// - The examples, exit codes and bug address that `--help` closes with
+///   become EXAMPLES, EXIT STATUS and REPORTING BUGS instead of one EXTRA
+///   section, from the same examples and from [`EXIT_CODES`].
+pub fn man_page() -> std::io::Result<Vec<u8>> {
+    use clap::CommandFactory;
+
+    let cmd = cli::Cli::command()
+        .after_help(None::<&'static str>)
+        .after_long_help(None::<&'static str>)
+        .mut_args(|arg| match arg.get_help().cloned() {
+            Some(help)
+                if arg.is_hide_short_help_set()
+                    && arg.get_long_help().is_none() =>
+            {
+                arg.long_help(help)
+            }
+            _ => arg,
+        });
+    let mut rendered = Vec::new();
+    clap_mangen::Man::new(cmd).render(&mut rendered)?;
+    let mut page = String::from_utf8_lossy(&rendered).into_owned();
+    let closing = closing_sections();
+    match page.find(".SH VERSION") {
+        Some(at) => page.insert_str(at, &closing),
+        None => page.push_str(&closing),
+    }
+    Ok(page.into_bytes())
+}
+
+fn closing_sections() -> String {
+    use std::fmt::Write as _;
+
+    let roff = |text: &str| text.replace('\\', "\\e").replace('-', "\\-");
+    let mut page = String::from(".SH EXAMPLES\n.nf\n");
+    for line in cli::examples!().lines().skip(1) {
+        let _ = writeln!(page, "{}", roff(line));
+    }
+    page.push_str(".fi\n.SH \"EXIT STATUS\"\n");
+    for (code, meaning) in EXIT_CODES {
+        let _ = writeln!(page, ".TP\n\\fB{code}\\fR\n{}", roff(meaning));
+    }
+    let issues = concat!(env!("CARGO_PKG_REPOSITORY"), "/issues");
+    let _ = writeln!(page, ".SH \"REPORTING BUGS\"\n{}", roff(issues));
+    page
+}
+
 /// clap's styled help as ANSI text; the stream decides whether it stays.
 fn ansi(help: &StyledStr) -> String {
     help.ansi().to_string()

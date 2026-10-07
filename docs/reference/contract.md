@@ -114,7 +114,7 @@ dataseek man | man -l -
 dataseek man > ~/.local/share/man/man1/dataseek.1
 ```
 
-Both are data, so both go to stdout, and both are derived from the clap definition rather than maintained by hand. The man page is rendered on demand by `clap_mangen` instead of at build time by a build script, so it cannot drift from the flags. The tests assert the page carries the manifest version, renders without errors and names every command, and that fish parses the completion script.
+Both are data, so both go to stdout, and both are derived from the clap definition rather than maintained by hand. The man page is rendered on demand by `clap_mangen` instead of at build time by a build script, so it cannot drift from the flags. `help::man_page` adds two things clap_mangen does not: a flag hidden from `-h` still gets its description, and the examples, exit codes (from `EXIT_CODES`, like `help exit-codes`) and bug address become EXAMPLES, EXIT STATUS and REPORTING BUGS sections. The tests assert the page carries the manifest version, renders without errors, names every command, describes every option and has those three sections, and that fish parses the completion script.
 
 ## Color
 

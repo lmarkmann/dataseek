@@ -1215,6 +1215,25 @@ fn the_man_page_renders_and_lists_every_command() {
     }
 }
 
+// Every option says what it does, the flags `-h` leaves out included, and
+// the closing text is split into the sections a man page reader expects.
+#[test]
+fn the_man_page_describes_every_option_in_named_sections() {
+    let roff = stdout_text(&["man"]);
+    let lines: Vec<&str> = roff.lines().collect();
+    for pair in lines.windows(2) {
+        if pair[0].starts_with("\\fB\\-") {
+            assert!(!pair[1].trim().is_empty(), "no description: {}", pair[0]);
+        }
+    }
+    for section in
+        [".SH EXAMPLES", ".SH \"EXIT STATUS\"", ".SH \"REPORTING BUGS\""]
+    {
+        assert!(roff.contains(section), "{section} missing");
+    }
+    assert!(!roff.contains(".SH EXTRA"), "{roff}");
+}
+
 fn stdout_of(args: &[&str]) -> Vec<u8> {
     bin().arg("sources").args(args).output().unwrap().stdout
 }

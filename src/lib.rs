@@ -68,7 +68,7 @@ use std::time::Duration;
 use clap::error::ErrorKind::{
     DisplayHelp, DisplayHelpOnMissingArgumentOrSubcommand, DisplayVersion,
 };
-use clap::{CommandFactory, FromArgMatches, ValueEnum};
+use clap::{FromArgMatches, ValueEnum};
 
 use cli::{Cli, ColorChoice, Command};
 use output::Out;
@@ -283,15 +283,8 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
             );
             out.stdout().write_all(&script)?;
         }
-        // Rendered on demand so the page cannot drift from the flags. Built
-        // from the plain definition: roff fills the value list that
-        // `cli::command()` writes into the long help, so the page keeps
-        // clap_mangen's own list of values instead.
-        Command::Man => {
-            let mut page = Vec::new();
-            clap_mangen::Man::new(Cli::command()).render(&mut page)?;
-            out.stdout().write_all(&page)?;
-        }
+        // Rendered on demand so the page cannot drift from the flags.
+        Command::Man => out.stdout().write_all(&help::man_page()?)?,
         Command::Help { topic } => help::run(topic.as_deref(), out)?,
     }
     Ok(())

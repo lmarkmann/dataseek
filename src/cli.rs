@@ -46,6 +46,7 @@ macro_rules! examples {
   dsk s census --json | jq -r '.results[].url'    one field per line"
     };
 }
+pub(crate) use examples;
 
 #[derive(Parser)]
 #[command(
