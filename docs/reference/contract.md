@@ -52,7 +52,7 @@ So a piped search still announces itself at once and sums up at the end, and no 
 
 Each text result is four lines: the rank and title, the URL, a muted line of facts, and the description. The facts are the sources that found it, then publisher, date, size, license and DOI, whichever are known, separated by ` | `.
 
-Other text output fits the terminal by wrapping, never by cutting: on a terminal a long value continues under its own column, and in a pipe it stays on one line so a script can read it. `inspect` wraps its fields that way, its description within 40 to 80 columns like a search result's. On a terminal its file list opens with the count and total size and gives each file two lines, name, size and format, then the link and checksum indented under them; when name, size and format do not fit side by side, size and format get a line of their own. In a pipe each file stays one line.
+Other text output fits the terminal by wrapping, never by cutting: on a terminal a long value continues under its own column, and in a pipe it stays on one line so a script can read it. `inspect` wraps its fields that way, its description within 40 to 80 columns like a search result's, and `doctor` each check's detail. On a terminal its file list opens with the count and total size and gives each file two lines, name, size and format, then the link and checksum indented under them; when name, size and format do not fit side by side, size and format get a line of their own. In a pipe each file stays one line.
 
 This is why `Cargo.toml` denies `print_stdout` and `print_stderr`: a stray `println!` is a contract violation, not a style preference.
 

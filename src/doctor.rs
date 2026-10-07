@@ -10,7 +10,7 @@ use serde::Serialize;
 use crate::cache::{self, Cache};
 use crate::credentials::{Credentials, Key};
 use crate::find::human_bytes;
-use crate::output::Out;
+use crate::output::{self, Out};
 use crate::sources::SOURCES;
 use crate::{palette, paths};
 
@@ -174,17 +174,25 @@ fn report(out: &Out, checks: &[Check]) -> Result<()> {
     )?;
     writeln!(w)?;
     let dim = palette::muted();
+    // Two spaces, the mark, a space, the label column, a space.
+    let indent = 29;
+    let room = output::room(indent);
     for check in checks {
         let (mark, style): (&str, Style) = if check.ok {
             (good, palette::success())
         } else {
             (bad, palette::warning())
         };
+        let mut detail = output::wrap(&check.detail, room).into_iter();
         writeln!(
             w,
             "  {style}{mark}{style:#} {:<24} {dim}{}{dim:#}",
-            check.label, check.detail
+            check.label,
+            detail.next().unwrap_or_default()
         )?;
+        for line in detail {
+            writeln!(w, "{:indent$}{dim}{line}{dim:#}", "")?;
+        }
     }
     writeln!(w)?;
 
