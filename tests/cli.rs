@@ -702,6 +702,22 @@ fn cache_warm_with_failures_says_how_many_and_exits_one() {
     }
 }
 
+// A --jq expression that fails on the report must not hide which catalogs
+// failed: the error names them, with the jq failure as its cause.
+#[test]
+fn cache_warm_failures_survive_a_failing_jq_expression() {
+    let out = bin()
+        .args(["cache", "warm", "-q", "--jq", r#"error("boom")"#])
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(1));
+    let event: Value = serde_json::from_slice(&out.stderr).unwrap();
+    let count = format!("{n} of {n} catalogs failed", n = catalog_ids().len());
+    assert!(event["message"].as_str().unwrap().contains(&count), "{event}");
+    let causes = event["causes"].as_array().unwrap();
+    assert!(causes.iter().any(|c| c.as_str().unwrap().contains("boom")));
+}
+
 #[test]
 fn cache_warm_into_an_unwritable_dir_fails_before_downloading() {
     let mut cmd = bin();

@@ -19,7 +19,13 @@ pub enum Error {
         failed.len(),
         failed.join(", ")
     )]
-    Partial { failed: Vec<&'static str>, total: usize },
+    Partial {
+        failed: Vec<&'static str>,
+        total: usize,
+        /// Printing the report failed too, under `--jq` for instance.
+        #[source]
+        output: Option<Box<dyn std::error::Error + Send + Sync>>,
+    },
 }
 
 pub fn run(action: CacheAction, out: &Out) -> Result<()> {
@@ -71,8 +77,33 @@ fn warm(out: &Out, dry_run: bool) -> Result<()> {
         download(&catalogs)?
     };
 
+    let printed = print(out, dry_run, &results);
+    let failed: Vec<_> = results
+        .iter()
+        .filter(|(_, r)| matches!(r, Some(Err(_))))
+        .map(|(id, _)| *id)
+        .collect();
+    if !failed.is_empty() {
+        let output = printed.err().map(Into::into);
+        return Err(
+            Error::Partial { failed, total: results.len(), output }.into()
+        );
+    }
+    printed?;
+    if !dry_run {
+        ui::ok(format!("{} catalogs downloaded", results.len()));
+    }
+    Ok(())
+}
+
+/// Successes to stdout; failures to stderr, or into the JSON report.
+fn print(
+    out: &Out,
+    dry_run: bool,
+    results: &[(&str, Option<Result<usize, SourceError>>)],
+) -> Result<()> {
     if out.json {
-        out.json(&serde_json::json!({
+        return out.json(&serde_json::json!({
             "schema": "dataseek-cache-warm/1",
             "dry_run": dry_run,
             "catalogs": results
@@ -85,28 +116,15 @@ fn warm(out: &Out, dry_run: bool) -> Result<()> {
                     }
                 })
                 .collect::<Vec<_>>(),
-        }))?;
-    } else {
-        let mut w = out.stdout();
-        for (id, result) in &results {
-            match result {
-                None => writeln!(w, "{id:<22} would download")?,
-                Some(Ok(n)) => writeln!(w, "{id:<22} {n} entries")?,
-                Some(Err(e)) => ui::warn(format!("{id}: {e}")),
-            }
+        }));
+    }
+    let mut w = out.stdout();
+    for (id, result) in results {
+        match result {
+            None => writeln!(w, "{id:<22} would download")?,
+            Some(Ok(n)) => writeln!(w, "{id:<22} {n} entries")?,
+            Some(Err(e)) => ui::warn(format!("{id}: {e}")),
         }
-    }
-
-    let failed: Vec<_> = results
-        .iter()
-        .filter(|(_, r)| matches!(r, Some(Err(_))))
-        .map(|(id, _)| *id)
-        .collect();
-    if !failed.is_empty() {
-        return Err(Error::Partial { failed, total: results.len() }.into());
-    }
-    if !dry_run {
-        ui::ok(format!("{} catalogs downloaded", results.len()));
     }
     Ok(())
 }
