@@ -388,26 +388,65 @@ mod tests {
         assert!(matches!(error, Error::AllFailed), "{error}");
     }
 
-    /// Four sources answering 50 records each, every record carrying a
-    /// 16 KB publisher. Titles stay under the 12 characters a title key
-    /// needs, so neither merging nor weighing reads the publisher, and any
-    /// of its bytes allocated while ranking is a copy.
+    const PUBLISHER_BYTES: usize = 16_000;
+    /// What ranking [`answered`] allocated when the test was written: keys,
+    /// the owner map, hits, the text weighing reads. One publisher copied
+    /// on top of it reaches the bound.
+    const RANKING_BYTES: usize = 409_516;
+
+    fn rain(url: &str, publisher: bool) -> Dataset {
+        let mut d = Dataset::new("Rain", url);
+        d.publisher = publisher.then(|| "p".repeat(PUBLISHER_BYTES));
+        d
+    }
+
+    /// Four sources answering 50 records each, most carrying a 16 KB
+    /// publisher. The first source's first 25 come back from the second,
+    /// first without a publisher and then with one, so merging hands it
+    /// over. The third source's first 25 lack one too; the fourth lists each
+    /// under another link with a publisher, then bridges the two links, so
+    /// absorbing one hit into another hands it over. The title is shorter
+    /// than the 12 characters a title key needs, so neither merging nor
+    /// weighing reads the publisher, and any of its bytes allocated while
+    /// ranking is a copy.
     fn answered() -> Vec<Outcome> {
+        let url = |path: String| format!("https://x.org/{path}");
+        let lists: [Vec<Dataset>; 4] = [
+            (0..50)
+                .map(|i| match i {
+                    0..25 => rain(&url(format!("a/{i}")), false),
+                    _ => rain(&url(format!("0/{i}")), true),
+                })
+                .collect(),
+            (0..50)
+                .map(|i| match i {
+                    0..25 => rain(&url(format!("a/{i}")), true),
+                    _ => rain(&url(format!("1/{i}")), true),
+                })
+                .collect(),
+            (0..50)
+                .map(|i| match i {
+                    0..25 => rain(&url(format!("b/{i}")), false),
+                    _ => rain(&url(format!("2/{i}")), true),
+                })
+                .collect(),
+            (0..25)
+                .map(|i| rain(&url(format!("c/{i}")), true))
+                .chain((0..25).map(|i| {
+                    let mut bridge = rain(&url(format!("b/{i}")), false);
+                    bridge.aliases.push(url(format!("c/{i}")));
+                    bridge
+                }))
+                .collect(),
+        ];
         SOURCES
             .iter()
-            .take(4)
-            .map(|source| Outcome {
+            .zip(lists)
+            .map(|(source, datasets)| Outcome {
                 source,
                 status: Status::Fetched,
                 elapsed: Duration::ZERO,
-                datasets: (0..50)
-                    .map(|i| {
-                        let url = format!("https://x.org/{}/{i}", source.id);
-                        let mut d = Dataset::new(&format!("Rain {i}"), &url);
-                        d.publisher = Some("p".repeat(16_000));
-                        d
-                    })
-                    .collect(),
+                datasets,
             })
             .collect()
     }
@@ -415,21 +454,21 @@ mod tests {
     #[test]
     fn ranking_moves_the_records_instead_of_copying_them() {
         let mut outcomes = answered();
-        let carried: usize = outcomes
-            .iter()
-            .flat_map(|o| &o.datasets)
-            .filter_map(|d| d.publisher.as_ref())
-            .map(String::len)
-            .sum();
         let mut hits = Vec::new();
         let allocated = allocation_counter::measure(|| {
             hits = ranked(&mut outcomes, "rain", Sort::Relevance);
         })
         .bytes_total;
-        assert_eq!(hits.len(), 200);
+        assert_eq!(hits.len(), 125);
+        assert_eq!(hits.iter().filter(|h| h.sources.len() == 2).count(), 50);
+        assert!(hits.iter().all(|h| {
+            h.dataset.publisher.as_ref().map(String::len)
+                == Some(PUBLISHER_BYTES)
+        }));
+        let bound = RANKING_BYTES.saturating_add(PUBLISHER_BYTES) as u64;
         assert!(
-            allocated < carried as u64,
-            "ranking {carried} bytes of records allocated {allocated}"
+            allocated < bound,
+            "ranking allocated {allocated} bytes, {RANKING_BYTES} expected"
         );
     }
 }
