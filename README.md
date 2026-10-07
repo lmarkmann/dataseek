@@ -9,20 +9,22 @@ One query, 76 dataset sources, one deduplicated list: machine-learning hubs (Hug
 ## Install
 
 ```sh
-cargo install --path .   # installs dataseek and dsk
+cargo install --locked --git https://github.com/lmarkmann/dataseek   # installs dataseek and dsk
 ```
+
+Needs a recent stable Rust toolchain. From a clone, `cargo install --locked --path .` does the same.
 
 ## Usage
 
 ```sh
-dsk search sea surface temperature          # every default source, merged and ranked
-dsk search mnist -s huggingface,kaggle      # only these sources
-dsk search inflation -c economics,finance   # only these categories
-dsk search census --json | jq -r '.results[].url'
-dsk sources                                 # every source, its protocol, key and docs
-dsk inspect https://zenodo.org/records/13135140  # a page's metadata and the files it lists
-dsk bench                                   # latency and overlap of every source
-dsk cache warm                              # download the catalogs searched locally
+dsk search sea surface temperature                 # every default source, merged and ranked
+dsk search mnist -s huggingface,kaggle             # only these sources
+dsk search inflation -c economics,finance          # only these categories
+dsk search census --json | jq -r '.results[].url'  # one URL per line, for scripts
+dsk sources                                        # every source, its protocol, key and docs
+dsk inspect https://zenodo.org/records/13135140    # a page's metadata and the files it lists
+dsk bench                                          # latency and overlap of every source
+dsk cache warm                                     # download the catalogs searched locally
 ```
 
 `dsk` alone shows the commands, `dsk help environment` the variables it reads, `dsk help exit-codes` what it returns.
@@ -46,10 +48,10 @@ Each tool returns what its command prints with `--json`; keys are read from the 
 ## Development
 
 ```sh
-just check   # fmt --check + clippy -D warnings + tests
-just ci      # everything the CI job runs: check, startup bench, typos, Windows and macOS cross-check, shear, msrv, audit
-just audit   # cargo-deny + zizmor
-just run search climate temperature
+just check                            # fmt --check, clippy -D warnings, tests, doctests
+just ci                               # everything CI gates on: check, relevance, startup bench, Windows and macOS cross-check, shear, msrv, audit, typos
+just audit                            # cargo-deny, zizmor
+just run search climate temperature   # the CLI built from this checkout
 ```
 
 ## Docs
