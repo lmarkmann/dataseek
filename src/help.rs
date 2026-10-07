@@ -118,7 +118,7 @@ pub fn run(topic: Option<&str>, out: &Out) -> Result<()> {
             Some("exit-codes") => codes_json(),
             Some(command) => json!({
                 "schema": "dataseek-command/1",
-                "command": built()
+                "command": Cli::command()
                     .find_subcommand(command)
                     .map_or(Value::Null, command_json),
             }),

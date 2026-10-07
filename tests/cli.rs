@@ -983,6 +983,19 @@ fn help_json_describes_the_surface() {
     assert_eq!(surface["exit_codes"].as_array().unwrap().len(), 4);
 }
 
+// One command, asked alone or as part of the surface, is one description:
+// its own flags, with the global ones listed once, on the root.
+#[test]
+fn help_for_one_command_matches_its_entry_in_the_surface() {
+    let surface = json_of(&["help", "--json"]);
+    for entry in surface["command"]["commands"].as_array().unwrap() {
+        let name = entry["name"].as_str().unwrap();
+        let alone = json_of(&["help", name, "--json"]);
+        assert_eq!(alone["schema"], "dataseek-command/1");
+        assert_eq!(&alone["command"], entry, "help {name} --json differs");
+    }
+}
+
 /// SIGINT to a search waiting on a host that accepted the connection and
 /// never answers must kill it as the shell expects: by the signal, which the
 /// shell reports as 130.
