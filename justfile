@@ -13,7 +13,7 @@ check:
     cargo test --doc --locked
 
 # Everything CI gates on, in the same order.
-ci: check bench-startup cross shear msrv audit
+ci: check relevance bench-startup cross shear msrv audit
     typos
 
 test *args:
@@ -73,6 +73,10 @@ bench-startup *args:
         "$bin completion fish" \
         "$bin sources"
     uv run --script scripts/bench_check.py docs/bench/startup.json {{ args }}
+
+# Relevance of the merged ranking, scored offline against the judged snapshot; fails on a regression. `--bless`, `variants`, `pool`, `absorb`, `record`: docs/reference/development.md.
+relevance *args:
+    cargo run --quiet --locked --features internals --example relevance -- {{ args }}
 
 # Mutate what the branch changed; a survivor is a line the tests run but never check.
 mutants *args:

@@ -254,6 +254,10 @@ const RUBRIC: &str = "\
 #   0  not relevant: off topic, a match on words only, or not data at all
 #   ?  not yet judged; `just relevance` fails until none is left
 #
+# A record with too little text to tell gets the grade its title supports;
+# a title that states exactly the need earns 2. Data finer than a stated
+# frequency (hourly for daily) meets it, since it sums to it.
+#
 # The reason is one line drawn from the record itself. Edit a grade or a
 # reason in place; `just relevance absorb` keeps edits and sorts the file.
 ";

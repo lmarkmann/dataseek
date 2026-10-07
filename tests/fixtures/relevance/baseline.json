@@ -1,0 +1,200 @@
+{
+  "metrics": {
+    "ndcg": {
+      "mean": 0.637682,
+      "low": 0.55515,
+      "high": 0.717997,
+      "tolerance": 0.010499
+    },
+    "precision": {
+      "mean": 0.696875,
+      "low": 0.59375,
+      "high": 0.79375,
+      "tolerance": 0.0128
+    },
+    "mrr": {
+      "mean": 0.514015,
+      "low": 0.304072,
+      "high": 0.72964,
+      "tolerance": 0.027038
+    }
+  },
+  "queries": {
+    "air-quality": [
+      0.909543,
+      1.0
+    ],
+    "amazon-deforestation": [
+      0.437474,
+      0.5
+    ],
+    "american-community-survey": [
+      0.1
+    ],
+    "band-gap": [
+      0.445969,
+      0.5
+    ],
+    "bird-occurrence": [
+      0.591188,
+      0.9
+    ],
+    "chest-xray": [
+      0.805982,
+      0.8
+    ],
+    "climate-temperature": [
+      0.843985,
+      0.9
+    ],
+    "co2-per-country": [
+      0.44053,
+      0.7
+    ],
+    "consumer-price-index": [
+      0.646798,
+      0.8
+    ],
+    "county-population": [
+      0.315465,
+      0.1
+    ],
+    "covid-admissions": [
+      1.0,
+      1.0
+    ],
+    "ecb-exchange-rates": [
+      1.0
+    ],
+    "eeg-motor-imagery": [
+      1.0,
+      1.0
+    ],
+    "era5": [
+      0.090909
+    ],
+    "ersst": [
+      1.0
+    ],
+    "euro-dollar": [
+      0.689851,
+      0.8
+    ],
+    "european-social-survey": [
+      1.0
+    ],
+    "fmri-movies": [
+      0.772091,
+      0.3
+    ],
+    "gbif-backbone": [
+      1.0
+    ],
+    "gene-expression-cancer": [
+      0.652769,
+      0.9
+    ],
+    "germany-rainfall": [
+      0.694356,
+      1.0
+    ],
+    "github-issues": [
+      0.946347,
+      0.4
+    ],
+    "higgs-challenge": [
+      1.0
+    ],
+    "household-electricity": [
+      0.674108,
+      0.7
+    ],
+    "household-income": [
+      0.645742,
+      0.9
+    ],
+    "image-classification": [
+      0.904803,
+      1.0
+    ],
+    "inflation-by-country": [
+      0.094788,
+      0.1
+    ],
+    "iris": [
+      0.111111
+    ],
+    "lhc-collisions": [
+      0.485761,
+      0.9
+    ],
+    "mimic-iv": [
+      0.0
+    ],
+    "mnist": [
+      1.0
+    ],
+    "modis-land-cover": [
+      0.2
+    ],
+    "nyc-311": [
+      0.055556
+    ],
+    "penn-world-table": [
+      1.0
+    ],
+    "population-census": [
+      1.0,
+      1.0
+    ],
+    "sars-cov-2-structures": [
+      0.659553,
+      0.9
+    ],
+    "single-cell-lung": [
+      0.891332,
+      0.9
+    ],
+    "skin-lesions": [
+      0.139056,
+      0.1
+    ],
+    "source-code": [
+      0.308554,
+      0.2
+    ],
+    "squad": [
+      0.166667
+    ],
+    "sst-monthly": [
+      0.62365,
+      0.8
+    ],
+    "stock-prices": [
+      0.67435,
+      0.8
+    ],
+    "tabula-sapiens": [
+      0.25
+    ],
+    "traffic-accidents": [
+      0.617039,
+      0.7
+    ],
+    "trust-in-government": [
+      0.352204,
+      0.5
+    ],
+    "unemployment-rate": [
+      0.62583,
+      0.8
+    ],
+    "wolf-sightings": [
+      0.516701,
+      0.4
+    ],
+    "world-development-indicators": [
+      0.25
+    ]
+  }
+}
