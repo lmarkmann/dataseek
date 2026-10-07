@@ -215,41 +215,69 @@ fn fill(target: &mut Dataset, other: &Dataset) {
 /// Re-score fused hits by how much of the query they mention, because many
 /// sources match loosely (any word, stemmed, or in fields dataseek never
 /// sees). The fused score is scaled by `0.25 + 0.75 * coverage`, where
-/// coverage is the share of query terms in the title or description. A hit
-/// that shows a description yet mentions no term at all is dropped; one
-/// without a description is kept at the floor, since there was little to
-/// check it against.
+/// coverage is the weight of the query terms found in the title or
+/// description over the weight of all of them. A term weighs its inverse
+/// document frequency among the hits being ranked, so a word nearly every
+/// hit carries ("country", "data", the source's own topic) counts for
+/// little and the rarer, telling one for a lot. A hit that shows a
+/// description yet mentions no term at all is dropped; one without a
+/// description is kept at the floor, since there was little to check it
+/// against.
 pub fn weigh(hits: Vec<Hit>, query: &str) -> Vec<Hit> {
     let terms = crate::catalog::terms(query);
     if terms.is_empty() {
         return hits;
     }
     let needles = crate::catalog::needles(&terms);
-    let kept: Vec<Hit> = hits
-        .into_iter()
-        .filter_map(|mut hit| {
+    let found: Vec<u64> = hits
+        .iter()
+        .map(|hit| {
             let text = format!(
                 "{} {}",
                 hit.dataset.title,
                 hit.dataset.description.as_deref().unwrap_or("")
             );
-            let found = crate::catalog::matched(&text, &needles);
-            if found == 0 && hit.dataset.description.is_some() {
+            crate::catalog::found(&text, &needles)
+        })
+        .collect();
+    let weights = idf(&found, needles.len().min(64));
+    let total: f64 = weights.iter().sum();
+    let kept: Vec<Hit> = hits
+        .into_iter()
+        .zip(&found)
+        .filter_map(|(mut hit, &bits)| {
+            if bits == 0 && hit.dataset.description.is_some() {
                 return None;
             }
-            hit.score *= 0.25 + 0.75 * share(found, terms.len());
+            let covered: f64 = weights
+                .iter()
+                .enumerate()
+                .filter(|(i, _)| bits >> i & 1 == 1)
+                .map(|(_, w)| w)
+                .sum();
+            hit.score *= 0.25 + 0.75 * covered / total;
             Some(hit)
         })
         .collect();
     rank(kept)
 }
 
+/// Each term's inverse document frequency over the hits, in the BM25 form
+/// `ln(1 + (n - df + 0.5) / (df + 0.5))` (Robertson and Zaragoza, 2009),
+/// which stays positive even for a term every hit carries.
 #[expect(
     clippy::cast_precision_loss,
-    reason = "term counts are tiny; f64 holds them exactly"
+    reason = "hit counts are small; f64 holds them exactly"
 )]
-fn share(found: usize, total: usize) -> f64 {
-    found as f64 / total.max(1) as f64
+fn idf(found: &[u64], terms: usize) -> Vec<f64> {
+    let n = found.len() as f64;
+    (0..terms)
+        .map(|i| {
+            let df = found.iter().filter(|bits| *bits >> i & 1 == 1).count();
+            let df = df as f64;
+            ((n - df + 0.5) / (df + 0.5) + 1.0).ln()
+        })
+        .collect()
 }
 
 /// Every key under which this record could appear in another source.
@@ -514,6 +542,25 @@ mod tests {
             titles,
             ["Single-cell atlas of the human lung", "Lung function tests"]
         );
+    }
+
+    #[test]
+    fn weighing_favors_the_rarer_query_word() {
+        // Two hits say "country" and one says "inflation". Counting terms
+        // ties all three at half the query, so fusion would keep the source
+        // order; weighting by rarity lifts the one hit with the telling word.
+        let mut codes = ds("Country codes", "https://x.org/1");
+        codes.description = Some("ISO codes per country".into());
+        let mut borders = ds("Country borders", "https://x.org/2");
+        borders.description = Some("Borders per country".into());
+        let mut prices = ds("Inflation", "https://x.org/3");
+        prices.description = Some("Consumer prices".into());
+        let hits = merge(&[("a", vec![codes, borders, prices])]);
+        let titles: Vec<String> = weigh(hits, "inflation country")
+            .into_iter()
+            .map(|h| h.dataset.title)
+            .collect();
+        assert_eq!(titles, ["Inflation", "Country codes", "Country borders"]);
     }
 
     #[test]

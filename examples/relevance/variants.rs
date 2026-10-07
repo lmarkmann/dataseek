@@ -5,7 +5,7 @@
 
 use std::collections::HashMap;
 
-use dataseek::internals::{Hit, matched, merge, needles, terms, words};
+use dataseek::internals::{Hit, merge, needles, terms, words};
 
 use crate::metrics::real;
 use crate::snapshot::Lists;
@@ -77,7 +77,7 @@ impl Config {
             depth: 10,
             fusion: Fusion::Rrf(60.0),
             priors: false,
-            matching: Match::Coverage,
+            matching: Match::Idf,
             stopwords: false,
             floor: 0.25,
             power: 1.0,
@@ -169,8 +169,8 @@ pub fn settings() -> Vec<Setting> {
     all.push(setting("match", "title-weighted", 0.0, |c, _| {
         c.matching = Match::TitleWeighted;
     }));
-    all.push(setting("match", "IDF-weighted", 0.0, |c, _| {
-        c.matching = Match::Idf;
+    all.push(setting("match", "plain term count", 0.0, |c, _| {
+        c.matching = Match::Coverage;
     }));
     all.push(setting("match", "no rescoring", 0.0, |c, _| {
         c.matching = Match::Off;
@@ -333,14 +333,8 @@ pub fn rank(
             if found == 0 && thin && config.thin == Thin::DropUnmatched {
                 return None;
             }
-            let coverage = coverage(
-                config.matching,
-                hit,
-                &needles,
-                &in_title,
-                &in_body,
-                &idf,
-            );
+            let coverage =
+                coverage(config.matching, &needles, &in_title, &in_body, &idf);
             let mut score = fused
                 * (config.floor
                     + (1.0 - config.floor) * coverage.powf(config.power));
@@ -366,7 +360,6 @@ pub fn rank(
 /// The share of the query a hit covers, as `matching` measures it.
 fn coverage(
     matching: Match,
-    hit: &Hit,
     needles: &[String],
     in_title: &[bool],
     in_body: &[bool],
@@ -375,12 +368,8 @@ fn coverage(
     let both = in_title.iter().zip(in_body);
     match matching {
         Match::Coverage => {
-            let text = format!(
-                "{} {}",
-                hit.dataset.title,
-                hit.dataset.description.as_deref().unwrap_or("")
-            );
-            real(matched(&text, needles)) / real(needles.len())
+            real(both.filter(|(t, b)| **t || **b).count())
+                / real(needles.len())
         }
         Match::TitleWeighted => {
             let points: f64 = both

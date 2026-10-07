@@ -37,10 +37,16 @@ pub fn needles(terms: &[String]) -> Vec<String> {
     terms.iter().map(|t| format!(" {t}")).collect()
 }
 
-/// How many of `needles` appear as a word prefix in `text`.
-pub fn matched(text: &str, needles: &[String]) -> usize {
+/// Which of the first 64 `needles` appear as a word prefix in `text`, as a
+/// bit per needle.
+pub fn found(text: &str, needles: &[String]) -> u64 {
     let words = words(text);
-    needles.iter().filter(|n| words.contains(n.as_str())).count()
+    needles
+        .iter()
+        .take(64)
+        .enumerate()
+        .filter(|(_, n)| words.contains(n.as_str()))
+        .fold(0, |bits, (i, _)| bits | 1 << i)
 }
 
 pub fn search(entries: &[Dataset], query: &str, limit: usize) -> Vec<Dataset> {

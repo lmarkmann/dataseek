@@ -48,7 +48,7 @@ mod ui;
 pub mod internals {
     pub use crate::cache::{Cache, Kind};
     pub use crate::catalog::search as catalog_search;
-    pub use crate::catalog::{matched, needles, terms, words};
+    pub use crate::catalog::{found, needles, terms, words};
     pub use crate::dedup::{Hit, identity_keys, merge, weigh};
     pub use crate::record::{Dataset, clean};
     pub use crate::search::{Outcome, Plan, Status, run as search};
