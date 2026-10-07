@@ -351,6 +351,14 @@ mod tests {
     }
 
     #[test]
+    fn an_escape_sequence_in_a_tag_name_never_reaches_the_error() {
+        let hostile = "<Structure></\u{1b}]52;c;ZWNobyBoaQ==\u{7}>";
+        let error = flows(hostile).err().unwrap().to_string();
+        assert!(error.contains("]52;c;"), "{error}");
+        assert!(!error.chars().any(char::is_control), "{error:?}");
+    }
+
+    #[test]
     fn dataflows_map_from_a_recorded_list() {
         let datasets = parse(&ECB, &fixture::text("sdmx.xml")).unwrap();
         let titles: Vec<&str> =

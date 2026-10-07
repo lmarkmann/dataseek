@@ -358,7 +358,7 @@ pub fn localized(value: Option<&Value>) -> Option<String> {
 
 /// Every control character (ESC, CSI, OSC, C1) replaced by a space and
 /// every [`invisible`] one dropped.
-fn printable(text: &str) -> impl Iterator<Item = char> + '_ {
+pub fn printable(text: &str) -> impl Iterator<Item = char> + '_ {
     without_controls(text).filter(|&c| !invisible(c))
 }
 

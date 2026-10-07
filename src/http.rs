@@ -101,8 +101,15 @@ impl SourceError {
     }
 
     pub fn shape(what: impl Into<String>) -> Self {
-        Self::Shape(what.into())
+        Self::Shape(terminal_safe(what.into()))
     }
+}
+
+/// Error text that came from upstream, with its control characters
+/// replaced: a provider that puts an escape sequence into a tag name or a
+/// header must not get to drive the terminal the error is printed on.
+fn terminal_safe(upstream: impl std::fmt::Display) -> String {
+    crate::record::printable(&upstream.to_string()).collect()
 }
 
 pub struct Http {
@@ -325,12 +332,14 @@ fn transport(error: &ureq::Error) -> SourceError {
         }
         ureq::Error::Timeout(_) => SourceError::Timeout,
         #[cfg(not(any(windows, target_os = "macos")))]
-        ureq::Error::Rustls(_) => SourceError::Certificate(error.to_string()),
+        ureq::Error::Rustls(_) => {
+            SourceError::Certificate(terminal_safe(error))
+        }
         #[cfg(not(any(windows, target_os = "macos")))]
         ureq::Error::Io(io) if refused_certificate(io) => {
-            SourceError::Certificate(error.to_string())
+            SourceError::Certificate(terminal_safe(error))
         }
-        other => SourceError::Unreachable(other.to_string()),
+        other => SourceError::Unreachable(terminal_safe(other)),
     }
 }
 
