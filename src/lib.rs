@@ -61,6 +61,8 @@ pub mod internals {
 use std::ffi::OsString;
 use std::io::{self, Write};
 use std::process::ExitCode;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 
 use clap::error::ErrorKind::{
@@ -73,27 +75,30 @@ use output::Out;
 
 /// Rust ignores SIGPIPE, so `dataseek search x | head` would panic on the next
 /// write. Restore the default: die quietly with 141. Unix only; Windows reports
-/// a closed pipe as a write error, which [`report`] handles.
+/// a closed pipe as a write error, which [`report`] handles. Returns the
+/// switch that keeps the default on: `mcp` turns it off, so a client that
+/// closes the pipe is a write error and the server still stops its calls.
 #[cfg(unix)]
-fn restore_sigpipe() {
-    use std::sync::Arc;
-    use std::sync::atomic::AtomicBool;
-
+fn restore_sigpipe() -> Arc<AtomicBool> {
+    let sigpipe_kills = Arc::new(AtomicBool::new(true));
     let _ = signal_hook::flag::register_conditional_default(
         signal_hook::consts::SIGPIPE,
-        Arc::new(AtomicBool::new(true)),
+        Arc::clone(&sigpipe_kills),
     );
+    sigpipe_kills
 }
 
 #[cfg(not(unix))]
-fn restore_sigpipe() {}
+fn restore_sigpipe() -> Arc<AtomicBool> {
+    Arc::new(AtomicBool::new(true))
+}
 
 /// Run the command line named by the process arguments. Shared by the
 /// `dataseek` and `dsk` binaries; clap reads the invoked name from `argv[0]`,
 /// so usage lines and completions follow whichever name was typed.
 #[must_use]
 pub fn main() -> ExitCode {
-    restore_sigpipe();
+    let sigpipe_kills = restore_sigpipe();
 
     let args: Vec<OsString> = std::env::args_os().collect();
     let early = Early::scan(&args);
@@ -106,6 +111,9 @@ pub fn main() -> ExitCode {
         Err(err) => return usage(&err, &early),
     };
 
+    if matches!(cli.command, Some(Command::Mcp)) {
+        sigpipe_kills.store(false, Ordering::Relaxed);
+    }
     let out = Out::resolve(&cli);
     ui::init(&out);
     paths::relocate_cache(cli.cache_dir.clone());
@@ -178,18 +186,31 @@ fn usage(err: &clap::Error, early: &Early) -> ExitCode {
     let text = err.render().to_string();
     let mut lines = text.lines().map(str::trim).filter(|l| !l.is_empty());
     let message = lines.next().unwrap_or_default();
-    let hint = lines
-        .find_map(|l| l.strip_prefix("tip: "))
-        .unwrap_or("run with --help to see what is accepted");
+    // The lines under clap's first one name what is missing or list the
+    // possible values; the usage line and the pointer to --help repeat what
+    // the hint says.
+    let (mut causes, mut hint) = (Vec::new(), USAGE_HINT);
+    for line in lines {
+        if let Some(tip) = line.strip_prefix("tip: ") {
+            hint = tip;
+        } else if !line.starts_with("Usage:")
+            && !line.starts_with("For more information")
+        {
+            causes.push(line);
+        }
+    }
     ui::event_line(&serde_json::json!({
         "schema": ui::EVENTS_SCHEMA,
         "event": "error",
         "message": message.strip_prefix("error: ").unwrap_or(message),
-        "causes": [],
+        "causes": causes,
         "try": hint,
     }));
     code
 }
+
+/// The hint of a usage error clap offers no tip for.
+const USAGE_HINT: &str = "run with --help to see what is accepted";
 
 fn print_clap(err: &clap::Error) -> ExitCode {
     let _ = err.print();
@@ -311,10 +332,13 @@ fn report(err: &anyhow::Error, out: &Out) -> ExitCode {
 }
 
 /// An error as dataseek reports it: what went wrong, the causes under it, and
-/// what to try. `report` prints it; `mcp` returns it as a failed tool call.
+/// what to try. `report` prints it; `mcp` returns it as a failed tool call,
+/// reading it back from the error event a child wrote.
+#[derive(serde::Deserialize)]
 pub(crate) struct Failure {
     message: String,
     causes: Vec<String>,
+    #[serde(rename = "try")]
     hint: String,
 }
 
@@ -336,21 +360,6 @@ impl Failure {
         };
         let causes = err.chain().skip(1).map(ToString::to_string).collect();
         Self { message, causes, hint }
-    }
-
-    /// The failure an error event on stderr describes, as `--json` writes it.
-    pub(crate) fn from_event(event: &serde_json::Value) -> Option<Self> {
-        let text = |key: &str| event.get(key)?.as_str().map(str::to_owned);
-        Some(Self {
-            message: text("message")?,
-            causes: event
-                .get("causes")?
-                .as_array()?
-                .iter()
-                .filter_map(|cause| cause.as_str().map(str::to_owned))
-                .collect(),
-            hint: text("try")?,
-        })
     }
 
     pub(crate) fn event(&self) -> serde_json::Value {

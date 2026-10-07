@@ -350,11 +350,28 @@ fn errors_under_json_are_events_on_stderr() {
         .collect();
     assert!(events.iter().any(|e| e["event"] == "note"), "{events:?}");
 
-    // clap's own usage errors take the same shape.
+    // clap's own usage errors take the same shape, with clap's details as
+    // causes.
     let out = bin().args(["--json", "no-such-command"]).output().unwrap();
     assert_eq!(out.status.code(), Some(2));
     let event: Value = serde_json::from_slice(&out.stderr).unwrap();
     assert_eq!(event["event"], "error");
+    let out = bin()
+        .args(["--json", "search", "x", "--sort", "oldest"])
+        .output()
+        .unwrap();
+    let event: Value = serde_json::from_slice(&out.stderr).unwrap();
+    assert_eq!(
+        event["message"],
+        "invalid value 'oldest' for '--sort <ORDER>'"
+    );
+    assert_eq!(
+        event["causes"],
+        json!(["[possible values: relevance, newest]"])
+    );
+    let out = bin().args(["--json", "search"]).output().unwrap();
+    let event: Value = serde_json::from_slice(&out.stderr).unwrap();
+    assert_eq!(event["causes"], json!(["<QUERY>..."]));
 }
 
 // A script written for --jq must fail as a usage error that names the
@@ -764,6 +781,34 @@ const BARE_PAGE: &str = r#"<html><head>
 </script>
 </head></html>"#;
 
+/// A file list of two entries that name nothing dataseek can show.
+const UNREADABLE_FILES_PAGE: &str = r#"<html><head>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "Dataset", "name": "Rainfall",
+ "distribution": [{"@type": "DataDownload"},
+  {"@type": "DataDownload", "description": "daily totals"}]}
+</script>
+</head></html>"#;
+
+/// A file whose size is written in words.
+const ROUGH_SIZE_PAGE: &str = r#"<html><head>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "Dataset", "name": "Rainfall",
+ "distribution": [{"@type": "DataDownload", "name": "rain.csv",
+  "contentSize": "about 2 MB", "contentUrl": "https://example.org/rain.csv"}]}
+</script>
+</head></html>"#;
+
+/// A page whose metadata carries terminal escapes, a bell and a C1 control
+/// beside the line breaks and tabs a description may hold.
+const ESCAPING_PAGE: &str = r#"<html><head>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "Dataset",
+ "name": "Rain\u001b[2Jfall\u009b", "files": "the page's own",
+ "description": "daily\ntotals\tin mm\u0007"}
+</script>
+</head></html>"#;
+
 /// A local server answering every request with `page`; its address.
 fn serve_page(page: &'static str) -> String {
     let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
@@ -808,13 +853,18 @@ fn inspect_page(page: &'static str, args: &[&str]) -> std::process::Output {
         .unwrap()
 }
 
+/// `inspect --json` of a local page.
+fn inspect_json(page: &'static str) -> Value {
+    let out = inspect_page(page, &["--json"]);
+    assert!(out.status.success(), "{out:?}");
+    serde_json::from_slice(&out.stdout).unwrap()
+}
+
 #[test]
 fn inspect_lists_the_files_a_page_describes() {
-    let out = inspect_page(DATASET_PAGE, &["--json"]);
-    assert!(out.status.success(), "{out:?}");
-    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    let report = inspect_json(DATASET_PAGE);
     assert_eq!(
-        report["dataset"]["files"],
+        report["files"],
         json!([{
             "name": "rain.csv",
             "format": "text/csv",
@@ -837,33 +887,76 @@ fn inspect_says_when_a_page_lists_no_files() {
     let out = inspect_page(BARE_PAGE, &["--json"]);
     assert!(out.status.success(), "{out:?}");
     let report: Value = serde_json::from_slice(&out.stdout).unwrap();
-    assert_eq!(report["dataset"]["files"], json!([]));
+    assert_eq!(report["files"], json!([]));
     let stderr = String::from_utf8(out.stderr).unwrap();
     assert!(stderr.contains("the page's metadata lists no files"), "{stderr}");
 }
 
-/// On Linux the roots come from the system store, which `SSL_CERT_FILE`
-/// replaces: a page served under a private root, as a TLS-inspecting proxy
-/// serves every page, is trusted once that root is installed.
-#[cfg(target_os = "linux")]
 #[test]
-fn linux_trusts_the_root_certificates_the_system_names() {
+fn inspect_prints_no_control_character_from_the_page() {
+    let report = inspect_json(ESCAPING_PAGE);
+    assert_eq!(report["dataset"]["name"], "Rain [2Jfall ");
+    assert_eq!(report["dataset"]["description"], "daily\ntotals\tin mm ");
+    assert_eq!(report["dataset"]["files"], "the page's own");
+    assert_eq!(report["files"], json!([]));
+
+    let out = inspect_page(ESCAPING_PAGE, &[]);
+    let text = String::from_utf8(out.stdout).unwrap();
+    assert!(text.contains("Rain [2Jfall"), "{text}");
+    assert!(!text.chars().any(|c| c.is_control() && c != '\n'), "{text:?}");
+}
+
+#[test]
+fn inspect_counts_the_files_it_could_not_read() {
+    let out = inspect_page(UNREADABLE_FILES_PAGE, &[]);
+    assert!(out.status.success(), "{out:?}");
+    let stderr = String::from_utf8(out.stderr).unwrap();
+    assert!(
+        stderr.contains("the page lists 2 files dataseek could not read"),
+        "{stderr}"
+    );
+}
+
+#[test]
+fn inspect_prints_a_size_it_cannot_read_as_written() {
+    let out = inspect_page(ROUGH_SIZE_PAGE, &[]);
+    assert!(out.status.success(), "{out:?}");
+    let text = String::from_utf8(out.stdout).unwrap();
+    let line = format!(
+        "{:<12} rain.csv  about 2 MB  https://example.org/rain.csv",
+        "files"
+    );
+    assert!(text.lines().any(|l| l == line), "{text}");
+}
+
+/// A root certificate generated for one test, like the one a TLS-inspecting
+/// proxy re-signs every connection under.
+#[cfg(target_os = "linux")]
+fn generated_root() -> rcgen::CertifiedIssuer<'static, rcgen::KeyPair> {
+    let mut params = rcgen::CertificateParams::new(Vec::new()).unwrap();
+    params.is_ca = rcgen::IsCa::Ca(rcgen::BasicConstraints::Unconstrained);
+    rcgen::CertifiedIssuer::self_signed(
+        params,
+        rcgen::KeyPair::generate().unwrap(),
+    )
+    .unwrap()
+}
+
+/// A local HTTPS server answering every request with `page`, under a
+/// certificate for 127.0.0.1 that `root` signed; its address.
+#[cfg(target_os = "linux")]
+fn serve_tls(
+    root: &rcgen::CertifiedIssuer<'_, rcgen::KeyPair>,
+    page: &'static str,
+) -> String {
     use std::sync::Arc;
 
-    use rcgen::{
-        BasicConstraints, CertificateParams, CertifiedIssuer, IsCa, KeyPair,
-    };
     use rustls::pki_types::PrivatePkcs8KeyDer;
 
-    let mut root = CertificateParams::new(Vec::new()).unwrap();
-    root.is_ca = IsCa::Ca(BasicConstraints::Unconstrained);
-    let root =
-        CertifiedIssuer::self_signed(root, KeyPair::generate().unwrap())
-            .unwrap();
-    let key = KeyPair::generate().unwrap();
-    let leaf = CertificateParams::new(vec!["127.0.0.1".to_owned()])
+    let key = rcgen::KeyPair::generate().unwrap();
+    let leaf = rcgen::CertificateParams::new(vec!["127.0.0.1".to_owned()])
         .unwrap()
-        .signed_by(&key, &root)
+        .signed_by(&key, root)
         .unwrap();
     let provider = Arc::new(rustls::crypto::ring::default_provider());
     let config = Arc::new(
@@ -877,33 +970,83 @@ fn linux_trusts_the_root_certificates_the_system_names() {
             )
             .unwrap(),
     );
-
     let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
     let url = format!("https://{}/", listener.local_addr().unwrap());
     std::thread::spawn(move || {
         for tcp in listener.incoming().flatten() {
             let tls = rustls::ServerConnection::new(Arc::clone(&config));
-            let _ = answer(
-                rustls::StreamOwned::new(tls.unwrap(), tcp),
-                DATASET_PAGE,
-            );
+            let _ = answer(rustls::StreamOwned::new(tls.unwrap(), tcp), page);
         }
     });
+    url
+}
 
+/// `inspect --json` of `url` with `roots`, PEM text, as the whole trust
+/// store: on Linux `SSL_CERT_FILE` replaces the system's.
+#[cfg(target_os = "linux")]
+fn inspect_trusting(roots: &str, url: &str) -> std::process::Output {
     let mut cmd = bin();
-    let roots = cmd.dir.path().join("roots.pem");
-    std::fs::write(&roots, root.pem()).unwrap();
-    let out = cmd
-        .env("SSL_CERT_FILE", &roots)
+    let file = cmd.dir.path().join("roots.pem");
+    std::fs::write(&file, roots).unwrap();
+    cmd.env("SSL_CERT_FILE", &file)
         .env_remove("SSL_CERT_DIR")
         .env_remove("HTTPS_PROXY")
         .env_remove("HTTP_PROXY")
-        .args(["inspect", &url, "--json"])
+        .args(["inspect", url, "--json"])
         .output()
-        .unwrap();
+        .unwrap()
+}
+
+/// A run that failed on a certificate: nothing on stdout, and a hint that
+/// says how to give the system the roots it lacks.
+#[cfg(target_os = "linux")]
+fn assert_refused_certificate(out: &std::process::Output) {
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    assert!(!out.status.success(), "{stderr}");
+    assert!(out.stdout.is_empty(), "{out:?}");
+    assert!(stderr.contains("cannot verify the certificate"), "{stderr}");
+    assert!(stderr.contains("ca-certificates"), "{stderr}");
+}
+
+/// A page served under a private root, as a TLS-inspecting proxy serves
+/// every page, is trusted once that root is in the system's store.
+#[cfg(target_os = "linux")]
+#[test]
+fn linux_trusts_the_root_certificates_the_system_names() {
+    let root = generated_root();
+    let out = inspect_trusting(&root.pem(), &serve_tls(&root, DATASET_PAGE));
     assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
     let report: Value = serde_json::from_slice(&out.stdout).unwrap();
     assert_eq!(report["dataset"]["name"], "Rainfall");
+    assert_eq!(
+        report["files"],
+        json!([{
+            "name": "rain.csv",
+            "format": "text/csv",
+            "size_bytes": 2_000_000,
+            "url": "https://example.org/rain.csv",
+        }])
+    );
+}
+
+/// The same server under a root the store lacks, as behind a proxy whose
+/// root was never installed.
+#[cfg(target_os = "linux")]
+#[test]
+fn linux_refuses_a_root_the_system_does_not_name() {
+    let (trusted, other) = (generated_root(), generated_root());
+    let out =
+        inspect_trusting(&trusted.pem(), &serve_tls(&other, DATASET_PAGE));
+    assert_refused_certificate(&out);
+}
+
+/// A bare container image has no CA bundle; an empty one stands in for it.
+#[cfg(target_os = "linux")]
+#[test]
+fn linux_with_no_roots_says_how_to_install_them() {
+    let root = generated_root();
+    let out = inspect_trusting("", &serve_tls(&root, DATASET_PAGE));
+    assert_refused_certificate(&out);
 }
 
 #[test]
@@ -1321,6 +1464,7 @@ fn json_shapes_snapshot() {
             "schema": json_of(&["help", "search", "--json"])["schema"],
         },
         "search": seeded_search_json(),
+        "inspect": inspect_json(DATASET_PAGE),
     });
     filters::with_snapshot_filters(|| {
         insta::assert_snapshot!(
@@ -1340,19 +1484,23 @@ struct Mcp {
 impl Mcp {
     /// Every request the server or its children send goes to `proxy`.
     fn start(dir: &Path, proxy: &str) -> Self {
+        Self::start_as(Path::new(env!("CARGO_BIN_EXE_dataseek")), dir, proxy)
+    }
+
+    /// The server as `program`, a copy of the binary under test.
+    fn start_as(program: &Path, dir: &Path, proxy: &str) -> Self {
         use std::io::BufRead;
         use std::process::Stdio;
 
-        let mut child =
-            sandboxed(Path::new(env!("CARGO_BIN_EXE_dataseek")), dir)
-                .env("HTTPS_PROXY", proxy)
-                .env("HTTP_PROXY", proxy)
-                .arg("mcp")
-                .stdin(Stdio::piped())
-                .stdout(Stdio::piped())
-                .stderr(Stdio::piped())
-                .spawn()
-                .unwrap();
+        let mut child = sandboxed(program, dir)
+            .env("HTTPS_PROXY", proxy)
+            .env("HTTP_PROXY", proxy)
+            .arg("mcp")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
         let stdin = child.stdin.take();
         let lines =
             std::io::BufReader::new(child.stdout.take().unwrap()).lines();
@@ -1360,23 +1508,38 @@ impl Mcp {
     }
 
     fn send(&mut self, message: &Value) {
+        self.send_line(message.to_string().as_bytes());
+    }
+
+    fn send_line(&mut self, line: &[u8]) {
         use std::io::Write;
 
         let stdin = self.stdin.as_mut().unwrap();
-        writeln!(stdin, "{message}").unwrap();
+        stdin.write_all(line).unwrap();
+        stdin.write_all(b"\n").unwrap();
         stdin.flush().unwrap();
     }
 
-    /// Send a request and read its response, which must be the next line.
-    fn ask(&mut self, id: u64, method: &str, params: Value) -> Value {
+    /// The next line on stdout, which must be a JSON-RPC message.
+    fn receive(&mut self) -> Value {
+        let line = self.lines.next().unwrap().unwrap();
+        let message: Value = serde_json::from_str(&line).unwrap();
+        assert_eq!(message.get("jsonrpc"), Some(&json!("2.0")), "{line}");
+        message
+    }
+
+    fn request(&mut self, id: u64, method: &str, params: Value) {
         let mut request =
             json!({ "jsonrpc": "2.0", "id": id, "method": method });
         request.as_object_mut().unwrap().insert("params".into(), params);
         self.send(&request);
-        let line = self.lines.next().unwrap().unwrap();
-        let response: Value = serde_json::from_str(&line).unwrap();
-        assert_eq!(response.get("jsonrpc"), Some(&json!("2.0")), "{line}");
-        assert_eq!(response.get("id"), Some(&json!(id)), "{line}");
+    }
+
+    /// Send a request and read its response, which must be the next line.
+    fn ask(&mut self, id: u64, method: &str, params: Value) -> Value {
+        self.request(id, method, params);
+        let response = self.receive();
+        assert_eq!(response.get("id"), Some(&json!(id)), "{response}");
         response
     }
 
@@ -1397,23 +1560,47 @@ impl Mcp {
         use std::io::Read;
 
         drop(self.stdin.take());
-        let started = std::time::Instant::now();
-        let status = loop {
-            if let Some(status) = self.child.try_wait().unwrap() {
-                break status;
-            }
-            if started.elapsed() > std::time::Duration::from_secs(10) {
-                self.child.kill().unwrap();
-                panic!("dataseek mcp did not exit after stdin closed");
-            }
-            std::thread::sleep(std::time::Duration::from_millis(20));
-        };
+        let status = exit_within_10s(&mut self.child);
         assert!(status.success(), "{status:?}");
         assert!(self.lines.next().is_none(), "stdout carried more lines");
         let mut stderr = String::new();
         self.child.stderr.take().unwrap().read_to_string(&mut stderr).unwrap();
         stderr
     }
+}
+
+/// Wait for `child` to exit, killing it and failing after ten seconds.
+fn exit_within_10s(
+    child: &mut std::process::Child,
+) -> std::process::ExitStatus {
+    let started = std::time::Instant::now();
+    loop {
+        if let Some(status) = child.try_wait().unwrap() {
+            return status;
+        }
+        if started.elapsed() > std::time::Duration::from_secs(10) {
+            child.kill().unwrap();
+            panic!("dataseek mcp did not exit");
+        }
+        std::thread::sleep(std::time::Duration::from_millis(20));
+    }
+}
+
+/// A search over MCP that waits on `proxy`, which accepts its connection
+/// and never answers, for up to a minute.
+fn waiting_search(mcp: &mut Mcp, id: u64) {
+    mcp.request(
+        id,
+        "tools/call",
+        json!({
+            "name": "search",
+            "arguments": {
+                "query": "climate",
+                "source": ["zenodo"],
+                "timeout": 60,
+            },
+        }),
+    );
 }
 
 /// A proxy on 127.0.0.1 that answers every request with `page`, whether the
@@ -1537,7 +1724,8 @@ fn an_mcp_client_drives_a_whole_session_over_stdio() {
     assert_eq!(failed["isError"], true);
     let text = failed["content"][0]["text"].as_str().unwrap();
     assert!(
-        text.starts_with("Error: ") && text.contains("\n  Try:"),
+        text.starts_with("Error: invalid value 'not-a-source' for '--source")
+            && text.contains("\n  Try:"),
         "{text}"
     );
     assert_eq!(failed["structuredContent"]["event"], "error");
@@ -1583,4 +1771,135 @@ fn an_mcp_client_on_the_current_revision_needs_no_handshake() {
 
     let stderr = mcp.close();
     assert!(stderr.contains("serving search, sources, inspect"), "{stderr}");
+}
+
+// A line that is not UTF-8 is a parse error like any other, and the session
+// goes on.
+#[test]
+fn an_mcp_line_that_is_not_utf8_leaves_the_session_open() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut mcp = Mcp::start(dir.path(), "http://127.0.0.1:9");
+    mcp.send_line(b"{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"\xff\"}");
+    let refused = mcp.receive();
+    assert_eq!(refused["error"]["code"], -32700, "{refused}");
+    assert_eq!(refused["id"], Value::Null);
+    let ping = mcp.ask(2, "ping", json!({}));
+    assert_eq!(ping["result"]["resultType"], "complete");
+    mcp.close();
+}
+
+// A client that stops reading turns the server's next answer into a write
+// error rather than a SIGPIPE death, so the server still kills the call it
+// was running before it exits.
+#[cfg(unix)]
+#[test]
+fn an_mcp_server_whose_client_stops_reading_ends_its_calls() {
+    use std::io::{Read, Write};
+    use std::os::unix::process::ExitStatusExt;
+
+    let silent = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let proxy = format!("http://{}", silent.local_addr().unwrap());
+    let dir = tempfile::tempdir().unwrap();
+    let mut mcp = Mcp::start(dir.path(), &proxy);
+    waiting_search(&mut mcp, 1);
+    let (mut search, _) = silent.accept().unwrap();
+
+    let Mcp { mut child, stdin, lines } = mcp;
+    drop(lines);
+    let mut stdin = stdin.unwrap();
+    writeln!(stdin, r#"{{"jsonrpc":"2.0","id":2,"method":"ping"}}"#).unwrap();
+    stdin.flush().unwrap();
+    let status = exit_within_10s(&mut child);
+    drop(stdin);
+    assert_eq!(status.signal(), None, "{status:?}");
+    assert!(status.success(), "{status:?}");
+
+    search.set_read_timeout(Some(std::time::Duration::from_secs(5))).unwrap();
+    let read = search.read(&mut [0; 512]);
+    assert!(
+        !read.as_ref().is_err_and(|e| matches!(
+            e.kind(),
+            std::io::ErrorKind::WouldBlock | std::io::ErrorKind::TimedOut
+        )),
+        "the search outlived the server: {read:?}"
+    );
+}
+
+// A value clap refuses comes back with clap's list of the valid ones, and a
+// hint that does not send the model to --help.
+#[test]
+fn an_mcp_value_clap_refuses_comes_back_with_the_valid_ones() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut mcp = Mcp::start(dir.path(), "http://127.0.0.1:9");
+    let refused =
+        mcp.call(1, "search", json!({ "query": "climate", "sort": "oldest" }));
+    assert_eq!(refused["isError"], true);
+    let text = refused["content"][0]["text"].as_str().unwrap();
+    assert!(
+        text.contains("\n  Cause: [possible values: relevance, newest]\n"),
+        "{text}"
+    );
+    assert!(text.contains("Try:   pass the arguments tools/list"), "{text}");
+    mcp.close();
+}
+
+// An upgrade replaces the binary while the server runs. On Linux the running
+// binary's own path then names a deleted file, so calls must use the path
+// the server was started from.
+#[cfg(target_os = "linux")]
+#[test]
+fn an_mcp_server_keeps_working_after_its_binary_is_replaced() {
+    let dir = tempfile::tempdir().unwrap();
+    let program = dir.path().join("dataseek");
+    std::fs::copy(env!("CARGO_BIN_EXE_dataseek"), &program).unwrap();
+    let mut mcp = Mcp::start_as(&program, dir.path(), "http://127.0.0.1:9");
+    assert_eq!(
+        mcp.ask(1, "ping", json!({}))["result"]["resultType"],
+        "complete"
+    );
+
+    std::fs::remove_file(&program).unwrap();
+    std::fs::copy(env!("CARGO_BIN_EXE_dataseek"), &program).unwrap();
+    let sources = mcp.call(2, "sources", json!({}));
+    assert_eq!(sources["structuredContent"]["schema"], "dataseek-sources/1");
+    mcp.close();
+}
+
+// Calls run beside the session: a ping is answered while searches wait, a
+// reused id and a fifth call are refused, a cancelled call never answers,
+// and closing stdin ends the calls still running.
+#[test]
+fn an_mcp_session_keeps_answering_while_calls_run() {
+    let silent = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let proxy = format!("http://{}", silent.local_addr().unwrap());
+    let dir = tempfile::tempdir().unwrap();
+    let mut mcp = Mcp::start(dir.path(), &proxy);
+    for id in 1..=4 {
+        waiting_search(&mut mcp, id);
+    }
+
+    waiting_search(&mut mcp, 1);
+    let reused = mcp.receive();
+    assert_eq!(reused["id"], 1, "{reused}");
+    assert_eq!(reused["error"]["code"], -32600, "{reused}");
+    waiting_search(&mut mcp, 5);
+    let busy = mcp.receive();
+    assert_eq!(busy["id"], 5, "{busy}");
+    assert_eq!(busy["result"]["isError"], true, "{busy}");
+    let text = busy["result"]["content"][0]["text"].as_str().unwrap();
+    assert!(text.starts_with("Error: 4 calls are already running"), "{text}");
+    let ping = mcp.ask(6, "ping", json!({}));
+    assert_eq!(ping["result"]["resultType"], "complete");
+
+    // The cancelled call frees its place and never answers: the next line
+    // is the ping's answer, and close() finds nothing after it.
+    mcp.send(&json!({
+        "jsonrpc": "2.0",
+        "method": "notifications/cancelled",
+        "params": { "requestId": 1 },
+    }));
+    waiting_search(&mut mcp, 7);
+    let ping = mcp.ask(8, "ping", json!({}));
+    assert_eq!(ping["result"]["resultType"], "complete");
+    mcp.close();
 }

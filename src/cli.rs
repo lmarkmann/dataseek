@@ -1,3 +1,4 @@
+use std::ops::{RangeFrom, RangeInclusive};
 use std::path::PathBuf;
 
 use clap::builder::PossibleValuesParser;
@@ -5,6 +6,11 @@ use clap::{Args, Parser, Subcommand, ValueEnum};
 use clap_complete::Shell;
 
 use crate::palette;
+
+/// The values `--connect-timeout` accepts.
+pub const CONNECT_TIMEOUT: RangeFrom<u64> = 1..;
+/// The values `--per-source` accepts.
+pub const PER_SOURCE: RangeInclusive<i64> = 1..=100;
 
 /// When to colorize output. The de-facto standard flag (git, ripgrep, fd).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, ValueEnum)]
@@ -107,7 +113,7 @@ pub struct Cli {
         value_name = "SECS",
         default_value_t = crate::http::DEFAULT_CONNECT_SECS,
         env = "DATASEEK_CONNECT_TIMEOUT",
-        value_parser = clap::value_parser!(u64).range(1..),
+        value_parser = clap::value_parser!(u64).range(CONNECT_TIMEOUT),
         global = true,
         hide_short_help = true
     )]
@@ -175,7 +181,7 @@ pub struct Selection {
         long,
         value_name = "N",
         default_value_t = 10,
-        value_parser = clap::value_parser!(u16).range(1..=100),
+        value_parser = clap::value_parser!(u16).range(PER_SOURCE),
         env = "DATASEEK_PER_SOURCE"
     )]
     pub per_source: u16,
@@ -267,8 +273,9 @@ pub enum Command {
             lists.\n\nThe metadata is the page's schema.org Dataset, or \
             Croissant for Hugging Face. The file list comes from the same \
             metadata: each file's name, format, size, checksum and link, \
-            whichever the page gives; nothing is downloaded. Under --json \
-            the list is .dataset.files.",
+            whichever the page gives, and for a Croissant file set the \
+            pattern its files match; nothing is downloaded. Under --json \
+            the list is .files, beside the page's own .dataset.",
         after_help = "Examples:
   dsk inspect https://zenodo.org/records/13135140
   dsk inspect https://huggingface.co/datasets/stanfordnlp/imdb --json"

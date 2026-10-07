@@ -14,8 +14,11 @@ mod tools;
 
 use std::collections::HashMap;
 use std::io::{self, BufRead, Stdout, Write};
+use std::path::PathBuf;
 use std::process::Child;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Mutex, PoisonError};
+use std::thread::Scope;
 
 use anstream::AutoStream;
 use anyhow::Result;
@@ -34,7 +37,7 @@ const HANDSHAKE: [&str; 2] = [NEWEST_HANDSHAKE, "2025-06-18"];
 const NEWEST_HANDSHAKE: &str = "2025-11-25";
 const VERSION_KEY: &str = "io.modelcontextprotocol/protocolVersion";
 const CAPABILITIES_KEY: &str = "io.modelcontextprotocol/clientCapabilities";
-/// The tool list changes only with the binary, which restarts the server.
+/// The tool list is fixed for the life of this process.
 const LIST_TTL_MS: u64 = 3_600_000;
 
 const PARSE_ERROR: i64 = -32700;
@@ -60,9 +63,14 @@ enum Reply {
 }
 
 pub fn run(globals: &Globals, out: &Out) -> Result<()> {
+    // Resolved once: after an upgrade replaces the binary, the running one's
+    // own path can name a deleted file.
+    let program = std::env::current_exe().map_err(tools::Error::NoProgram)?;
     let server = Server {
         stdout: Mutex::new(out.stdout()),
         calls: Mutex::new(HashMap::new()),
+        serials: AtomicU64::new(0),
+        program,
         globals,
     };
     ui::stage(format!(
@@ -70,28 +78,7 @@ pub fn run(globals: &Globals, out: &Out) -> Result<()> {
         tools::TOOLS.join(", ")
     ));
     std::thread::scope(|scope| {
-        let session = (|| -> io::Result<()> {
-            for line in io::stdin().lock().lines() {
-                let line = line?;
-                if line.trim().is_empty() {
-                    continue;
-                }
-                match handle(&line) {
-                    Reply::Now(response) => server.send(&response)?,
-                    Reply::Call { id, argv } => {
-                        if let Some(refusal) = server.start(&id, &argv) {
-                            server.send(&refusal)?;
-                        } else {
-                            let server = &server;
-                            scope.spawn(move || server.finish(&id));
-                        }
-                    }
-                    Reply::Cancel(id) => server.stop(&id),
-                    Reply::Nothing => {}
-                }
-            }
-            Ok(())
-        })();
+        let session = server.serve(scope);
         // stdin closed, the client is shutting the server down, or the
         // connection broke; either way no call can be answered any more.
         server.stop_all();
@@ -102,76 +89,120 @@ pub fn run(globals: &Globals, out: &Out) -> Result<()> {
 struct Server<'a> {
     stdout: Mutex<AutoStream<Stdout>>,
     /// Calls in flight, by request id as JSON text.
-    calls: Mutex<HashMap<String, Child>>,
+    calls: Mutex<HashMap<String, Call>>,
+    /// The serial the next call gets.
+    serials: AtomicU64,
+    /// This binary, which every call runs.
+    program: PathBuf,
     globals: &'a Globals,
 }
 
 impl Server<'_> {
+    /// Answer each line on stdin, until it closes or a response cannot be
+    /// written.
+    fn serve<'scope>(
+        &'scope self,
+        scope: &'scope Scope<'scope, '_>,
+    ) -> io::Result<()> {
+        let mut stdin = io::stdin().lock();
+        let mut line = Vec::new();
+        loop {
+            line.clear();
+            if stdin.read_until(b'\n', &mut line)? == 0 {
+                return Ok(());
+            }
+            match handle(&line) {
+                Reply::Now(response) => self.send(&response)?,
+                Reply::Call { id, argv } => match self.start(&id, &argv) {
+                    Ok(serial) => {
+                        scope.spawn(move || self.finish(&id, serial));
+                    }
+                    Err(refusal) => self.send(&refusal)?,
+                },
+                Reply::Cancel(id) => self.stop(&id),
+                Reply::Nothing => {}
+            }
+        }
+    }
+
     fn send(&self, message: &Value) -> io::Result<()> {
         let mut w = self.stdout.lock().unwrap_or_else(PoisonError::into_inner);
         writeln!(w, "{message}")?;
         w.flush()
     }
 
-    /// Spawn the call's child and record it, or say why it could not start.
-    fn start(&self, id: &Value, argv: &[String]) -> Option<Value> {
+    /// Spawn the call's child and record it under a new serial, or say why
+    /// it could not start.
+    fn start(&self, id: &Value, argv: &[String]) -> Result<u64, Value> {
         let mut calls =
             self.calls.lock().unwrap_or_else(PoisonError::into_inner);
         let key = id.to_string();
         if calls.contains_key(&key) {
-            return Some(error(
+            return Err(error(
                 id,
                 INVALID_REQUEST,
                 "a request with this id is still running",
+                None,
             ));
         }
-        match tools::spawn(argv, self.globals) {
+        if calls.len() >= tools::MAX_CALLS {
+            let busy = anyhow::Error::from(tools::Error::Busy);
+            return Err(complete(id, tools::failed(&Failure::of(&busy))));
+        }
+        match tools::spawn(&self.program, argv, self.globals) {
             Ok(child) => {
-                calls.insert(key, child);
-                None
+                let serial = self.serials.fetch_add(1, Ordering::Relaxed);
+                calls.insert(key, Call { serial, child });
+                Ok(serial)
             }
-            Err(e) => Some(error(
+            Err(e) => Err(error(
                 id,
                 INTERNAL_ERROR,
                 &format!("cannot start {}: {e}", crate::invoked_name()),
+                None,
             )),
         }
     }
 
-    /// Wait for the call's child, then answer, unless it was stopped.
-    fn finish(&self, id: &Value) {
+    /// Wait for the call's child, then answer, unless it was stopped. The
+    /// serial keeps a stopped call's thread off a later call with its id.
+    fn finish(&self, id: &Value, serial: u64) {
         let key = id.to_string();
         let pipes = {
             let mut calls =
                 self.calls.lock().unwrap_or_else(PoisonError::into_inner);
-            calls
-                .get_mut(&key)
-                .map(|child| (child.stdout.take(), child.stderr.take()))
+            calls.get_mut(&key).filter(|call| call.serial == serial).map(
+                |call| (call.child.stdout.take(), call.child.stderr.take()),
+            )
         };
         let Some((stdout, stderr)) = pipes else { return };
         let output = tools::collect(stdout, stderr);
-        let call = self
-            .calls
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner)
-            .remove(&key);
-        let Some(mut child) = call else { return };
-        let response = match child.wait() {
-            Ok(status) => match tools::result(status, &output) {
-                Some(result) => complete(id, result),
-                None => error(
-                    id,
-                    INTERNAL_ERROR,
-                    &format!(
-                        "the command exited with {status} and reported nothing"
-                    ),
-                ),
-            },
-            Err(e) => error(id, INTERNAL_ERROR, &e.to_string()),
+        let Some(mut child) = self.take(&key, serial) else { return };
+        let response = match (child.wait(), output) {
+            (Ok(status), Ok(output)) => tools::result(status, &output),
+            (Err(e), _) => Err(format!("cannot wait for the command: {e}")),
+            (_, Err(e)) => {
+                Err(format!("cannot read what the command printed: {e}"))
+            }
         };
+        let response = response.map_or_else(
+            |why| error(id, INTERNAL_ERROR, &why, None),
+            |result| complete(id, result),
+        );
         if let Err(e) = self.send(&response) {
             ui::warn(format!("cannot answer request {key}: {e}"));
         }
+    }
+
+    /// The child of the call recorded under `key`, removed, if it is still
+    /// the call with this serial.
+    fn take(&self, key: &str, serial: u64) -> Option<Child> {
+        let mut calls =
+            self.calls.lock().unwrap_or_else(PoisonError::into_inner);
+        if calls.get(key)?.serial != serial {
+            return None;
+        }
+        calls.remove(key).map(|call| call.child)
     }
 
     fn stop(&self, id: &Value) {
@@ -184,68 +215,93 @@ impl Server<'_> {
     }
 
     fn stop_all(&self) {
-        let calls: Vec<Child> = self
+        let calls: Vec<Call> = self
             .calls
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
             .drain()
-            .map(|(_, child)| child)
+            .map(|(_, call)| call)
             .collect();
         calls.into_iter().for_each(end);
     }
 }
 
+/// A call in flight: its child, and a serial that tells it from a later
+/// call reusing its request id.
+struct Call {
+    serial: u64,
+    child: Child,
+}
+
 /// Kill a call's child and reap it. Its thread then reads the closed pipes
 /// and, finding the call gone, answers nothing.
-fn end(mut child: Child) {
-    let _ = child.kill();
-    let _ = child.wait();
+fn end(mut call: Call) {
+    let _ = call.child.kill();
+    let _ = call.child.wait();
 }
 
 /// Decide what one line asks for. Pure, so every protocol rule is a unit
 /// test.
-fn handle(line: &str) -> Reply {
-    let Ok(message) = serde_json::from_str::<Value>(line) else {
-        return Reply::Now(error(&Value::Null, PARSE_ERROR, "not JSON"));
+fn handle(line: &[u8]) -> Reply {
+    if line.trim_ascii().is_empty() {
+        return Reply::Nothing;
+    }
+    let Ok(message) = serde_json::from_slice::<Value>(line) else {
+        return Reply::Now(error(
+            &Value::Null,
+            PARSE_ERROR,
+            "not JSON in UTF-8",
+            None,
+        ));
     };
     let Some(fields) = message.as_object() else {
         return Reply::Now(error(
             &Value::Null,
             INVALID_REQUEST,
             "a message is one JSON object; batches are not part of MCP",
+            None,
         ));
     };
-    let id = fields.get("id");
-    if fields.get("jsonrpc") != Some(&json!("2.0")) {
-        return Reply::Now(error(
-            id.unwrap_or(&Value::Null),
-            INVALID_REQUEST,
-            "jsonrpc must be \"2.0\"",
-        ));
-    }
-    let Some(method) = fields.get("method").and_then(Value::as_str) else {
-        // A response to a request this server never sends.
-        return Reply::Nothing;
-    };
+    let version_ok = fields.get("jsonrpc") == Some(&json!("2.0"));
+    let method = fields.get("method").and_then(Value::as_str);
     let empty = Map::new();
     let params =
         fields.get("params").and_then(Value::as_object).unwrap_or(&empty);
-    let Some(id) = id else {
+    // A notification is never answered, not even to say it is malformed.
+    let Some(id) = fields.get("id") else {
         return match method {
-            "notifications/cancelled" => params
+            Some("notifications/cancelled") if version_ok => params
                 .get("requestId")
                 .cloned()
                 .map_or(Reply::Nothing, Reply::Cancel),
             _ => Reply::Nothing,
         };
     };
+    // A response to a request this server never sends.
+    if fields.contains_key("result") || fields.contains_key("error") {
+        return Reply::Nothing;
+    }
+    let (Some(method), true) = (method, version_ok) else {
+        let reason = if version_ok {
+            "a request names its method as a string"
+        } else {
+            "jsonrpc must be \"2.0\""
+        };
+        return Reply::Now(error(id, INVALID_REQUEST, reason, None));
+    };
     if !(id.is_string() || id.is_number()) {
         return Reply::Now(error(
             &Value::Null,
             INVALID_REQUEST,
             "a request id is a string or a number",
+            None,
         ));
     }
+    respond(id, method, params)
+}
+
+/// Answer a well-formed request.
+fn respond(id: &Value, method: &str, params: &Map<String, Value>) -> Reply {
     if let Some(refusal) = check_meta(id, params) {
         return Reply::Now(refusal);
     }
@@ -262,13 +318,14 @@ fn handle(line: &str) -> Reply {
                     "cacheScope": "public",
                 }),
             ),
-            Err(e) => error(id, INTERNAL_ERROR, &e.to_string()),
+            Err(e) => error(id, INTERNAL_ERROR, &e.to_string(), None),
         }),
         "tools/call" => call(id, params),
         other => Reply::Now(error(
             id,
             METHOD_NOT_FOUND,
             &format!("unknown method {other}"),
+            None,
         )),
     }
 }
@@ -280,15 +337,12 @@ fn check_meta(id: &Value, params: &Map<String, Value>) -> Option<Value> {
     let meta = params.get("_meta")?;
     let version = meta.get(VERSION_KEY)?;
     if version != CURRENT {
-        return Some(json!({
-            "jsonrpc": "2.0",
-            "id": id,
-            "error": {
-                "code": UNSUPPORTED_VERSION,
-                "message": "Unsupported protocol version",
-                "data": { "supported": supported(), "requested": version },
-            },
-        }));
+        return Some(error(
+            id,
+            UNSUPPORTED_VERSION,
+            "Unsupported protocol version",
+            Some(json!({ "supported": supported(), "requested": version })),
+        ));
     }
     if meta.get(CAPABILITIES_KEY).is_none() {
         return Some(error(
@@ -297,6 +351,7 @@ fn check_meta(id: &Value, params: &Map<String, Value>) -> Option<Value> {
             &format!(
                 "a {CURRENT} request carries {CAPABILITIES_KEY} in _meta"
             ),
+            None,
         ));
     }
     None
@@ -308,6 +363,7 @@ fn call(id: &Value, params: &Map<String, Value>) -> Reply {
             id,
             INVALID_PARAMS,
             "tools/call names a tool",
+            None,
         ));
     };
     let Some(tool) = tools::find(name) else {
@@ -315,6 +371,7 @@ fn call(id: &Value, params: &Map<String, Value>) -> Reply {
             id,
             INVALID_PARAMS,
             &format!("Unknown tool: {name}"),
+            None,
         ));
     };
     let empty = Map::new();
@@ -326,6 +383,7 @@ fn call(id: &Value, params: &Map<String, Value>) -> Reply {
                 id,
                 INVALID_PARAMS,
                 "tool arguments are a JSON object",
+                None,
             ));
         }
     };
@@ -392,12 +450,12 @@ fn complete(id: &Value, mut result: Value) -> Value {
     json!({ "jsonrpc": "2.0", "id": id, "result": result })
 }
 
-fn error(id: &Value, code: i64, message: &str) -> Value {
-    json!({
-        "jsonrpc": "2.0",
-        "id": id,
-        "error": { "code": code, "message": message },
-    })
+fn error(id: &Value, code: i64, message: &str, data: Option<Value>) -> Value {
+    let mut error = json!({ "code": code, "message": message });
+    if let (Some(fields), Some(data)) = (error.as_object_mut(), data) {
+        fields.insert("data".into(), data);
+    }
+    json!({ "jsonrpc": "2.0", "id": id, "error": error })
 }
 
 #[cfg(test)]
@@ -405,7 +463,7 @@ mod tests {
     use super::*;
 
     fn now(line: &str) -> Value {
-        match handle(line) {
+        match handle(line.as_bytes()) {
             Reply::Now(response) => response,
             other => panic!("expected an answer, got {other:?}"),
         }
@@ -420,9 +478,55 @@ mod tests {
         json!({ "_meta": { VERSION_KEY: CURRENT, CAPABILITIES_KEY: {} } })
     }
 
+    // A call stopped and replaced by a newer one with the same id: the
+    // stopped call's thread must leave the newer call running.
+    #[cfg(unix)]
+    #[test]
+    fn a_stopped_call_never_collects_a_newer_call_with_its_id() {
+        let globals = Globals {
+            quiet: false,
+            verbose: 0,
+            cache_dir: None,
+            connect_timeout: 1,
+        };
+        let server = Server {
+            stdout: Mutex::new(AutoStream::never(io::stdout())),
+            calls: Mutex::new(HashMap::new()),
+            serials: AtomicU64::new(0),
+            program: PathBuf::from("/bin/sh"),
+            globals: &globals,
+        };
+        let id = json!(1);
+        let sleep = ["-c".to_owned(), "exec sleep 10".to_owned()];
+        let stopped = server.start(&id, &sleep).unwrap();
+        server.stop(&id);
+        let newer = server.start(&id, &sleep).unwrap();
+        let started = std::time::Instant::now();
+        server.finish(&id, stopped);
+        assert!(started.elapsed() < std::time::Duration::from_secs(5));
+        let serial = server.calls.lock().unwrap().get("1").map(|c| c.serial);
+        assert_eq!(serial, Some(newer));
+        server.stop_all();
+    }
+
     #[test]
     fn malformed_messages_get_the_json_rpc_codes() {
         assert_eq!(now("{not json")["error"]["code"], PARSE_ERROR);
+        assert!(matches!(
+            handle(b"{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"\xff\"}"),
+            Reply::Now(response) if response["error"]["code"] == PARSE_ERROR
+        ));
+        for nameless in [
+            r#"{"jsonrpc":"2.0","id":4}"#,
+            r#"{"jsonrpc":"2.0","id":4,"method":5}"#,
+        ] {
+            let refused = now(nameless);
+            assert_eq!(
+                refused["error"]["code"], INVALID_REQUEST,
+                "{nameless}"
+            );
+            assert_eq!(refused["id"], 4, "{nameless}");
+        }
         assert_eq!(now("[1, 2]")["error"]["code"], INVALID_REQUEST);
         assert_eq!(
             now(r#"{"jsonrpc":"1.0","id":1,"method":"ping"}"#)["error"]["code"],
@@ -439,18 +543,21 @@ mod tests {
 
     #[test]
     fn notifications_and_responses_get_no_answer() {
-        assert!(matches!(
-            handle(
-                r#"{"jsonrpc":"2.0","method":"notifications/initialized"}"#
-            ),
-            Reply::Nothing
-        ));
-        assert!(matches!(
-            handle(r#"{"jsonrpc":"2.0","id":3,"result":{}}"#),
-            Reply::Nothing
-        ));
+        let silent = [
+            r#"{"jsonrpc":"2.0","method":"notifications/initialized"}"#,
+            r#"{"jsonrpc":"2.0","id":3,"result":{}}"#,
+            r#"{"jsonrpc":"2.0","id":3,"error":{"code":1,"message":"no"}}"#,
+            r#"{"jsonrpc":"1.0","method":"notifications/initialized"}"#,
+            r#"{"method":"notifications/cancelled","params":{"requestId":"a"}}"#,
+        ];
+        for line in silent {
+            assert!(
+                matches!(handle(line.as_bytes()), Reply::Nothing),
+                "{line}"
+            );
+        }
         let cancel = handle(
-            r#"{"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":"a"}}"#,
+            br#"{"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":"a"}}"#,
         );
         assert!(matches!(cancel, Reply::Cancel(id) if id == "a"));
     }
@@ -519,6 +626,7 @@ mod tests {
     fn calls_are_checked_before_anything_runs() {
         let unknown = now(&request("tools/call", &json!({"name": "delete"})));
         assert_eq!(unknown["error"]["code"], INVALID_PARAMS);
+        assert_eq!(unknown["error"]["message"], "Unknown tool: delete");
         let shapeless = now(&request(
             "tools/call",
             &json!({"name": "search", "arguments": [1]}),
@@ -530,8 +638,10 @@ mod tests {
             &json!({"name": "search", "arguments": {"query": "x", "timeout": 0}}),
         ));
         assert_eq!(refused["result"]["isError"], true);
+        let text = refused["result"]["content"][0]["text"].as_str().unwrap();
+        assert!(text.contains("always has a deadline"), "{text}");
         assert!(matches!(
-            handle(&request("tools/call", &json!({"name": "sources"}))),
+            handle(request("tools/call", &json!({"name": "sources"})).as_bytes()),
             Reply::Call { argv, .. } if argv == ["sources", "--json"]
         ));
     }
