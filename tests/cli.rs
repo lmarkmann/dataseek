@@ -30,13 +30,14 @@ const KEY_VARS: [&str; 8] = [
     "NCBI_API_KEY",
 ];
 
-const OWN_VARS: [&str; 6] = [
+const OWN_VARS: [&str; 7] = [
     "DATASEEK_EXCLUDE",
     "DATASEEK_PER_SOURCE",
     "DATASEEK_LIMIT",
     "DATASEEK_TIMEOUT",
     "DATASEEK_CACHE_DIR",
     "DATASEEK_CONNECT_TIMEOUT",
+    "DATASEEK_CACHE_MAX_MB",
 ];
 
 struct Sandbox {
@@ -661,7 +662,42 @@ fn piped_output_has_no_ansi() {
 fn cache_info_reports_the_budget() {
     let info = json_of(&["cache", "info", "--json"]);
     assert_eq!(info["files"], 0);
-    assert_eq!(info["budget_bytes"], 30 * 1024 * 1024);
+    assert_eq!(info["budget_bytes"], 30_000_000);
+    let text = stdout_text(&["cache", "info"]);
+    assert!(text.contains("of 30.0 MB budget (2000 files max)"), "{text}");
+}
+
+#[test]
+fn the_cache_budget_comes_from_the_environment() {
+    let out = bin()
+        .env("DATASEEK_CACHE_MAX_MB", "120")
+        .args(["cache", "info", "--json"])
+        .output()
+        .unwrap();
+    let info: Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(info["budget_bytes"], 120_000_000);
+    let out = bin()
+        .env("DATASEEK_CACHE_MAX_MB", "120")
+        .args(["cache", "info"])
+        .output()
+        .unwrap();
+    let text = String::from_utf8(out.stdout).unwrap();
+    assert!(text.contains("120.0 MB budget, set by DATASEEK_CACHE_MAX_MB"));
+}
+
+#[test]
+fn a_bad_cache_budget_is_a_usage_error() {
+    for value in ["0", "lots", "10001"] {
+        let out = bin()
+            .env("DATASEEK_CACHE_MAX_MB", value)
+            .args(["cache", "info"])
+            .output()
+            .unwrap();
+        assert_eq!(out.status.code(), Some(2), "{value}");
+        assert!(out.stdout.is_empty(), "a usage error put bytes on stdout");
+        let stderr = String::from_utf8_lossy(&out.stderr);
+        assert!(stderr.contains("DATASEEK_CACHE_MAX_MB"), "{stderr}");
+    }
 }
 
 #[test]

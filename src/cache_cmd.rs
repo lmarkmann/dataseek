@@ -4,7 +4,7 @@ use std::io::Write;
 
 use anyhow::{Context, Result};
 
-use crate::cache::{BUDGET_BYTES, BUDGET_FILES, Cache};
+use crate::cache::{self, BUDGET_FILES, Cache};
 use crate::cli::CacheAction;
 use crate::find::human_bytes;
 use crate::http::SourceError;
@@ -168,17 +168,22 @@ fn info(cache: &Cache, out: &Out) -> Result<()> {
             "files": usage.files,
             "bytes": usage.bytes,
             "budget_files": BUDGET_FILES,
-            "budget_bytes": BUDGET_BYTES,
+            "budget_bytes": cache::budget_bytes(),
         }));
     }
     let mut w = out.stdout();
     writeln!(w, "{}", cache.root().display())?;
     writeln!(
         w,
-        "{} files, {} of {} budget ({} files max)",
+        "{} files, {} of {} budget{} ({} files max)",
         usage.files,
         human_bytes(usage.bytes),
-        human_bytes(BUDGET_BYTES),
+        human_bytes(cache::budget_bytes()),
+        if cache::budget_from_env() {
+            format!(", set by {}", cache::BUDGET_VAR)
+        } else {
+            String::new()
+        },
         BUDGET_FILES
     )?;
     Ok(())

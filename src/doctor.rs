@@ -7,7 +7,7 @@ use anyhow::Result;
 use clap::builder::styling::Style;
 use serde::Serialize;
 
-use crate::cache::{BUDGET_BYTES, Cache};
+use crate::cache::{self, Cache};
 use crate::credentials::{Credentials, Key};
 use crate::find::human_bytes;
 use crate::output::Out;
@@ -100,9 +100,9 @@ fn gather(out: &Out) -> Result<Vec<Check>> {
             "{} files, {} of {}",
             usage.files,
             human_bytes(usage.bytes),
-            human_bytes(BUDGET_BYTES)
+            human_bytes(cache::budget_bytes())
         ),
-        ok: usage.bytes <= BUDGET_BYTES,
+        ok: usage.bytes <= cache::budget_bytes(),
     });
 
     Ok(checks)

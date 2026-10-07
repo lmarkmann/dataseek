@@ -11,7 +11,7 @@ The version lives only in `Cargo.toml`. Clap reads it via `#[command(version)]`,
 - `-h/--help`, `-V/--version`
 - Global `-q/--quiet`, `-v/--verbose` (repeatable)
 - `--json`, `--color=auto|always|never`, `--no-color`, `--plain`, `--no-progress`
-- `--cache-dir DIR` and `--connect-timeout SECS`, each with a `DATASEEK_*` variable
+- `--cache-dir DIR` and `--connect-timeout SECS`, each with a `DATASEEK_*` variable; the cache size budget has only its variable, `DATASEEK_CACHE_MAX_MB`
 
 `search` reads `-x`, `--per-source`, `-n` and `--timeout` from `DATASEEK_EXCLUDE`, `DATASEEK_PER_SOURCE`, `DATASEEK_LIMIT` and `DATASEEK_TIMEOUT` too. A flag beats its variable, which beats the default; `dataseek help environment` lists them all. A source marked `opt-in` in `dataseek sources` runs only when `-s` names it ([ADR 0013](../adr/0013-opt-in-sources.md)).
 

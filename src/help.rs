@@ -247,6 +247,11 @@ fn environment() -> BTreeMap<String, String> {
             format!("API key, get one at {}", key.signup()),
         );
     }
+    vars.insert(
+        crate::cache::BUDGET_VAR.to_owned(),
+        "cache size budget in whole megabytes, 1 to 10000; 30 by default"
+            .to_owned(),
+    );
     for (var, meaning) in [
         ("KAGGLE_CONFIG_DIR", "where the Kaggle CLI keeps its token"),
         ("NO_COLOR", "any non-empty value turns color off"),

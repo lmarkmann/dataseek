@@ -116,6 +116,11 @@ pub fn main() -> ExitCode {
     }
     let out = Out::resolve(&cli);
     ui::init(&out);
+    if let Err(message) = cache::read_budget() {
+        let err =
+            clap::Error::raw(clap::error::ErrorKind::ValueValidation, message);
+        return usage(&err, &early);
+    }
     paths::relocate_cache(cli.cache_dir.clone());
     http::connect_within(Duration::from_secs(cli.connect_timeout));
 
