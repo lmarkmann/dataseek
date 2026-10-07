@@ -31,8 +31,8 @@ Options:
           Emit JSON to stdout instead of text
 
       --color <WHEN>
-          When to colorize output: auto, always, or never
-
+          Colorize output (auto, always, or never)
+          
           Possible values:
           - auto:   Color when stdout is a terminal and NO_COLOR is unset
           - always: Always color, even through a pipe (for `| less -R`)

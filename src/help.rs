@@ -9,10 +9,10 @@ use std::io::Write;
 use anyhow::Result;
 use clap::builder::PossibleValuesParser;
 use clap::builder::StyledStr;
-use clap::{Arg, ArgAction, CommandFactory};
+use clap::{Arg, ArgAction};
 use serde_json::{Value, json};
 
-use crate::cli::{self, Cli};
+use crate::cli;
 use crate::credentials::Key;
 use crate::output::Out;
 use crate::palette;
@@ -153,7 +153,7 @@ pub fn run(topic: Option<&str>, out: &Out) -> Result<()> {
 
 /// The command, built so subcommand usage lines carry the invoked name.
 fn built() -> clap::Command {
-    let mut cmd = Cli::command().bin_name(crate::invoked_name());
+    let mut cmd = cli::command().bin_name(crate::invoked_name());
     cmd.build();
     cmd
 }
@@ -167,7 +167,7 @@ fn ansi(help: &StyledStr) -> String {
 /// come from the flag definitions, the keys from the key registry.
 fn environment() -> BTreeMap<String, String> {
     let mut vars = BTreeMap::new();
-    let mut commands = vec![Cli::command()];
+    let mut commands = vec![cli::command()];
     while let Some(cmd) = commands.pop() {
         for arg in cmd.get_arguments() {
             if let (Some(env), Some(long)) = (arg.get_env(), arg.get_long()) {
@@ -244,7 +244,7 @@ fn surface() -> Value {
         "schema": "dataseek-surface/1",
         "name": env!("CARGO_PKG_NAME"),
         "version": env!("CARGO_PKG_VERSION"),
-        "command": command_json(&Cli::command()),
+        "command": command_json(&cli::command()),
         "environment": variables(),
         "exit_codes": codes(),
     })
@@ -253,7 +253,7 @@ fn surface() -> Value {
 /// One command as `help <command> --json` describes it; `mcp` builds its
 /// tool schemas from the same object.
 pub fn subcommand_json(name: &str) -> Option<Value> {
-    Cli::command().find_subcommand(name).map(command_json)
+    cli::command().find_subcommand(name).map(command_json)
 }
 
 fn command_json(cmd: &clap::Command) -> Value {
@@ -342,10 +342,12 @@ fn bounds(arg: &Arg) -> (Value, Value) {
 mod tests {
     use clap::Parser;
 
+    use crate::cli::Cli;
+
     use super::*;
 
     fn subcommands() -> Vec<String> {
-        Cli::command()
+        cli::command()
             .get_subcommands()
             .map(|c| c.get_name().to_owned())
             .collect()
@@ -391,7 +393,7 @@ mod tests {
     // just past them; one with no bound published takes 0, or 65535.
     #[test]
     fn published_bounds_are_the_ones_clap_enforces() {
-        let root = command_json(&Cli::command());
+        let root = command_json(&cli::command());
         let leaves = root["commands"]
             .as_array()
             .unwrap()
