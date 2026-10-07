@@ -29,7 +29,6 @@ Nothing earlier than v0.3.0 exists: release-plz diffs against the newest `v*` ta
 
 `.github/release-plz.toml`, passed through the action's `config` input in both jobs and `--config` locally:
 
-- `git_only = true`, `publish = false`: the previous version comes from git tags, not crates.io, and release-plz publishes nothing. Both go once the first crates.io release exists (below).
 - `git_release_enable = true`, `git_release_type = "auto"`, `git_release_body = "{{ changelog }}"`: every tag gets a GitHub release carrying that version's section.
 - `release_commits`: release-plz decides whether to release from changed files, not from changelog groups, so without it a `ci:` merge alone opens a release with an empty section. That is how v0.3.1 happened.
 - `features_always_increment_minor = true`: see ADR 0003.
@@ -59,12 +58,7 @@ No release-plz subcommand has a dry-run flag, so the recipe runs the real `relea
 
 `cargo install dataseek` installs `dataseek` and `dsk`. The package holds only what building needs (`cargo package --list`); the `internals` feature is for the benches and unstable.
 
-crates.io trusts a publisher only for a crate that exists, so the first release goes up by hand:
-
-1. Merge the release PR; release-plz tags `vX.Y.Z`.
-2. `git switch --detach vX.Y.Z && cargo publish --locked`, with a new-crate token in `CARGO_REGISTRY_TOKEN`.
-3. Add the trusted publisher on crates.io (`lmarkmann/dataseek`, workflow `release-plz.yml`, environment `crates-io`), then revoke the token.
-4. Drop `git_only` and `publish = false` from `.github/release-plz.toml`, and give the `release` job `environment: crates-io` and `id-token: write`.
+The `release` job publishes through crates.io trusted publishing (`lmarkmann/dataseek`, workflow `release-plz.yml`, environment `crates-io`); no registry token is stored.
 
 ## Publishing to PyPI
 
