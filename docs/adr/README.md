@@ -7,7 +7,6 @@ A decision that constrains future work lives here, once, and is cited from where
 | the fact | its home |
 |---|---|
 | a decision that would be expensive to reverse or tempting to re-litigate | **here**, one numbered file each |
-| something considered and left out, with the date | [`rejected.md`](rejected.md) |
 | something parked as *not yet*, with the trigger that revisits it | [`watchlist.md`](watchlist.md) |
 | how to run, configure or extend something | [`../reference/`](../reference/) |
 | what reads across several dataset sources | [`../synthesis/`](../synthesis/) |

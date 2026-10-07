@@ -2,7 +2,7 @@
 
 How the project works and how to operate it, one file per domain. Each file describes the current state; when that state changes, the file changes with it.
 
-What is not here: why a choice was made ([`../adr/`](../adr/)), what was left out ([`../adr/rejected.md`](../adr/rejected.md)), and what shipped ([`../CHANGELOG.md`](../CHANGELOG.md)).
+What is not here: why a choice was made ([`../adr/`](../adr/)) and what shipped ([`../CHANGELOG.md`](../CHANGELOG.md)).
 
 | file | covers | read when |
 |---|---|---|

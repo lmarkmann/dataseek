@@ -17,7 +17,7 @@ Run it with `just deny`.
 
 `zizmor` audits the GitHub Actions workflows themselves. There is no `.github/zizmor.yml`: every rule runs at its default.
 
-Every `uses:` in both workflows is pinned to a full commit SHA with its tag in a trailing comment (`actions/checkout@3d3c... # v7.0.1`). The earlier split, tags in `ci.yml` and SHAs only in `release-plz.yml`, rested on hash pins rotting without a bot to refresh them; Renovate's `helpers:pinGitHubActionDigests` is now that bot, with a seven-day `minimumReleaseAge` on action updates so a pin never moves to a release younger than a week. That removes the condition the split was built on ([`rejected.md`](../adr/rejected.md), hash-pinning). The trailing comment is still load-bearing: `just actions-outdated` reads it, and `pinact run --verify --check` fails on a SHA whose comment does not match. Re-pin by hand with:
+Every `uses:` in both workflows is pinned to a full commit SHA with its tag in a trailing comment (`actions/checkout@3d3c... # v7.0.1`). The earlier split, tags in `ci.yml` and SHAs only in `release-plz.yml`, rested on hash pins rotting without a bot to refresh them; Renovate's `helpers:pinGitHubActionDigests` is now that bot, with a seven-day `minimumReleaseAge` on action updates so a pin never moves to a release younger than a week. That removes the condition the split was built on. The trailing comment is still load-bearing: `just actions-outdated` reads it, and `pinact run --verify --check` fails on a SHA whose comment does not match. Re-pin by hand with:
 
 ```sh
 just repin

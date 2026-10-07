@@ -5,7 +5,7 @@
 
 ## Context
 
-The version in `Cargo.toml`, the `vX.Y.Z` tag, the changelog section and the GitHub release have to move together. Done by hand they drift, which is why a hand-written `just release` recipe was rejected (`rejected.md`, 2026-07-27).
+The version in `Cargo.toml`, the `vX.Y.Z` tag, the changelog section and the GitHub release have to move together. Done by hand they drift, which is why there is no hand-written `just release` recipe.
 
 ## Decision
 
