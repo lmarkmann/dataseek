@@ -64,7 +64,7 @@ pub(crate) fn cases(queries: &[Query]) -> Result<Vec<Case>> {
         .map(|q| {
             Ok(Case {
                 lists: snapshot::load(q)?.lists,
-                judged: Judged::new(&labels, &q.id),
+                judged: Judged::new(&labels, &q.id)?,
                 targets: snapshot::target_keys(q),
                 query: q.clone(),
             })

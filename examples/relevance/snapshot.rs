@@ -4,6 +4,7 @@
 use std::collections::HashMap;
 use std::fmt::Write as _;
 use std::fs;
+use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result, bail};
@@ -61,6 +62,18 @@ pub fn queries() -> Result<Vec<Query>> {
     let text = fs::read_to_string(&path)
         .with_context(|| format!("reading {}", path.display()))?;
     Ok(toml::from_str::<QueryFile>(&text)?.query)
+}
+
+/// The file's text, or `None` when it does not exist; any other failure to
+/// read it is an error.
+pub fn read_if_present(path: &Path) -> Result<Option<String>> {
+    match fs::read_to_string(path) {
+        Ok(text) => Ok(Some(text)),
+        Err(e) if e.kind() == ErrorKind::NotFound => Ok(None),
+        Err(e) => {
+            Err(e).with_context(|| format!("reading {}", path.display()))
+        }
+    }
 }
 
 /// One source's answer to one query when it was recorded.
@@ -231,7 +244,7 @@ pub struct Label {
 }
 
 impl Label {
-    fn keys(&self) -> Vec<String> {
+    pub fn keys(&self) -> Vec<String> {
         let mut record = Dataset::new(&self.title, &self.url);
         record.doi = (!self.doi.is_empty()).then(|| self.doi.clone());
         identity_keys(&record)
@@ -266,38 +279,55 @@ pub fn judgments_path() -> PathBuf {
     dir().join("judgments.tsv")
 }
 
+/// Every label in judgments.tsv; none when the file does not exist yet.
 pub fn labels() -> Result<Vec<Label>> {
     let path = judgments_path();
-    let Ok(text) = fs::read_to_string(&path) else {
-        return Ok(Vec::new());
-    };
-    text.lines()
-        .enumerate()
-        .filter(|(_, line)| !line.starts_with('#') && !line.trim().is_empty())
-        .map(|(i, line)| {
-            let fields: Vec<&str> = line.split('\t').collect();
-            let &[query, grade, url, doi, title, reason] = fields.as_slice()
-            else {
-                bail!(
-                    "judgments.tsv line {}: expected 6 fields",
-                    i.saturating_add(1)
-                );
-            };
-            Ok(Label {
-                query: query.to_owned(),
-                grade: parse_grade(grade).with_context(|| {
-                    format!("judgments.tsv line {}", i.saturating_add(1))
-                })?,
-                url: url.to_owned(),
-                doi: doi.to_owned(),
-                title: title.to_owned(),
-                reason: reason.to_owned(),
-            })
-        })
-        .collect()
+    match read_if_present(&path)? {
+        Some(text) => parse_labels(&text, &path),
+        None => Ok(Vec::new()),
+    }
 }
 
-fn parse_grade(text: &str) -> Result<Option<Grade>> {
+/// The labels in `text`. Two labels of one query that share an identity
+/// key would grade one dataset twice, so they are an error.
+fn parse_labels(text: &str, path: &Path) -> Result<Vec<Label>> {
+    let mut labels = Vec::new();
+    let mut first: HashMap<(String, String), usize> = HashMap::new();
+    for (i, line) in text.lines().enumerate() {
+        if line.starts_with('#') || line.trim().is_empty() {
+            continue;
+        }
+        let number = i.saturating_add(1);
+        let at = format!("{} line {number}", path.display());
+        let fields: Vec<&str> = line.split('\t').collect();
+        let &[query, grade, url, doi, title, reason] = fields.as_slice()
+        else {
+            bail!("{at}: expected 6 tab-separated fields");
+        };
+        let label = Label {
+            query: query.to_owned(),
+            grade: parse_grade(grade).context(at.clone())?,
+            url: url.to_owned(),
+            doi: doi.to_owned(),
+            title: title.to_owned(),
+            reason: reason.to_owned(),
+        };
+        for key in label.keys() {
+            if let Some(line) =
+                first.insert((label.query.clone(), key.clone()), number)
+            {
+                bail!(
+                    "{at}: {} labels {key} again, after line {line}; keep one",
+                    label.query
+                );
+            }
+        }
+        labels.push(label);
+    }
+    Ok(labels)
+}
+
+pub fn parse_grade(text: &str) -> Result<Option<Grade>> {
     match text.trim() {
         "?" => Ok(None),
         "0" => Ok(Some(0)),
@@ -321,11 +351,11 @@ pub fn write_labels(queries: &[Query], labels: &mut [Label]) -> Result<()> {
     });
     let mut out = String::from(RUBRIC);
     for l in labels.iter() {
-        let grade = l.grade.map_or_else(|| "?".to_owned(), |g| g.to_string());
         writeln!(
             out,
-            "{}\t{grade}\t{}\t{}\t{}\t{}",
+            "{}\t{}\t{}\t{}\t{}\t{}",
             l.query,
+            shown(l.grade),
             l.url,
             l.doi,
             tabless(&l.title),
@@ -336,11 +366,16 @@ pub fn write_labels(queries: &[Query], labels: &mut [Label]) -> Result<()> {
     Ok(())
 }
 
+fn shown(grade: Option<Grade>) -> String {
+    grade.map_or_else(|| "?".to_owned(), |g| g.to_string())
+}
+
 pub fn tabless(text: &str) -> String {
     text.replace(['\t', '\n', '\r'], " ")
 }
 
-/// The labels of one query, found by any identity key a record carries.
+/// The labels of one query, found by any identity key a record carries,
+/// with one grade per dataset.
 #[derive(Clone)]
 pub struct Judged {
     by_key: HashMap<String, usize>,
@@ -348,16 +383,44 @@ pub struct Judged {
 }
 
 impl Judged {
-    pub fn new(labels: &[Label], query: &str) -> Self {
-        let mut by_key = HashMap::new();
-        let mut grades = Vec::new();
+    /// Labels sharing an identity key are one dataset and keep one grade;
+    /// grading it differently twice is an error.
+    pub fn new(labels: &[Label], query: &str) -> Result<Self> {
+        let mut by_key: HashMap<String, usize> = HashMap::new();
+        let mut grades: Vec<Option<Grade>> = Vec::new();
         for label in labels.iter().filter(|l| l.query == query) {
-            for key in label.keys() {
-                by_key.entry(key).or_insert(grades.len());
+            let keys = label.keys();
+            let mut earlier: Vec<usize> =
+                keys.iter().filter_map(|k| by_key.get(k).copied()).collect();
+            earlier.sort_unstable();
+            earlier.dedup();
+            let index = match *earlier.as_slice() {
+                [] => {
+                    grades.push(label.grade);
+                    grades.len().saturating_sub(1)
+                }
+                [index] => {
+                    let was = grades.get(index).copied().flatten();
+                    if was != label.grade {
+                        bail!(
+                            "{query}: {} is graded {} and {} under one identity; keep one",
+                            label.url,
+                            shown(was),
+                            shown(label.grade)
+                        );
+                    }
+                    index
+                }
+                _ => bail!(
+                    "{query}: {} shares an identity with two other labels; keep one",
+                    label.url
+                ),
+            };
+            for key in keys {
+                by_key.entry(key).or_insert(index);
             }
-            grades.push(label.grade);
         }
-        Self { by_key, grades }
+        Ok(Self { by_key, grades })
     }
 
     /// The grade of the label matching this record; `None` when no label
@@ -406,6 +469,19 @@ pub fn is_target(hit: &Hit, targets: &[String]) -> bool {
     identity_keys(&hit.dataset).iter().any(|k| targets.contains(k))
 }
 
+/// A label of query "q" titled "t", for tests.
+#[cfg(test)]
+pub fn label(url: &str, doi: &str, grade: Grade) -> Label {
+    Label {
+        query: "q".into(),
+        grade: Some(grade),
+        url: url.into(),
+        doi: doi.into(),
+        title: "t".into(),
+        reason: String::new(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -426,18 +502,11 @@ mod tests {
 
     #[test]
     fn a_label_matches_a_record_by_doi_or_normalized_url() {
-        let label = |url: &str, doi: &str| Label {
-            query: "q".into(),
-            grade: Some(2),
-            url: url.into(),
-            doi: doi.into(),
-            title: "t".into(),
-            reason: String::new(),
-        };
         let judged = Judged::new(
-            &[label("https://zenodo.org/records/1", "10.5281/zenodo.1")],
+            &[label("https://zenodo.org/records/1", "10.5281/zenodo.1", 2)],
             "q",
-        );
+        )
+        .unwrap();
         let by_url = Dataset::new("x", "http://www.zenodo.org/records/1/");
         let mut by_doi = Dataset::new("x", "https://elsewhere.org/a");
         by_doi.doi = Some("10.5281/ZENODO.1".into());
@@ -464,5 +533,53 @@ mod tests {
         let keys = target_keys(&query);
         assert!(keys.contains(&"doi:10.1234/abc".to_owned()), "{keys:?}");
         assert!(keys.contains(&"url:openml.org/d/61".to_owned()), "{keys:?}");
+    }
+
+    #[test]
+    fn labels_sharing_an_identity_grade_one_dataset_once() {
+        let twice = [
+            label("https://zenodo.org/records/1", "10.5281/zenodo.1", 2),
+            label("https://doi.org/10.5281/zenodo.1", "10.5281/zenodo.1", 2),
+            label("https://x.org/other", "", 1),
+        ];
+        assert_eq!(Judged::new(&twice, "q").unwrap().all(), [2, 1]);
+        let conflicting = [
+            label("https://zenodo.org/records/1", "10.5281/zenodo.1", 2),
+            label("https://doi.org/10.5281/ZENODO.1", "", 0),
+        ];
+        assert!(Judged::new(&conflicting, "q").is_err());
+    }
+
+    #[test]
+    fn a_dataset_labelled_twice_in_one_query_is_refused() {
+        let row = |query: &str, url: &str, doi: &str| {
+            format!("{query}\t2\t{url}\t{doi}\tt\tr\n")
+        };
+        let path = Path::new("judgments.tsv");
+        let apart = row("a", "https://x.org/1", "10.1234/x")
+            + &row("b", "https://doi.org/10.1234/x", "");
+        assert_eq!(parse_labels(&apart, path).unwrap().len(), 2);
+        let twice = format!(
+            "# rubric\n{}{}",
+            row("a", "https://x.org/1", "10.1234/x"),
+            row("a", "https://doi.org/10.1234/X", "")
+        );
+        let err = format!("{:#}", parse_labels(&twice, path).unwrap_err());
+        assert!(err.contains("line 3") && err.contains("line 2"), "{err}");
+    }
+
+    #[test]
+    fn the_committed_judgments_match_the_queries_one_label_per_dataset() {
+        let queries = queries().unwrap();
+        let labels = labels().unwrap();
+        for l in &labels {
+            assert!(queries.iter().any(|q| q.id == l.query), "{}", l.query);
+        }
+        for q in queries.iter().filter(|q| !q.graded()) {
+            assert!(!q.targets.is_empty(), "{} has no targets", q.id);
+        }
+        for q in queries.iter().filter(|q| q.graded()) {
+            Judged::new(&labels, &q.id).unwrap();
+        }
     }
 }
