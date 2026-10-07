@@ -183,6 +183,19 @@ mod tests {
     }
 
     #[test]
+    fn the_ideal_comes_from_every_judged_grade_not_from_the_ranking() {
+        // The ranking shows only the grade-1 result; the ideal puts the
+        // judged grade-2 one first: 1 / (3 + 1 / log2(3)).
+        let expected = 1.0 / (3.0 + 1.0 / 3f64.log2());
+        assert!((ndcg(&[1], &[2, 1]) - expected).abs() < 1e-12);
+    }
+
+    #[test]
+    fn the_ideal_is_cut_at_ten_like_the_ranking() {
+        assert!((ndcg(&[2; 10], &[2; 12]) - 1.0).abs() < 1e-12);
+    }
+
+    #[test]
     fn precision_counts_partly_relevant_and_empty_slots_as_misses() {
         assert!((precision(&[2, 1, 0]) - 0.2).abs() < 1e-12);
         assert!((precision(&[1; 12]) - 1.0).abs() < 1e-12);
