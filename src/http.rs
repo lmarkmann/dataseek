@@ -5,7 +5,8 @@
 //! address in the User-Agent, which is what DataCite, NCBI and other polite
 //! pools key their better rate tier on. Non-2xx statuses come back as
 //! values, not errors, so [`SourceError`] can say whether a failure is worth
-//! remembering (a dead host) or only this query's problem (a rejected key).
+//! remembering (a dead or throttling host) or only this query's problem (a
+//! rejected key).
 //! A single 429 is retried once when the server asks for a short wait;
 //! longer waits are reported instead of slept through, and a failed connect
 //! is retried once. Bodies are decoded leniently: a stray invalid byte in a
@@ -79,14 +80,19 @@ pub enum SourceError {
 }
 
 impl SourceError {
-    /// Failures that say the host is down rather than this query being bad.
-    /// The search loop skips such a source for a few minutes afterwards.
+    /// Failures that say the host is down, or wants no more requests for now,
+    /// rather than this query being bad. The search loop skips such a source
+    /// for a few minutes afterwards, so a throttled host is not asked again
+    /// on every search (OSF's `/trove/` answered 17 requests in 3 minutes
+    /// with an hour of 429s, October 2026).
     pub fn is_outage(&self) -> bool {
         match self {
-            Self::Unreachable(_) | Self::Timeout | Self::Blocked => true,
+            Self::Unreachable(_)
+            | Self::Timeout
+            | Self::Blocked
+            | Self::RateLimited => true,
             Self::Status(code) => *code >= 500,
-            Self::RateLimited
-            | Self::Certificate(_)
+            Self::Certificate(_)
             | Self::Unauthorized(_)
             | Self::Shape(_)
             | Self::ConnectLimit(_)
@@ -408,7 +414,7 @@ mod tests {
             (SourceError::Status(500), true),
             (SourceError::Status(404), false),
             (SourceError::Unauthorized(401), false),
-            (SourceError::RateLimited, false),
+            (SourceError::RateLimited, true),
             (SourceError::shape("no hits"), false),
         ] {
             assert_eq!(error.is_outage(), outage, "{error:?}");
