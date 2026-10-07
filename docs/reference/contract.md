@@ -84,7 +84,7 @@ Error: <what went wrong>
   Try:   <recovery hint>
 ```
 
-The hint is baked into the thiserror message after a `\n  Try:` marker; `report()` splits it off and prints the `Cause:` chain between the two, so the order is the problem, why, then what to do. A cause is printed once, from the chain; a message that also interpolates its own `{source}` prints it twice. An error with no hint was not anticipated, so its `Try:` line is the issues address. Under `--json` the same three parts are one `error` event on stderr, and clap's usage errors take that shape too.
+The hint is baked into the thiserror message after a `\n  Try:` marker; `report()` splits it off and prints the `Cause:` chain between the two, so the order is the problem, why, then what to do. A cause is printed once, from the chain; a message that also interpolates its own `{source}` prints it twice. An error with no hint was not anticipated, so its `Try:` line is the issues address. Under `--json` the same three parts are one `error` event on stderr, and clap's usage errors take that shape too: the lines clap prints under its first, such as the missing argument or the possible values, are the causes, and clap's tip, when it has one, is the hint.
 
 Expected failures never show a stack trace. `Cargo.toml` denies every route a panic takes into production code, because a panic is a bug and never a way to exit: `unwrap_used`, `expect_used`, `panic`, `panic_in_result_fn`, `unreachable`, `unimplemented`, `todo`, and the two that are easy to overlook because they carry no macro name, `indexing_slicing` and `arithmetic_side_effects`. Exit codes are returned as `ExitCode` from `main` so destructors still run.
 

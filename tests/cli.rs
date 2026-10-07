@@ -350,11 +350,28 @@ fn errors_under_json_are_events_on_stderr() {
         .collect();
     assert!(events.iter().any(|e| e["event"] == "note"), "{events:?}");
 
-    // clap's own usage errors take the same shape.
+    // clap's own usage errors take the same shape, with clap's details as
+    // causes.
     let out = bin().args(["--json", "no-such-command"]).output().unwrap();
     assert_eq!(out.status.code(), Some(2));
     let event: Value = serde_json::from_slice(&out.stderr).unwrap();
     assert_eq!(event["event"], "error");
+    let out = bin()
+        .args(["--json", "search", "x", "--sort", "oldest"])
+        .output()
+        .unwrap();
+    let event: Value = serde_json::from_slice(&out.stderr).unwrap();
+    assert_eq!(
+        event["message"],
+        "invalid value 'oldest' for '--sort <ORDER>'"
+    );
+    assert_eq!(
+        event["causes"],
+        json!(["[possible values: relevance, newest]"])
+    );
+    let out = bin().args(["--json", "search"]).output().unwrap();
+    let event: Value = serde_json::from_slice(&out.stderr).unwrap();
+    assert_eq!(event["causes"], json!(["<QUERY>..."]));
 }
 
 // A script written for --jq must fail as a usage error that names the
@@ -1674,4 +1691,22 @@ fn an_mcp_server_whose_client_stops_reading_ends_its_calls() {
         )),
         "the search outlived the server: {read:?}"
     );
+}
+
+// A value clap refuses comes back with clap's list of the valid ones, and a
+// hint that does not send the model to --help.
+#[test]
+fn an_mcp_value_clap_refuses_comes_back_with_the_valid_ones() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut mcp = Mcp::start(dir.path(), "http://127.0.0.1:9");
+    let refused =
+        mcp.call(1, "search", json!({ "query": "climate", "sort": "oldest" }));
+    assert_eq!(refused["isError"], true);
+    let text = refused["content"][0]["text"].as_str().unwrap();
+    assert!(
+        text.contains("\n  Cause: [possible values: relevance, newest]\n"),
+        "{text}"
+    );
+    assert!(text.contains("Try:   pass the arguments tools/list"), "{text}");
+    mcp.close();
 }

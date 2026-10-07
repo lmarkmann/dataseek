@@ -24,6 +24,11 @@ use crate::{Failure, help, ui};
 /// The tools, in the order `tools/list` returns them.
 pub const TOOLS: [&str; 3] = ["search", "sources", "inspect"];
 
+/// What to try after a bad argument: the command line's hint, to run
+/// `--help`, is no use to a model.
+const USAGE_HINT: &str =
+    "pass the arguments tools/list gives this tool, with the values it lists";
+
 /// The global flags `dsk mcp` was started with that its children inherit.
 pub struct Globals {
     pub quiet: bool,
@@ -42,6 +47,8 @@ pub enum Error {
         "`{key}` takes {expected}\n  Try:   tools/list shows the type of each argument"
     )]
     Type { key: String, expected: &'static str },
+    #[error("{tool} needs `{key}`\n  Try:   {USAGE_HINT}")]
+    Missing { tool: &'static str, key: String },
     #[error(
         "timeout 0 waits for every source, and a search over MCP always has a deadline\n  Try:   pass a timeout of 1 or more seconds, or leave it out for the default"
     )]
@@ -245,6 +252,13 @@ pub fn argv(
             }
         }
     }
+    if let Some(missing) =
+        flags.iter().find(|a| a.required && !arguments.contains_key(a.key()))
+    {
+        return Err(
+            Error::Missing { tool, key: missing.key().to_owned() }.into()
+        );
+    }
     if tool == "search" {
         argv.extend(deadline(&flags, arguments)?);
     }
@@ -359,9 +373,7 @@ fn relay(
             Ok(event)
                 if event.get("schema") == Some(&json!(EVENTS_SCHEMA)) =>
             {
-                if event.get("event") == Some(&json!("error")) {
-                    failure = Failure::deserialize(&event).ok();
-                }
+                failure = failure_of(&event).or(failure);
             }
             _ if text.is_empty() => {}
             _ => {
@@ -374,6 +386,19 @@ fn relay(
         line.clear();
     }
     Ok((failure, stray))
+}
+
+/// The failure an error event describes, with a hint a model can follow in
+/// place of the command line's.
+fn failure_of(event: &Value) -> Option<Failure> {
+    if event.get("event") != Some(&json!("error")) {
+        return None;
+    }
+    let mut failure = Failure::deserialize(event).ok()?;
+    if failure.hint == crate::USAGE_HINT {
+        USAGE_HINT.clone_into(&mut failure.hint);
+    }
+    Some(failure)
 }
 
 /// The `tools/call` result for a child that exited with `status`: the JSON
@@ -562,6 +587,9 @@ mod tests {
             &arguments(json!({ "query": "x", "limit": "five" })),
         );
         assert!(mistyped.unwrap_err().to_string().contains("an integer"));
+        let missing = argv("search", &arguments(json!({ "limit": 5 })));
+        let missing = missing.unwrap_err().to_string();
+        assert!(missing.starts_with("search needs `query`"), "{missing}");
         let single = argv(
             "search",
             &arguments(json!({ "query": "x", "source": "zenodo" })),

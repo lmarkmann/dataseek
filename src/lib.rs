@@ -182,18 +182,31 @@ fn usage(err: &clap::Error, early: &Early) -> ExitCode {
     let text = err.render().to_string();
     let mut lines = text.lines().map(str::trim).filter(|l| !l.is_empty());
     let message = lines.next().unwrap_or_default();
-    let hint = lines
-        .find_map(|l| l.strip_prefix("tip: "))
-        .unwrap_or("run with --help to see what is accepted");
+    // The lines under clap's first one name what is missing or list the
+    // possible values; the usage line and the pointer to --help repeat what
+    // the hint says.
+    let (mut causes, mut hint) = (Vec::new(), USAGE_HINT);
+    for line in lines {
+        if let Some(tip) = line.strip_prefix("tip: ") {
+            hint = tip;
+        } else if !line.starts_with("Usage:")
+            && !line.starts_with("For more information")
+        {
+            causes.push(line);
+        }
+    }
     ui::event_line(&serde_json::json!({
         "schema": ui::EVENTS_SCHEMA,
         "event": "error",
         "message": message.strip_prefix("error: ").unwrap_or(message),
-        "causes": [],
+        "causes": causes,
         "try": hint,
     }));
     code
 }
+
+/// The hint of a usage error clap offers no tip for.
+const USAGE_HINT: &str = "run with --help to see what is accepted";
 
 fn print_clap(err: &clap::Error) -> ExitCode {
     let _ = err.print();
