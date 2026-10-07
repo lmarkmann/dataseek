@@ -37,7 +37,7 @@ Nothing earlier than v0.3.0 exists: release-plz diffs against the newest `v*` ta
 - `release_always = false`: tag only when the release PR merges.
 - `pr_name` and `pr_body` replace the defaults, which carry a robot emoji and a generated-with footer.
 - `[[package]] changelog_path = "docs/CHANGELOG.md"`: relative to the root `Cargo.toml`. It cannot be set under `[workspace]`.
-- `commit_parsers`: git-cliff takes the first match, so `^chore\(release\)` sits ahead of `^chore`. The trailing `.*` catch-all exists because without it a subject matching no rule is dropped from the changelog silently. `test` and `ci` are skipped because a user of the binary cannot observe them; `build` stays because it carries MSRV and toolchain moves.
+- `commit_parsers`: git-cliff takes the first match, so `^chore\(release\)` sits ahead of `^chore`. The trailing `.*` catch-all exists because without it a subject matching no rule is dropped from the changelog silently. `test` and `ci` are skipped because a user of the binary cannot observe them, and so are merge commits, whose branches' own commits already carry the changes; `build` stays because it carries MSRV and toolchain moves.
 
 Section headings read `## <version> - <YYYY-MM-DD>`.
 

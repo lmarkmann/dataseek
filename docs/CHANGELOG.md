@@ -4,6 +4,11 @@ What shipped, newest first. release-plz writes each section from the conventiona
 
 ## 0.7.0 - 2026-10-07
 
+### Added
+
+- Dsk mcp serves search, sources and inspect to MCP clients
+- Inspect lists a dataset's files with format, size, checksum and link
+
 ### Changed
 
 - The overview says dsk mcp serves search, sources and inspect, and relayed stderr lines share the event writer
@@ -12,8 +17,14 @@ What shipped, newest first. release-plz writes each section from the conventiona
 ### Docs
 
 - MCP mode's errors, limits and lifetime in the contract, ADR 0015 sizes under the current release profile, and the inspect fixtures as they are
+- Say that the relevance example uses internals, and how weighing treats terms past the 64th
+- Bring the relevance numbers and workflow up to date with the judgments
+- ADR 0014 amends 0011, SSL_CERT_FILE and SSL_CERT_DIR each replace the whole Linux store, and inspect's help names a file set's pattern
 - What just bloat --what-if measures, and size figures that match their byte counts
 - Binary size per target before and after, with every lever measured
+- Rank by fusion and rarity-weighted coverage (ADR 0016, superseding ADR 0006)
+- How to run, label, re-record and re-baseline the relevance benchmark, with its first results
+- MCP mode in the contract, the README and ADR 0015
 
 ### Fixed
 
@@ -22,15 +33,24 @@ What shipped, newest first. release-plz writes each section from the conventiona
 - Dsk mcp keeps running its calls after an upgrade replaces the binary
 - Dsk mcp refuses an argument holding a NUL character as a tool error, not a server fault
 - Dsk mcp refuses a search timeout over 300 seconds, and tool schemas give the range of every ranged integer
+- Inspect --json puts the file list in a top-level files key and strips control characters from the page's metadata
 - A usage error under --json keeps the missing argument and the possible values, and dsk mcp names a missing argument
+- Inspect reads file links from bare strings, link lists and ids, shows sizes it cannot parse as written, and counts the files it could not read
+- Inspect lists the files on CKAN pages such as HDX, whose metadata refers to each file by id
 - A dsk mcp call that fails without an error, or succeeds without a JSON object, says what it printed instead
 - Dsk mcp stops its running calls when the client closes the pipe, instead of dying of SIGPIPE
+- A certificate dataseek cannot verify says so and how to install roots, instead of reading as an offline machine
 - Dsk mcp answers a line that is not UTF-8 or a request without a method, and keeps serving
 - MCP clients can pass offline and refresh, whose schema no longer limits a boolean to strings
 - --jq names its replacement instead of failing as an unknown flag
+- Rank datasets that match the query's rarer words above ones that match only its common words
+- Help <command> --json lists the flags help --json lists
+- Inspect finds the dataset on Zenodo pages, which give its type as a full schema.org address
+- Linux checks certificates against the system's trust store, so a TLS-inspecting proxy's root works
 
 ### Other
 
+- macOS and Windows builds no longer warn about the certificate failure only rustls reports
 - The changelog marks breaking changes
 - Drop dependency features dataseek never uses
 - Just bloat runs cargo-bsize
@@ -39,13 +59,7 @@ What shipped, newest first. release-plz writes each section from the conventiona
 
 - Breaking: Drop --jq; pipe --json into jq instead
 - Release binary is 23% smaller: fat LTO, dependencies optimized for size
-
-### Uncategorized
-
-- Merge branch 'mcp-server' into relevance-benchmark
-- Merge branch 'platform-certs-owned-merge-file-list' into mcp-server
-- Merge branch 'platform-certs-owned-merge-file-list' into mcp-server
-- Merge branch 'binary-size' into platform-certs-owned-merge-file-list
+- Search moves each source's results into the merge instead of copying them
 
 ## 0.6.0 - 2026-10-06
 
