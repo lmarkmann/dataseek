@@ -131,6 +131,7 @@ impl Server<'_> {
                 id,
                 INVALID_REQUEST,
                 "a request with this id is still running",
+                None,
             ));
         }
         match tools::spawn(argv, self.globals) {
@@ -142,6 +143,7 @@ impl Server<'_> {
                 id,
                 INTERNAL_ERROR,
                 &format!("cannot start {}: {e}", crate::invoked_name()),
+                None,
             )),
         }
     }
@@ -164,19 +166,17 @@ impl Server<'_> {
             .unwrap_or_else(PoisonError::into_inner)
             .remove(&key);
         let Some(mut child) = call else { return };
-        let response = match child.wait() {
-            Ok(status) => match tools::result(status, &output) {
-                Some(result) => complete(id, result),
-                None => error(
-                    id,
-                    INTERNAL_ERROR,
-                    &format!(
-                        "the command exited with {status} and reported nothing"
-                    ),
-                ),
-            },
-            Err(e) => error(id, INTERNAL_ERROR, &e.to_string()),
+        let response = match (child.wait(), output) {
+            (Ok(status), Ok(output)) => tools::result(status, &output),
+            (Err(e), _) => Err(format!("cannot wait for the command: {e}")),
+            (_, Err(e)) => {
+                Err(format!("cannot read what the command printed: {e}"))
+            }
         };
+        let response = response.map_or_else(
+            |why| error(id, INTERNAL_ERROR, &why, None),
+            |result| complete(id, result),
+        );
         if let Err(e) = self.send(&response) {
             ui::warn(format!("cannot answer request {key}: {e}"));
         }
@@ -221,6 +221,7 @@ fn handle(line: &[u8]) -> Reply {
             &Value::Null,
             PARSE_ERROR,
             "not JSON in UTF-8",
+            None,
         ));
     };
     let Some(fields) = message.as_object() else {
@@ -228,6 +229,7 @@ fn handle(line: &[u8]) -> Reply {
             &Value::Null,
             INVALID_REQUEST,
             "a message is one JSON object; batches are not part of MCP",
+            None,
         ));
     };
     let version_ok = fields.get("jsonrpc") == Some(&json!("2.0"));
@@ -255,13 +257,14 @@ fn handle(line: &[u8]) -> Reply {
         } else {
             "jsonrpc must be \"2.0\""
         };
-        return Reply::Now(error(id, INVALID_REQUEST, reason));
+        return Reply::Now(error(id, INVALID_REQUEST, reason, None));
     };
     if !(id.is_string() || id.is_number()) {
         return Reply::Now(error(
             &Value::Null,
             INVALID_REQUEST,
             "a request id is a string or a number",
+            None,
         ));
     }
     respond(id, method, params)
@@ -285,13 +288,14 @@ fn respond(id: &Value, method: &str, params: &Map<String, Value>) -> Reply {
                     "cacheScope": "public",
                 }),
             ),
-            Err(e) => error(id, INTERNAL_ERROR, &e.to_string()),
+            Err(e) => error(id, INTERNAL_ERROR, &e.to_string(), None),
         }),
         "tools/call" => call(id, params),
         other => Reply::Now(error(
             id,
             METHOD_NOT_FOUND,
             &format!("unknown method {other}"),
+            None,
         )),
     }
 }
@@ -303,15 +307,12 @@ fn check_meta(id: &Value, params: &Map<String, Value>) -> Option<Value> {
     let meta = params.get("_meta")?;
     let version = meta.get(VERSION_KEY)?;
     if version != CURRENT {
-        return Some(json!({
-            "jsonrpc": "2.0",
-            "id": id,
-            "error": {
-                "code": UNSUPPORTED_VERSION,
-                "message": "Unsupported protocol version",
-                "data": { "supported": supported(), "requested": version },
-            },
-        }));
+        return Some(error(
+            id,
+            UNSUPPORTED_VERSION,
+            "Unsupported protocol version",
+            Some(json!({ "supported": supported(), "requested": version })),
+        ));
     }
     if meta.get(CAPABILITIES_KEY).is_none() {
         return Some(error(
@@ -320,6 +321,7 @@ fn check_meta(id: &Value, params: &Map<String, Value>) -> Option<Value> {
             &format!(
                 "a {CURRENT} request carries {CAPABILITIES_KEY} in _meta"
             ),
+            None,
         ));
     }
     None
@@ -331,6 +333,7 @@ fn call(id: &Value, params: &Map<String, Value>) -> Reply {
             id,
             INVALID_PARAMS,
             "tools/call names a tool",
+            None,
         ));
     };
     let Some(tool) = tools::find(name) else {
@@ -338,6 +341,7 @@ fn call(id: &Value, params: &Map<String, Value>) -> Reply {
             id,
             INVALID_PARAMS,
             &format!("Unknown tool: {name}"),
+            None,
         ));
     };
     let empty = Map::new();
@@ -349,6 +353,7 @@ fn call(id: &Value, params: &Map<String, Value>) -> Reply {
                 id,
                 INVALID_PARAMS,
                 "tool arguments are a JSON object",
+                None,
             ));
         }
     };
@@ -415,12 +420,12 @@ fn complete(id: &Value, mut result: Value) -> Value {
     json!({ "jsonrpc": "2.0", "id": id, "result": result })
 }
 
-fn error(id: &Value, code: i64, message: &str) -> Value {
-    json!({
-        "jsonrpc": "2.0",
-        "id": id,
-        "error": { "code": code, "message": message },
-    })
+fn error(id: &Value, code: i64, message: &str, data: Option<Value>) -> Value {
+    let mut error = json!({ "code": code, "message": message });
+    if let (Some(fields), Some(data)) = (error.as_object_mut(), data) {
+        fields.insert("data".into(), data);
+    }
+    json!({ "jsonrpc": "2.0", "id": id, "error": error })
 }
 
 #[cfg(test)]

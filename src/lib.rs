@@ -315,10 +315,13 @@ fn report(err: &anyhow::Error, out: &Out) -> ExitCode {
 }
 
 /// An error as dataseek reports it: what went wrong, the causes under it, and
-/// what to try. `report` prints it; `mcp` returns it as a failed tool call.
+/// what to try. `report` prints it; `mcp` returns it as a failed tool call,
+/// reading it back from the error event a child wrote.
+#[derive(serde::Deserialize)]
 pub(crate) struct Failure {
     message: String,
     causes: Vec<String>,
+    #[serde(rename = "try")]
     hint: String,
 }
 
@@ -340,21 +343,6 @@ impl Failure {
         };
         let causes = err.chain().skip(1).map(ToString::to_string).collect();
         Self { message, causes, hint }
-    }
-
-    /// The failure an error event on stderr describes, as `--json` writes it.
-    pub(crate) fn from_event(event: &serde_json::Value) -> Option<Self> {
-        let text = |key: &str| event.get(key)?.as_str().map(str::to_owned);
-        Some(Self {
-            message: text("message")?,
-            causes: event
-                .get("causes")?
-                .as_array()?
-                .iter()
-                .filter_map(|cause| cause.as_str().map(str::to_owned))
-                .collect(),
-            hint: text("try")?,
-        })
     }
 
     pub(crate) fn event(&self) -> serde_json::Value {
