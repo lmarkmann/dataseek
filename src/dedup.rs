@@ -237,7 +237,7 @@ pub fn weigh(hits: Vec<Hit>, query: &str) -> Vec<Hit> {
             crate::catalog::found(&text, &needles)
         })
         .collect();
-    let weights = idf(&found, needles.len().min(64));
+    let weights = idf(&found, needles.len().min(crate::catalog::MAX_TERMS));
     let total: f64 = weights.iter().sum();
     let kept: Vec<Hit> = hits
         .into_iter()
@@ -266,7 +266,7 @@ pub fn weigh(hits: Vec<Hit>, query: &str) -> Vec<Hit> {
     clippy::cast_precision_loss,
     reason = "hit counts are small; f64 holds them exactly"
 )]
-fn idf(found: &[u64], terms: usize) -> Vec<f64> {
+pub fn idf(found: &[u64], terms: usize) -> Vec<f64> {
     let n = found.len() as f64;
     (0..terms)
         .map(|i| {
@@ -562,6 +562,17 @@ mod tests {
             .map(|h| h.dataset.title)
             .collect();
         assert_eq!(titles, ["Inflation", "Country codes", "Country borders"]);
+    }
+
+    #[test]
+    fn idf_is_the_bm25_weight_of_each_term_over_the_hits() {
+        // Four hits: term 0 in three, term 1 in two, term 2 in none.
+        let weights = idf(&[0b01, 0b11, 0b11, 0b00], 3);
+        let expected = [(10.0_f64 / 7.0).ln(), 2.0_f64.ln(), 10.0_f64.ln()];
+        assert_eq!(weights.len(), 3);
+        for (w, e) in weights.iter().zip(expected) {
+            assert!((w - e).abs() < 1e-12, "{weights:?}");
+        }
     }
 
     #[test]

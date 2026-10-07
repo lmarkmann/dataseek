@@ -2,10 +2,14 @@
 //! benchmark compares against the shipped one. Each is computed from the
 //! hits `merge` returns (identity merging is never varied) and their
 //! per-source ranks, so a variant differs from production only in scoring.
+//! The depth variants are the exception: they cut each list before merging,
+//! which also changes which hits exist and which ranks fusion reads.
 
 use std::collections::HashMap;
 
-use dataseek::internals::{Hit, merge, needles, terms, words};
+use dataseek::internals::{
+    Hit, MAX_TERMS, found, idf, merge, needles, terms, words,
+};
 
 use crate::metrics::real;
 use crate::snapshot::Lists;
@@ -213,17 +217,14 @@ const FUNCTION_WORDS: [&str; 30] = [
     "which", "who",
 ];
 
-fn query_terms(query: &str, stopwords: bool) -> Vec<String> {
-    let all = terms(query);
-    if !stopwords {
-        return all;
-    }
-    let kept: Vec<String> = all
+/// `terms` without the function words, unless that leaves none.
+fn without_function_words(terms: Vec<String>) -> Vec<String> {
+    let kept: Vec<String> = terms
         .iter()
         .filter(|t| !FUNCTION_WORDS.contains(&t.as_str()))
         .cloned()
         .collect();
-    if kept.is_empty() { all } else { kept }
+    if kept.is_empty() { terms } else { kept }
 }
 
 /// Per-source weights: the mean gain (grade / 2) of a source's labelled
@@ -280,46 +281,39 @@ pub fn rank(
 ) -> Vec<usize> {
     let lengths: HashMap<&str, usize> =
         lists.iter().map(|(s, ds)| (*s, ds.len().min(config.depth))).collect();
-    let query_terms = query_terms(query, config.stopwords);
-    let needles = needles(&query_terms);
+    let query_terms = if config.stopwords {
+        without_function_words(terms(query))
+    } else {
+        terms(query)
+    };
+    let mut needles = needles(&query_terms);
+    needles.truncate(MAX_TERMS);
     let phrase = format!(" {}", query_terms.join(" "));
-    let texts: Vec<(String, String)> = hits
+    let bits: Vec<(u64, u64)> = hits
         .iter()
         .map(|h| {
-            (
-                words(&h.dataset.title),
-                words(h.dataset.description.as_deref().unwrap_or("")),
-            )
+            let body = h.dataset.description.as_deref().unwrap_or("");
+            (found(&h.dataset.title, &needles), found(body, &needles))
         })
         .collect();
-    let idf: Vec<f64> = needles
-        .iter()
-        .map(|n| {
-            let df = texts
-                .iter()
-                .filter(|(t, d)| {
-                    t.contains(n.as_str()) || d.contains(n.as_str())
-                })
-                .count();
-            let (n_docs, df) = (real(hits.len()), real(df));
-            ((n_docs - df + 0.5) / (df + 0.5) + 1.0).ln()
-        })
-        .collect();
+    let either: Vec<u64> = bits.iter().map(|(t, b)| t | b).collect();
+    let idf = idf(&either, needles.len());
+    let has = |bits: u64| -> Vec<bool> {
+        (0..needles.len()).map(|i| bits >> i & 1 == 1).collect()
+    };
 
     let mut scored: Vec<(f64, usize, usize)> = hits
         .iter()
-        .zip(&texts)
+        .zip(&bits)
         .enumerate()
-        .filter_map(|(i, (hit, (title, body)))| {
+        .filter_map(|(i, (hit, &(title, body)))| {
             let fused =
                 fuse(hit, config.fusion, &lengths, priors, config.priors);
             if query_terms.is_empty() || config.matching == Match::Off {
                 return Some((fused, hit.sources.len(), i));
             }
-            let in_title: Vec<bool> =
-                needles.iter().map(|n| title.contains(n.as_str())).collect();
-            let in_body: Vec<bool> =
-                needles.iter().map(|n| body.contains(n.as_str())).collect();
+            let in_title = has(title);
+            let in_body = has(body);
             let found = in_title
                 .iter()
                 .zip(&in_body)
@@ -338,7 +332,9 @@ pub fn rank(
             let mut score = fused
                 * (config.floor
                     + (1.0 - config.floor) * coverage.powf(config.power));
-            if config.phrase > 1.0 && title.contains(&phrase) {
+            if config.phrase > 1.0
+                && words(&hit.dataset.title).contains(&phrase)
+            {
                 score *= config.phrase;
             }
             if let Thin::Scale(scale) = config.thin
@@ -444,9 +440,10 @@ mod tests {
 
     #[test]
     fn idf_weighting_favors_the_rarer_query_word() {
-        // "inflation" is in one candidate, "country" in all three, so the
+        // "inflation" is in one candidate and "country" in two, so the
         // record matching only "inflation" outranks the two that match only
-        // "country"; plain coverage would tie all three.
+        // "country", which keep their fused order; plain coverage would tie
+        // all three and keep the source order.
         let lists: Lists = vec![(
             "s",
             vec![
@@ -459,20 +456,16 @@ mod tests {
         let config = Config { matching: Match::Idf, ..Config::production() };
         let order =
             rank(&hits, &lists, "inflation country", &config, &Priors::new());
-        assert_eq!(hits[order[0]].dataset.title, "Inflation");
+        let titles: Vec<&str> =
+            order.iter().map(|&i| hits[i].dataset.title.as_str()).collect();
+        assert_eq!(titles, ["Inflation", "Country codes", "Country borders"]);
     }
 
     #[test]
-    fn function_words_are_ignored_only_when_asked() {
-        assert_eq!(
-            query_terms("rainfall since 2000", false),
-            ["rainfall", "since", "2000"]
-        );
-        assert_eq!(
-            query_terms("rainfall since 2000", true),
-            ["rainfall", "2000"]
-        );
-        assert_eq!(query_terms("how many", true), ["how", "many"]);
+    fn function_words_go_unless_nothing_else_is_left() {
+        let kept = |query| without_function_words(terms(query));
+        assert_eq!(kept("rainfall since 2000"), ["rainfall", "2000"]);
+        assert_eq!(kept("how many"), ["how", "many"]);
     }
 
     #[test]

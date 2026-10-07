@@ -37,13 +37,17 @@ pub fn needles(terms: &[String]) -> Vec<String> {
     terms.iter().map(|t| format!(" {t}")).collect()
 }
 
-/// Which of the first 64 `needles` appear as a word prefix in `text`, as a
-/// bit per needle.
+/// How many query terms a record is matched against: one bit each in the
+/// `u64` [`found`] returns.
+pub const MAX_TERMS: usize = 64;
+
+/// Which of the first [`MAX_TERMS`] `needles` appear as a word prefix in
+/// `text`, as a bit per needle.
 pub fn found(text: &str, needles: &[String]) -> u64 {
     let words = words(text);
     needles
         .iter()
-        .take(64)
+        .take(MAX_TERMS)
         .enumerate()
         .filter(|(_, n)| words.contains(n.as_str()))
         .fold(0, |bits, (i, _)| bits | 1 << i)
