@@ -1,5 +1,7 @@
 ![dataseek: every dataset source it searches, set out as a periodic table](docs/assets/dataseek-banner.png)
 
+[![ci](https://github.com/lmarkmann/dataseek/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/lmarkmann/dataseek/actions/workflows/ci.yml) [![latest release](https://img.shields.io/github/v/release/lmarkmann/dataseek)](https://github.com/lmarkmann/dataseek/releases/latest)
+
 <!-- repo-description -->
 Search for datasets from the terminal
 <!-- /repo-description -->
