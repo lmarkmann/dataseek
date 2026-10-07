@@ -145,6 +145,10 @@ impl Server<'_> {
                 None,
             ));
         }
+        if calls.len() >= tools::MAX_CALLS {
+            let busy = anyhow::Error::from(tools::Error::Busy);
+            return Err(complete(id, tools::failed(&Failure::of(&busy))));
+        }
         match tools::spawn(&self.program, argv, self.globals) {
             Ok(child) => {
                 let serial = self.serials.fetch_add(1, Ordering::Relaxed);

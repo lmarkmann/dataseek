@@ -24,6 +24,9 @@ use crate::{Failure, help, ui};
 /// The tools, in the order `tools/list` returns them.
 pub const TOOLS: [&str; 3] = ["search", "sources", "inspect"];
 
+/// How many calls run at once; one more is refused.
+pub const MAX_CALLS: usize = 4;
+
 /// The longest deadline a search over MCP may have, in seconds, so a call
 /// always ends in a time a client waits for.
 const MAX_TIMEOUT: u64 = 300;
@@ -51,6 +54,10 @@ pub enum Error {
         "`{key}` takes {expected}\n  Try:   tools/list shows the type of each argument"
     )]
     Type { key: String, expected: &'static str },
+    #[error(
+        "{MAX_CALLS} calls are already running, the most dsk mcp runs at once\n  Try:   wait for one to answer, or cancel one, then call again"
+    )]
+    Busy,
     #[error(
         "cannot find the path of the running program\n  Try:   start dsk mcp by its full path"
     )]

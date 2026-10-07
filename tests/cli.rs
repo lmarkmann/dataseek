@@ -1743,3 +1743,42 @@ fn an_mcp_server_keeps_working_after_its_binary_is_replaced() {
     assert_eq!(sources["structuredContent"]["schema"], "dataseek-sources/1");
     mcp.close();
 }
+
+// Calls run beside the session: a ping is answered while searches wait, a
+// reused id and a fifth call are refused, a cancelled call never answers,
+// and closing stdin ends the calls still running.
+#[test]
+fn an_mcp_session_keeps_answering_while_calls_run() {
+    let silent = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let proxy = format!("http://{}", silent.local_addr().unwrap());
+    let dir = tempfile::tempdir().unwrap();
+    let mut mcp = Mcp::start(dir.path(), &proxy);
+    for id in 1..=4 {
+        waiting_search(&mut mcp, id);
+    }
+
+    waiting_search(&mut mcp, 1);
+    let reused = mcp.receive();
+    assert_eq!(reused["id"], 1, "{reused}");
+    assert_eq!(reused["error"]["code"], -32600, "{reused}");
+    waiting_search(&mut mcp, 5);
+    let busy = mcp.receive();
+    assert_eq!(busy["id"], 5, "{busy}");
+    assert_eq!(busy["result"]["isError"], true, "{busy}");
+    let text = busy["result"]["content"][0]["text"].as_str().unwrap();
+    assert!(text.starts_with("Error: 4 calls are already running"), "{text}");
+    let ping = mcp.ask(6, "ping", json!({}));
+    assert_eq!(ping["result"]["resultType"], "complete");
+
+    // The cancelled call frees its place and never answers: the next line
+    // is the ping's answer, and close() finds nothing after it.
+    mcp.send(&json!({
+        "jsonrpc": "2.0",
+        "method": "notifications/cancelled",
+        "params": { "requestId": 1 },
+    }));
+    waiting_search(&mut mcp, 7);
+    let ping = mcp.ask(8, "ping", json!({}));
+    assert_eq!(ping["result"]["resultType"], "complete");
+    mcp.close();
+}
