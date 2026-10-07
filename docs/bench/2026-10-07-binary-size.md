@@ -37,7 +37,7 @@ File size of the release binary. "Profile" is the release profile change alone, 
 
 | target | v0.6.0 | profile | final |
 |---|---|---|---|
-| `aarch64-apple-darwin` | 4.94 MB | 3.79 MB (-23.2%) | 2.40 MB (-51.4%) |
+| `aarch64-apple-darwin` | 4.94 MB | 3.79 MB (-23.2%) | 2.42 MB (-51.1%) |
 | `x86_64-apple-darwin` | 5.26 MB | 4.23 MB (-19.7%) | 2.65 MB (-49.6%) |
 | `x86_64-unknown-linux-gnu` | 6.90 MB | 5.57 MB (-19.3%) | 3.87 MB (-43.9%) |
 | `aarch64-unknown-linux-gnu` | 6.05 MB | 4.84 MB (-20.0%) | 3.36 MB (-44.5%) |
@@ -54,7 +54,7 @@ Measured on `aarch64-apple-darwin`. The `--what-if` column is cargo-bsize's ship
 | `lto = "fat"` | -272 KiB | 4.55 MB (-7.9%) | release build of the crate 10 s -> 42 s with dependencies cached | yes |
 | `opt-level = "z"` for dependencies, with fat LTO | | 3.79 MB (-23.2%) | none measured (below) | yes |
 | `opt-level = "z"` for dependencies, thin LTO | | 4.70 MB (-4.7%) | | no, fat LTO is what makes it pay |
-| `opt-level = "z"` everywhere | -1.3 MiB | 4.39 MB thin, 2.97 MB fat | every CPU stage 40% to 300% slower | no |
+| `opt-level = "z"` everywhere | -1.3 MiB | 4.39 MB thin, 2.97 MB fat | every CPU stage 43% to 287% slower | no |
 | `opt-level = "s"` everywhere | | 5.06 MB thin (+2.4%), 3.74 MB fat | | no, larger than `z` and slower than 3 |
 | `panic = "abort"` | -864 KiB | | a panicking adapter takes down the whole search | no |
 | `codegen-units = 1` | 0 | | | already set |
@@ -64,7 +64,7 @@ Measured on `aarch64-apple-darwin`. The `--what-if` column is cargo-bsize's ship
 | `fmt-debug=none` | -224 KiB | | nightly only | no |
 | `location-detail=none` | -96 KiB | | nightly only | no |
 | `build-std` | +16 KiB | | nightly only, and grows | no |
-| `optimize-for-size` (std feature) | -288 KiB | | nightly only, through build-std | no |
+| `optimize_for_size` (std feature) | -288 KiB | | nightly only, through build-std | no |
 | `panic = "immediate-abort"` | -1.2 MiB | | nightly only, and the `panic = "abort"` cost | no |
 | `min-size` (all of the above) | -2.8 MiB | | nightly only | no |
 | `virtual-function-elimination` | | | the build failed on stable | no |
@@ -108,7 +108,7 @@ Criterion, `just bench --baseline main`, median change against v0.6.0:
 
 ## Verdict
 
-The release profile now uses fat LTO and builds every dependency at `opt-level = "z"`, while dataseek's own code stays at 3. The binary is 19% to 23% smaller per target, and no measured stage got slower. With `--jq` dropped, the binary is 44% to 51% smaller than v0.6.0. `panic = "abort"` would save another 864 KiB, but it would turn one adapter's panic into a failed search, so it stays rejected (`docs/adr/rejected.md`).
+The release profile now uses fat LTO and builds every dependency at `opt-level = "z"`, while dataseek's own code stays at 3. The binary is 18% to 23% smaller per target, and no measured stage got slower. With `--jq` dropped, the binary is 44% to 51% smaller than v0.6.0. `panic = "abort"` saved 864 KiB on the v0.6.0 profile, but it would turn one adapter's panic into a failed search, so it is rejected (`docs/adr/rejected.md`).
 
 ## Caveats
 

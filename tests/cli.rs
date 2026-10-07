@@ -357,6 +357,29 @@ fn errors_under_json_are_events_on_stderr() {
     assert_eq!(event["event"], "error");
 }
 
+// A script written for --jq must fail as a usage error that names the
+// replacement, never run a search with "--jq" swallowed into the query.
+#[test]
+fn the_removed_jq_flag_points_at_json_and_jq() {
+    let out = bin()
+        .args(["search", "census", "--jq", ".results[].url", "--offline"])
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(2));
+    assert_eq!(out.stdout, b"");
+    let stderr = String::from_utf8(out.stderr).unwrap();
+    assert!(stderr.contains("pipe --json into jq"), "{stderr}");
+    assert!(!stderr.contains("-- --jq"), "{stderr}");
+
+    let out = bin()
+        .args(["--json", "sources", "--jq", ".sources"])
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(2));
+    let event: Value = serde_json::from_slice(&out.stderr).unwrap();
+    assert_eq!(event["event"], "error");
+}
+
 #[test]
 fn verbose_search_reports_each_source_on_stderr() {
     let out = bin()

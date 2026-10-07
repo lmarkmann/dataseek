@@ -32,7 +32,7 @@ body = """
 {% for group, commits in commits | group_by(attribute="group") %}
 ### {{ group | upper_first }}
 {% for commit in commits %}
-- {{ commit.message | upper_first }}{% endfor %}
+- {% if commit.breaking %}Breaking: {% endif %}{{ commit.message | upper_first }}{% endfor %}
 {% endfor %}
 """
 commit_parsers = [
