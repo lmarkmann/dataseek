@@ -29,7 +29,7 @@ Secrets never arrive as flags, which leak into shell history and process listing
 
 ## Help surfaces
 
-- A bare `dataseek` prints the overview on **stdout** and exits `0`: the name and version, the commands in three small groups (search, upkeep, shell), and a footer pointing at `-h`. It is orientation, so `dsk | head` shows it. `src/help.rs` holds the groups; a unit test fails when a command is missing from them.
+- A bare `dataseek` prints the overview on **stdout** and exits `0`: the name and version, the commands in three small groups (Search, Upkeep, Shell), and a footer pointing at `-h` and `--help`. It is orientation, so `dsk | head` shows it. `src/help.rs` holds the groups as names only; each line's description is the command's `about`, the same line `-h` shows. A unit test fails when the overview and `-h` list different commands or list them in a different order.
 - `dataseek help <command>` is that command's `--help`. `dataseek help environment` lists the variables that change what it does, `dataseek help exit-codes` every code it returns.
 - `dataseek help --json` describes the whole surface as data for scripts and agents: commands, flags with their type (`boolean`, `integer`, `string` or `count`), value names, possible values, defaults, the `minimum` and `maximum` of a ranged integer, and variables, and the exit codes, all generated from the clap definition. A bare `dataseek --json` prints the same object. `dataseek help <command> --json` prints that command's entry of it: its own flags, with the global ones listed once, on the root.
 

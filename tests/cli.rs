@@ -157,10 +157,12 @@ fn naked_invocation_prints_the_overview_on_stdout() {
         "\u{25c6} dataseek v{}",
         env!("CARGO_PKG_VERSION")
     )));
-    for group in ["search\n", "upkeep\n", "shell\n"] {
+    for group in ["\nSearch:\n", "\nUpkeep:\n", "\nShell:\n"] {
         assert!(text.contains(group), "{group} missing:\n{text}");
     }
-    assert!(text.ends_with("run dataseek -h for full usage\n"), "{text}");
+    let footer =
+        "run dataseek -h for a summary, dataseek --help for everything\n";
+    assert!(text.ends_with(footer), "{text}");
     assert!(text.lines().count() <= 24, "{text}");
 }
 
@@ -169,7 +171,8 @@ fn the_overview_names_the_program_that_ran() {
     let out = bin_named("dsk").arg("--no-color").output().unwrap();
     assert!(out.status.success());
     let text = String::from_utf8(out.stdout).unwrap();
-    assert!(text.ends_with("run dsk -h for full usage\n"), "{text}");
+    let footer = "run dsk -h for a summary, dsk --help for everything\n";
+    assert!(text.ends_with(footer), "{text}");
 }
 
 #[test]

@@ -23,9 +23,9 @@ use crate::palette;
 const COMMANDS: [&str; 10] = [
     "search",
     "sources",
-    "bench",
     "inspect",
     "mcp",
+    "bench",
     "cache",
     "doctor",
     "completion",
@@ -35,32 +35,12 @@ const COMMANDS: [&str; 10] = [
 
 const TOPICS: [&str; 2] = ["environment", "exit-codes"];
 
-/// The overview's groups: the name to type and a few words on what it does.
-const GROUPS: [(&str, &[(&str, &str)]); 3] = [
-    (
-        "search",
-        &[
-            ("search, s", "search every source at once"),
-            ("sources", "list sources and their keys"),
-            ("inspect", "read a dataset page's metadata and files"),
-            ("bench", "time and compare sources"),
-            ("mcp", "serve search, sources and inspect over MCP"),
-        ],
-    ),
-    (
-        "upkeep",
-        &[
-            ("cache", "show, warm or clear the cache"),
-            ("doctor", "check keys, paths and cache"),
-        ],
-    ),
-    (
-        "shell",
-        &[
-            ("completion", "print a completion script"),
-            ("help", "explain a command or topic"),
-        ],
-    ),
+/// The overview's groups. What each command does comes from its `about`, the
+/// line `-h` shows, so the two cannot drift.
+const GROUPS: [(&str, &[&str]); 3] = [
+    ("Search", &["search", "sources", "inspect", "mcp"]),
+    ("Upkeep", &["bench", "cache", "doctor"]),
+    ("Shell", &["completion", "help"]),
 ];
 
 /// Every code the binary returns. `help exit-codes`, `help --json` and the
@@ -94,18 +74,28 @@ pub fn overview(out: &Out) -> Result<()> {
         env!("CARGO_PKG_NAME"),
         env!("CARGO_PKG_VERSION")
     )?;
+    let cmd = cli::command();
     for (group, commands) in GROUPS {
         writeln!(w)?;
-        writeln!(w, "{head}{group}{head:#}")?;
-        for (command, about) in commands {
-            writeln!(w, "  {name}{command:<11}{name:#} {about}")?;
+        writeln!(w, "{head}{group}:{head:#}")?;
+        for sub in commands.iter().filter_map(|c| cmd.find_subcommand(c)) {
+            let typed = std::iter::once(sub.get_name())
+                .chain(sub.get_visible_aliases())
+                .collect::<Vec<_>>()
+                .join(", ");
+            let about = sub.get_about().map(ToString::to_string);
+            writeln!(
+                w,
+                "  {name}{typed:<11}{name:#} {}",
+                about.unwrap_or_default()
+            )?;
         }
     }
     writeln!(w)?;
+    let bin = crate::invoked_name();
     writeln!(
         w,
-        "{muted}run {} -h for full usage{muted:#}",
-        crate::invoked_name()
+        "{muted}run {bin} -h for a summary, {bin} --help for everything{muted:#}"
     )?;
     Ok(())
 }
@@ -424,19 +414,18 @@ mod tests {
 
     // A command missing from the overview is a command nobody finds.
     #[test]
-    fn the_overview_shows_every_command() {
+    fn the_overview_shows_every_command_in_help_order() {
         let shown: Vec<&str> = GROUPS
             .iter()
-            .flat_map(|(_, commands)| commands.iter())
-            .map(|(name, _)| name.split(',').next().unwrap_or(name))
+            .flat_map(|(_, commands)| commands.iter().copied())
             .collect();
-        let hidden = cli::command();
-        for command in subcommands() {
-            let hide = hidden
-                .find_subcommand(&command)
-                .is_some_and(clap::Command::is_hide_set);
-            assert_eq!(shown.contains(&command.as_str()), !hide, "{command}");
-        }
+        let cmd = cli::command();
+        let listed: Vec<&str> = cmd
+            .get_subcommands()
+            .filter(|c| !c.is_hide_set())
+            .map(clap::Command::get_name)
+            .collect();
+        assert_eq!(shown, listed);
     }
 
     #[test]

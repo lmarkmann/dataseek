@@ -293,25 +293,6 @@ pub enum Command {
     /// List every source: what it covers, its protocol, its key, its docs.
     Sources,
 
-    /// Time every source on real queries and measure their overlap.
-    #[command(
-        long_about = "Time every source on real queries and measure their \
-            overlap.\n\nBench bypasses the cache and asks every chosen source \
-            once per query, so it sends queries x sources requests. Without \
-            queries it uses a fixed set chosen to touch every category.",
-        after_help = "Examples:
-  dsk bench \"air quality\" \"protein structure\"     each query is one argument
-  dsk bench mnist -s huggingface,kaggle,openml     only these sources"
-    )]
-    Bench {
-        /// Queries to time; each is one argument (quote multi-word queries).
-        #[arg(value_name = "QUERY")]
-        queries: Vec<String>,
-
-        #[command(flatten)]
-        selection: Selection,
-    },
-
     /// Read a dataset page's metadata and the files it lists.
     #[command(
         long_about = "Read a dataset page's metadata and the files it \
@@ -344,6 +325,25 @@ pub enum Command {
             goes to stderr."
     )]
     Mcp,
+
+    /// Time every source on real queries and measure their overlap.
+    #[command(
+        long_about = "Time every source on real queries and measure their \
+            overlap.\n\nBench bypasses the cache and asks every chosen source \
+            once per query, so it sends queries x sources requests. Without \
+            queries it uses a fixed set chosen to touch every category.",
+        after_help = "Examples:
+  dsk bench \"air quality\" \"protein structure\"     each query is one argument
+  dsk bench mnist -s huggingface,kaggle,openml     only these sources"
+    )]
+    Bench {
+        /// Queries to time; each is one argument (quote multi-word queries).
+        #[arg(value_name = "QUERY")]
+        queries: Vec<String>,
+
+        #[command(flatten)]
+        selection: Selection,
+    },
 
     /// Show, warm or clear the cache.
     #[command(subcommand)]
