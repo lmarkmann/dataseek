@@ -1,6 +1,6 @@
 # ADR 0014: Every platform trusts the system's root certificates
 
-- Status: accepted; supersedes [ADR 0011](0011-tls-stack-per-platform.md)
+- Status: accepted; amends [ADR 0011](0011-tls-stack-per-platform.md)
 - Date: 2026-10-06
 
 ## Context
@@ -14,8 +14,8 @@ The TLS stack stays split as ADR 0011 describes. The roots do not: `src/http.rs`
 ## Consequences
 
 - A root installed with the distribution's tool (`update-ca-certificates`, `update-ca-trust`) is trusted on Linux as it already was on Windows and macOS.
-- On Linux, `SSL_CERT_FILE` and `SSL_CERT_DIR` replace the system store when set, as they do for OpenSSL; `dataseek help environment` lists them.
-- A Linux system with no CA bundle at all, such as a bare container image, now reaches no source: every request fails with "No CA certificates were loaded from the system", which `-v` shows per source. Installing the distribution's `ca-certificates` package fixes it. Before, the bundled roots hid the gap.
+- On Linux, setting either `SSL_CERT_FILE` or `SSL_CERT_DIR` replaces the whole system store, unlike OpenSSL, where each overrides only its own default; `dataseek help environment` lists them.
+- A Linux system with no CA bundle at all, such as a bare container image, now reaches no source: every request fails with "No CA certificates were loaded from the system", which `-v` shows per source. A certificate failure is its own class, neither an outage nor retried, so `search` says the certificates could not be verified rather than that the machine looks offline, and its hint names the distribution's `ca-certificates` package, which fixes it. Before, the bundled roots hid the gap.
 - The binary no longer follows Mozilla's root program on its own schedule; on Linux it trusts whatever the system's store says, as on the other platforms.
 - Reverting means the bundled roots again, and a proxy's root again unreachable on Linux.
 

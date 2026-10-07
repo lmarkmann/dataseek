@@ -31,7 +31,8 @@ pub struct Hit {
 }
 
 /// Fuse per-source result lists, each already in that source's rank order.
-/// Each record moves into the hit it joins; none is copied.
+/// Records are moved, never cloned: the first becomes the hit, a later one
+/// hands over only the fields the hit lacks.
 pub fn merge(lists: Vec<(&'static str, Vec<Dataset>)>) -> Vec<Hit> {
     let mut hits: Vec<Option<Building>> = Vec::new();
     let mut owner: HashMap<String, usize> = HashMap::new();

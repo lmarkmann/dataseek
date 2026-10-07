@@ -365,7 +365,38 @@ fn printable(text: &str) -> impl Iterator<Item = char> + '_ {
 /// Every control character replaced by a space, one char for one, which
 /// keeps [`clean`]'s loop as fast as a plain `chars()`.
 fn without_controls(text: &str) -> impl Iterator<Item = char> + '_ {
-    text.chars().map(|c| if c.is_control() { ' ' } else { c })
+    controls_replaced(text, |_| false)
+}
+
+/// [`without_controls`], sparing the control characters `keep` accepts.
+fn controls_replaced(
+    text: &str,
+    keep: impl Fn(char) -> bool,
+) -> impl Iterator<Item = char> {
+    text.chars().map(move |c| if c.is_control() && !keep(c) { ' ' } else { c })
+}
+
+/// Every string in a JSON value, keys included, with its control characters
+/// (C0, DEL, C1) replaced by a space, except the newline and tab its layout
+/// needs. For JSON from a remote page that is printed as the page wrote it.
+pub fn scrub_controls(value: &mut Value) {
+    let scrubbed = |text: &str| -> String {
+        controls_replaced(text, |c| matches!(c, '\n' | '\t')).collect()
+    };
+    match value {
+        Value::String(text) => *text = scrubbed(text),
+        Value::Array(items) => items.iter_mut().for_each(scrub_controls),
+        Value::Object(fields) => {
+            if fields.keys().any(|k| k.chars().any(char::is_control)) {
+                *fields = std::mem::take(fields)
+                    .into_iter()
+                    .map(|(key, v)| (scrubbed(&key), v))
+                    .collect();
+            }
+            fields.values_mut().for_each(scrub_controls);
+        }
+        _ => {}
+    }
 }
 
 /// Format characters that render as nothing: soft hyphen, zero-width space,
@@ -653,6 +684,24 @@ mod tests {
         assert_eq!(text(&v, "/t").as_deref(), Some("x"));
         assert_eq!(localized(v.get("m")).as_deref(), Some("y"));
         assert_eq!(clean("\u{645}\u{200c}\u{647}"), "\u{645}\u{200c}\u{647}");
+    }
+
+    #[test]
+    fn scrubbed_json_keeps_its_layout_but_no_control_character() {
+        let mut page = json!({
+            "name": "Rain\u{1b}[31m\u{9b}fall\u{7f}",
+            "notes": ["line one\nline\ttwo\u{7}"],
+            "odd\u{1b}key": {"n": 3},
+        });
+        scrub_controls(&mut page);
+        assert_eq!(
+            page,
+            json!({
+                "name": "Rain [31m fall ",
+                "notes": ["line one\nline\ttwo "],
+                "odd key": {"n": 3},
+            })
+        );
     }
 
     #[test]

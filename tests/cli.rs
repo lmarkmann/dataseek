@@ -781,6 +781,34 @@ const BARE_PAGE: &str = r#"<html><head>
 </script>
 </head></html>"#;
 
+/// A file list of two entries that name nothing dataseek can show.
+const UNREADABLE_FILES_PAGE: &str = r#"<html><head>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "Dataset", "name": "Rainfall",
+ "distribution": [{"@type": "DataDownload"},
+  {"@type": "DataDownload", "description": "daily totals"}]}
+</script>
+</head></html>"#;
+
+/// A file whose size is written in words.
+const ROUGH_SIZE_PAGE: &str = r#"<html><head>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "Dataset", "name": "Rainfall",
+ "distribution": [{"@type": "DataDownload", "name": "rain.csv",
+  "contentSize": "about 2 MB", "contentUrl": "https://example.org/rain.csv"}]}
+</script>
+</head></html>"#;
+
+/// A page whose metadata carries terminal escapes, a bell and a C1 control
+/// beside the line breaks and tabs a description may hold.
+const ESCAPING_PAGE: &str = r#"<html><head>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "Dataset",
+ "name": "Rain\u001b[2Jfall\u009b", "files": "the page's own",
+ "description": "daily\ntotals\tin mm\u0007"}
+</script>
+</head></html>"#;
+
 /// A local server answering every request with `page`; its address.
 fn serve_page(page: &'static str) -> String {
     let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
@@ -825,13 +853,18 @@ fn inspect_page(page: &'static str, args: &[&str]) -> std::process::Output {
         .unwrap()
 }
 
+/// `inspect --json` of a local page.
+fn inspect_json(page: &'static str) -> Value {
+    let out = inspect_page(page, &["--json"]);
+    assert!(out.status.success(), "{out:?}");
+    serde_json::from_slice(&out.stdout).unwrap()
+}
+
 #[test]
 fn inspect_lists_the_files_a_page_describes() {
-    let out = inspect_page(DATASET_PAGE, &["--json"]);
-    assert!(out.status.success(), "{out:?}");
-    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    let report = inspect_json(DATASET_PAGE);
     assert_eq!(
-        report["dataset"]["files"],
+        report["files"],
         json!([{
             "name": "rain.csv",
             "format": "text/csv",
@@ -854,33 +887,76 @@ fn inspect_says_when_a_page_lists_no_files() {
     let out = inspect_page(BARE_PAGE, &["--json"]);
     assert!(out.status.success(), "{out:?}");
     let report: Value = serde_json::from_slice(&out.stdout).unwrap();
-    assert_eq!(report["dataset"]["files"], json!([]));
+    assert_eq!(report["files"], json!([]));
     let stderr = String::from_utf8(out.stderr).unwrap();
     assert!(stderr.contains("the page's metadata lists no files"), "{stderr}");
 }
 
-/// On Linux the roots come from the system store, which `SSL_CERT_FILE`
-/// replaces: a page served under a private root, as a TLS-inspecting proxy
-/// serves every page, is trusted once that root is installed.
-#[cfg(target_os = "linux")]
 #[test]
-fn linux_trusts_the_root_certificates_the_system_names() {
+fn inspect_prints_no_control_character_from_the_page() {
+    let report = inspect_json(ESCAPING_PAGE);
+    assert_eq!(report["dataset"]["name"], "Rain [2Jfall ");
+    assert_eq!(report["dataset"]["description"], "daily\ntotals\tin mm ");
+    assert_eq!(report["dataset"]["files"], "the page's own");
+    assert_eq!(report["files"], json!([]));
+
+    let out = inspect_page(ESCAPING_PAGE, &[]);
+    let text = String::from_utf8(out.stdout).unwrap();
+    assert!(text.contains("Rain [2Jfall"), "{text}");
+    assert!(!text.chars().any(|c| c.is_control() && c != '\n'), "{text:?}");
+}
+
+#[test]
+fn inspect_counts_the_files_it_could_not_read() {
+    let out = inspect_page(UNREADABLE_FILES_PAGE, &[]);
+    assert!(out.status.success(), "{out:?}");
+    let stderr = String::from_utf8(out.stderr).unwrap();
+    assert!(
+        stderr.contains("the page lists 2 files dataseek could not read"),
+        "{stderr}"
+    );
+}
+
+#[test]
+fn inspect_prints_a_size_it_cannot_read_as_written() {
+    let out = inspect_page(ROUGH_SIZE_PAGE, &[]);
+    assert!(out.status.success(), "{out:?}");
+    let text = String::from_utf8(out.stdout).unwrap();
+    let line = format!(
+        "{:<12} rain.csv  about 2 MB  https://example.org/rain.csv",
+        "files"
+    );
+    assert!(text.lines().any(|l| l == line), "{text}");
+}
+
+/// A root certificate generated for one test, like the one a TLS-inspecting
+/// proxy re-signs every connection under.
+#[cfg(target_os = "linux")]
+fn generated_root() -> rcgen::CertifiedIssuer<'static, rcgen::KeyPair> {
+    let mut params = rcgen::CertificateParams::new(Vec::new()).unwrap();
+    params.is_ca = rcgen::IsCa::Ca(rcgen::BasicConstraints::Unconstrained);
+    rcgen::CertifiedIssuer::self_signed(
+        params,
+        rcgen::KeyPair::generate().unwrap(),
+    )
+    .unwrap()
+}
+
+/// A local HTTPS server answering every request with `page`, under a
+/// certificate for 127.0.0.1 that `root` signed; its address.
+#[cfg(target_os = "linux")]
+fn serve_tls(
+    root: &rcgen::CertifiedIssuer<'_, rcgen::KeyPair>,
+    page: &'static str,
+) -> String {
     use std::sync::Arc;
 
-    use rcgen::{
-        BasicConstraints, CertificateParams, CertifiedIssuer, IsCa, KeyPair,
-    };
     use rustls::pki_types::PrivatePkcs8KeyDer;
 
-    let mut root = CertificateParams::new(Vec::new()).unwrap();
-    root.is_ca = IsCa::Ca(BasicConstraints::Unconstrained);
-    let root =
-        CertifiedIssuer::self_signed(root, KeyPair::generate().unwrap())
-            .unwrap();
-    let key = KeyPair::generate().unwrap();
-    let leaf = CertificateParams::new(vec!["127.0.0.1".to_owned()])
+    let key = rcgen::KeyPair::generate().unwrap();
+    let leaf = rcgen::CertificateParams::new(vec!["127.0.0.1".to_owned()])
         .unwrap()
-        .signed_by(&key, &root)
+        .signed_by(&key, root)
         .unwrap();
     let provider = Arc::new(rustls::crypto::ring::default_provider());
     let config = Arc::new(
@@ -894,33 +970,83 @@ fn linux_trusts_the_root_certificates_the_system_names() {
             )
             .unwrap(),
     );
-
     let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
     let url = format!("https://{}/", listener.local_addr().unwrap());
     std::thread::spawn(move || {
         for tcp in listener.incoming().flatten() {
             let tls = rustls::ServerConnection::new(Arc::clone(&config));
-            let _ = answer(
-                rustls::StreamOwned::new(tls.unwrap(), tcp),
-                DATASET_PAGE,
-            );
+            let _ = answer(rustls::StreamOwned::new(tls.unwrap(), tcp), page);
         }
     });
+    url
+}
 
+/// `inspect --json` of `url` with `roots`, PEM text, as the whole trust
+/// store: on Linux `SSL_CERT_FILE` replaces the system's.
+#[cfg(target_os = "linux")]
+fn inspect_trusting(roots: &str, url: &str) -> std::process::Output {
     let mut cmd = bin();
-    let roots = cmd.dir.path().join("roots.pem");
-    std::fs::write(&roots, root.pem()).unwrap();
-    let out = cmd
-        .env("SSL_CERT_FILE", &roots)
+    let file = cmd.dir.path().join("roots.pem");
+    std::fs::write(&file, roots).unwrap();
+    cmd.env("SSL_CERT_FILE", &file)
         .env_remove("SSL_CERT_DIR")
         .env_remove("HTTPS_PROXY")
         .env_remove("HTTP_PROXY")
-        .args(["inspect", &url, "--json"])
+        .args(["inspect", url, "--json"])
         .output()
-        .unwrap();
+        .unwrap()
+}
+
+/// A run that failed on a certificate: nothing on stdout, and a hint that
+/// says how to give the system the roots it lacks.
+#[cfg(target_os = "linux")]
+fn assert_refused_certificate(out: &std::process::Output) {
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    assert!(!out.status.success(), "{stderr}");
+    assert!(out.stdout.is_empty(), "{out:?}");
+    assert!(stderr.contains("cannot verify the certificate"), "{stderr}");
+    assert!(stderr.contains("ca-certificates"), "{stderr}");
+}
+
+/// A page served under a private root, as a TLS-inspecting proxy serves
+/// every page, is trusted once that root is in the system's store.
+#[cfg(target_os = "linux")]
+#[test]
+fn linux_trusts_the_root_certificates_the_system_names() {
+    let root = generated_root();
+    let out = inspect_trusting(&root.pem(), &serve_tls(&root, DATASET_PAGE));
     assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
     let report: Value = serde_json::from_slice(&out.stdout).unwrap();
     assert_eq!(report["dataset"]["name"], "Rainfall");
+    assert_eq!(
+        report["files"],
+        json!([{
+            "name": "rain.csv",
+            "format": "text/csv",
+            "size_bytes": 2_000_000,
+            "url": "https://example.org/rain.csv",
+        }])
+    );
+}
+
+/// The same server under a root the store lacks, as behind a proxy whose
+/// root was never installed.
+#[cfg(target_os = "linux")]
+#[test]
+fn linux_refuses_a_root_the_system_does_not_name() {
+    let (trusted, other) = (generated_root(), generated_root());
+    let out =
+        inspect_trusting(&trusted.pem(), &serve_tls(&other, DATASET_PAGE));
+    assert_refused_certificate(&out);
+}
+
+/// A bare container image has no CA bundle; an empty one stands in for it.
+#[cfg(target_os = "linux")]
+#[test]
+fn linux_with_no_roots_says_how_to_install_them() {
+    let root = generated_root();
+    let out = inspect_trusting("", &serve_tls(&root, DATASET_PAGE));
+    assert_refused_certificate(&out);
 }
 
 #[test]
@@ -1338,6 +1464,7 @@ fn json_shapes_snapshot() {
             "schema": json_of(&["help", "search", "--json"])["schema"],
         },
         "search": seeded_search_json(),
+        "inspect": inspect_json(DATASET_PAGE),
     });
     filters::with_snapshot_filters(|| {
         insta::assert_snapshot!(

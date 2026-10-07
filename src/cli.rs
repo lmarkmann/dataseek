@@ -273,8 +273,9 @@ pub enum Command {
             lists.\n\nThe metadata is the page's schema.org Dataset, or \
             Croissant for Hugging Face. The file list comes from the same \
             metadata: each file's name, format, size, checksum and link, \
-            whichever the page gives; nothing is downloaded. Under --json \
-            the list is .dataset.files.",
+            whichever the page gives, and for a Croissant file set the \
+            pattern its files match; nothing is downloaded. Under --json \
+            the list is .files, beside the page's own .dataset.",
         after_help = "Examples:
   dsk inspect https://zenodo.org/records/13135140
   dsk inspect https://huggingface.co/datasets/stanfordnlp/imdb --json"

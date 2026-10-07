@@ -4,6 +4,9 @@ const FILTERS: &[(&str, &str)] = &[
     (r#"[A-Za-z]:\\[^\r\n]*\\Temp\\[^\s"]+"#, "[TEMP_PATH]"),
     // clap prints argv[0], which has the .exe suffix on Windows.
     (r"\.exe\b", ""),
+    // inspect tests serve their pages from a random local port. The
+    // replacement holds no dotted number for the version filter to take.
+    (r"127\.0\.0\.1:\d+", "[LOCAL_ADDR]"),
     (r"\b\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?\b", "[VERSION]"),
     (
         r"\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})\b",
@@ -27,14 +30,15 @@ mod tests {
     fn normalizes_unstable_values() {
         with_snapshot_filters(|| {
             insta::assert_snapshot!(
-                "version 1.2.3\ncreated 2026-07-27T14:30:45Z\nunix /tmp/dataseek/run.log\nmacos /var/folders/ab/cdef/T/dataseek/run.log\nwindows C:\\Users\\dev\\AppData\\Local\\Temp\\dataseek\\run.log\nusage dataseek.exe [OPTIONS]",
+                "version 1.2.3\ncreated 2026-07-27T14:30:45Z\nunix /tmp/dataseek/run.log\nmacos /var/folders/ab/cdef/T/dataseek/run.log\nwindows C:\\Users\\dev\\AppData\\Local\\Temp\\dataseek\\run.log\nusage dataseek.exe [OPTIONS]\nlocal http://127.0.0.1:41823/",
                 @r"
             version [VERSION]
             created [TIMESTAMP]
             unix [TEMP_PATH]
             macos [TEMP_PATH]
             windows [TEMP_PATH]
-            usage dataseek [OPTIONS]"
+            usage dataseek [OPTIONS]
+            local http://[LOCAL_ADDR]/"
             );
         });
     }
