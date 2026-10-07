@@ -547,6 +547,7 @@ fn a_bad_jq_expression_fails_first() {
     assert_eq!(out.status.code(), Some(1));
     let stderr = String::from_utf8(out.stderr).unwrap();
     assert!(stderr.contains("--jq expression"), "{stderr}");
+    assert!(stderr.contains("closing bracket at column 10"), "{stderr}");
     assert!(!stderr.contains("searching"), "{stderr}");
 }
 

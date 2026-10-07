@@ -3,16 +3,16 @@
 //! language; strings come out raw, like `jq -r`, and every other value as
 //! one line of JSON.
 
-use jaq_core::load::{Arena, File, Loader};
+use jaq_core::load::{self, Arena, File, Loader};
 use jaq_core::{Compiler, Ctx, Vars, data, unwrap_valr};
 use jaq_json::Val;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error(
-        "the --jq expression `{0}` does not parse\n  Try:   check its brackets and quotes; jq's manual is at https://jqlang.org/manual/"
+        "the --jq expression `{code}` does not parse: {detail}\n  Try:   check its brackets and quotes; jq's manual is at https://jqlang.org/manual/"
     )]
-    Syntax(String),
+    Syntax { code: String, detail: String },
     #[error(
         "the --jq expression uses {0}, which dataseek's jq (jaq) does not define\n  Try:   check the spelling and the number of arguments"
     )]
@@ -41,9 +41,17 @@ fn evaluate(code: &str, input: Option<Val>) -> Result<Vec<String>, Error> {
         jaq_core::defs().chain(jaq_std::defs()).chain(jaq_json::defs()),
     );
     let arena = Arena::default();
-    let modules = loader
-        .load(&arena, File { code, path: () })
-        .map_err(|_| Error::Syntax(code.to_owned()))?;
+    let modules =
+        loader.load(&arena, File { code, path: () }).map_err(|errors| {
+            Error::Syntax {
+                code: code.to_owned(),
+                detail: errors
+                    .iter()
+                    .flat_map(|(_, error)| where_parsing_stopped(code, error))
+                    .collect::<Vec<_>>()
+                    .join("; "),
+            }
+        })?;
     let filter = Compiler::default()
         .with_funs(
             jaq_core::funs().chain(jaq_std::funs()).chain(jaq_json::funs()),
@@ -69,6 +77,33 @@ fn evaluate(code: &str, input: Option<Val>) -> Result<Vec<String>, Error> {
             Err(e) => Err(Error::Run(inert(&e))),
         })
         .collect()
+}
+
+/// What jaq expected, and the column (from 1, in characters) where it found
+/// something else instead.
+fn where_parsing_stopped(
+    code: &str,
+    error: &load::Error<&str>,
+) -> Vec<String> {
+    let expected_at = |expected: &str, found: &str| {
+        let start = load::span(code, found).start;
+        let column =
+            code.get(..start).map_or(0, |before| before.chars().count());
+        format!("expected {expected} at column {}", column.saturating_add(1))
+    };
+    match error {
+        load::Error::Lex(errors) => errors
+            .iter()
+            .map(|(expected, found)| expected_at(expected.as_str(), found))
+            .collect(),
+        load::Error::Parse(errors) => errors
+            .iter()
+            .map(|(expected, found)| expected_at(expected.as_str(), found))
+            .collect(),
+        load::Error::Io(errors) => {
+            errors.iter().map(|(_, message)| message.clone()).collect()
+        }
+    }
 }
 
 /// A raw string can carry text a remote page put there, so every control
@@ -109,7 +144,17 @@ mod tests {
 
     #[test]
     fn bad_expressions_are_named_before_anything_runs() {
-        assert!(matches!(check(".["), Err(Error::Syntax(_))));
+        // A lex error, then a parse error, each placed where jaq stopped.
+        let unclosed = check(".results[").unwrap_err();
+        assert!(matches!(unclosed, Error::Syntax { .. }));
+        assert!(
+            unclosed
+                .to_string()
+                .contains("expected closing bracket at column 10"),
+            "{unclosed}"
+        );
+        let empty = check(".a | | .b").unwrap_err().to_string();
+        assert!(empty.contains("expected term at column 6"), "{empty}");
         assert!(
             matches!(check("nope(1)"), Err(Error::Undefined(n)) if n.contains("nope"))
         );
