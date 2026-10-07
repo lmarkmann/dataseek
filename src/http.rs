@@ -11,6 +11,8 @@
 //! Bodies are decoded leniently: a stray invalid byte in a 30 MB catalog
 //! should cost one character, not the source.
 
+use std::ffi::OsStr;
+use std::path::Path;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::time::Duration;
 
@@ -53,6 +55,8 @@ const CONNECT_RETRY_PAUSE: Duration = Duration::from_millis(300);
 pub enum SourceError {
     #[error("unreachable ({0})")]
     Unreachable(String),
+    #[error("could not verify the certificate ({0})")]
+    Certificate(String),
     #[error("timed out")]
     Timeout,
     #[error("did not connect within --connect-timeout ({0} s)")]
@@ -79,6 +83,7 @@ impl SourceError {
             Self::Unreachable(_) | Self::Timeout | Self::Blocked => true,
             Self::Status(code) => *code >= 500,
             Self::RateLimited
+            | Self::Certificate(_)
             | Self::Unauthorized(_)
             | Self::Shape(_)
             | Self::ConnectLimit(_)
@@ -309,8 +314,61 @@ fn transport(error: &ureq::Error) -> SourceError {
             SourceError::ConnectLimit(limit)
         }
         ureq::Error::Timeout(_) => SourceError::Timeout,
+        #[cfg(not(any(windows, target_os = "macos")))]
+        ureq::Error::Rustls(_) => SourceError::Certificate(error.to_string()),
+        #[cfg(not(any(windows, target_os = "macos")))]
+        ureq::Error::Io(io) if refused_certificate(io) => {
+            SourceError::Certificate(error.to_string())
+        }
         other => SourceError::Unreachable(other.to_string()),
     }
+}
+
+/// rustls reports a certificate it could not verify inside an I/O error
+/// from the handshake. The trust store failing to load arrives as
+/// `ureq::Error::Rustls` instead, before any connection.
+#[cfg(not(any(windows, target_os = "macos")))]
+fn refused_certificate(error: &std::io::Error) -> bool {
+    error
+        .get_ref()
+        .and_then(|inner| inner.downcast_ref::<rustls::Error>())
+        .is_some_and(|e| matches!(e, rustls::Error::InvalidCertificate(_)))
+}
+
+/// What to do when no certificate could be verified. On Linux,
+/// `SSL_CERT_FILE` or `SSL_CERT_DIR` replaces the whole system store, so one
+/// naming a path that cannot be read leaves nothing to trust; otherwise the
+/// system has no store, or not the root the server needs.
+pub fn certificate_hint() -> String {
+    let file = std::env::var_os("SSL_CERT_FILE");
+    let dirs = std::env::var_os("SSL_CERT_DIR");
+    certificate_hint_for(file.as_deref(), dirs.as_deref())
+}
+
+fn certificate_hint_for(file: Option<&OsStr>, dirs: Option<&OsStr>) -> String {
+    let unreadable_file = file.map(Path::new).filter(|path| {
+        !std::fs::File::open(path)
+            .and_then(|f| f.metadata())
+            .is_ok_and(|m| m.is_file())
+    });
+    if let Some(path) = unreadable_file {
+        return format!(
+            "SSL_CERT_FILE names \"{}\", which cannot be read; point it at a PEM bundle of root certificates, or unset it to use the system's",
+            path.display()
+        );
+    }
+    let unreadable_dir = dirs.and_then(|dirs| {
+        std::env::split_paths(dirs).find(|dir| {
+            !dir.as_os_str().is_empty() && std::fs::read_dir(dir).is_err()
+        })
+    });
+    if let Some(dir) = unreadable_dir {
+        return format!(
+            "SSL_CERT_DIR names \"{}\", which cannot be read; point it at a directory of root certificates, or unset it to use the system's",
+            dir.display()
+        );
+    }
+    "install the distribution's ca-certificates package, or point SSL_CERT_FILE at a PEM bundle of root certificates".to_owned()
 }
 
 /// GitHub and other hosts answer an exhausted quota with 403 rather than
@@ -340,6 +398,7 @@ mod tests {
             (SourceError::Unreachable("dns".into()), true),
             (SourceError::Timeout, true),
             (SourceError::ConnectLimit(2), false),
+            (SourceError::Certificate("unknown issuer".into()), false),
             (SourceError::Blocked, true),
             (SourceError::Status(503), true),
             (SourceError::Status(500), true),
@@ -364,6 +423,62 @@ mod tests {
 
         let slow_answer = ureq::Error::Timeout(ureq::Timeout::Global);
         assert!(transport(&slow_answer).is_outage(), "a hung host is down");
+    }
+
+    #[cfg(not(any(windows, target_os = "macos")))]
+    #[test]
+    fn a_refused_certificate_is_its_own_failure() {
+        let unknown_issuer = rustls::Error::InvalidCertificate(
+            rustls::CertificateError::UnknownIssuer,
+        );
+        let handshake = ureq::Error::Io(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            unknown_issuer,
+        ));
+        assert!(
+            matches!(transport(&handshake), SourceError::Certificate(_)),
+            "{handshake}"
+        );
+        let no_store = ureq::Error::Rustls(rustls::Error::General(
+            "No CA certificates were loaded from the system".into(),
+        ));
+        assert!(
+            matches!(transport(&no_store), SourceError::Certificate(_)),
+            "{no_store}"
+        );
+        let reset =
+            ureq::Error::Io(std::io::ErrorKind::ConnectionReset.into());
+        assert!(
+            matches!(transport(&reset), SourceError::Unreachable(_)),
+            "{reset}"
+        );
+    }
+
+    #[test]
+    fn the_certificate_hint_names_a_variable_that_points_nowhere() {
+        let dir = tempfile::tempdir().unwrap();
+        let bundle = dir.path().join("roots.pem");
+        std::fs::write(&bundle, "").unwrap();
+        let missing = dir.path().join("missing.pem");
+
+        let system = certificate_hint_for(None, None);
+        assert!(system.contains("ca-certificates"), "{system}");
+        assert_eq!(
+            certificate_hint_for(Some(bundle.as_os_str()), None),
+            system,
+            "a readable bundle is not the variable's fault"
+        );
+
+        let hint = certificate_hint_for(Some(missing.as_os_str()), None);
+        assert!(hint.starts_with("SSL_CERT_FILE names"), "{hint}");
+        assert!(hint.contains(&*missing.to_string_lossy()), "{hint}");
+        let hint = certificate_hint_for(Some(dir.path().as_os_str()), None);
+        assert!(hint.starts_with("SSL_CERT_FILE names"), "{hint}");
+
+        let dirs = std::env::join_paths([dir.path(), &missing]).unwrap();
+        let hint = certificate_hint_for(None, Some(&dirs));
+        assert!(hint.starts_with("SSL_CERT_DIR names"), "{hint}");
+        assert!(hint.contains(&*missing.to_string_lossy()), "{hint}");
     }
 
     /// A local server that answers each connection with the next canned

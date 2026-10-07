@@ -35,6 +35,11 @@ pub enum Error {
         "no source could be reached; this machine looks offline\n  Try:   check the connection, or add --offline to search what is cached"
     )]
     Offline,
+    /// The hint from [`crate::http::certificate_hint`].
+    #[error(
+        "no source's certificate could be verified, so none answered\n  Try:   {0}"
+    )]
+    Certificate(String),
     #[error(
         "nothing cached answers this query\n  Try:   run it once without --offline, or `dataseek cache warm` while online"
     )]
@@ -138,7 +143,8 @@ fn ranked(outcomes: &mut [Outcome], query: &str, sort: Sort) -> Vec<Hit> {
 }
 
 /// Which failure every source failing amounts to: all unreachable reads as
-/// an offline machine, all skipped by `--offline` as an empty cache.
+/// an offline machine, all refusing their certificates as a missing or
+/// replaced trust store, all skipped by `--offline` as an empty cache.
 fn failure(outcomes: &[Outcome], offline: bool) -> Error {
     let failed =
         || outcomes.iter().filter(|o| o.status.attempted()).map(|o| &o.status);
@@ -148,6 +154,10 @@ fn failure(outcomes: &[Outcome], offline: bool) -> Error {
         .all(|s| matches!(s, Status::Failed(SourceError::Unreachable(_))))
     {
         Error::Offline
+    } else if failed()
+        .all(|s| matches!(s, Status::Failed(SourceError::Certificate(_))))
+    {
+        Error::Certificate(crate::http::certificate_hint())
     } else {
         Error::AllFailed
     }
@@ -349,6 +359,33 @@ mod tests {
         assert_eq!(human_bytes(512), "512 B");
         assert_eq!(human_bytes(155_173), "155.2 KB");
         assert_eq!(human_bytes(2_559_248_010_229), "2.6 TB");
+    }
+
+    fn failed_with(errors: Vec<SourceError>) -> Vec<Outcome> {
+        SOURCES
+            .iter()
+            .zip(errors)
+            .map(|(source, error)| Outcome {
+                source,
+                status: Status::Failed(error),
+                elapsed: Duration::ZERO,
+                datasets: Vec::new(),
+            })
+            .collect()
+    }
+
+    #[test]
+    fn refused_certificates_everywhere_are_a_trust_store_problem() {
+        let refused =
+            || SourceError::Certificate("invalid peer certificate".into());
+        let error = failure(&failed_with(vec![refused(), refused()]), false);
+        assert!(matches!(error, Error::Certificate(_)), "{error}");
+        let hint = crate::http::certificate_hint();
+        assert!(error.to_string().ends_with(&hint), "{error}");
+
+        let mixed = vec![refused(), SourceError::Status(503)];
+        let error = failure(&failed_with(mixed), false);
+        assert!(matches!(error, Error::AllFailed), "{error}");
     }
 
     /// Four sources answering 50 records each, every record carrying a

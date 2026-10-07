@@ -62,7 +62,9 @@ signal-hook = { version = "0.4", default-features = false }
 [target.'cfg(any(windows, target_os = "macos"))'.dependencies]
 ureq = { version = "3", default-features = false, features = ["json", "gzip", "native-tls"] }
 
+# rustls itself only to tell a refused certificate from a dead host.
 [target.'cfg(not(any(windows, target_os = "macos")))'.dependencies]
+rustls = { version = "0.23", default-features = false, features = ["std"] }
 ureq = { version = "3", features = ["json", "platform-verifier"] }
 
 [features]

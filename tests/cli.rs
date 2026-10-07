@@ -842,28 +842,34 @@ fn inspect_says_when_a_page_lists_no_files() {
     assert!(stderr.contains("the page's metadata lists no files"), "{stderr}");
 }
 
-/// On Linux the roots come from the system store, which `SSL_CERT_FILE`
-/// replaces: a page served under a private root, as a TLS-inspecting proxy
-/// serves every page, is trusted once that root is installed.
+/// A root certificate generated for one test, like the one a TLS-inspecting
+/// proxy re-signs every connection under.
 #[cfg(target_os = "linux")]
-#[test]
-fn linux_trusts_the_root_certificates_the_system_names() {
+fn generated_root() -> rcgen::CertifiedIssuer<'static, rcgen::KeyPair> {
+    let mut params = rcgen::CertificateParams::new(Vec::new()).unwrap();
+    params.is_ca = rcgen::IsCa::Ca(rcgen::BasicConstraints::Unconstrained);
+    rcgen::CertifiedIssuer::self_signed(
+        params,
+        rcgen::KeyPair::generate().unwrap(),
+    )
+    .unwrap()
+}
+
+/// A local HTTPS server answering every request with `page`, under a
+/// certificate for 127.0.0.1 that `root` signed; its address.
+#[cfg(target_os = "linux")]
+fn serve_tls(
+    root: &rcgen::CertifiedIssuer<'_, rcgen::KeyPair>,
+    page: &'static str,
+) -> String {
     use std::sync::Arc;
 
-    use rcgen::{
-        BasicConstraints, CertificateParams, CertifiedIssuer, IsCa, KeyPair,
-    };
     use rustls::pki_types::PrivatePkcs8KeyDer;
 
-    let mut root = CertificateParams::new(Vec::new()).unwrap();
-    root.is_ca = IsCa::Ca(BasicConstraints::Unconstrained);
-    let root =
-        CertifiedIssuer::self_signed(root, KeyPair::generate().unwrap())
-            .unwrap();
-    let key = KeyPair::generate().unwrap();
-    let leaf = CertificateParams::new(vec!["127.0.0.1".to_owned()])
+    let key = rcgen::KeyPair::generate().unwrap();
+    let leaf = rcgen::CertificateParams::new(vec!["127.0.0.1".to_owned()])
         .unwrap()
-        .signed_by(&key, &root)
+        .signed_by(&key, root)
         .unwrap();
     let provider = Arc::new(rustls::crypto::ring::default_provider());
     let config = Arc::new(
@@ -877,33 +883,83 @@ fn linux_trusts_the_root_certificates_the_system_names() {
             )
             .unwrap(),
     );
-
     let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
     let url = format!("https://{}/", listener.local_addr().unwrap());
     std::thread::spawn(move || {
         for tcp in listener.incoming().flatten() {
             let tls = rustls::ServerConnection::new(Arc::clone(&config));
-            let _ = answer(
-                rustls::StreamOwned::new(tls.unwrap(), tcp),
-                DATASET_PAGE,
-            );
+            let _ = answer(rustls::StreamOwned::new(tls.unwrap(), tcp), page);
         }
     });
+    url
+}
 
+/// `inspect --json` of `url` with `roots`, PEM text, as the whole trust
+/// store: on Linux `SSL_CERT_FILE` replaces the system's.
+#[cfg(target_os = "linux")]
+fn inspect_trusting(roots: &str, url: &str) -> std::process::Output {
     let mut cmd = bin();
-    let roots = cmd.dir.path().join("roots.pem");
-    std::fs::write(&roots, root.pem()).unwrap();
-    let out = cmd
-        .env("SSL_CERT_FILE", &roots)
+    let file = cmd.dir.path().join("roots.pem");
+    std::fs::write(&file, roots).unwrap();
+    cmd.env("SSL_CERT_FILE", &file)
         .env_remove("SSL_CERT_DIR")
         .env_remove("HTTPS_PROXY")
         .env_remove("HTTP_PROXY")
-        .args(["inspect", &url, "--json"])
+        .args(["inspect", url, "--json"])
         .output()
-        .unwrap();
+        .unwrap()
+}
+
+/// A run that failed on a certificate: nothing on stdout, and a hint that
+/// says how to give the system the roots it lacks.
+#[cfg(target_os = "linux")]
+fn assert_refused_certificate(out: &std::process::Output) {
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    assert!(!out.status.success(), "{stderr}");
+    assert!(out.stdout.is_empty(), "{out:?}");
+    assert!(stderr.contains("cannot verify the certificate"), "{stderr}");
+    assert!(stderr.contains("ca-certificates"), "{stderr}");
+}
+
+/// A page served under a private root, as a TLS-inspecting proxy serves
+/// every page, is trusted once that root is in the system's store.
+#[cfg(target_os = "linux")]
+#[test]
+fn linux_trusts_the_root_certificates_the_system_names() {
+    let root = generated_root();
+    let out = inspect_trusting(&root.pem(), &serve_tls(&root, DATASET_PAGE));
     assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
     let report: Value = serde_json::from_slice(&out.stdout).unwrap();
     assert_eq!(report["dataset"]["name"], "Rainfall");
+    assert_eq!(
+        report["dataset"]["files"],
+        json!([{
+            "name": "rain.csv",
+            "format": "text/csv",
+            "size_bytes": 2_000_000,
+            "url": "https://example.org/rain.csv",
+        }])
+    );
+}
+
+/// The same server under a root the store lacks, as behind a proxy whose
+/// root was never installed.
+#[cfg(target_os = "linux")]
+#[test]
+fn linux_refuses_a_root_the_system_does_not_name() {
+    let (trusted, other) = (generated_root(), generated_root());
+    let out =
+        inspect_trusting(&trusted.pem(), &serve_tls(&other, DATASET_PAGE));
+    assert_refused_certificate(&out);
+}
+
+/// A bare container image has no CA bundle; an empty one stands in for it.
+#[cfg(target_os = "linux")]
+#[test]
+fn linux_with_no_roots_says_how_to_install_them() {
+    let root = generated_root();
+    let out = inspect_trusting("", &serve_tls(&root, DATASET_PAGE));
+    assert_refused_certificate(&out);
 }
 
 #[test]

@@ -34,6 +34,14 @@ pub enum Error {
         #[source]
         source: SourceError,
     },
+    #[error("cannot verify the certificate of {url}\n  Try:   {hint}")]
+    Certificate {
+        url: String,
+        /// From [`crate::http::certificate_hint`].
+        hint: String,
+        #[source]
+        source: SourceError,
+    },
     #[error(
         "inspect reads the page itself, so it needs the network\n  Try:   run it again without --offline"
     )]
@@ -55,6 +63,11 @@ pub fn run(url: &str, out: &Out) -> Result<()> {
         SourceError::Unreachable(_) => {
             Error::Unreachable { url: url.to_owned(), source: e }
         }
+        SourceError::Certificate(_) => Error::Certificate {
+            url: url.to_owned(),
+            hint: crate::http::certificate_hint(),
+            source: e,
+        },
         _ => Error::Fetch { url: url.to_owned(), source: e },
     };
     let progress = ui::spinner(format!("reading {url}"));
