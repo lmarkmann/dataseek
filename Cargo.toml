@@ -79,9 +79,15 @@ proptest = "1"
 
 [profile.release]
 opt-level = 3
-lto = "thin"
+# Fat LTO lets the optimizer drop and merge code across every crate at once.
+lto = "fat"
 codegen-units = 1
 strip = "symbols"
+
+# Dependencies optimized for size; fat LTO inlines the hot ones into this
+# crate's own code, which stays at opt-level 3 (docs/bench/2026-10-07-binary-size.md).
+[profile.release.package."*"]
+opt-level = "z"
 
 # Release as shipped, with line tables kept so CodSpeed flamegraphs resolve
 # symbols (ADR 0012).
