@@ -158,7 +158,7 @@ All four are useful and none of them are properties of this project. They are to
 
 ## 2026-07-27: Coverage, mutation testing, and binary-size analysis as CI gates
 
-`cargo-llvm-cov`, `cargo-mutants`, and `cargo-bloat` are in the `justfile` and deliberately out of `just ci` and out of the workflow. Each answers a question you ask occasionally, and none has a threshold that is meaningful to fail a merge on: a coverage percentage gate rewards tests that execute lines without asserting on them, and mutation testing the whole crate takes long enough that people start skipping the pipeline. `just mutants` uses `--in-diff` for the same reason.
+`cargo-llvm-cov`, `cargo-mutants`, and `cargo-bsize` are in the `justfile` and deliberately out of `just ci` and out of the workflow. Each answers a question you ask occasionally, and none has a threshold that is meaningful to fail a merge on: a coverage percentage gate rewards tests that execute lines without asserting on them, and mutation testing the whole crate takes long enough that people start skipping the pipeline. `just mutants` uses `--in-diff` for the same reason.
 
 No Codecov or coverage-upload step either: it needs an account and a token per clone, to display a number nobody is gating on.
 

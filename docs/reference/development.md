@@ -117,4 +117,6 @@ just mutants   # mutate what the branch changed against main
 just bloat     # where the release binary's size goes
 ```
 
+`just bloat` runs [cargo-bsize](https://crates.io/crates/cargo-bsize) on the `dataseek` binary (`dsk` is the same program). It ranks crates, functions and generic instantiations by the bytes they ship, and lists panic, formatting and unwind overhead beside them. Before a change that might move the size, copy `target/release/dataseek` somewhere outside `target/`; afterwards `just bloat --baseline <that copy>` reports what grew and what shrank. `just bloat --what-if` rebuilds once per size lever (`opt-level`, LTO mode, `panic`, codegen settings) and reports the measured saving of each, so it takes minutes; nightly-only levers such as `fmt-debug=none` and `build-std` are measured for reference and cannot go into a profile while the toolchain is pinned to stable. The last measurement is in [`../bench/2026-10-07-binary-size.md`](../bench/2026-10-07-binary-size.md).
+
 `just mutants` passes `--in-diff` so it stays in the minutes rather than mutating the whole crate. A surviving mutant means a line the tests execute but never assert on, which is the failure mode coverage percentages hide.

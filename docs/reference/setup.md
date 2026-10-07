@@ -34,5 +34,5 @@ cargo binstall cargo-nextest cargo-shear cargo-insta cargo-msrv cargo-deny zizmo
 The on-demand recipes need four more, worth installing only when you reach for them:
 
 ```sh
-cargo binstall cargo-llvm-cov cargo-mutants cargo-bloat cargo-outdated
+cargo binstall cargo-llvm-cov cargo-mutants cargo-bsize cargo-outdated
 ```
