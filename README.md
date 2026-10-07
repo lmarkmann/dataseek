@@ -94,7 +94,7 @@ just run search climate temperature   # the CLI built from this checkout
 ## Docs
 
 - [`docs/CHANGELOG.md`](docs/CHANGELOG.md): what shipped, written by release-plz.
-- [`docs/reference/`](docs/reference/): setup, development, the CLI contract, keys and cache, security, and the release loop.
+- [`docs/reference/`](docs/reference/): setup, development, the CLI contract, keys and cache, the supply-chain gates, and the release loop.
 - [`docs/adr/`](docs/adr/): why it is built this way, including [the full source list](docs/adr/0004-every-source-is-searched.md), plus what is [parked](docs/adr/watchlist.md). Read it before proposing an addition.
 
 ### Project notes

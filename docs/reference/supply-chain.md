@@ -1,4 +1,4 @@
-# Security
+# Supply chain
 
 dataseek runs two supply-chain gates in CI and locally through `just audit`.
 

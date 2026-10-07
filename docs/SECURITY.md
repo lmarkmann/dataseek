@@ -21,5 +21,5 @@ In scope:
 Out of scope:
 
 - The sources themselves. A source serving wrong, stale or misleading data, or a flaw in its own API, belongs with that provider.
-- A vulnerability in a dependency that dataseek never reaches. Report it upstream; `cargo-deny` fails CI on any published RUSTSEC advisory ([`reference/security.md`](reference/security.md)).
+- A vulnerability in a dependency that dataseek never reaches. Report it upstream; `cargo-deny` fails CI on any published RUSTSEC advisory ([`reference/supply-chain.md`](reference/supply-chain.md)).
 - Attacks that start from control of your environment variables or your config directory.
