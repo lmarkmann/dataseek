@@ -2,7 +2,9 @@
 //! itself, and the files it lists. Hugging Face pages carry none in their
 //! HTML, so for them the Hub's Croissant endpoint is read instead; every other
 //! page is searched for `application/ld+json` blocks holding a schema.org
-//! `Dataset` (top level, in an array, or inside `@graph`). The file list is
+//! `Dataset` (top level, in an array, or inside `@graph`, whose other nodes
+//! answer `{"@id": ...}` references; keys may carry a `schema:` prefix, as
+//! ckanext-dcat writes them on CKAN portals such as HDX). The file list is
 //! the dataset's `distribution`: schema.org `DataDownload`s and Croissant
 //! `FileObject`s and `FileSet`s, with whatever name, format, size, checksum
 //! and link each carries; nothing is downloaded. This is enrichment for one
@@ -17,7 +19,7 @@ use serde_json::Value;
 use crate::find::human_bytes;
 use crate::http::{Http, SourceError};
 use crate::output::Out;
-use crate::record::{clean, first_text, number, summary, text};
+use crate::record::{clean, number, summary, text};
 use crate::ui;
 
 #[derive(Debug, thiserror::Error)]
@@ -76,22 +78,131 @@ pub fn run(url: &str, out: &Out) -> Result<()> {
             "https://huggingface.co/api/datasets/{id}/croissant"
         ))
         .json()
+        .map(|dataset| Page { dataset, graph: Vec::new() })
         .map_err(fetch_error)
     } else {
-        http.get(url).text().map_err(fetch_error).and_then(|page| {
-            json_ld(&page)
-                .into_iter()
-                .find_map(find_dataset)
+        http.get(url).text().map_err(fetch_error).and_then(|html| {
+            json_ld(&html)
+                .iter()
+                .find_map(Page::find)
                 .ok_or_else(|| Error::NoMarkup { url: url.to_owned() })
         })
     };
     progress.finish_and_clear();
-    let dataset = found?;
-    let files = files(&dataset);
+    let page = found?;
+    let files = page.files();
     if files.is_empty() {
         ui::warn("the page's metadata lists no files");
     }
-    print(out, url, dataset, &files)
+    print(out, url, &page, &files)
+}
+
+/// A page's schema.org Dataset node and the `@graph` it sits in. CKAN
+/// portals with ckanext-dcat, such as HDX, write each file and organisation
+/// as a node of its own in the graph and refer to it by `{"@id": ...}`.
+struct Page {
+    dataset: Value,
+    /// Empty when the Dataset stands alone.
+    graph: Vec<Value>,
+}
+
+impl Page {
+    /// The first Dataset in one JSON-LD block: at the top level, in an
+    /// array, or inside `@graph`.
+    fn find(block: &Value) -> Option<Self> {
+        let (dataset, graph) = find_dataset(block)?;
+        Some(Self { dataset: dataset.clone(), graph: graph.to_vec() })
+    }
+
+    /// The graph node an `{"@id": ...}` reference names, or `node` itself
+    /// when it is not a reference or the graph lacks that node.
+    fn resolve<'a>(&'a self, node: &'a Value) -> &'a Value {
+        let Value::Object(fields) = node else { return node };
+        if fields.len() != 1 {
+            return node;
+        }
+        let Some(id) = fields.get("@id") else { return node };
+        self.graph
+            .iter()
+            .find(|n| {
+                n.get("@id") == Some(id)
+                    && n.as_object().is_some_and(|m| m.len() > 1)
+            })
+            .unwrap_or(node)
+    }
+
+    fn files(&self) -> Vec<File> {
+        ["distribution", "distributions"]
+            .iter()
+            .filter_map(|k| property(&self.dataset, k))
+            .flat_map(|d| match d {
+                Value::Array(items) => items.iter().collect(),
+                other => vec![other],
+            })
+            .map(|entry| self.file(self.resolve(entry)))
+            .filter(|file| *file != File::default())
+            .collect()
+    }
+
+    fn file(&self, entry: &Value) -> File {
+        File {
+            name: property_text(entry, "name"),
+            format: self.names(
+                property(entry, "encodingFormat")
+                    .or_else(|| property(entry, "fileFormat")),
+            ),
+            size_bytes: property(entry, "contentSize").and_then(|size| {
+                number(size, "")
+                    .or_else(|| text(size, "").as_deref().and_then(with_unit))
+            }),
+            checksum: checksum(entry),
+            url: property_text(entry, "contentUrl")
+                .or_else(|| property_text(entry, "url")),
+            includes: self.names(property(entry, "includes")),
+        }
+    }
+
+    /// A readable rendering of a schema.org value that may be a string, an
+    /// object with a `name`/`@id`/`url`, a reference to such an object in
+    /// the graph, or a list of any of these.
+    fn names(&self, value: Option<&Value>) -> Option<String> {
+        let value = self.resolve(value?);
+        let rendered = match value {
+            Value::String(s) => clean(s),
+            Value::Array(items) => items
+                .iter()
+                .filter_map(|v| self.names(Some(v)))
+                .collect::<Vec<_>>()
+                .join(", "),
+            Value::Object(_) => property_text(value, "name")
+                .or_else(|| property_text(value, "value"))
+                .or_else(|| text(value, "/@id"))
+                .or_else(|| property_text(value, "url"))?,
+            Value::Number(n) => n.to_string(),
+            _ => return None,
+        };
+        (!rendered.is_empty()).then_some(rendered)
+    }
+
+    /// A text property of the dataset itself.
+    fn text(&self, key: &str) -> Option<String> {
+        property_text(&self.dataset, key)
+    }
+
+    /// A property of the dataset itself, rendered by [`Page::names`].
+    fn names_of(&self, key: &str) -> Option<String> {
+        self.names(property(&self.dataset, key))
+    }
+}
+
+/// `node`'s `key`, written plainly or with the `schema:` prefix
+/// ckanext-dcat uses.
+fn property<'a>(node: &'a Value, key: &str) -> Option<&'a Value> {
+    node.get(key).or_else(|| node.get(format!("schema:{key}")))
+}
+
+fn property_text(node: &Value, key: &str) -> Option<String> {
+    property(node, key).and_then(|v| text(v, ""))
 }
 
 /// One entry of a dataset's file list, as the page's metadata describes it.
@@ -112,30 +223,6 @@ struct File {
     url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     includes: Option<String>,
-}
-
-fn files(dataset: &Value) -> Vec<File> {
-    ["distribution", "distributions"]
-        .iter()
-        .filter_map(|k| dataset.get(*k))
-        .flat_map(|d| match d {
-            Value::Array(items) => items.iter().collect(),
-            other => vec![other],
-        })
-        .map(|file| File {
-            name: text(file, "/name"),
-            format: names(
-                file.get("encodingFormat").or_else(|| file.get("fileFormat")),
-            ),
-            size_bytes: number(file, "/contentSize").or_else(|| {
-                text(file, "/contentSize").as_deref().and_then(with_unit)
-            }),
-            checksum: checksum(file),
-            url: first_text(file, &["/contentUrl", "/url"]),
-            includes: names(file.get("includes")),
-        })
-        .filter(|file| *file != File::default())
-        .collect()
 }
 
 /// A size written with its unit, such as Zenodo's "8.19 MB": decimal units
@@ -198,14 +285,22 @@ fn json_ld(page: &str) -> Vec<Value> {
         .collect()
 }
 
-fn find_dataset(value: Value) -> Option<Value> {
+/// The first Dataset node in `value` and the `@graph` array holding it,
+/// empty when there is none.
+fn find_dataset(value: &Value) -> Option<(&Value, &[Value])> {
     match value {
-        Value::Array(items) => items.into_iter().find_map(find_dataset),
-        Value::Object(ref map) => {
-            if is_dataset(map.get("@type")) {
-                return Some(value);
-            }
-            map.get("@graph").cloned().and_then(find_dataset)
+        Value::Array(items) => items.iter().find_map(find_dataset),
+        Value::Object(map) if is_dataset(map.get("@type")) => {
+            Some((value, &[]))
+        }
+        Value::Object(map) => {
+            let graph = map.get("@graph")?;
+            let (dataset, inner) = find_dataset(graph)?;
+            let around = match graph {
+                Value::Array(nodes) if inner.is_empty() => nodes.as_slice(),
+                _ => inner,
+            };
+            Some((dataset, around))
         }
         _ => None,
     }
@@ -225,23 +320,18 @@ fn is_dataset(kind: Option<&Value>) -> bool {
     }
 }
 
-fn print(
-    out: &Out,
-    page: &str,
-    mut dataset: Value,
-    files: &[File],
-) -> Result<()> {
+fn print(out: &Out, url: &str, page: &Page, files: &[File]) -> Result<()> {
     if out.json {
+        let mut dataset = page.dataset.clone();
         if let Value::Object(fields) = &mut dataset {
             fields.insert("files".to_owned(), serde_json::json!(files));
         }
         return out.json(&serde_json::json!({
             "schema": "dataseek-inspect/1",
-            "url": page,
+            "url": url,
             "dataset": dataset,
         }));
     }
-    let dataset = &dataset;
     let field = |label: &str, value: Option<String>| -> std::io::Result<()> {
         match value {
             Some(v) if !v.is_empty() => {
@@ -250,20 +340,20 @@ fn print(
             _ => Ok(()),
         }
     };
-    field("name", text(dataset, "/name"))?;
-    field("url", text(dataset, "/url").map(|u| out.link(&u)))?;
-    field("identifier", names(dataset.get("identifier")))?;
-    field("license", names(dataset.get("license")))?;
-    field("creator", names(dataset.get("creator")))?;
-    field("publisher", names(dataset.get("publisher")))?;
-    field("modified", text(dataset, "/dateModified"))?;
-    field("published", text(dataset, "/datePublished"))?;
-    field("keywords", names(dataset.get("keywords")))?;
-    field("temporal", text(dataset, "/temporalCoverage"))?;
-    field("spatial", names(dataset.get("spatialCoverage")))?;
+    field("name", page.text("name"))?;
+    field("url", page.text("url").map(|u| out.link(&u)))?;
+    field("identifier", page.names_of("identifier"))?;
+    field("license", page.names_of("license"))?;
+    field("creator", page.names_of("creator"))?;
+    field("publisher", page.names_of("publisher"))?;
+    field("modified", page.text("dateModified"))?;
+    field("published", page.text("datePublished"))?;
+    field("keywords", page.names_of("keywords"))?;
+    field("temporal", page.text("temporalCoverage"))?;
+    field("spatial", page.names_of("spatialCoverage"))?;
     field(
         "description",
-        text(dataset, "/description").as_deref().and_then(summary),
+        page.text("description").as_deref().and_then(summary),
     )?;
     let mut w = out.stdout();
     for (i, file) in files.iter().enumerate() {
@@ -290,39 +380,27 @@ fn listing(out: &Out, file: &File) -> String {
     .join("  ")
 }
 
-/// A readable rendering of a schema.org value that may be a string, an
-/// object with a `name`/`@id`/`url`, or a list of either.
-fn names(value: Option<&Value>) -> Option<String> {
-    let rendered = match value? {
-        Value::String(s) => clean(s),
-        Value::Array(items) => items
-            .iter()
-            .filter_map(|v| names(Some(v)))
-            .collect::<Vec<_>>()
-            .join(", "),
-        Value::Object(_) => {
-            let v = value?;
-            text(v, "/name")
-                .or_else(|| text(v, "/value"))
-                .or_else(|| text(v, "/@id"))
-                .or_else(|| text(v, "/url"))?
-        }
-        Value::Number(n) => n.to_string(),
-        _ => return None,
-    };
-    (!rendered.is_empty()).then_some(rendered)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::sources::fixture;
     use serde_json::json;
 
+    /// The Dataset an HTML page's JSON-LD describes.
+    fn page_in(html: &str) -> Page {
+        json_ld(html).iter().find_map(Page::find).unwrap()
+    }
+
+    /// A fixture that is the Dataset itself, as Croissant and Dataverse's
+    /// schema.org export are.
+    fn standalone(name: &str) -> Page {
+        let dataset = serde_json::from_str(&fixture::read("inspect", name));
+        Page { dataset: dataset.unwrap(), graph: Vec::new() }
+    }
+
     #[test]
     fn a_zenodo_page_names_its_dataset_by_full_address() {
-        let page = fixture::read("inspect", "zenodo.html");
-        let found = json_ld(&page).into_iter().find_map(find_dataset).unwrap();
+        let found = page_in(&fixture::read("inspect", "zenodo.html")).dataset;
         assert_eq!(found["@type"], "https://schema.org/Dataset");
         assert_eq!(
             found["name"],
@@ -336,8 +414,49 @@ mod tests {
             <script type="application/ld+json">
             {"@graph":[{"@type":"Organization"},{"@type":["Thing","Dataset"],"name":"Rain"}]}
             </script>"#;
-        let found = json_ld(page).into_iter().find_map(find_dataset).unwrap();
-        assert_eq!(found["name"], "Rain");
+        assert_eq!(page_in(page).dataset["name"], "Rain");
+    }
+
+    #[test]
+    fn a_ckan_page_lists_the_files_its_graph_refers_to() {
+        let page = page_in(&fixture::read("inspect", "hdx.html"));
+        assert_eq!(
+            page.files(),
+            [
+                File {
+                    name: Some("afg_admin_boundaries.shp.zip".into()),
+                    format: Some("SHP".into()),
+                    url: Some("https://data.humdata.org/dataset/4c303d7b-8eae-4a5a-a3aa-b2331fa39d74/resource/84b6e7e1-e907-488a-9a37-47b707145468/download/afg_admin_boundaries.shp.zip".into()),
+                    ..File::default()
+                },
+                File {
+                    name: Some("afg_admin_boundaries.xlsx".into()),
+                    format: Some("XLSX".into()),
+                    url: Some("https://data.humdata.org/dataset/4c303d7b-8eae-4a5a-a3aa-b2331fa39d74/resource/45f2ff90-13c0-46bf-a46e-7d443e9b9fdd/download/afg_admin_boundaries.xlsx".into()),
+                    ..File::default()
+                },
+                File {
+                    name: Some("afg_admin_boundaries.geojson.zip".into()),
+                    format: Some("GeoJSON".into()),
+                    url: Some("https://data.humdata.org/dataset/4c303d7b-8eae-4a5a-a3aa-b2331fa39d74/resource/330aad34-2254-4622-afac-e98ace1524ae/download/afg_admin_boundaries.geojson.zip".into()),
+                    ..File::default()
+                },
+                File {
+                    name: Some("afg_admin_boundaries.gdb.zip".into()),
+                    format: Some("Geodatabase".into()),
+                    url: Some("https://data.humdata.org/dataset/4c303d7b-8eae-4a5a-a3aa-b2331fa39d74/resource/361330e2-15f7-4bde-ad08-8bf9e37b5c41/download/afg_admin_boundaries.gdb.zip".into()),
+                    ..File::default()
+                },
+            ]
+        );
+        assert_eq!(
+            page.text("name").as_deref(),
+            Some("Afghanistan - Subnational Administrative Boundaries")
+        );
+        assert_eq!(
+            page.names_of("publisher").as_deref(),
+            Some("OCHA Field Information Services Section (FISS)")
+        );
     }
 
     #[test]
@@ -355,15 +474,13 @@ mod tests {
     #[test]
     fn names_flatten_people_and_lists() {
         let v = json!([{"@type":"Person","name":"Ada"}, "Grace"]);
-        assert_eq!(names(Some(&v)).as_deref(), Some("Ada, Grace"));
+        let page = Page { dataset: Value::Null, graph: Vec::new() };
+        assert_eq!(page.names(Some(&v)).as_deref(), Some("Ada, Grace"));
     }
 
     #[test]
     fn zenodo_lists_each_file_by_format_and_link() {
-        let page = fixture::read("inspect", "zenodo.html");
-        let dataset =
-            json_ld(&page).into_iter().find_map(find_dataset).unwrap();
-        let files = files(&dataset);
+        let files = page_in(&fixture::read("inspect", "zenodo.html")).files();
         assert_eq!(files.len(), 3);
         assert_eq!(
             files[0],
@@ -377,12 +494,7 @@ mod tests {
 
     #[test]
     fn dataverse_lists_names_sizes_and_formats() {
-        let dataset: Value = serde_json::from_str(&fixture::read(
-            "inspect",
-            "dataverse-schema-org.json",
-        ))
-        .unwrap();
-        let files = files(&dataset);
+        let files = standalone("dataverse-schema-org.json").files();
         assert_eq!(files.len(), 2);
         assert_eq!(
             files[0],
@@ -398,13 +510,8 @@ mod tests {
 
     #[test]
     fn croissant_file_objects_carry_their_checksums() {
-        let dataset: Value = serde_json::from_str(&fixture::read(
-            "inspect",
-            "dataverse-croissant.json",
-        ))
-        .unwrap();
         assert_eq!(
-            files(&dataset)[1],
+            standalone("dataverse-croissant.json").files()[1],
             File {
                 name: Some("RF_wet_transposed.xlsx.csv".into()),
                 format: Some("text/csv".into()),
@@ -418,13 +525,8 @@ mod tests {
 
     #[test]
     fn a_croissant_file_set_names_its_pattern_not_a_link() {
-        let dataset: Value = serde_json::from_str(&fixture::read(
-            "inspect",
-            "huggingface-croissant.json",
-        ))
-        .unwrap();
         assert_eq!(
-            files(&dataset),
+            standalone("huggingface-croissant.json").files(),
             [
                 File {
                     name: Some("repo".into()),
