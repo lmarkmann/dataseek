@@ -277,6 +277,11 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
         Command::Doctor => doctor::run(out)?,
         // clap_complete::generate panics on a failed write. Generating into a
         // Vec cannot fail, so the real write goes through the error path.
+        // A script on a terminal is a wall of text nobody reads; what the
+        // reader needs there is where to save it.
+        Command::Completion { shell } if io::stdout().is_terminal() => {
+            ui::stage(help::completion_hint(shell, invoked_name()));
+        }
         Command::Completion { shell } => {
             let mut cmd = cli::command();
             let mut script = Vec::new();

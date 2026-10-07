@@ -16,7 +16,7 @@ Commands:
   bench       Time every source on real queries and measure their overlap
   cache       Show, warm or clear the cache
   doctor      Check the environment, keys and cache, and report readiness
-  completion  Print a shell completion script to stdout
+  completion  Print a shell completion script; on a terminal, say where to save it
   help        Explain a command or a topic: environment, exit-codes
 
 Options:

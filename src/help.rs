@@ -147,6 +147,29 @@ fn built() -> clap::Command {
     cmd
 }
 
+/// Where `name completion <shell>` should go so the shell loads it, said
+/// instead of printing the script to a terminal.
+pub fn completion_hint(shell: clap_complete::Shell, name: &str) -> String {
+    use clap_complete::Shell;
+
+    let save = match shell {
+        Shell::Bash => {
+            format!("> ~/.local/share/bash-completion/completions/{name}")
+        }
+        Shell::Fish => format!("> ~/.config/fish/completions/{name}.fish"),
+        Shell::Zsh => format!(
+            "> ~/.zfunc/_{name}   (with ~/.zfunc on $fpath before compinit)"
+        ),
+        Shell::Elvish => ">> ~/.config/elvish/rc.elv".to_owned(),
+        Shell::PowerShell => ">> $PROFILE".to_owned(),
+        _ => format!("> a file {shell} loads at startup"),
+    };
+    format!(
+        "the script is for a file, not the terminal; save it with: \
+         {name} completion {shell} {save}"
+    )
+}
+
 /// Show `page` through `man`, as a reader on a terminal expects. `man` takes a
 /// file path everywhere (BSD and macOS `man` have no `-l`), so the page goes
 /// through a temporary file: a random name, created only if absent and

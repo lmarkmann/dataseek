@@ -352,7 +352,7 @@ pub enum Command {
     /// Check the environment, keys and cache, and report readiness.
     Doctor,
 
-    /// Print a shell completion script to stdout.
+    /// Print a shell completion script; on a terminal, say where to save it.
     Completion {
         /// Target shell (bash, elvish, fish, powershell, or zsh).
         shell: Shell,

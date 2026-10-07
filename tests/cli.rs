@@ -1332,6 +1332,22 @@ fn on_a_terminal(args: &[&str], no_color: bool) -> Vec<u8> {
     cmd.output().unwrap().stdout
 }
 
+// On a terminal the script would scroll past unread; the reader gets where
+// to save it instead. A pipe still gets the script (the other tests).
+#[cfg(unix)]
+#[test]
+fn completion_on_a_terminal_says_where_to_save_the_script() {
+    let text = String::from_utf8(on_a_terminal(&["completion", "fish"], true))
+        .unwrap();
+    assert!(
+        text.contains(
+            "dataseek completion fish > ~/.config/fish/completions/dataseek.fish"
+        ),
+        "{text}"
+    );
+    assert!(!text.contains("complete -c"), "{text}");
+}
+
 // Color is the default on a terminal and every off switch reaches every
 // writer, clap's own errors included.
 #[cfg(unix)]

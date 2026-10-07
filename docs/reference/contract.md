@@ -56,7 +56,7 @@ This is why `Cargo.toml` denies `print_stdout` and `print_stderr`: a stray `prin
 
 ## JSON
 
-Every `--json` output is one object with a `schema` tag naming its shape and version (`dataseek-search/1`, `dataseek-sources/1`, `dataseek-doctor/1`, ...). A key that changes meaning or disappears bumps the tag; a new key does not. On a terminal the JSON is indented, in a pipe it is one line. To pick fields, pipe it into `jq`. A failed run prints its error event on stderr and nothing on stdout, and `jq` exits 0 on empty input, so a script runs the pipeline under `set -o pipefail` (bash, zsh) or checks `$pipestatus[1]` (fish) to see the failure. `--jq` was removed; passing it is a usage error that says so. `completion` and `man` print their script and page whatever the flag. `tests/snapshots/` freezes the search, sources, doctor, cache info, inspect, exit-codes and error-event shapes.
+Every `--json` output is one object with a `schema` tag naming its shape and version (`dataseek-search/1`, `dataseek-sources/1`, `dataseek-doctor/1`, ...). A key that changes meaning or disappears bumps the tag; a new key does not. On a terminal the JSON is indented, in a pipe it is one line. To pick fields, pipe it into `jq`. A failed run prints its error event on stderr and nothing on stdout, and `jq` exits 0 on empty input, so a script runs the pipeline under `set -o pipefail` (bash, zsh) or checks `$pipestatus[1]` (fish) to see the failure. `--jq` was removed; passing it is a usage error that says so. `completion` and `man` print their script and page whatever the flag when stdout is not a terminal. `tests/snapshots/` freezes the search, sources, doctor, cache info, inspect, exit-codes and error-event shapes.
 
 `inspect --json` (`dataseek-inspect/1`) prints `dataset`, the page's own JSON-LD node as the page wrote it, and beside it `files`, dataseek's reading of the file list, so a `files` key on the page is never overwritten. Every string of the page's metadata, keys included, has its control characters (C0 other than newline and tab, DEL, and C1) replaced by a space before it is printed, as text or as JSON, so a page cannot drive the terminal that shows it.
 
@@ -107,7 +107,7 @@ For `search`, success means at least one source answered, even with no results: 
 
 ## Completion and the man page
 
-`dataseek completion fish` (or `bash`, `zsh`, ...) prints a completion script to stdout. `dataseek man` prints the man page, in roff, to the same place when stdout is not a terminal; on a terminal it shows the page through `man`, by way of a temporary file because BSD and macOS `man` cannot read stdin, and prints the roff if `man` is missing. `cargo install` cannot install a man page, so `man dsk` finds nothing until it is saved where `man` looks:
+`dataseek completion fish` (or `bash`, `zsh`, ...) prints a completion script to stdout. On a terminal, where a script would scroll past unread, it prints no script and says on stderr where to save it so the shell loads it (`dsk completion fish > ~/.config/fish/completions/dsk.fish`), for the name it was run as. `dataseek man` prints the man page, in roff, to the same place when stdout is not a terminal; on a terminal it shows the page through `man`, by way of a temporary file because BSD and macOS `man` cannot read stdin, and prints the roff if `man` is missing. `cargo install` cannot install a man page, so `man dsk` finds nothing until it is saved where `man` looks:
 
 ```sh
 dsk man > ~/.local/share/man/man1/dsk.1        # then: man dsk
