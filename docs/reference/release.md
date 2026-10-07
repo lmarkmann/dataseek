@@ -29,7 +29,6 @@ Nothing earlier than v0.3.0 exists: release-plz diffs against the newest `v*` ta
 
 `.github/release-plz.toml`, passed through the action's `config` input in both jobs and `--config` locally:
 
-- `git_only = true`, `publish = false`: the previous version comes from git tags, not crates.io, and release-plz publishes nothing. Both go once the first crates.io release exists (below).
 - `git_release_enable = true`, `git_release_type = "auto"`, `git_release_body = "{{ changelog }}"`: every tag gets a GitHub release carrying that version's section.
 - `release_commits`: release-plz decides whether to release from changed files, not from changelog groups, so without it a `ci:` merge alone opens a release with an empty section. That is how v0.3.1 happened.
 - `features_always_increment_minor = true`: see ADR 0003.
@@ -59,16 +58,11 @@ No release-plz subcommand has a dry-run flag, so the recipe runs the real `relea
 
 `cargo install dataseek` installs `dataseek` and `dsk`. The package holds only what building needs (`cargo package --list`); the `internals` feature is for the benches and unstable.
 
-crates.io trusts a publisher only for a crate that exists, so the first release goes up by hand:
-
-1. Merge the release PR; release-plz tags `vX.Y.Z`.
-2. `git switch --detach vX.Y.Z && cargo publish --locked`, with a new-crate token in `CARGO_REGISTRY_TOKEN`.
-3. Add the trusted publisher on crates.io (`lmarkmann/dataseek`, workflow `release-plz.yml`, environment `crates-io`), then revoke the token.
-4. Drop `git_only` and `publish = false` from `.github/release-plz.toml`, and give the `release` job `environment: crates-io` and `id-token: write`.
+The `release` job publishes through crates.io trusted publishing (`lmarkmann/dataseek`, workflow `release-plz.yml`, environment `crates-io`); no registry token is stored.
 
 ## Publishing to PyPI
 
-`uvx dataseek` runs a wheel holding both binaries, built by maturin with the version from `Cargo.toml`. `release.yml` builds the wheels on each GitHub release and uploads them with `uv publish` through trusted publishing ([ADR 0017](../adr/0017-release-builds-on-a-platform-matrix.md)). The same jobs attach `dataseek-<target>.tar.gz` (`.zip` on Windows) with a `.sha256` to the release, which `cargo binstall dataseek` downloads.
+`uvx dataseek` runs a wheel holding both binaries, built by maturin with the version from `Cargo.toml`. `release.yml` builds the wheels on each GitHub release and uploads them with `uv publish` through trusted publishing ([ADR 0017](../adr/0017-release-builds-on-a-platform-matrix.md)). The same jobs attach `dataseek-<target>.tar.gz` (`.zip` on Windows) with a `.sha256` to the release, which `cargo binstall dataseek` downloads, and its `homebrew` job rewrites `Formula/dataseek.rb` in [lmarkmann/homebrew-tap](https://github.com/lmarkmann/homebrew-tap) from them with `scripts/homebrew-formula.sh`, through a release App token scoped to the tap.
 
 Before the first release, add a pending publisher at <https://pypi.org/manage/account/publishing/>: project `dataseek`, `lmarkmann/dataseek`, workflow `release.yml`, environment `pypi`.
 

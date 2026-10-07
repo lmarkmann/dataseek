@@ -1,7 +1,5 @@
 [workspace]
 changelog_update = true
-git_only = true
-publish = false
 git_tag_enable = true
 git_release_enable = true
 git_release_type = "auto"
