@@ -130,7 +130,7 @@ const MUTED: Color = ansi(AnsiColor::BrightBlack); // secondary detail
 
 Roles are semantic (`accent`, `success`, `danger`), not literal, so swapping a color is one edit. Use a named ANSI color for portability, or 24-bit truecolor with `rgb(0x7a, 0xa2, 0xf7)`.
 
-The same roles drive clap help styling, stdout text, and the stderr progress accent. `anstream` strips escapes whenever the stream is not a terminal, so call sites style unconditionally and never branch on color. On a color terminal, result URLs are OSC 8 hyperlinks and long titles and descriptions are cut to the width (`COLUMNS` wins) with an ellipsis; in a pipe every line stays whole.
+The same roles drive clap help styling, stdout text, and the stderr progress accent. `anstream` strips escapes whenever the stream is not a terminal, so call sites style unconditionally and never branch on color. On a color terminal, result URLs are OSC 8 hyperlinks. When stdout is a terminal, color or not, a result's title and facts line are cut to the terminal width (`COLUMNS` wins) with an ellipsis, and its description to that width held between 40 and 80 columns, so it reads as prose on a wide terminal; URLs are never cut. In a pipe, and with `--plain`, every line stays whole.
 
 indicatif parses its color token with `console::Style::from_dotted_str`, which understands named colors, `#rrggbb` truecolor, and a bare 256-color index, so `palette::accent_token()` renders whichever shape the accent takes exactly. Spinners and bars match help and stdout rather than approximating them.
 

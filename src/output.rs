@@ -149,6 +149,13 @@ fn stream<S: RawStream>(raw: S, color: ColorChoice) -> AutoStream<S> {
     }
 }
 
+/// The columns a description may use, given the room left on the line: held
+/// between 40 and 80, so a wide terminal still reads as prose and a narrow
+/// one still shows a sentence.
+pub fn prose_width(room: Option<usize>) -> Option<usize> {
+    room.map(|w| w.clamp(40, 80))
+}
+
 /// `text` cut to `width` columns with an ellipsis, counting chars. Wide
 /// glyphs make a line slightly long, never wrong.
 pub fn fit(text: &str, width: Option<usize>) -> String {
@@ -226,5 +233,13 @@ mod tests {
         assert_eq!(fit("short", Some(10)), "short");
         assert_eq!(fit("a long title here", Some(8)), "a long\u{2026}");
         assert_eq!(fit("a long title here", None), "a long title here");
+    }
+
+    #[test]
+    fn descriptions_stay_between_forty_and_eighty_columns() {
+        assert_eq!(prose_width(Some(30)), Some(40));
+        assert_eq!(prose_width(Some(57)), Some(57));
+        assert_eq!(prose_width(Some(117)), Some(80));
+        assert_eq!(prose_width(None), None);
     }
 }

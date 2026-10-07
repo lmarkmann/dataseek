@@ -340,7 +340,7 @@ fn print(
         writeln!(w, "{pad}{}", out.link(&d.url))?;
         writeln!(w, "{pad}{muted}{}{muted:#}", fit(&facts(hit), line))?;
         if let Some(text) = &d.description {
-            writeln!(w, "{pad}{}", fit(text, line))?;
+            writeln!(w, "{pad}{}", fit(text, output::prose_width(line)))?;
         }
         writeln!(w)?;
     }
