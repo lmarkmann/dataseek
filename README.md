@@ -92,3 +92,7 @@ just run search climate temperature   # the CLI built from this checkout
 
 - [`docs/bench/`](docs/bench/): measured speed of the search stages and of startup, each with the machine it ran on.
 - [`docs/synthesis/`](docs/synthesis/): how the sources' search interfaces differ, and the bench that measures them.
+
+## License
+
+Licensed under either of [Apache License, Version 2.0](LICENSE-APACHE) or [MIT license](LICENSE-MIT), at your option.

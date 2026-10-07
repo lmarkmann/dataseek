@@ -11,8 +11,6 @@ dataseek runs two supply-chain gates in CI and locally through `just audit`.
 - `bans`: duplicate versions are warned, not failed. Wildcards in dependency requirements are denied.
 - `sources`: only crates.io is allowed.
 
-The workspace member itself has no `license` field because the crate is `publish = false`; `licenses.private.ignore` tells cargo-deny not to flag it.
-
 Run it with `just deny`.
 
 ## zizmor

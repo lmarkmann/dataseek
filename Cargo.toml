@@ -2,6 +2,7 @@
 name = "dataseek"
 version = "0.7.0"
 description = "Search for datasets from the terminal"
+license = "MIT OR Apache-2.0"
 repository = "https://github.com/lmarkmann/dataseek"
 edition = "2024"
 rust-version = "1.99"
