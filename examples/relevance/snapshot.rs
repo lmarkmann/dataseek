@@ -1,7 +1,7 @@
 //! The benchmark's files: the queries, the frozen per-source lists, the
 //! judgments, and the labelling worksheets.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fmt::Write as _;
 use std::fs;
 use std::io::ErrorKind;
@@ -59,9 +59,23 @@ struct QueryFile {
 
 pub fn queries() -> Result<Vec<Query>> {
     let path = dir().join("queries.toml");
-    let text = fs::read_to_string(&path)
-        .with_context(|| format!("reading {}", path.display()))?;
-    Ok(toml::from_str::<QueryFile>(&text)?.query)
+    parse_queries(&read(&path)?, &path)
+}
+
+fn parse_queries(text: &str, path: &Path) -> Result<Vec<Query>> {
+    let queries = toml::from_str::<QueryFile>(text)
+        .with_context(|| format!("parsing {}", path.display()))?
+        .query;
+    let mut seen = HashSet::new();
+    if let Some(twice) = queries.iter().find(|q| !seen.insert(&q.id)) {
+        bail!("{}: query id {:?} appears twice", path.display(), twice.id);
+    }
+    Ok(queries)
+}
+
+fn read(path: &Path) -> Result<String> {
+    fs::read_to_string(path)
+        .with_context(|| format!("reading {}", path.display()))
 }
 
 /// The file's text, or `None` when it does not exist; any other failure to
@@ -76,12 +90,29 @@ pub fn read_if_present(path: &Path) -> Result<Option<String>> {
     }
 }
 
-/// One source's answer to one query when it was recorded.
+/// One source's answer to one query when it was recorded. `status` is the
+/// label `Status::label` gave it.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Answered {
     pub id: String,
     pub status: String,
     pub results: usize,
+}
+
+impl Answered {
+    /// Whether the source returned a list, as `Status::answered` decides.
+    pub fn answered(&self) -> bool {
+        self.status == "ok"
+            || self.status == "cached"
+            || self.status.starts_with("stale cache")
+    }
+
+    /// Whether the source was asked at all, as `Status::attempted` decides:
+    /// not skipped for want of a key or after an outage.
+    pub fn attempted(&self) -> bool {
+        !self.status.starts_with("needs $")
+            && !self.status.starts_with("skipped, outage")
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -103,7 +134,10 @@ pub type Lists = Vec<(&'static str, Vec<Dataset>)>;
 
 pub struct Retrieval {
     /// Each source's ranked list, in registry order, as `merge` takes them.
+    /// A source that did not answer has an empty list.
     pub lists: Lists,
+    /// How each source answered, in the same order.
+    pub sources: Vec<Answered>,
 }
 
 fn retrieval_path(id: &str) -> PathBuf {
@@ -122,15 +156,21 @@ fn static_id(id: &str) -> &'static str {
 
 pub fn load(query: &Query) -> Result<Retrieval> {
     let path = retrieval_path(&query.id);
-    let text = fs::read_to_string(&path).with_context(|| {
-        format!(
-            "reading {}; `just relevance record` writes it",
-            path.display()
-        )
-    })?;
-    let mut lines = text.lines();
-    let header: Header = serde_json::from_str(lines.next().unwrap_or(""))
-        .with_context(|| format!("the header of {}", path.display()))?;
+    let text = read(&path).context("`just relevance record` writes it")?;
+    parse_retrieval(&text, &path, query)
+}
+
+fn header(text: &str, path: &Path) -> Result<Header> {
+    serde_json::from_str(text.lines().next().unwrap_or(""))
+        .with_context(|| format!("the header of {}", path.display()))
+}
+
+fn parse_retrieval(
+    text: &str,
+    path: &Path,
+    query: &Query,
+) -> Result<Retrieval> {
+    let header = header(text, path)?;
     if header.query != query.text {
         bail!(
             "{} was recorded for \"{}\", not \"{}\"; re-record it",
@@ -140,9 +180,12 @@ pub fn load(query: &Query) -> Result<Retrieval> {
         );
     }
     let mut rows: HashMap<String, Vec<(usize, Dataset)>> = HashMap::new();
-    for line in lines {
-        let row: Row = serde_json::from_str(line)
-            .with_context(|| format!("a record in {}", path.display()))?;
+    for (i, line) in text.lines().enumerate().skip(1) {
+        let at = || format!("{} line {}", path.display(), i.saturating_add(1));
+        let row: Row = serde_json::from_str(line).with_context(at)?;
+        if !header.sources.iter().any(|s| s.id == row.source) {
+            bail!("{}: source {:?} is not in the header", at(), row.source);
+        }
         rows.entry(row.source).or_default().push((row.rank, row.dataset));
     }
     let lists = header
@@ -150,11 +193,33 @@ pub fn load(query: &Query) -> Result<Retrieval> {
         .iter()
         .map(|s| {
             let mut ranked = rows.remove(&s.id).unwrap_or_default();
+            if ranked.len() != s.results {
+                bail!(
+                    "{}: the header gives {} {} results, the file holds {}",
+                    path.display(),
+                    s.id,
+                    s.results,
+                    ranked.len()
+                );
+            }
             ranked.sort_by_key(|(rank, _)| *rank);
-            (static_id(&s.id), ranked.into_iter().map(|(_, d)| d).collect())
+            Ok((
+                static_id(&s.id),
+                ranked.into_iter().map(|(_, d)| d).collect(),
+            ))
         })
-        .collect();
-    Ok(Retrieval { lists })
+        .collect::<Result<_>>()?;
+    Ok(Retrieval { lists, sources: header.sources })
+}
+
+/// How each source answered when `query` was last recorded; empty when it
+/// never was.
+pub fn recorded(query: &Query) -> Result<Vec<Answered>> {
+    let path = retrieval_path(&query.id);
+    let Some(text) = read_if_present(&path)? else {
+        return Ok(Vec::new());
+    };
+    Ok(header(&text, &path)?.sources)
 }
 
 pub fn save(query: &Query, sources: &[Answered], lists: &Lists) -> Result<()> {
@@ -484,6 +549,10 @@ pub fn label(url: &str, doi: &str, grade: Grade) -> Label {
 
 #[cfg(test)]
 mod tests {
+    use std::time::Duration;
+
+    use dataseek::internals::Status;
+
     use super::*;
 
     #[test]
@@ -580,6 +649,63 @@ mod tests {
         }
         for q in queries.iter().filter(|q| q.graded()) {
             Judged::new(&labels, &q.id).unwrap();
+        }
+    }
+
+    #[test]
+    fn a_query_id_used_twice_is_refused() {
+        let toml = "[[query]]\nid = \"a\"\ntext = \"x\"\nkind = \"topical\"\nhalf = \"tune\"\n";
+        let path = Path::new("queries.toml");
+        assert_eq!(parse_queries(toml, path).unwrap().len(), 1);
+        let err = parse_queries(&toml.repeat(2), path).unwrap_err();
+        assert!(err.to_string().contains("\"a\" appears twice"), "{err}");
+    }
+
+    #[test]
+    fn a_snapshot_must_agree_with_its_header() {
+        let query = Query {
+            id: "q".into(),
+            text: "q".into(),
+            kind: Kind::Topical,
+            half: Half::Tune,
+            targets: Vec::new(),
+        };
+        let path = Path::new("q.jsonl");
+        let header = |results: usize| {
+            format!(
+                "{{\"query\":\"q\",\"dataseek\":\"0\",\"sources\":[{{\"id\":\"zenodo\",\"status\":\"ok\",\"results\":{results}}},{{\"id\":\"who\",\"status\":\"answered HTTP 500\",\"results\":0}}]}}\n"
+            )
+        };
+        let row = |source: &str| {
+            format!(
+                "{{\"source\":\"{source}\",\"rank\":0,\"title\":\"t\",\"url\":\"https://x.org\"}}\n"
+            )
+        };
+        let good =
+            parse_retrieval(&(header(1) + &row("zenodo")), path, &query)
+                .unwrap();
+        assert_eq!(good.lists.len(), 2);
+        assert!(!good.sources[1].answered() && good.sources[1].attempted());
+        let stray = header(1) + &row("zenodo") + &row("osf");
+        let err = parse_retrieval(&stray, path, &query).err().unwrap();
+        assert!(err.to_string().contains("\"osf\" is not in the header"));
+        let short = parse_retrieval(&header(2), path, &query).err().unwrap();
+        assert!(short.to_string().contains("zenodo 2 results"), "{short}");
+    }
+
+    #[test]
+    fn statuses_read_back_as_the_search_decided_them() {
+        let read = |status: &Status| Answered {
+            id: "s".into(),
+            status: status.label(),
+            results: 0,
+        };
+        let resting = Status::Resting(Duration::from_secs(5));
+        let running = Status::Running(Duration::from_secs(5));
+        for status in [Status::Fetched, Status::Cached, resting, running] {
+            let a = read(&status);
+            assert_eq!(a.answered(), status.answered(), "{}", a.status);
+            assert_eq!(a.attempted(), status.attempted(), "{}", a.status);
         }
     }
 }

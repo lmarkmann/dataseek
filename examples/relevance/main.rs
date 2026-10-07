@@ -30,7 +30,7 @@ use dataseek::internals::{Dataset, Hit, merge, weigh};
 use serde::{Deserialize, Serialize};
 
 use metrics::{DEPTH, Grade, SEED, bootstrap, mean};
-use snapshot::{Half, Judged, Lists, Query};
+use snapshot::{Answered, Half, Judged, Lists, Query};
 use variants::{Config, Priors};
 
 fn main() -> Result<()> {
@@ -53,6 +53,8 @@ fn main() -> Result<()> {
 pub(crate) struct Case {
     pub(crate) query: Query,
     pub(crate) lists: Lists,
+    /// How each source answered when the snapshot was recorded.
+    pub(crate) sources: Vec<Answered>,
     pub(crate) judged: Judged,
     pub(crate) targets: Vec<String>,
 }
@@ -62,8 +64,10 @@ pub(crate) fn cases(queries: &[Query]) -> Result<Vec<Case>> {
     queries
         .iter()
         .map(|q| {
+            let retrieval = snapshot::load(q)?;
             Ok(Case {
-                lists: snapshot::load(q)?.lists,
+                lists: retrieval.lists,
+                sources: retrieval.sources,
                 judged: Judged::new(&labels, &q.id)?,
                 targets: snapshot::target_keys(q),
                 query: q.clone(),
@@ -286,6 +290,7 @@ fn check(queries: &[Query], bless: bool) -> Result<()> {
     report::stability(&mut out, &cases, &scores)?;
     report::empty(&mut out, &cases, &rankings)?;
     writeln!(out)?;
+    report::unanswered(&mut out, &cases)?;
     report::pollution(&mut out, &cases, &[("shipped", &rankings)])?;
 
     let current = gates(&cases, &scores);

@@ -1,6 +1,6 @@
 //! The tables `check` and `variants` print.
 
-use std::collections::{BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fmt::Write as _;
 use std::io::Write;
 
@@ -96,6 +96,43 @@ pub fn empty(
         "  {hopeless} of {} graded queries have no relevant result in their pool; {short} top-10 slots are empty.",
         graded.len()
     )?;
+    Ok(())
+}
+
+/// Every source that was asked a query but did not answer, with the
+/// queries it missed and the first failure. Its list is empty in the
+/// snapshot, so for those queries it scores as if it had found nothing.
+pub fn unanswered(out: &mut impl Write, cases: &[Case]) -> Result<()> {
+    let mut missed: BTreeMap<&str, Vec<(&str, &str)>> = BTreeMap::new();
+    for case in cases {
+        for s in case.sources.iter().filter(|s| s.attempted() && !s.answered())
+        {
+            missed
+                .entry(s.id.as_str())
+                .or_default()
+                .push((case.query.id.as_str(), s.status.as_str()));
+        }
+    }
+    if missed.is_empty() {
+        return Ok(());
+    }
+    writeln!(out, "Asked but did not answer, so scored as finding nothing:")?;
+    for (source, misses) in &missed {
+        let which = if misses.len() == cases.len() {
+            String::new()
+        } else {
+            let ids: Vec<&str> = misses.iter().map(|(q, _)| *q).collect();
+            format!(" ({})", ids.join(", "))
+        };
+        let status = misses.first().map_or("", |(_, s)| s);
+        writeln!(
+            out,
+            "  {source:<22} {} of {} queries{which}: {status}",
+            misses.len(),
+            cases.len()
+        )?;
+    }
+    writeln!(out)?;
     Ok(())
 }
 
