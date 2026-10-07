@@ -1,15 +1,16 @@
 //! The one blocking HTTP client every source shares, and the failure taxonomy
 //! the search loop acts on.
 //!
-//! Every request identifies dataseek and its contact address in the
-//! User-Agent, which is what DataCite, NCBI and other polite pools key their
-//! better rate tier on. Non-2xx statuses come back as values, not errors, so
-//! [`SourceError`] can say whether a failure is worth remembering (a dead
-//! host) or only this query's problem (a rejected key). A single 429 is
-//! retried once when the server asks for a short wait; longer waits are
-//! reported instead of slept through, and a failed connect is retried once.
-//! Bodies are decoded leniently: a stray invalid byte in a 30 MB catalog
-//! should cost one character, not the source.
+//! Every request identifies dataseek, its repository and its contact
+//! address in the User-Agent, which is what DataCite, NCBI and other polite
+//! pools key their better rate tier on. Non-2xx statuses come back as
+//! values, not errors, so [`SourceError`] can say whether a failure is worth
+//! remembering (a dead or throttling host) or only this query's problem (a
+//! rejected key).
+//! A single 429 is retried once when the server asks for a short wait;
+//! longer waits are reported instead of slept through, and a failed connect
+//! is retried once. Bodies are decoded leniently: a stray invalid byte in a
+//! 30 MB catalog should cost one character, not the source.
 
 use std::ffi::OsStr;
 use std::path::Path;
@@ -79,14 +80,19 @@ pub enum SourceError {
 }
 
 impl SourceError {
-    /// Failures that say the host is down rather than this query being bad.
-    /// The search loop skips such a source for a few minutes afterwards.
+    /// Failures that say the host is down, or wants no more requests for now,
+    /// rather than this query being bad. The search loop skips such a source
+    /// for a few minutes afterwards, so a throttled host is not asked again
+    /// on every search (OSF's `/trove/` answered 17 requests in 3 minutes
+    /// with an hour of 429s, October 2026).
     pub fn is_outage(&self) -> bool {
         match self {
-            Self::Unreachable(_) | Self::Timeout | Self::Blocked => true,
+            Self::Unreachable(_)
+            | Self::Timeout
+            | Self::Blocked
+            | Self::RateLimited => true,
             Self::Status(code) => *code >= 500,
-            Self::RateLimited
-            | Self::Certificate(_)
+            Self::Certificate(_)
             | Self::Unauthorized(_)
             | Self::Shape(_)
             | Self::ConnectLimit(_)
@@ -95,8 +101,15 @@ impl SourceError {
     }
 
     pub fn shape(what: impl Into<String>) -> Self {
-        Self::Shape(what.into())
+        Self::Shape(terminal_safe(what.into()))
     }
+}
+
+/// Error text that came from upstream, with its control characters
+/// replaced: a provider that puts an escape sequence into a tag name or a
+/// header must not get to drive the terminal the error is printed on.
+fn terminal_safe(upstream: impl std::fmt::Display) -> String {
+    crate::record::printable(&upstream.to_string()).collect()
 }
 
 pub struct Http {
@@ -108,8 +121,9 @@ impl Http {
         let agent = ureq::Agent::config_builder()
             .http_status_as_error(false)
             .user_agent(format!(
-                "dataseek/{} (mailto:{CONTACT})",
-                env!("CARGO_PKG_VERSION")
+                "dataseek/{} (+{}; mailto:{CONTACT})",
+                env!("CARGO_PKG_VERSION"),
+                env!("CARGO_PKG_REPOSITORY")
             ))
             .timeout_global(Some(Duration::from_secs(20)))
             .timeout_connect(Some(Duration::from_secs(
@@ -318,12 +332,14 @@ fn transport(error: &ureq::Error) -> SourceError {
         }
         ureq::Error::Timeout(_) => SourceError::Timeout,
         #[cfg(not(any(windows, target_os = "macos")))]
-        ureq::Error::Rustls(_) => SourceError::Certificate(error.to_string()),
+        ureq::Error::Rustls(_) => {
+            SourceError::Certificate(terminal_safe(error))
+        }
         #[cfg(not(any(windows, target_os = "macos")))]
         ureq::Error::Io(io) if refused_certificate(io) => {
-            SourceError::Certificate(error.to_string())
+            SourceError::Certificate(terminal_safe(error))
         }
-        other => SourceError::Unreachable(other.to_string()),
+        other => SourceError::Unreachable(terminal_safe(other)),
     }
 }
 
@@ -407,7 +423,7 @@ mod tests {
             (SourceError::Status(500), true),
             (SourceError::Status(404), false),
             (SourceError::Unauthorized(401), false),
-            (SourceError::RateLimited, false),
+            (SourceError::RateLimited, true),
             (SourceError::shape("no hits"), false),
         ] {
             assert_eq!(error.is_outage(), outage, "{error:?}");
@@ -631,8 +647,9 @@ mod tests {
         assert!(head.starts_with("get /search?q=sea"), "{head}");
         assert!(
             head.contains(&format!(
-                "user-agent: dataseek/{} (mailto:{CONTACT})",
-                env!("CARGO_PKG_VERSION")
+                "user-agent: dataseek/{} (+{}; mailto:{CONTACT})",
+                env!("CARGO_PKG_VERSION"),
+                env!("CARGO_PKG_REPOSITORY")
             )),
             "{head}"
         );

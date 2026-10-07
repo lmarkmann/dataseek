@@ -26,7 +26,7 @@ Kaggle's files are the ones its CLI writes (`kaggle auth login`, or the token fr
 
 A data.gov key: sign up at https://api.data.gov/signup/ with a name and an address, and the key arrives by email at once. It gives 1,000 requests an hour; the shared `DEMO_KEY` gives 30 an hour and 50 a day.
 
-Every request carries the contact address `user@dataseek.dev` in its User-Agent (and as `mailto` for DataCite, `email` for NCBI). It is the project's address and the same for every user.
+Every request carries the repository URL and the contact address `user@dataseek.dev` in its User-Agent (and the address as `mailto` for DataCite, `email` for NCBI). It is the project's address, read by the maintainer, and the same for every user.
 
 ## Cache
 
@@ -36,7 +36,7 @@ Every request carries the contact address `user@dataseek.dev` in its User-Agent 
 | catalogs | 7 days | the full lists of the `local` sources |
 | outage marks | 10 minutes | sources skipped after an outage unless named with `--source` |
 
-The cache directory is trimmed to 30 MB and 2,000 files after every search, oldest first. `--cache-dir DIR` or `DATASEEK_CACHE_DIR` moves it.
+The cache directory is trimmed to 30 MB and 2,000 files after every search, oldest first. `DATASEEK_CACHE_MAX_MB` sets another size budget, in whole megabytes from 1 to 10,000; a larger one keeps more downloaded catalogs between searches, a smaller one fetches them again sooner. A value outside that range is a usage error (exit 2). `--cache-dir DIR` or `DATASEEK_CACHE_DIR` moves the directory.
 
 ```sh
 dataseek cache info                 # path, size and budget

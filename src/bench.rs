@@ -67,7 +67,11 @@ pub fn run(
         .map(|s| (s.id, Row { id: s.id, ..Row::default() }))
         .collect();
 
-    let total = queries.len().saturating_mul(sources.len());
+    let asked = sources
+        .iter()
+        .filter(|s| s.missing_key(&services.creds).is_none())
+        .count();
+    let total = queries.len().saturating_mul(asked);
     ui::stage(format!(
         "benchmarking {} sources on {} queries ({total} requests, no cache)",
         sources.len(),

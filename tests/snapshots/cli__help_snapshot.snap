@@ -11,13 +11,12 @@ Usage: dataseek [OPTIONS] [COMMAND]
 Commands:
   search      Search every source at once, merged, deduplicated and ranked [alias: s]
   sources     List every source: what it covers, its protocol, its key, its docs
-  bench       Time every source on real queries and measure their overlap
   inspect     Read a dataset page's metadata and the files it lists
   mcp         Serve search, sources and inspect to MCP clients over stdio
+  bench       Time every source on real queries and measure their overlap
   cache       Show, warm or clear the cache
   doctor      Check the environment, keys and cache, and report readiness
-  completion  Print a shell completion script to stdout
-  man         Print the man page, in roff, to stdout
+  completion  Print a shell completion script; on a terminal, say where to save it
   help        Explain a command or a topic: environment, exit-codes
 
 Options:
@@ -31,8 +30,8 @@ Options:
           Emit JSON to stdout instead of text
 
       --color <WHEN>
-          When to colorize output: auto, always, or never
-
+          Colorize output (auto, always, or never)
+          
           Possible values:
           - auto:   Color when stdout is a terminal and NO_COLOR is unset
           - always: Always color, even through a pipe (for `| less -R`)

@@ -149,6 +149,13 @@ fn stream<S: RawStream>(raw: S, color: ColorChoice) -> AutoStream<S> {
     }
 }
 
+/// The columns a description may use, given the room left on the line: held
+/// between 40 and 80, so a wide terminal still reads as prose and a narrow
+/// one still shows a sentence.
+pub fn prose_width(room: Option<usize>) -> Option<usize> {
+    room.map(|w| w.clamp(40, 80))
+}
+
 /// `text` cut to `width` columns with an ellipsis, counting chars. Wide
 /// glyphs make a line slightly long, never wrong.
 pub fn fit(text: &str, width: Option<usize>) -> String {
@@ -162,9 +169,56 @@ pub fn fit(text: &str, width: Option<usize>) -> String {
     }
 }
 
+/// `text` broken at spaces into lines of at most `width` columns, counting
+/// chars like [`fit`]; a word longer than a line gets one to itself. Without
+/// a width, which means stdout is not a terminal, it stays one line.
+pub fn wrap(text: &str, width: Option<usize>) -> Vec<String> {
+    let Some(width) = width else { return vec![text.to_owned()] };
+    let mut lines = Vec::new();
+    let mut line = String::new();
+    for word in text.split_whitespace() {
+        let longer = line
+            .chars()
+            .count()
+            .saturating_add(1)
+            .saturating_add(word.chars().count());
+        if !line.is_empty() && longer > width {
+            lines.push(std::mem::take(&mut line));
+        }
+        if !line.is_empty() {
+            line.push(' ');
+        }
+        line.push_str(word);
+    }
+    if !line.is_empty() || lines.is_empty() {
+        lines.push(line);
+    }
+    lines
+}
+
+/// The room a value has after a column of `indent`, on a terminal.
+pub fn room(indent: usize) -> Option<usize> {
+    width().map(|w| w.saturating_sub(indent).max(20))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn wrap_breaks_at_spaces_and_keeps_long_words_whole() {
+        let text = "seconds a host gets to accept the connection";
+        assert_eq!(
+            wrap(text, Some(16)),
+            ["seconds a host", "gets to accept", "the connection"]
+        );
+        assert_eq!(
+            wrap("https://example.org/a/long/path x", Some(8)),
+            ["https://example.org/a/long/path", "x"]
+        );
+        assert_eq!(wrap(text, None), [text]);
+        assert_eq!(wrap("", Some(10)), [""]);
+    }
     use crate::cli::Command;
 
     // Flag resolution is the pure logic; the rest of output needs a real
@@ -180,7 +234,6 @@ mod tests {
             no_progress: false,
             cache_dir: None,
             connect_timeout: 10,
-            jq: None,
             command: Some(Command::Doctor),
         };
         build(&mut cli);
@@ -226,5 +279,13 @@ mod tests {
         assert_eq!(fit("short", Some(10)), "short");
         assert_eq!(fit("a long title here", Some(8)), "a long\u{2026}");
         assert_eq!(fit("a long title here", None), "a long title here");
+    }
+
+    #[test]
+    fn descriptions_stay_between_forty_and_eighty_columns() {
+        assert_eq!(prose_width(Some(30)), Some(40));
+        assert_eq!(prose_width(Some(57)), Some(57));
+        assert_eq!(prose_width(Some(117)), Some(80));
+        assert_eq!(prose_width(None), None);
     }
 }

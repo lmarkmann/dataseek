@@ -88,13 +88,31 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         return Err(Error::NoneSelected.into());
     }
 
-    ui::stage(format!(
-        "searching {} source{} for \"{query}\"{}",
-        plan.sources.len(),
-        if plan.sources.len() == 1 { "" } else { "s" },
-        if offline { ", offline" } else { "" }
-    ));
-    let progress = ui::bar(plan.sources.len() as u64, "sources");
+    // A source without its required key is skipped before any request, so
+    // the line counts only the sources that will be asked.
+    let keyless = plan
+        .sources
+        .iter()
+        .filter(|s| s.missing_key(&services.creds).is_some())
+        .count();
+    let asked = plan.sources.len().saturating_sub(keyless);
+    if asked > 0 {
+        let need = if keyless == 1 { "needs" } else { "need" };
+        let keys = if keyless > 0 {
+            format!(
+                "; {keyless} {need} a key, see `{} doctor`",
+                crate::invoked_name()
+            )
+        } else {
+            String::new()
+        };
+        ui::stage(format!(
+            "searching {} for \"{query}\"{}{keys}",
+            ui::count(asked, "source"),
+            if offline { ", offline" } else { "" }
+        ));
+    }
+    let progress = ui::bar(asked as u64, "sources");
     let mut outcomes = run(
         &services,
         refresh,
@@ -197,16 +215,28 @@ fn warn_failures(outcomes: &[Outcome]) {
         .filter(|o| matches!(o.status, Status::Failed(SourceError::Offline)))
         .count();
     if skipped > 0 {
-        ui::warn(format!("{skipped} sources had nothing cached (--offline)"));
+        ui::warn(format!(
+            "{} had nothing cached (--offline)",
+            ui::count(skipped, "source")
+        ));
     }
     let catalogs: Vec<&str> =
         outcomes.iter().filter(downloading).map(|o| o.source.id).collect();
     if !catalogs.is_empty() {
-        ui::warn(format!(
-            "{} were still downloading their catalogs; `dataseek cache warm` fetches them once",
-            catalogs.join(", ")
-        ));
+        ui::warn(still_downloading(&catalogs));
     }
+}
+
+fn still_downloading(ids: &[&str]) -> String {
+    let (verb, whose, them) = if ids.len() == 1 {
+        ("was", "its catalog", "it")
+    } else {
+        ("were", "their catalogs", "them")
+    };
+    format!(
+        "{} {verb} still downloading {whose}; `dataseek cache warm` fetches {them} once",
+        ids.join(", ")
+    )
 }
 
 /// The closing lines on stderr, after the results: what failed, then one
@@ -215,15 +245,17 @@ fn summarize(query: &str, shown: usize, found: usize, outcomes: &[Outcome]) {
     warn_failures(outcomes);
     let answered = outcomes.iter().filter(|o| o.status.answered()).count();
     let attempted = outcomes.iter().filter(|o| o.status.attempted()).count();
-    let sources = format!("{answered} of {attempted} sources answered");
+    let sources =
+        format!("{answered} of {} answered", ui::count(attempted, "source"));
     if found == 0 {
         ui::warn(format!("no datasets matched \"{query}\"; {sources}"));
     } else if shown < found {
         ui::ok(format!(
-            "{shown} of {found} results; {sources}; -n {found} shows all"
+            "{shown} of {}; {sources}; -n {found} shows all",
+            ui::count(found, "result")
         ));
     } else {
-        ui::ok(format!("{found} results; {sources}"));
+        ui::ok(format!("{}; {sources}", ui::count(found, "result")));
     }
 }
 
@@ -308,7 +340,7 @@ fn print(
         writeln!(w, "{pad}{}", out.link(&d.url))?;
         writeln!(w, "{pad}{muted}{}{muted:#}", fit(&facts(hit), line))?;
         if let Some(text) = &d.description {
-            writeln!(w, "{pad}{}", fit(text, line))?;
+            writeln!(w, "{pad}{}", fit(text, output::prose_width(line)))?;
         }
         writeln!(w)?;
     }
@@ -325,7 +357,7 @@ fn facts(hit: &Hit) -> String {
     parts.extend(d.size_bytes.map(human_bytes));
     parts.extend(d.license.clone());
     parts.extend(d.doi.as_ref().map(|doi| format!("doi:{doi}")));
-    parts.join("  |  ")
+    parts.join(" | ")
 }
 
 #[expect(
@@ -359,6 +391,17 @@ mod tests {
         assert_eq!(human_bytes(512), "512 B");
         assert_eq!(human_bytes(155_173), "155.2 KB");
         assert_eq!(human_bytes(2_559_248_010_229), "2.6 TB");
+    }
+
+    #[test]
+    fn the_downloading_warning_agrees_with_its_count() {
+        assert!(
+            still_downloading(&["openneuro"])
+                .starts_with("openneuro was still downloading its catalog;")
+        );
+        assert!(still_downloading(&["openneuro", "physionet"]).starts_with(
+            "openneuro, physionet were still downloading their catalogs;"
+        ));
     }
 
     fn failed_with(errors: Vec<SourceError>) -> Vec<Outcome> {

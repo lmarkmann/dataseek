@@ -43,7 +43,9 @@ mod sources;
 mod ui;
 
 /// What `benches/search.rs` measures and `examples/relevance/` scores. Not
-/// an API: it follows the code it points at.
+/// an API: it follows the code it points at. The feature is visible to
+/// anyone who depends on the crate, but it is unstable, outside semver, and
+/// may change or disappear in any release.
 #[cfg(feature = "internals")]
 #[doc(hidden)]
 pub mod internals {
@@ -59,7 +61,7 @@ pub mod internals {
 }
 
 use std::ffi::OsString;
-use std::io::{self, Write};
+use std::io::{self, IsTerminal, Write};
 use std::process::ExitCode;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -68,7 +70,7 @@ use std::time::Duration;
 use clap::error::ErrorKind::{
     DisplayHelp, DisplayHelpOnMissingArgumentOrSubcommand, DisplayVersion,
 };
-use clap::{CommandFactory, FromArgMatches, ValueEnum};
+use clap::{FromArgMatches, ValueEnum};
 
 use cli::{Cli, ColorChoice, Command};
 use output::Out;
@@ -102,7 +104,7 @@ pub fn main() -> ExitCode {
 
     let args: Vec<OsString> = std::env::args_os().collect();
     let early = Early::scan(&args);
-    let parsed = Cli::command()
+    let parsed = cli::command()
         .color(early.color)
         .try_get_matches_from(&args)
         .and_then(|matches| Cli::from_arg_matches(&matches));
@@ -116,6 +118,11 @@ pub fn main() -> ExitCode {
     }
     let out = Out::resolve(&cli);
     ui::init(&out);
+    if let Err(message) = cache::read_budget() {
+        let err =
+            clap::Error::raw(clap::error::ErrorKind::ValueValidation, message);
+        return usage(&err, &early);
+    }
     paths::relocate_cache(cli.cache_dir.clone());
     http::connect_within(Duration::from_secs(cli.connect_timeout));
 
@@ -272,8 +279,13 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
         Command::Doctor => doctor::run(out)?,
         // clap_complete::generate panics on a failed write. Generating into a
         // Vec cannot fail, so the real write goes through the error path.
+        // A script on a terminal is a wall of text nobody reads; what the
+        // reader needs there is where to save it.
+        Command::Completion { shell } if io::stdout().is_terminal() => {
+            ui::stage(help::completion_hint(shell, invoked_name()));
+        }
         Command::Completion { shell } => {
-            let mut cmd = Cli::command();
+            let mut cmd = cli::command();
             let mut script = Vec::new();
             clap_complete::generate(
                 shell,
@@ -285,9 +297,10 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
         }
         // Rendered on demand so the page cannot drift from the flags.
         Command::Man => {
-            let mut page = Vec::new();
-            clap_mangen::Man::new(Cli::command()).render(&mut page)?;
-            out.stdout().write_all(&page)?;
+            let page = help::man_page()?;
+            if !(io::stdout().is_terminal() && help::show_man(&page)) {
+                out.stdout().write_all(&page)?;
+            }
         }
         Command::Help { topic } => help::run(topic.as_deref(), out)?,
     }

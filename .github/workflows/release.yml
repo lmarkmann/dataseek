@@ -1,0 +1,186 @@
+# Release builds once release-plz has published a GitHub release: a wheel and
+# a binary archive per platform, the archives attached to the release and the
+# wheels sent to PyPI. release-plz owns the version, the tag and crates.io
+# (docs/reference/release.md). One machine per platform, because these are the
+# only jobs that must run on macOS and Windows (ADR 0017). A pull request that
+# changes the release build runs the builds without publishing anything.
+name: release
+
+on:
+  release:
+    types: [published]
+  pull_request:
+    paths:
+      - .github/workflows/release.yml
+      - pyproject.toml
+
+permissions: {}
+
+jobs:
+  build:
+    name: build ${{ matrix.target }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            native: true
+          # ring's ARM assembly needs a GCC that defines __ARM_ARCH, which the
+          # manylinux2014 cross image's GCC does not.
+          - runner: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            manylinux: 2_28
+          - runner: macos-latest
+            target: aarch64-apple-darwin
+            native: true
+          - runner: macos-latest
+            target: x86_64-apple-darwin
+          - runner: windows-latest
+            target: x86_64-pc-windows-msvc
+            native: true
+    steps:
+      - name: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: wheel
+        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
+        with:
+          maturin-version: v1.15.0
+          target: ${{ matrix.target }}
+          manylinux: ${{ matrix.manylinux || 'auto' }}
+          args: --release --locked --out dist
+      # The binaries the wheel carries, archived under the name cargo binstall
+      # looks for: dataseek-<target>.tar.gz, or .zip on Windows.
+      - name: archive
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+          NATIVE: ${{ matrix.native }}
+        run: |
+          dir="dataseek-$TARGET"
+          ext=""
+          [[ $TARGET == *windows* ]] && ext=".exe"
+          mkdir -p "$dir" archives
+          cp "target/$TARGET/release/dataseek$ext" "target/$TARGET/release/dsk$ext" README.md LICENSE-MIT LICENSE-APACHE "$dir/"
+          if [[ $TARGET == *windows* ]]; then
+            archive="$dir.zip"
+            7z a -bd "archives/$archive" "$dir" > /dev/null
+          else
+            archive="$dir.tar.gz"
+            tar czf "archives/$archive" "$dir"
+          fi
+          cd archives
+          if command -v sha256sum > /dev/null; then
+            sha256sum "$archive" > "$archive.sha256"
+          else
+            shasum -a 256 "$archive" > "$archive.sha256"
+          fi
+          if [[ $NATIVE == true ]]; then
+            "../$dir/dataseek$ext" --version
+          fi
+      - name: upload wheel
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: wheel-${{ matrix.target }}
+          path: dist/*.whl
+          if-no-files-found: error
+      - name: upload archive
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: archive-${{ matrix.target }}
+          path: archives/*
+          if-no-files-found: error
+
+  sdist:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: build
+        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
+        with:
+          maturin-version: v1.15.0
+          command: sdist
+          args: --out dist
+      - name: upload
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sdist
+          path: dist/*.tar.gz
+          if-no-files-found: error
+
+  assets:
+    if: github.event_name == 'release'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - name: harden runner
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+      - name: download
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: archive-*
+          path: archives
+          merge-multiple: true
+      - name: attest
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: archives/dataseek-*
+      - name: attach
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$TAG" archives/* --repo "$REPO" --clobber
+
+  # PyPI's trusted publisher names this workflow file and the pypi
+  # environment; uv exchanges the job's OIDC token, so no PyPI token exists.
+  pypi:
+    if: github.event_name == 'release'
+    needs: [build, sdist]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - name: harden runner
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+      - name: download wheels
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: wheel-*
+          path: dist
+          merge-multiple: true
+      - name: download sdist
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: sdist
+          path: dist
+      - name: uv
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: 0.12.21
+          enable-cache: false
+      - name: publish
+        run: uv publish --trusted-publishing always dist/*

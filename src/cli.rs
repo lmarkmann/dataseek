@@ -1,8 +1,10 @@
 use std::ops::{RangeFrom, RangeInclusive};
 use std::path::PathBuf;
 
-use clap::builder::PossibleValuesParser;
-use clap::{Args, Parser, Subcommand, ValueEnum};
+use std::fmt::Write;
+
+use clap::builder::{PossibleValuesParser, StyledStr};
+use clap::{Arg, Args, CommandFactory, Parser, Subcommand, ValueEnum};
 use clap_complete::Shell;
 
 use crate::palette;
@@ -44,6 +46,7 @@ macro_rules! examples {
   dsk s census --json | jq -r '.results[].url'    one field per line"
     };
 }
+pub(crate) use examples;
 
 #[derive(Parser)]
 #[command(
@@ -79,7 +82,7 @@ pub struct Cli {
     #[arg(long, global = true)]
     pub json: bool,
 
-    /// When to colorize output: auto, always, or never.
+    /// Colorize output (auto, always, or never).
     #[arg(long, value_name = "WHEN", default_value = "auto", global = true)]
     pub color: ColorChoice,
 
@@ -119,25 +122,8 @@ pub struct Cli {
     )]
     pub connect_timeout: u64,
 
-    /// Removed; kept hidden so a script that still passes it learns what
-    /// replaced it instead of reading clap's generic unknown-argument error.
-    #[arg(
-        long,
-        value_name = "EXPR",
-        global = true,
-        hide = true,
-        value_parser = removed_jq
-    )]
-    pub jq: Option<String>,
-
     #[command(subcommand)]
     pub command: Option<Command>,
-}
-
-fn removed_jq(_: &str) -> Result<String, &'static str> {
-    Err("--jq was removed; pipe --json into jq instead, as in \
-         `dsk search census --json | jq -r '.results[].url'`, under \
-         `set -o pipefail` so a failed search still fails the pipeline")
 }
 
 /// Which sources to ask, shared by `search` and `bench`.
@@ -167,7 +153,8 @@ pub struct Selection {
     )]
     pub exclude: Vec<String>,
 
-    /// Only sources in these categories, comma-separated.
+    /// Only sources in these categories, comma-separated (see `dataseek
+    /// sources`).
     #[arg(
         short = 'c',
         long = "category",
@@ -189,6 +176,47 @@ pub struct Selection {
 
 fn source_ids() -> PossibleValuesParser {
     PossibleValuesParser::new(crate::sources::SOURCES.iter().map(|s| s.id))
+}
+
+/// The command every surface builds from: parsing, help, the man page,
+/// completions and `help --json`. A flag with a fixed set of values names
+/// them in its own help, so clap's `[possible values: ...]` would repeat
+/// them in `-h`; that list is hidden, and what each value means moves into
+/// the long help that `--help` and the man page show.
+pub fn command() -> clap::Command {
+    Cli::command()
+        .mut_args(values_in_long_help)
+        .mut_subcommands(|sub| sub.mut_args(values_in_long_help))
+}
+
+fn values_in_long_help(arg: Arg) -> Arg {
+    let values = arg.get_possible_values();
+    if values.is_empty()
+        || !arg.get_action().takes_values()
+        || arg.is_hide_possible_values_set()
+    {
+        return arg;
+    }
+    let described: Vec<_> = values
+        .iter()
+        .filter_map(|v| v.get_help().map(|help| (v.get_name(), help)))
+        .collect();
+    let width = described.iter().map(|(name, _)| name.len()).max();
+    let (Some(width), Some(help)) = (width, arg.get_help()) else {
+        return arg.hide_possible_values(true);
+    };
+    let literal = palette::success();
+    let mut long = StyledStr::new();
+    let _ = write!(long, "{help}\n\nPossible values:");
+    for (name, meaning) in &described {
+        let pad = width.saturating_sub(name.len());
+        let _ = write!(
+            long,
+            "\n- {literal}{name}{literal:#}: {:pad$}{meaning}",
+            ""
+        );
+    }
+    arg.hide_possible_values(true).long_help(long)
 }
 
 #[derive(Subcommand)]
@@ -223,7 +251,7 @@ pub enum Command {
         )]
         limit: usize,
 
-        /// Order of the results.
+        /// Order of the results (relevance or newest).
         #[arg(long, value_name = "ORDER", default_value = "relevance")]
         sort: Sort,
 
@@ -247,25 +275,6 @@ pub enum Command {
 
     /// List every source: what it covers, its protocol, its key, its docs.
     Sources,
-
-    /// Time every source on real queries and measure their overlap.
-    #[command(
-        long_about = "Time every source on real queries and measure their \
-            overlap.\n\nBench bypasses the cache and asks every chosen source \
-            once per query, so it sends queries x sources requests. Without \
-            queries it uses a fixed set chosen to touch every category.",
-        after_help = "Examples:
-  dsk bench \"air quality\" \"protein structure\"     each query is one argument
-  dsk bench mnist -s huggingface,kaggle,openml     only these sources"
-    )]
-    Bench {
-        /// Queries to time; each is one argument (quote multi-word queries).
-        #[arg(value_name = "QUERY")]
-        queries: Vec<String>,
-
-        #[command(flatten)]
-        selection: Selection,
-    },
 
     /// Read a dataset page's metadata and the files it lists.
     #[command(
@@ -300,6 +309,25 @@ pub enum Command {
     )]
     Mcp,
 
+    /// Time every source on real queries and measure their overlap.
+    #[command(
+        long_about = "Time every source on real queries and measure their \
+            overlap.\n\nBench bypasses the cache and asks every chosen source \
+            once per query, so it sends queries x sources requests. Without \
+            queries it uses a fixed set chosen to touch every category.",
+        after_help = "Examples:
+  dsk bench \"air quality\" \"protein structure\"     each query is one argument
+  dsk bench mnist -s huggingface,kaggle,openml     only these sources"
+    )]
+    Bench {
+        /// Queries to time; each is one argument (quote multi-word queries).
+        #[arg(value_name = "QUERY")]
+        queries: Vec<String>,
+
+        #[command(flatten)]
+        selection: Selection,
+    },
+
     /// Show, warm or clear the cache.
     #[command(subcommand)]
     Cache(CacheAction),
@@ -307,17 +335,19 @@ pub enum Command {
     /// Check the environment, keys and cache, and report readiness.
     Doctor,
 
-    /// Print a shell completion script to stdout.
+    /// Print a shell completion script; on a terminal, say where to save it.
     Completion {
-        /// Target shell (fish, bash, zsh, ...).
+        /// Target shell (bash, elvish, fish, powershell, or zsh).
         shell: Shell,
     },
 
-    /// Print the man page, in roff, to stdout.
+    /// Show the man page; in a pipe, print it in roff.
     #[command(
-        long_about = "Print the man page, in roff, to stdout.\n\nRead it \
-            with `dataseek man | man -l -`, or install it with \
-            `dataseek man > ~/.local/share/man/man1/dataseek.1`."
+        hide = true,
+        long_about = "Show the man page; in a pipe, print it in roff.\n\n\
+            Install it with `dataseek man > \
+            ~/.local/share/man/man1/dataseek.1`, then `man dataseek` finds \
+            it; save it as dsk.1 for `man dsk`."
     )]
     Man,
 
@@ -352,7 +382,7 @@ pub enum CacheAction {
 
 #[cfg(test)]
 mod tests {
-    use clap::{CommandFactory, Parser};
+    use clap::Parser;
     use proptest::prelude::*;
 
     use super::Cli;
@@ -361,7 +391,7 @@ mod tests {
     // are not compile errors.
     #[test]
     fn the_definition_is_well_formed() {
-        Cli::command().debug_assert();
+        super::command().debug_assert();
     }
 
     proptest! {

@@ -1,11 +1,24 @@
 #![expect(missing_docs, reason = "build scripts are not a public API")]
 
+use std::path::Path;
 use std::process::Command;
 
+// A crates.io build has no `.git`, and a rerun-if-changed path that does not
+// exist reruns the script on every build. A worktree's `.git` is a file, so
+// git names the real HEAD and refs.
 fn main() {
-    println!("cargo::rerun-if-changed=.git/HEAD");
-    println!("cargo::rerun-if-changed=.git/refs");
-    println!("cargo::rustc-env=DATASEEK_GIT_SHA={}", built_from());
+    let sha = if Path::new(".git").exists() {
+        for name in ["HEAD", "refs"] {
+            if let Some(path) = git(&["rev-parse", "--git-path", name]) {
+                println!("cargo::rerun-if-changed={path}");
+            }
+        }
+        built_from()
+    } else {
+        println!("cargo::rerun-if-changed=build.rs");
+        "unknown".to_owned()
+    };
+    println!("cargo::rustc-env=DATASEEK_GIT_SHA={sha}");
 }
 
 fn built_from() -> String {

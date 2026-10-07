@@ -1,6 +1,6 @@
 ---
 source: tests/cli.rs
+assertion_line: 338
 expression: stderr
 ---
-{"event":"stage","message":"searching 1 source for \"climate\"","schema":"dataseek-events/1"}
 {"causes":[],"event":"error","message":"none of the chosen sources can run","schema":"dataseek-events/1","try":"`dataseek sources` shows which keys are missing"}

@@ -96,7 +96,9 @@ pub fn run(
         );
         std::thread::spawn(move || {
             let outcome = one(&services.ctx(refresh), &plan, source);
-            progress.inc(1);
+            if !matches!(outcome.status, Status::NeedsKey(_)) {
+                progress.inc(1);
+            }
             let _ = sender.send((index, outcome));
         });
     }
@@ -256,6 +258,7 @@ mod tests {
             key: None,
             persist: true,
             opt_in: None,
+            notice: None,
             adapter: Adapter::Live(run),
         }
     }

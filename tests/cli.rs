@@ -30,13 +30,14 @@ const KEY_VARS: [&str; 8] = [
     "NCBI_API_KEY",
 ];
 
-const OWN_VARS: [&str; 6] = [
+const OWN_VARS: [&str; 7] = [
     "DATASEEK_EXCLUDE",
     "DATASEEK_PER_SOURCE",
     "DATASEEK_LIMIT",
     "DATASEEK_TIMEOUT",
     "DATASEEK_CACHE_DIR",
     "DATASEEK_CONNECT_TIMEOUT",
+    "DATASEEK_CACHE_MAX_MB",
 ];
 
 struct Sandbox {
@@ -157,10 +158,12 @@ fn naked_invocation_prints_the_overview_on_stdout() {
         "\u{25c6} dataseek v{}",
         env!("CARGO_PKG_VERSION")
     )));
-    for group in ["search\n", "upkeep\n", "shell\n"] {
+    for group in ["\nSearch:\n", "\nUpkeep:\n", "\nShell:\n"] {
         assert!(text.contains(group), "{group} missing:\n{text}");
     }
-    assert!(text.ends_with("run dataseek -h for full usage\n"), "{text}");
+    let footer =
+        "run dataseek -h for a summary, dataseek --help for everything\n";
+    assert!(text.ends_with(footer), "{text}");
     assert!(text.lines().count() <= 24, "{text}");
 }
 
@@ -169,7 +172,8 @@ fn the_overview_names_the_program_that_ran() {
     let out = bin_named("dsk").arg("--no-color").output().unwrap();
     assert!(out.status.success());
     let text = String::from_utf8(out.stdout).unwrap();
-    assert!(text.ends_with("run dsk -h for full usage\n"), "{text}");
+    let footer = "run dsk -h for a summary, dsk --help for everything\n";
+    assert!(text.ends_with(footer), "{text}");
 }
 
 #[test]
@@ -374,19 +378,16 @@ fn errors_under_json_are_events_on_stderr() {
     assert_eq!(event["causes"], json!(["<QUERY>..."]));
 }
 
-// A script written for --jq must fail as a usage error that names the
-// replacement, never run a search with "--jq" swallowed into the query.
+// A script written for the old --jq must fail as a usage error, never run a
+// search with "--jq" swallowed into the query.
 #[test]
-fn the_removed_jq_flag_points_at_json_and_jq() {
+fn an_unknown_flag_is_never_read_as_query_words() {
     let out = bin()
         .args(["search", "census", "--jq", ".results[].url", "--offline"])
         .output()
         .unwrap();
     assert_eq!(out.status.code(), Some(2));
     assert_eq!(out.stdout, b"");
-    let stderr = String::from_utf8(out.stderr).unwrap();
-    assert!(stderr.contains("pipe --json into jq"), "{stderr}");
-    assert!(!stderr.contains("-- --jq"), "{stderr}");
 
     let out = bin()
         .args(["--json", "sources", "--jq", ".sources"])
@@ -419,6 +420,23 @@ fn sources_without_their_required_key_are_skipped_not_failed() {
     let stderr = String::from_utf8_lossy(&out.stderr);
     assert!(stderr.contains("needs $ROBOFLOW_API_KEY"), "{stderr}");
     assert!(stderr.contains("dataseek sources"), "{stderr}");
+}
+
+// A source without its key is never asked, so the opening line does not
+// count it, and says how many were left out.
+#[test]
+fn the_searching_line_counts_only_sources_that_will_be_asked() {
+    let mut cmd = bin();
+    seed_rainfall(&cmd.cache());
+    let out = cmd
+        .args(["search", "rainfall", "-s", "roboflow,openml", "--offline"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    let line = "searching 1 source for \"rainfall\", offline; \
+                1 needs a key, see `dataseek doctor`";
+    assert!(stderr.contains(line), "{stderr}");
 }
 
 // --offline never touches the network, so it must never mark a source as
@@ -575,6 +593,20 @@ fn opt_in_sources_are_marked_in_the_listing_and_doctor() {
 }
 
 #[test]
+fn sources_shows_the_notices_fred_and_census_require() {
+    let text = stdout_text(&["sources"]);
+    assert!(
+        text.contains("fred: This product uses the FRED\u{ae} API but"),
+        "{text}"
+    );
+    assert!(text.contains("stlouisfed.org/docs/api/terms_of_use"), "{text}");
+    assert!(
+        text.contains("census: This product uses the Census Bureau Data API"),
+        "{text}"
+    );
+}
+
+#[test]
 fn piped_json_is_one_line() {
     let text = stdout_text(&["sources", "--json"]);
     assert_eq!(text.lines().count(), 1);
@@ -641,7 +673,42 @@ fn piped_output_has_no_ansi() {
 fn cache_info_reports_the_budget() {
     let info = json_of(&["cache", "info", "--json"]);
     assert_eq!(info["files"], 0);
-    assert_eq!(info["budget_bytes"], 30 * 1024 * 1024);
+    assert_eq!(info["budget_bytes"], 30_000_000);
+    let text = stdout_text(&["cache", "info"]);
+    assert!(text.contains("of 30.0 MB budget (2000 files max)"), "{text}");
+}
+
+#[test]
+fn the_cache_budget_comes_from_the_environment() {
+    let out = bin()
+        .env("DATASEEK_CACHE_MAX_MB", "120")
+        .args(["cache", "info", "--json"])
+        .output()
+        .unwrap();
+    let info: Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(info["budget_bytes"], 120_000_000);
+    let out = bin()
+        .env("DATASEEK_CACHE_MAX_MB", "120")
+        .args(["cache", "info"])
+        .output()
+        .unwrap();
+    let text = String::from_utf8(out.stdout).unwrap();
+    assert!(text.contains("120.0 MB budget, set by DATASEEK_CACHE_MAX_MB"));
+}
+
+#[test]
+fn a_bad_cache_budget_is_a_usage_error() {
+    for value in ["0", "lots", "10001"] {
+        let out = bin()
+            .env("DATASEEK_CACHE_MAX_MB", value)
+            .args(["cache", "info"])
+            .output()
+            .unwrap();
+        assert_eq!(out.status.code(), Some(2), "{value}");
+        assert!(out.stdout.is_empty(), "a usage error put bytes on stdout");
+        let stderr = String::from_utf8_lossy(&out.stderr);
+        assert!(stderr.contains("DATASEEK_CACHE_MAX_MB"), "{stderr}");
+    }
 }
 
 #[test]
@@ -1166,6 +1233,18 @@ fn cache_dir_moves_the_cache() {
     assert_eq!(info["path"], dir);
 }
 
+// `man` is for installing the page, not for daily use: the help leaves it
+// out, and it still runs.
+#[test]
+fn man_is_hidden_from_help_but_still_runs() {
+    let lists_man =
+        |text: &str| text.lines().any(|l| l.trim_start().starts_with("man "));
+    assert!(!lists_man(&stdout_text(&[])), "overview lists man");
+    assert!(!lists_man(&stdout_text(&["-h"])), "-h lists man");
+    assert!(!lists_man(&stdout_text(&["--help"])), "--help lists man");
+    assert!(stdout_text(&["man"]).starts_with(".ie"));
+}
+
 #[test]
 fn man_renders_roff_with_the_manifest_version() {
     let out = bin().arg("man").output().unwrap();
@@ -1196,6 +1275,25 @@ fn the_man_page_renders_and_lists_every_command() {
         let name = command["name"].as_str().unwrap();
         assert!(text.contains(name), "{name} missing from the man page");
     }
+}
+
+// Every option says what it does, the flags `-h` leaves out included, and
+// the closing text is split into the sections a man page reader expects.
+#[test]
+fn the_man_page_describes_every_option_in_named_sections() {
+    let roff = stdout_text(&["man"]);
+    let lines: Vec<&str> = roff.lines().collect();
+    for pair in lines.windows(2) {
+        if pair[0].starts_with("\\fB\\-") {
+            assert!(!pair[1].trim().is_empty(), "no description: {}", pair[0]);
+        }
+    }
+    for section in
+        [".SH EXAMPLES", ".SH \"EXIT STATUS\"", ".SH \"REPORTING BUGS\""]
+    {
+        assert!(roff.contains(section), "{section} missing");
+    }
+    assert!(!roff.contains(".SH EXTRA"), "{roff}");
 }
 
 fn stdout_of(args: &[&str]) -> Vec<u8> {
@@ -1243,6 +1341,22 @@ fn on_a_terminal(args: &[&str], no_color: bool) -> Vec<u8> {
         cmd.env("NO_COLOR", "1");
     }
     cmd.output().unwrap().stdout
+}
+
+// On a terminal the script would scroll past unread; the reader gets where
+// to save it instead. A pipe still gets the script (the other tests).
+#[cfg(unix)]
+#[test]
+fn completion_on_a_terminal_says_where_to_save_the_script() {
+    let text = String::from_utf8(on_a_terminal(&["completion", "fish"], true))
+        .unwrap();
+    assert!(
+        text.contains(
+            "dataseek completion fish > ~/.config/fish/completions/dataseek.fish"
+        ),
+        "{text}"
+    );
+    assert!(!text.contains("complete -c"), "{text}");
 }
 
 // Color is the default on a terminal and every off switch reaches every

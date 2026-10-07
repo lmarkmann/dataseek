@@ -108,7 +108,7 @@ Criterion, `just bench --baseline main`, median change against v0.6.0:
 
 ## Verdict
 
-The release profile now uses fat LTO and builds every dependency at `opt-level = "z"`, while dataseek's own code stays at 3. The binary is 18% to 23% smaller per target, and no measured stage got slower. With `--jq` dropped, the binary is 44% to 51% smaller than v0.6.0. `panic = "abort"` saved 864 KiB on the v0.6.0 profile, but it would turn one adapter's panic into a failed search, so it is rejected (`docs/adr/rejected.md`).
+The release profile now uses fat LTO and builds every dependency at `opt-level = "z"`, while dataseek's own code stays at 3. The binary is 18% to 23% smaller per target, and no measured stage got slower. With `--jq` dropped, the binary is 44% to 51% smaller than v0.6.0. `panic = "abort"` saved 864 KiB on the v0.6.0 profile, but it would turn one adapter's panic into a failed search, so it stays off.
 
 ## Caveats
 

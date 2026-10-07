@@ -9,10 +9,10 @@ use std::io::Write;
 use anyhow::Result;
 use clap::builder::PossibleValuesParser;
 use clap::builder::StyledStr;
-use clap::{Arg, ArgAction, CommandFactory};
+use clap::{Arg, ArgAction};
 use serde_json::{Value, json};
 
-use crate::cli::{self, Cli};
+use crate::cli;
 use crate::credentials::Key;
 use crate::output::Out;
 use crate::palette;
@@ -23,9 +23,9 @@ use crate::palette;
 const COMMANDS: [&str; 10] = [
     "search",
     "sources",
-    "bench",
     "inspect",
     "mcp",
+    "bench",
     "cache",
     "doctor",
     "completion",
@@ -35,33 +35,12 @@ const COMMANDS: [&str; 10] = [
 
 const TOPICS: [&str; 2] = ["environment", "exit-codes"];
 
-/// The overview's groups: the name to type and a few words on what it does.
-const GROUPS: [(&str, &[(&str, &str)]); 3] = [
-    (
-        "search",
-        &[
-            ("search, s", "search every source at once"),
-            ("sources", "list sources and their keys"),
-            ("inspect", "read a dataset page's metadata and files"),
-            ("bench", "time and compare sources"),
-            ("mcp", "serve search, sources and inspect over MCP"),
-        ],
-    ),
-    (
-        "upkeep",
-        &[
-            ("cache", "show, warm or clear the cache"),
-            ("doctor", "check keys, paths and cache"),
-        ],
-    ),
-    (
-        "shell",
-        &[
-            ("completion", "print a completion script"),
-            ("man", "print the man page"),
-            ("help", "explain a command or topic"),
-        ],
-    ),
+/// The overview's groups. What each command does comes from its `about`, the
+/// line `-h` shows, so the two cannot drift.
+const GROUPS: [(&str, &[&str]); 3] = [
+    ("Search", &["search", "sources", "inspect", "mcp"]),
+    ("Upkeep", &["bench", "cache", "doctor"]),
+    ("Shell", &["completion", "help"]),
 ];
 
 /// Every code the binary returns. `help exit-codes`, `help --json` and the
@@ -95,18 +74,28 @@ pub fn overview(out: &Out) -> Result<()> {
         env!("CARGO_PKG_NAME"),
         env!("CARGO_PKG_VERSION")
     )?;
+    let cmd = cli::command();
     for (group, commands) in GROUPS {
         writeln!(w)?;
-        writeln!(w, "{head}{group}{head:#}")?;
-        for (command, about) in commands {
-            writeln!(w, "  {name}{command:<11}{name:#} {about}")?;
+        writeln!(w, "{head}{group}:{head:#}")?;
+        for sub in commands.iter().filter_map(|c| cmd.find_subcommand(c)) {
+            let typed = std::iter::once(sub.get_name())
+                .chain(sub.get_visible_aliases())
+                .collect::<Vec<_>>()
+                .join(", ");
+            let about = sub.get_about().map(ToString::to_string);
+            writeln!(
+                w,
+                "  {name}{typed:<11}{name:#} {}",
+                about.unwrap_or_default()
+            )?;
         }
     }
     writeln!(w)?;
+    let bin = crate::invoked_name();
     writeln!(
         w,
-        "{muted}run {} -h for full usage{muted:#}",
-        crate::invoked_name()
+        "{muted}run {bin} -h for a summary, {bin} --help for everything{muted:#}"
     )?;
     Ok(())
 }
@@ -131,8 +120,15 @@ pub fn run(topic: Option<&str>, out: &Out) -> Result<()> {
         Some("environment") => {
             let vars = environment();
             let width = vars.keys().map(String::len).max().unwrap_or(0);
+            let indent = width.saturating_add(4);
+            let room = crate::output::room(indent);
             for (var, meaning) in &vars {
-                writeln!(w, "  {var:<width$}  {meaning}")?;
+                let mut lines = crate::output::wrap(meaning, room).into_iter();
+                let first = lines.next().unwrap_or_default();
+                writeln!(w, "  {var:<width$}  {first}")?;
+                for line in lines {
+                    writeln!(w, "{:indent$}{line}", "")?;
+                }
             }
         }
         Some("exit-codes") => {
@@ -153,9 +149,104 @@ pub fn run(topic: Option<&str>, out: &Out) -> Result<()> {
 
 /// The command, built so subcommand usage lines carry the invoked name.
 fn built() -> clap::Command {
-    let mut cmd = Cli::command().bin_name(crate::invoked_name());
+    let mut cmd = cli::command().bin_name(crate::invoked_name());
     cmd.build();
     cmd
+}
+
+/// Where `name completion <shell>` should go so the shell loads it, said
+/// instead of printing the script to a terminal.
+pub fn completion_hint(shell: clap_complete::Shell, name: &str) -> String {
+    use clap_complete::Shell;
+
+    let save = match shell {
+        Shell::Bash => {
+            format!("> ~/.local/share/bash-completion/completions/{name}")
+        }
+        Shell::Fish => format!("> ~/.config/fish/completions/{name}.fish"),
+        Shell::Zsh => format!(
+            "> ~/.zfunc/_{name}   (with ~/.zfunc on $fpath before compinit)"
+        ),
+        Shell::Elvish => ">> ~/.config/elvish/rc.elv".to_owned(),
+        Shell::PowerShell => ">> $PROFILE".to_owned(),
+        _ => format!("> a file {shell} loads at startup"),
+    };
+    format!(
+        "the script is for a file, not the terminal; save it with: \
+         {name} completion {shell} {save}"
+    )
+}
+
+/// Show `page` through `man`, as a reader on a terminal expects. `man` takes a
+/// file path everywhere (BSD and macOS `man` have no `-l`), so the page goes
+/// through a temporary file: a random name, created only if absent and
+/// readable by this user alone, so a link planted in a shared temp directory
+/// cannot redirect the write, and gone when the guard drops. False when `man`
+/// is missing or fails, so the caller prints the roff instead.
+pub fn show_man(page: &[u8]) -> bool {
+    let Ok(mut file) =
+        tempfile::Builder::new().prefix("dataseek-").suffix(".1").tempfile()
+    else {
+        return false;
+    };
+    file.write_all(page).is_ok()
+        && file.flush().is_ok()
+        && std::process::Command::new("man")
+            .arg(file.path())
+            .status()
+            .is_ok_and(|status| status.success())
+}
+
+/// The man page, in roff. clap_mangen draws the flags and commands from the
+/// plain definition, because roff would run together the value lists that
+/// `cli::command()` writes into the long help. Two fixes on top:
+///
+/// - A flag hidden from `-h` has no long help of its own, and clap_mangen
+///   would print it with no description, so its help becomes its long help.
+/// - The examples, exit codes and bug address that `--help` closes with
+///   become EXAMPLES, EXIT STATUS and REPORTING BUGS instead of one EXTRA
+///   section, from the same examples and from [`EXIT_CODES`].
+pub fn man_page() -> std::io::Result<Vec<u8>> {
+    use clap::CommandFactory;
+
+    let cmd = cli::Cli::command()
+        .after_help(None::<&'static str>)
+        .after_long_help(None::<&'static str>)
+        .mut_args(|arg| match arg.get_help().cloned() {
+            Some(help)
+                if arg.is_hide_short_help_set()
+                    && arg.get_long_help().is_none() =>
+            {
+                arg.long_help(help)
+            }
+            _ => arg,
+        });
+    let mut rendered = Vec::new();
+    clap_mangen::Man::new(cmd).render(&mut rendered)?;
+    let mut page = String::from_utf8_lossy(&rendered).into_owned();
+    let closing = closing_sections();
+    match page.find(".SH VERSION") {
+        Some(at) => page.insert_str(at, &closing),
+        None => page.push_str(&closing),
+    }
+    Ok(page.into_bytes())
+}
+
+fn closing_sections() -> String {
+    use std::fmt::Write as _;
+
+    let roff = |text: &str| text.replace('\\', "\\e").replace('-', "\\-");
+    let mut page = String::from(".SH EXAMPLES\n.nf\n");
+    for line in cli::examples!().lines().skip(1) {
+        let _ = writeln!(page, "{}", roff(line));
+    }
+    page.push_str(".fi\n.SH \"EXIT STATUS\"\n");
+    for (code, meaning) in EXIT_CODES {
+        let _ = writeln!(page, ".TP\n\\fB{code}\\fR\n{}", roff(meaning));
+    }
+    let issues = concat!(env!("CARGO_PKG_REPOSITORY"), "/issues");
+    let _ = writeln!(page, ".SH \"REPORTING BUGS\"\n{}", roff(issues));
+    page
 }
 
 /// clap's styled help as ANSI text; the stream decides whether it stays.
@@ -167,7 +258,7 @@ fn ansi(help: &StyledStr) -> String {
 /// come from the flag definitions, the keys from the key registry.
 fn environment() -> BTreeMap<String, String> {
     let mut vars = BTreeMap::new();
-    let mut commands = vec![Cli::command()];
+    let mut commands = vec![cli::command()];
     while let Some(cmd) = commands.pop() {
         for arg in cmd.get_arguments() {
             if let (Some(env), Some(long)) = (arg.get_env(), arg.get_long()) {
@@ -186,6 +277,11 @@ fn environment() -> BTreeMap<String, String> {
             format!("API key, get one at {}", key.signup()),
         );
     }
+    vars.insert(
+        crate::cache::BUDGET_VAR.to_owned(),
+        "cache size budget in whole megabytes, 1 to 10000; 30 by default"
+            .to_owned(),
+    );
     for (var, meaning) in [
         ("KAGGLE_CONFIG_DIR", "where the Kaggle CLI keeps its token"),
         ("NO_COLOR", "any non-empty value turns color off"),
@@ -244,7 +340,7 @@ fn surface() -> Value {
         "schema": "dataseek-surface/1",
         "name": env!("CARGO_PKG_NAME"),
         "version": env!("CARGO_PKG_VERSION"),
-        "command": command_json(&Cli::command()),
+        "command": command_json(&cli::command()),
         "environment": variables(),
         "exit_codes": codes(),
     })
@@ -253,7 +349,7 @@ fn surface() -> Value {
 /// One command as `help <command> --json` describes it; `mcp` builds its
 /// tool schemas from the same object.
 pub fn subcommand_json(name: &str) -> Option<Value> {
-    Cli::command().find_subcommand(name).map(command_json)
+    cli::command().find_subcommand(name).map(command_json)
 }
 
 fn command_json(cmd: &clap::Command) -> Value {
@@ -266,10 +362,7 @@ fn command_json(cmd: &clap::Command) -> Value {
             .filter(|a| !a.is_hide_set())
             .map(arg_json)
             .collect::<Vec<_>>(),
-        "commands": cmd
-            .get_subcommands()
-            .filter(|c| !c.is_hide_set())
-            .map(command_json)
+        "commands": cmd.get_subcommands().map(command_json)
             .collect::<Vec<_>>(),
     })
 }
@@ -342,10 +435,12 @@ fn bounds(arg: &Arg) -> (Value, Value) {
 mod tests {
     use clap::Parser;
 
+    use crate::cli::Cli;
+
     use super::*;
 
     fn subcommands() -> Vec<String> {
-        Cli::command()
+        cli::command()
             .get_subcommands()
             .map(|c| c.get_name().to_owned())
             .collect()
@@ -358,15 +453,18 @@ mod tests {
 
     // A command missing from the overview is a command nobody finds.
     #[test]
-    fn the_overview_shows_every_command() {
+    fn the_overview_shows_every_command_in_help_order() {
         let shown: Vec<&str> = GROUPS
             .iter()
-            .flat_map(|(_, commands)| commands.iter())
-            .map(|(name, _)| name.split(',').next().unwrap_or(name))
+            .flat_map(|(_, commands)| commands.iter().copied())
             .collect();
-        for command in subcommands() {
-            assert!(shown.contains(&command.as_str()), "{command} missing");
-        }
+        let cmd = cli::command();
+        let listed: Vec<&str> = cmd
+            .get_subcommands()
+            .filter(|c| !c.is_hide_set())
+            .map(clap::Command::get_name)
+            .collect();
+        assert_eq!(shown, listed);
     }
 
     #[test]
@@ -391,7 +489,7 @@ mod tests {
     // just past them; one with no bound published takes 0, or 65535.
     #[test]
     fn published_bounds_are_the_ones_clap_enforces() {
-        let root = command_json(&Cli::command());
+        let root = command_json(&cli::command());
         let leaves = root["commands"]
             .as_array()
             .unwrap()

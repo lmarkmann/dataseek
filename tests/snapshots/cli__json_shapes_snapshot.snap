@@ -4,7 +4,7 @@ expression: "serde_json::to_string_pretty(&shapes).unwrap()"
 ---
 {
   "cache info": {
-    "budget_bytes": 31457280,
+    "budget_bytes": 30000000,
     "budget_files": 2000,
     "bytes": 0,
     "files": 0,
@@ -97,7 +97,7 @@ expression: "serde_json::to_string_pretty(&shapes).unwrap()"
         "ok": true
       },
       {
-        "detail": "0 files, 0 B of 31.5 MB",
+        "detail": "0 files, 0 B of 30.0 MB",
         "label": "cache use",
         "ok": true
       }
@@ -199,6 +199,7 @@ expression: "serde_json::to_string_pretty(&shapes).unwrap()"
       "key": "none",
       "key_env": null,
       "name": "DataCite",
+      "notice": null,
       "opt_in": null,
       "protocol": "DataCite REST",
       "search": "live"

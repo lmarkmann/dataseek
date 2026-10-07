@@ -1,12 +1,12 @@
 # Watch list
 
-Things that are not rejected and not adopted: each one is a clear *not yet*, with the trigger that would make it worth revisiting. This is the companion to [`rejected.md`](rejected.md). A rejected entry needs its reason to stop being true; a watch entry needs its trigger to fire. When one does, the entry leaves this file and becomes either a commit or a dated entry in `rejected.md`.
+Things that are not adopted yet: each one is a clear *not yet*, with the trigger that would make it worth revisiting. When the trigger fires, the entry leaves this file and becomes a commit or an ADR.
 
 Keep entries small: the item, why it is parked, and the trigger. If you cannot name the trigger, the item does not belong here.
 
 ## clap_complete dynamic completions
 
-Completing *values* (branch names, file arguments from the tool's own index) instead of just flags, by having the shell call back into the binary. Parked because the mechanism lives behind clap_complete's `unstable-dynamic` feature and upstream warns that shell code and binary can drift apart (see the full reasoning in [`rejected.md`](rejected.md)).
+Completing *values* (branch names, file arguments from the tool's own index) instead of just flags, by having the shell call back into the binary. Parked because the mechanism lives behind clap_complete's `unstable-dynamic` feature and upstream warns that shell code and binary can drift apart.
 
 Trigger: the feature drops the `unstable-` prefix in a clap_complete release. Check `cargo info clap_complete` and its CHANGELOG.
 

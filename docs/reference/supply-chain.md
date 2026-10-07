@@ -1,4 +1,4 @@
-# Security
+# Supply chain
 
 dataseek runs two supply-chain gates in CI and locally through `just audit`.
 
@@ -11,15 +11,13 @@ dataseek runs two supply-chain gates in CI and locally through `just audit`.
 - `bans`: duplicate versions are warned, not failed. Wildcards in dependency requirements are denied.
 - `sources`: only crates.io is allowed.
 
-The workspace member itself has no `license` field because the crate is `publish = false`; `licenses.private.ignore` tells cargo-deny not to flag it.
-
 Run it with `just deny`.
 
 ## zizmor
 
 `zizmor` audits the GitHub Actions workflows themselves. There is no `.github/zizmor.yml`: every rule runs at its default.
 
-Every `uses:` in both workflows is pinned to a full commit SHA with its tag in a trailing comment (`actions/checkout@3d3c... # v7.0.1`). The earlier split, tags in `ci.yml` and SHAs only in `release-plz.yml`, rested on hash pins rotting without a bot to refresh them; Renovate's `helpers:pinGitHubActionDigests` is now that bot, with a seven-day `minimumReleaseAge` on action updates so a pin never moves to a release younger than a week. That removes the condition the split was built on ([`rejected.md`](../adr/rejected.md), hash-pinning). The trailing comment is still load-bearing: `just actions-outdated` reads it, and `pinact run --verify --check` fails on a SHA whose comment does not match. Re-pin by hand with:
+Every `uses:` in both workflows is pinned to a full commit SHA with its tag in a trailing comment (`actions/checkout@3d3c... # v7.0.1`). The earlier split, tags in `ci.yml` and SHAs only in `release-plz.yml`, rested on hash pins rotting without a bot to refresh them; Renovate's `helpers:pinGitHubActionDigests` is now that bot, with a seven-day `minimumReleaseAge` on action updates so a pin never moves to a release younger than a week. That removes the condition the split was built on. The trailing comment is still load-bearing: `just actions-outdated` reads it, and `pinact run --verify --check` fails on a SHA whose comment does not match. Re-pin by hand with:
 
 ```sh
 just repin

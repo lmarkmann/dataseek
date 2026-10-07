@@ -4,7 +4,7 @@ use std::io::Write;
 
 use anyhow::{Context, Result};
 
-use crate::cache::{BUDGET_BYTES, BUDGET_FILES, Cache};
+use crate::cache::{self, BUDGET_FILES, Cache};
 use crate::cli::CacheAction;
 use crate::find::human_bytes;
 use crate::http::SourceError;
@@ -15,8 +15,9 @@ use crate::{paths, ui};
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error(
-        "{} of {total} catalogs failed to download: {}\n  Try:   run `dataseek cache warm` again later; searches still use what did download",
+        "{} of {} failed to download: {}\n  Try:   run `dataseek cache warm` again later; searches still use what did download",
         failed.len(),
+        crate::ui::count(*total, "catalog"),
         failed.join(", ")
     )]
     Partial { failed: Vec<&'static str>, total: usize },
@@ -106,7 +107,7 @@ fn warm(out: &Out, dry_run: bool) -> Result<()> {
         return Err(Error::Partial { failed, total: results.len() }.into());
     }
     if !dry_run {
-        ui::ok(format!("{} catalogs downloaded", results.len()));
+        ui::ok(format!("{} downloaded", ui::count(results.len(), "catalog")));
     }
     Ok(())
 }
@@ -126,7 +127,7 @@ fn download<'a>(
         )
     })?;
     let ctx = services.ctx(true);
-    ui::stage(format!("downloading {} catalogs", catalogs.len()));
+    ui::stage(format!("downloading {}", ui::count(catalogs.len(), "catalog")));
     let progress = ui::bar(catalogs.len() as u64, "catalogs");
     let results = std::thread::scope(|scope| {
         let workers: Vec<_> = catalogs
@@ -167,17 +168,22 @@ fn info(cache: &Cache, out: &Out) -> Result<()> {
             "files": usage.files,
             "bytes": usage.bytes,
             "budget_files": BUDGET_FILES,
-            "budget_bytes": BUDGET_BYTES,
+            "budget_bytes": cache::budget_bytes(),
         }));
     }
     let mut w = out.stdout();
     writeln!(w, "{}", cache.root().display())?;
     writeln!(
         w,
-        "{} files, {} of {} budget ({} files max)",
+        "{} files, {} of {} budget{} ({} files max)",
         usage.files,
         human_bytes(usage.bytes),
-        human_bytes(BUDGET_BYTES),
+        human_bytes(cache::budget_bytes()),
+        if cache::budget_from_env() {
+            format!(", set by {}", cache::BUDGET_VAR)
+        } else {
+            String::new()
+        },
         BUDGET_FILES
     )?;
     Ok(())

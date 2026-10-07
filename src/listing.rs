@@ -7,7 +7,7 @@ use anyhow::Result;
 use serde::Serialize;
 
 use crate::credentials::Credentials;
-use crate::output::Out;
+use crate::output::{self, Out};
 use crate::palette;
 use crate::sources::{Need, SOURCES};
 
@@ -24,6 +24,8 @@ struct Row {
     docs: &'static str,
     /// Why the source is asked only when `--source` names it.
     opt_in: Option<&'static str>,
+    /// The notice the source's terms ask dataseek to show.
+    notice: Option<&'static str>,
 }
 
 pub fn run(out: &Out) -> Result<()> {
@@ -46,6 +48,7 @@ pub fn run(out: &Out) -> Result<()> {
             key_env: s.key.map(|(key, _)| key.env_var()),
             docs: s.docs,
             opt_in: s.opt_in,
+            notice: s.notice,
         })
         .collect();
 
@@ -72,14 +75,37 @@ pub fn run(out: &Out) -> Result<()> {
         }
         return Ok(());
     }
+    table(&mut w, &rows)?;
+    writeln!(w)?;
+    // A note that wraps continues two columns in, so each note still
+    // starts at the margin.
+    let muted = palette::muted();
+    let room = output::width().map(|w| w.saturating_sub(2).max(20));
+    for note in notes(&rows) {
+        for (i, line) in output::wrap(&note, room).iter().enumerate() {
+            let indent = if i == 0 { "" } else { "  " };
+            writeln!(w, "{muted}{indent}{line}{muted:#}")?;
+        }
+    }
+    Ok(())
+}
+
+fn table(w: &mut impl Write, rows: &[Row]) -> Result<()> {
     let (head, muted, warn) =
         (palette::accent(), palette::muted(), palette::warning());
+    let column = |title: &str, value: &dyn Fn(&Row) -> usize| {
+        rows.iter().map(value).max().unwrap_or(0).max(title.len())
+    };
+    let id = column("id", &|r| r.id.len());
+    let category = column("category", &|r| r.category.len());
+    let protocol = column("protocol", &|r| r.protocol.len());
+    let search = column("search", &|r| r.search.len());
     writeln!(
         w,
-        "{head}{:<22} {:<22} {:<22} {:<6} key{head:#}",
+        "{head}{:<id$} {:<category$} {:<protocol$} {:<search$} key{head:#}",
         "id", "category", "protocol", "search"
     )?;
-    for r in &rows {
+    for r in rows {
         let key = match (r.key, r.key_env) {
             ("missing", Some(var)) => format!("{warn}missing ${var}{warn:#}"),
             ("optional", Some(var)) => {
@@ -91,24 +117,27 @@ pub fn run(out: &Out) -> Result<()> {
         };
         writeln!(
             w,
-            "{:<22} {:<22} {:<22} {:<6} {key}",
+            "{:<id$} {:<category$} {:<protocol$} {:<search$} {key}",
             r.id, r.category, r.protocol, r.search
         )?;
     }
-    writeln!(w)?;
-    writeln!(
-        w,
-        "{muted}{} sources. `local` ones download their catalog once a week and search it on disk.{muted:#}",
-        rows.len()
-    )?;
-    for r in &rows {
-        if let Some(reason) = r.opt_in {
-            writeln!(
-                w,
-                "{muted}{} is asked only when named with -s: {reason}.{muted:#}",
-                r.id
-            )?;
-        }
-    }
     Ok(())
+}
+
+fn notes(rows: &[Row]) -> Vec<String> {
+    let mut notes = vec![format!(
+        "{} sources. `local` ones download their catalog once a week and search it on disk.",
+        rows.len()
+    )];
+    notes.extend(rows.iter().filter_map(|r| {
+        r.opt_in.map(|reason| {
+            format!("{} is asked only when named with -s: {reason}.", r.id)
+        })
+    }));
+    notes.extend(
+        rows.iter().filter_map(|r| {
+            r.notice.map(|notice| format!("{}: {notice}", r.id))
+        }),
+    );
+    notes
 }

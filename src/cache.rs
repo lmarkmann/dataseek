@@ -4,13 +4,15 @@
 //! One JSON file per entry under the cache directory, written atomically, so
 //! parallel source threads never share a file or a lock. Fresh entries are
 //! served without a request; expired ones are kept as a fallback for when the
-//! source is down. The whole directory stays under [`BUDGET_BYTES`] and
+//! source is down. The whole directory stays under [`budget_bytes`] and
 //! [`BUDGET_FILES`]: [`Cache::trim`] evicts the least recently written
 //! entries first and runs once at the end of every search, never per write.
 //! Everything here is best effort: a cache that cannot be read or written
 //! degrades to fetching, it never fails a search.
 
+use std::ops::RangeInclusive;
 use std::path::{Path, PathBuf};
+use std::sync::OnceLock;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use serde::de::DeserializeOwned;
@@ -18,8 +20,48 @@ use serde::{Deserialize, Serialize};
 
 use crate::fs::write_atomic;
 
-pub const BUDGET_BYTES: u64 = 30 * 1024 * 1024;
+/// The size budget unless [`BUDGET_VAR`] sets another, in decimal megabytes
+/// like every size dataseek prints.
+pub const BUDGET_BYTES: u64 = 30 * 1000 * 1000;
 pub const BUDGET_FILES: usize = 2000;
+/// Replaces the size budget, in whole megabytes within [`BUDGET_MB`].
+pub const BUDGET_VAR: &str = "DATASEEK_CACHE_MAX_MB";
+pub const BUDGET_MB: RangeInclusive<u64> = 1..=10_000;
+
+static BUDGET: OnceLock<u64> = OnceLock::new();
+
+/// Read [`BUDGET_VAR`] once, at startup, so a bad value is a usage error
+/// before any work starts rather than a cache that quietly ignores it.
+pub fn read_budget() -> Result<(), String> {
+    let Some(raw) = std::env::var_os(BUDGET_VAR) else { return Ok(()) };
+    let mb = raw
+        .to_str()
+        .and_then(|text| text.trim().parse::<u64>().ok())
+        .filter(|mb| BUDGET_MB.contains(mb))
+        .ok_or_else(|| {
+            format!(
+                "invalid value '{}' for {BUDGET_VAR}: whole megabytes from \
+                 {} to {}\n\ntip: set it to a number such as 100, or unset it \
+                 for the 30 MB default\n",
+                raw.to_string_lossy(),
+                BUDGET_MB.start(),
+                BUDGET_MB.end()
+            )
+        })?;
+    let _ = BUDGET.set(mb.saturating_mul(1000 * 1000));
+    Ok(())
+}
+
+/// The size budget in effect: [`BUDGET_VAR`] when set, else
+/// [`BUDGET_BYTES`].
+pub fn budget_bytes() -> u64 {
+    BUDGET.get().copied().unwrap_or(BUDGET_BYTES)
+}
+
+/// Whether [`BUDGET_VAR`] set the budget.
+pub fn budget_from_env() -> bool {
+    BUDGET.get().is_some()
+}
 
 /// How long a query's results are served without asking the source again.
 pub const QUERY_TTL: Duration = Duration::from_hours(6);
@@ -172,7 +214,7 @@ impl Cache {
 
     /// Evict the oldest entries until the directory fits the budget.
     pub fn trim(&self) -> Usage {
-        trim_files(self.files(), BUDGET_BYTES, BUDGET_FILES)
+        trim_files(self.files(), budget_bytes(), BUDGET_FILES)
     }
 
     /// Remove the entries, never the root: `--cache-dir` can point at a
