@@ -338,7 +338,7 @@ fn facts(hit: &Hit) -> String {
     parts.extend(d.size_bytes.map(human_bytes));
     parts.extend(d.license.clone());
     parts.extend(d.doi.as_ref().map(|doi| format!("doi:{doi}")));
-    parts.join("  |  ")
+    parts.join(" | ")
 }
 
 #[expect(

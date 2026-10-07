@@ -48,6 +48,8 @@ So a piped search still announces itself at once and sums up at the end, and no 
 
 `search` prints its summary after the results, so the last line says how many matched, how many sources answered and how to see more. An empty result is a stderr line, never text on stdout.
 
+Each text result is four lines: the rank and title, the URL, a muted line of facts, and the description. The facts are the sources that found it, then publisher, date, size, license and DOI, whichever are known, separated by ` | `.
+
 This is why `Cargo.toml` denies `print_stdout` and `print_stderr`: a stray `println!` is a contract violation, not a style preference.
 
 ## JSON
