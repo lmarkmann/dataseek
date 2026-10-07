@@ -91,7 +91,7 @@ mutants *args:
     fi
     cargo mutants --in-diff "$diff" --test-tool nextest {{ args }}
 
-# Where the release binary's size goes, by crate, function and generic; `--what-if` measures each size lever, `--baseline BIN` what grew.
+# Where the release binary's size goes, by crate, function and generic; `--what-if` measures `opt-level = "z"` and `panic = "abort"`, `--what-if --levers=all` every lever, `--baseline BIN` what grew.
 bloat *args:
     cargo bsize --bin dataseek {{ args }}
 

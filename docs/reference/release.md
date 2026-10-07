@@ -17,7 +17,7 @@ Write [conventional commits](https://www.conventionalcommits.org). The prefix de
 | `chore(release):`, `test:`, `ci:` | skipped | no |
 | anything else | Uncategorized | no |
 
-Uncategorized is the changelog telling you a subject was not conventional. Add `!` after the prefix for a breaking change.
+Uncategorized is the changelog telling you a subject was not conventional. Add `!` after the prefix for a breaking change; its changelog line then starts with "Breaking:".
 
 ## The loop
 

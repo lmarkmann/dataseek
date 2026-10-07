@@ -180,6 +180,7 @@ mod tests {
             no_progress: false,
             cache_dir: None,
             connect_timeout: 10,
+            jq: None,
             command: Some(Command::Doctor),
         };
         build(&mut cli);

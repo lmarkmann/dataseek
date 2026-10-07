@@ -304,7 +304,7 @@ It would save 864 KiB of the 4.5 MiB shipped at v0.6.0, the second-largest stabl
 
 ## 2026-10-07: `opt-level = "z"` or `"s"` for dataseek's own code
 
-Building the crate itself for size takes the release binary from 3.79 MB to 2.97 MB on aarch64 macOS, and makes every CPU stage of a search 40% to 300% slower ([measurement](../bench/2026-10-07-binary-size.md)). Dependencies are built at `z` instead, because fat LTO inlines their hot paths into this crate's code, which stays at 3.
+Building the crate itself for size takes the release binary from 3.79 MB to 2.97 MB on aarch64 macOS, and makes every CPU stage of a search 43% to 287% slower ([measurement](../bench/2026-10-07-binary-size.md)). Dependencies are built at `z` instead, because fat LTO inlines their hot paths into this crate's code, which stays at 3.
 
 ## 2026-10-07: Other ways of merging and ranking results
 
