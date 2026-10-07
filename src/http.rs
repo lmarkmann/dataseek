@@ -1,15 +1,15 @@
 //! The one blocking HTTP client every source shares, and the failure taxonomy
 //! the search loop acts on.
 //!
-//! Every request identifies dataseek and its contact address in the
-//! User-Agent, which is what DataCite, NCBI and other polite pools key their
-//! better rate tier on. Non-2xx statuses come back as values, not errors, so
-//! [`SourceError`] can say whether a failure is worth remembering (a dead
-//! host) or only this query's problem (a rejected key). A single 429 is
-//! retried once when the server asks for a short wait; longer waits are
-//! reported instead of slept through, and a failed connect is retried once.
-//! Bodies are decoded leniently: a stray invalid byte in a 30 MB catalog
-//! should cost one character, not the source.
+//! Every request identifies dataseek, its repository and its contact
+//! address in the User-Agent, which is what DataCite, NCBI and other polite
+//! pools key their better rate tier on. Non-2xx statuses come back as
+//! values, not errors, so [`SourceError`] can say whether a failure is worth
+//! remembering (a dead host) or only this query's problem (a rejected key).
+//! A single 429 is retried once when the server asks for a short wait;
+//! longer waits are reported instead of slept through, and a failed connect
+//! is retried once. Bodies are decoded leniently: a stray invalid byte in a
+//! 30 MB catalog should cost one character, not the source.
 
 use std::ffi::OsStr;
 use std::path::Path;
@@ -108,8 +108,9 @@ impl Http {
         let agent = ureq::Agent::config_builder()
             .http_status_as_error(false)
             .user_agent(format!(
-                "dataseek/{} (mailto:{CONTACT})",
-                env!("CARGO_PKG_VERSION")
+                "dataseek/{} (+{}; mailto:{CONTACT})",
+                env!("CARGO_PKG_VERSION"),
+                env!("CARGO_PKG_REPOSITORY")
             ))
             .timeout_global(Some(Duration::from_secs(20)))
             .timeout_connect(Some(Duration::from_secs(
@@ -631,8 +632,9 @@ mod tests {
         assert!(head.starts_with("get /search?q=sea"), "{head}");
         assert!(
             head.contains(&format!(
-                "user-agent: dataseek/{} (mailto:{CONTACT})",
-                env!("CARGO_PKG_VERSION")
+                "user-agent: dataseek/{} (+{}; mailto:{CONTACT})",
+                env!("CARGO_PKG_VERSION"),
+                env!("CARGO_PKG_REPOSITORY")
             )),
             "{head}"
         );

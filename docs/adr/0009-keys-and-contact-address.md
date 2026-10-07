@@ -11,7 +11,7 @@ Eight sources take an API key (Hugging Face, Kaggle, data.gov, GitHub, FRED, Rob
 
 - A key is read from its environment variable, then from `credentials.toml` in the config directory. Kaggle additionally reads what its own CLI writes, `~/.kaggle/access_token` then the legacy `~/.kaggle/kaggle.json` (honoring `KAGGLE_CONFIG_DIR`), so a user who ran `kaggle auth` needs no setup. Without a token Kaggle is still asked, anonymously, and answers every page.
 - Secrets are never formatted into output; `sources` and `doctor` report only where a key came from. `doctor` fails a key file other users can read.
-- Every request's User-Agent carries the project contact `user@dataseek.dev`, and DataCite and NCBI also receive it as `mailto`/`email`. It is the project's address, the same for every user; no user's address is ever sent.
+- Every request's User-Agent is `dataseek/<version> (+https://github.com/lmarkmann/dataseek; mailto:user@dataseek.dev)`, so a provider can tell releases apart, find the project, and write to the maintainer; DataCite and NCBI also receive the address as `mailto`/`email`. It is the project's address, the same for every user; no user's address is ever sent.
 
 ## Consequences
 
