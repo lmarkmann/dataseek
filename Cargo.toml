@@ -4,9 +4,14 @@ version = "0.7.0"
 description = "Search for datasets from the terminal"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/lmarkmann/dataseek"
+readme = "README.md"
+keywords = ["dataset", "search", "open-data", "research", "cli"]
+categories = ["command-line-utilities", "science"]
 edition = "2024"
 rust-version = "1.99"
-publish = false
+# What `cargo install` needs to build; tests, fixtures, benches and docs stay
+# in the repository.
+include = ["/src", "/build.rs", "/README.md", "/LICENSE-MIT", "/LICENSE-APACHE"]
 
 [lints.rust]
 unsafe_code = "forbid"
@@ -69,8 +74,8 @@ rustls = { version = "0.23", default-features = false, features = ["std"] }
 ureq = { version = "3", features = ["json", "platform-verifier"] }
 
 [features]
-# Re-exports for benches/ and the relevance example only; see the internals
-# module in src/lib.rs.
+# Re-exports for benches/ and the relevance example only; unstable and
+# outside semver, see the internals module in src/lib.rs.
 internals = []
 
 [dev-dependencies]

@@ -43,7 +43,9 @@ mod sources;
 mod ui;
 
 /// What `benches/search.rs` measures and `examples/relevance/` scores. Not
-/// an API: it follows the code it points at.
+/// an API: it follows the code it points at. The feature is visible to
+/// anyone who depends on the crate, but it is unstable, outside semver, and
+/// may change or disappear in any release.
 #[cfg(feature = "internals")]
 #[doc(hidden)]
 pub mod internals {
