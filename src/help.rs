@@ -149,18 +149,22 @@ fn built() -> clap::Command {
 
 /// Show `page` through `man`, as a reader on a terminal expects. `man` takes a
 /// file path everywhere (BSD and macOS `man` have no `-l`), so the page goes
-/// through a temporary file. False when `man` is missing or fails, so the
-/// caller prints the roff instead.
+/// through a temporary file: a random name, created only if absent and
+/// readable by this user alone, so a link planted in a shared temp directory
+/// cannot redirect the write, and gone when the guard drops. False when `man`
+/// is missing or fails, so the caller prints the roff instead.
 pub fn show_man(page: &[u8]) -> bool {
-    let path = std::env::temp_dir()
-        .join(format!("dataseek-{}.1", std::process::id()));
-    let shown = std::fs::write(&path, page).is_ok()
+    let Ok(mut file) =
+        tempfile::Builder::new().prefix("dataseek-").suffix(".1").tempfile()
+    else {
+        return false;
+    };
+    file.write_all(page).is_ok()
+        && file.flush().is_ok()
         && std::process::Command::new("man")
-            .arg(&path)
+            .arg(file.path())
             .status()
-            .is_ok_and(|status| status.success());
-    let _ = std::fs::remove_file(&path);
-    shown
+            .is_ok_and(|status| status.success())
 }
 
 /// The man page, in roff. clap_mangen draws the flags and commands from the
