@@ -297,3 +297,11 @@ Each was weighed in the source research that produced ADR 0004.
 - **Academic Torrents**: asks clients to read its RSS feeds rather than search; small.
 - **re3data**: a registry of 3,534 repositories, not of datasets; useful for pointing at repositories, not for search.
 - **Materials Project core API**: a per-material database rather than a dataset catalog; its contributed datasets (MPContribs) are searched instead.
+
+## 2026-10-07: `panic = "abort"` in the release profile
+
+It would save 864 KiB of the 4.5 MiB shipped at v0.6.0, the second-largest stable lever ([measurement](../bench/2026-10-07-binary-size.md)). Every source runs on its own thread in `search.rs`, and a panic in a dependency unwinds only that thread, so the search reports the source as crashed and still prints the others. Under abort, one malformed response that trips a panic in quick-xml or serde_json ends the whole search with no results. Destructors would also be skipped: a cache write in progress would leave its temp file behind (the target file stays intact, because the rename is atomic) and the progress line would be left half drawn. Tests would not notice, because cargo builds tests with unwinding regardless. Revisit only if adapters stop running on threads that are allowed to fail.
+
+## 2026-10-07: `opt-level = "z"` or `"s"` for dataseek's own code
+
+Building the crate itself for size takes the release binary from 3.79 MB to 2.97 MB on aarch64 macOS, and makes every CPU stage of a search 40% to 300% slower ([measurement](../bench/2026-10-07-binary-size.md)). Dependencies are built at `z` instead, because fat LTO inlines their hot paths into this crate's code, which stays at 3.
