@@ -305,3 +305,7 @@ It would save 864 KiB of the 4.5 MiB shipped at v0.6.0, the second-largest stabl
 ## 2026-10-07: `opt-level = "z"` or `"s"` for dataseek's own code
 
 Building the crate itself for size takes the release binary from 3.79 MB to 2.97 MB on aarch64 macOS, and makes every CPU stage of a search 43% to 287% slower ([measurement](../bench/2026-10-07-binary-size.md)). Dependencies are built at `z` instead, because fat LTO inlines their hot paths into this crate's code, which stays at 3.
+
+## 2026-10-07: Other ways of merging and ranking results
+
+Measured with the relevance benchmark and left out because none improved the held-out queries beyond the noise ([`../bench/2026-10-07-relevance.md`](../bench/2026-10-07-relevance.md), ADR 0016): a different RRF constant (1 to 200; 40 and up score within 0.006 of 60, smaller ones interleave sources and lose), fusing only each source's top 3 or 5, CombMNZ, list-length-normalized Borda, round robin, per-source weights learned from the judgments, other coverage floors and shapes, title-weighted coverage, a bonus for the whole query in the title, ignoring function words, and treating records with no description and no publisher differently. Source weights deserve the warning: they gained 0.060 on the queries they were fitted on and lost 0.010 on the others, which is what learning the benchmark looks like. A proposal to revisit any of these starts from `just relevance variants`, not from an argument.

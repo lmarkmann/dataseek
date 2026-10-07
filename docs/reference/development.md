@@ -73,6 +73,39 @@ just bench-startup --bless   # rewrite this machine class's baseline
 
 `scripts/bench_check.py` reads hyperfine's export (`docs/bench/startup.json`) and fails on any path over its budget: 10 ms for `--version`, 20 ms for the rest, doubled under `CI` because runners are slower and noisier. A path more than 25% and 2 ms slower than `docs/bench/baseline-<os>-<arch>.json` only warns. The CI job runs it after the tests and uploads the JSON, so a slow path can be traced to its commit.
 
+## Relevance
+
+```sh
+just relevance             # score the shipped ranking against the judgments; fails on a regression
+just relevance variants    # every ranking variant on the tuning and held-out halves
+just relevance pool        # worksheets for every unjudged result a ranking puts in its top 10
+just relevance absorb      # fold graded worksheets into judgments.tsv
+just relevance --bless     # accept the current scores as the baseline
+just relevance record      # re-record the snapshot from the live sources (network)
+```
+
+The speed benchmarks say how fast a search is; this one says whether its top 10 is any good. It separates retrieval from ranking: what each source returned for a fixed set of queries is recorded once and committed, and the merged ranking is then scored offline, deterministically, against graded judgments. No key and no network are involved after recording. `just ci` and the CI job run `just relevance`. The harness is `examples/relevance/`, built against `dataseek::internals` like the Criterion bench, and its files live in `tests/fixtures/relevance/`.
+
+`queries.toml` holds 48 queries in three kinds: 16 known-item queries naming one dataset ("MNIST handwritten digits"), 16 topical keyword queries ("sea surface temperature monthly", seeded from `dataseek bench`'s defaults) and 16 natural-language queries phrased the way an agent asks ("monthly inflation by country since 2000"), spread over the `--category` domains. Every query is run against every default source, as a plain search would be. Each query sits in one half, `tune` or `held`, fixed before any ranking change was tried: a change is chosen on the tuning half and adopted only if it also helps the held-out half. Never move a query between halves after seeing its scores.
+
+`retrieval/<id>.jsonl` is the snapshot: a header line with every source's status when recorded, then one line per record with the source and its rank. Records keep what merging and ranking read (title, link, description, publisher, DOI, aliases) and the popularity count, which nothing in merging or ranking reads; license, size and date are dropped, and every e-mail address becomes `contact@example.org`. Sources whose terms bar storing results (`persist: false`, today Kaggle) are never recorded, and sources that need a key are recorded as skipped, because recording runs with no credentials at all. Both are gaps between the benchmark and a search with keys set. A source that was asked but failed has an empty list and scores as if it had found nothing; `just relevance` lists every such source with the queries it missed.
+
+`judgments.tsv` grades results 0 (not relevant), 1 (partly) or 2 (relevant), one record per line with a one-line reason; its header holds the rubric. A label matches a merged result by identity (DOI or normalized link), so it holds whichever source returned the record. Each dataset has one label per query: two labels of one query sharing a DOI or link are an error, and `just relevance absorb` replaces a label by identity rather than adding a second one. Known-item queries need no labels: their `targets` in `queries.toml` are the dataset's identifiers, and the first result sharing one is the hit.
+
+The metrics: nDCG@10 with gains 0, 1, 3 for the three grades and P@10 counting grades 1 and 2, both over the 32 graded queries; reciprocal rank of the first target, averaged over the 16 known items. Every mean comes with a percentile bootstrap 95% interval over queries (10,000 resamples, fixed seed). Per source, the report counts the top-10 slots it fills with results judged not relevant, its pollution of the top 10.
+
+The gate compares the shipped ranking with `baseline.json`. The evaluation is deterministic, so any drop is a real change on this set; the gate tolerates a drop of a quarter of the metric's bootstrap standard error, which passes drops below what the interval can resolve; a deliberate trade-off goes through `--bless` instead. Because a mean can hide one bad query, the gate also fails when any graded query's nDCG@10 falls by more than 0.1 against its value in the baseline, or a known item that was in the baseline's top 10 leaves it. A metric missing from the baseline, or a query set that differs from the baseline's, fails too. A gain past the tolerance passes with a note asking for `--bless`, so the next drop is measured from the new level, and `--bless` prints the old means against the new ones before it writes. The gate also fails when the shipped ranking's top 10 holds a result with no grade: scoring it as not relevant would let the score move for reasons that have nothing to do with quality.
+
+### After changing the ranking
+
+Run `just relevance`. If it fails on unjudged results, run `just relevance pool`, grade the worksheets in `target/relevance-pool/` (the rows are shuffled and do not show which source or ranking produced them), then `just relevance absorb`. If it reports a regression you mean to accept, run `just relevance --bless` and say why in the commit. To try a new idea, add it to `examples/relevance/variants.rs` as a setting and compare with `just relevance variants`; a test holds the variant code to the shipped ranking, so the comparison is against the real code.
+
+A change is adopted when, on the held-out half, the paired bootstrap interval of its nDCG@10 change lies above zero and known-item MRR falls by no more than the gate's tolerance. The paired interval resamples per-query differences, which is far tighter than comparing two intervals. While either held-out top 10 holds a result with no grade, `variants` prints `unjudged` instead of a verdict.
+
+### Re-recording
+
+`just relevance record` asks every default source every query, live, with an empty cache and no key, and rewrites the snapshot; `just relevance record <id> ...` re-records only those queries. When a source that answered last time fails now, that query keeps its old snapshot and the run fails at the end; `--accept-lost` records the failure anyway. Re-recording after an adapter changes is how that change is measured, but it changes what each source returned, so expect new unjudged results: pool, grade, absorb, and re-bless in the same commit as the new snapshot. The first recording, its size and the excluded sources are in [`../bench/2026-10-07-relevance.md`](../bench/2026-10-07-relevance.md).
+
 ## Dependencies
 
 ```sh

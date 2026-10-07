@@ -62,6 +62,10 @@ jobs:
         run: |
           cargo nextest run --workspace --all-features --locked
           cargo test --doc --workspace --locked
+      # The merged ranking scored against the committed judgments, offline;
+      # fails on a regression past the baseline's tolerance.
+      - name: relevance
+        run: just relevance
       # Startup latency against the budgets, doubled on a runner: a breach
       # fails, a regression against the committed baseline only warns.
       - name: startup bench

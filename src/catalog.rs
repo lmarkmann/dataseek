@@ -37,10 +37,20 @@ pub fn needles(terms: &[String]) -> Vec<String> {
     terms.iter().map(|t| format!(" {t}")).collect()
 }
 
-/// How many of `needles` appear as a word prefix in `text`.
-pub fn matched(text: &str, needles: &[String]) -> usize {
+/// How many query terms a record is matched against: one bit each in the
+/// `u64` [`found`] returns.
+pub const MAX_TERMS: usize = 64;
+
+/// Which of the first [`MAX_TERMS`] `needles` appear as a word prefix in
+/// `text`, as a bit per needle.
+pub fn found(text: &str, needles: &[String]) -> u64 {
     let words = words(text);
-    needles.iter().filter(|n| words.contains(n.as_str())).count()
+    needles
+        .iter()
+        .take(MAX_TERMS)
+        .enumerate()
+        .filter(|(_, n)| words.contains(n.as_str()))
+        .fold(0, |bits, (i, _)| bits | 1 << i)
 }
 
 pub fn search(entries: &[Dataset], query: &str, limit: usize) -> Vec<Dataset> {
@@ -110,7 +120,7 @@ fn score(
 /// `text` lowercased, split on everything that is not a letter or a digit,
 /// and joined back with a space before every word, so "CO2-emissions"
 /// becomes " co2 emissions".
-fn words(text: &str) -> String {
+pub fn words(text: &str) -> String {
     let mut out = String::with_capacity(text.len().saturating_add(1));
     words_into(text, &mut out);
     out

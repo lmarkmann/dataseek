@@ -28,7 +28,7 @@ A decision that constrains future work lives here, once, and is cited from where
 | [0003](0003-the-cli-surface-sets-the-version.md) | The CLI surface sets the version | accepted |
 | [0004](0004-every-source-is-searched.md) | Every source is searched, none is tiered; the full source list | accepted |
 | [0005](0005-one-adapter-per-shared-protocol.md) | One adapter per shared protocol (CKAN, Dataverse, NADA, Socrata, STAC, SDMX, ...) | accepted |
-| [0006](0006-merge-by-identity-rank-by-fusion.md) | Merge by identity, rank by fusion and query coverage | accepted |
+| [0006](0006-merge-by-identity-rank-by-fusion.md) | Merge by identity, rank by fusion and query coverage | superseded by 0016 |
 | [0007](0007-cache-budget-and-failure-handling.md) | A 30 MB cache, a search deadline, and sources that fail alone | accepted |
 | [0008](0008-google-dataset-search-from-page-data.md) | Google Dataset Search is read from its results page data | superseded by 0013 |
 | [0009](0009-keys-and-contact-address.md) | Keys come from the environment or files, never flags | accepted |
@@ -38,3 +38,4 @@ A decision that constrains future work lives here, once, and is cited from where
 | [0013](0013-opt-in-sources.md) | Opt-in sources are asked only when named | accepted |
 | [0014](0014-system-trust-store-on-every-platform.md) | Every platform trusts the system's root certificates | accepted |
 | [0015](0015-mcp-server-over-stdio.md) | `dsk mcp` is a hand-written stdio server that runs each tool as a child | accepted |
+| [0016](0016-rank-by-fusion-and-weighted-coverage.md) | Merge by identity, rank by fusion and rarity-weighted coverage | accepted |

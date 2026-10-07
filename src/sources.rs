@@ -318,8 +318,9 @@ impl Services {
         })
     }
 
-    /// Offline services for tests: no keys, an empty cache under `dir`.
-    #[cfg(test)]
+    /// Services with no keys and an empty cache under `dir`: for tests, and
+    /// for recording the relevance snapshot without sending a key.
+    #[cfg(any(test, feature = "internals"))]
     pub fn scratch(dir: &std::path::Path) -> Self {
         Self {
             http: Http::new(),

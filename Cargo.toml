@@ -68,7 +68,8 @@ rustls = { version = "0.23", default-features = false, features = ["std"] }
 ureq = { version = "3", features = ["json", "platform-verifier"] }
 
 [features]
-# Re-exports for benches/ only; see the internals module in src/lib.rs.
+# Re-exports for benches/ and the relevance example only; see the internals
+# module in src/lib.rs.
 internals = []
 
 [dev-dependencies]
@@ -108,3 +109,9 @@ debug = "line-tables-only"
 name = "search"
 harness = false
 required-features = ["internals"]
+
+# The relevance benchmark: docs/reference/development.md.
+[[example]]
+name = "relevance"
+required-features = ["internals"]
+test = true

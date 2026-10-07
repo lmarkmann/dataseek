@@ -1,0 +1,609 @@
+# The relevance benchmark's queries. `just relevance` scores the merged
+# ranking of each against judgments.tsv, from the per-source lists frozen in
+# retrieval/; docs/reference/development.md explains the workflow.
+#
+# kind:
+#   known    names one dataset; scored by where its first target lands
+#   topical  keywords, the way a person types them; scored by graded labels
+#   natural  a sentence, the way an agent phrases a need; graded labels
+#
+# category is the domain the query belongs to, using the `--category` names;
+# every query is still run against every default source, as a plain search
+# would be.
+#
+# half splits the set before any ranking change is tuned: changes are chosen
+# on `tune` and adopted only if they also help `held`. Within each kind the
+# queries are sorted by category and id and assigned alternately. Never move
+# a query between halves after looking at its scores.
+#
+# targets (known only) are the dataset's identifiers: DOIs and the canonical
+# landing pages on the hubs dataseek searches. A hit matches when it shares
+# any identity key with a target. evidence says where each identifier was
+# confirmed.
+
+[[query]]
+id = "gbif-backbone"
+text = "GBIF backbone taxonomy"
+kind = "known"
+category = "ecology"
+half = "tune"
+targets = [
+  "https://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c",
+  "10.15468/39omei",
+  "https://www.checklistbank.org/dataset/53147",
+  "10.48580/d477p",
+  "https://hosted-datasets.gbif.org/datasets/backbone/",
+  "https://hosted-datasets.gbif.org/datasets/backbone/2009-09-01/",
+  "10.15468/084n-5750",
+  "https://hosted-datasets.gbif.org/datasets/backbone/2016-04-14/",
+  "10.15468/1yhg-ae89",
+  "https://hosted-datasets.gbif.org/datasets/backbone/2017-02-13/",
+  "10.15468/c7yd-aw66",
+  "https://hosted-datasets.gbif.org/datasets/backbone/2018-02-01/",
+  "10.15468/gjxz-hq48",
+  "https://hosted-datasets.gbif.org/datasets/backbone/2018-06-20/",
+  "10.15468/097w-5j94",
+  "https://hosted-datasets.gbif.org/datasets/backbone/2019-09-06/",
+  "10.15468/e8ye-m186",
+  "https://hosted-datasets.gbif.org/datasets/backbone/2021-03-03/",
+  "10.15468/z8f1-kv47",
+  "https://hosted-datasets.gbif.org/datasets/backbone/2022-11-23/",
+  "10.15468/56cv-7w97",
+]
+evidence = "DataCite: 10.15468/39omei -> gbif.org/dataset/d7dddbf4-... (GBIF Secretariat, GBIF Backbone Taxonomy); 10.48580/d477p -> checklistbank.org/dataset/53147 (GBIF Secretariat, version 2023-08-28); 10.15468/c7yd-aw66 and the other dated DOIs -> hosted-datasets.gbif.org/datasets/backbone/<date>/ (GBIF Secretariat, dated releases); hosted-datasets.gbif.org/datasets/backbone/ resolves (200)."
+
+[[query]]
+id = "penn-world-table"
+text = "Penn World Table"
+kind = "known"
+category = "economics"
+half = "held"
+targets = [
+  "https://www.rug.nl/ggdc/productivity/pwt/",
+  "http://www.rug.nl/ggdc/productivity/pwt/pwt-releases/pwt8.0",
+  "10.15141/s5159x",
+  "http://www.rug.nl/ggdc/productivity/pwt/pwt-releases/pwt8.1",
+  "10.15141/s5np4s",
+  "https://www.rug.nl/ggdc/productivity/pwt/pwt-releases/pwt9.0",
+  "10.15141/s5j01t",
+  "https://www.rug.nl/ggdc/productivity/pwt/pwt-releases/pwt9.1",
+  "10.15141/s50t0r",
+  "https://www.rug.nl/ggdc/productivity/pwt/pwt-releases/pwt100",
+  "10.15141/s5q94m",
+  "https://doi.org/10.34894/QT5BCC",
+  "10.34894/qt5bcc",
+  "https://doi.org/10.34894/FABVLR",
+  "10.34894/fabvlr",
+  "10.6077/j5/c8hbhf",
+  "https://data.mendeley.com/datasets/fxgy4rgbxv",
+  "10.17632/fxgy4rgbxv",
+  "10.17632/fxgy4rgbxv.1",
+  "https://db.nomics.world/GGDC/penn10",
+  "https://datasource.kapsarc.org/explore/dataset/penn-world-table-90/",
+]
+evidence = "DataCite: 10.15141/s5159x, s5np4s, s5j01t, s50t0r, s5q94m are PWT 8.0, 8.1, 9.0, 9.1, 10.0 published by the Groningen Growth and Development Centre at rug.nl pwt-releases pages; 10.34894/qt5bcc and 10.34894/fabvlr are PWT 10.01 and 11.0 on DataverseNL; 10.6077/j5/c8hbhf is PWT 5.6 at the Cornell CCSS repository; Mendeley fxgy4rgbxv holds the official pwt81.dta; KAPSARC API reports 389063 long-format records over 183 countries (all of PWT 10.01); db.nomics.world/GGDC/penn10 resolves (200)."
+
+[[query]]
+id = "world-development-indicators"
+text = "World Development Indicators"
+kind = "known"
+category = "economics"
+half = "tune"
+targets = [
+  "https://datacatalog.worldbank.org/search/dataset/0037712/world_development_indicators",
+  "10.57966/6rwy-0b07",
+  "https://datatopics.worldbank.org/world-development-indicators/",
+  "https://huggingface.co/datasets/datonic/world_development_indicators",
+  "https://www.kaggle.com/datasets/theworldbank/world-development-indicators",
+  "https://db.nomics.world/WB/WDI",
+  "10.5255/ukda-sn-4814-8",
+  "10.5257/wb/wdi/2019-02",
+  "10.5257/wb/wdi/2019q4",
+  "10.5257/wb/wdi/2020q4",
+  "10.5257/wb/wdi/2021q3",
+  "10.5257/wb/wdi/2022q1",
+  "https://data.mendeley.com/datasets/zcvgc6m58h/1",
+  "10.17632/zcvgc6m58h.1",
+]
+evidence = "DataCite: 10.57966/6rwy-0b07 -> World Bank Data Catalog 0037712 (publisher The World Bank); 10.5257/wb/wdi/* are WDI editions published by World Bank via UK Data Service SN 4814, and 10.5255/ukda-sn-4814-8 is that UKDS study (27th edition); HF datasets-server reports 9,015,914 rows for datonic/world_development_indicators (Datadex mirror of WDI); Mendeley zcvgc6m58h holds WDI2009.dta, 872 columns over 227 economies and 49 years, i.e. the full 2009 edition; Kaggle theworldbank/world-development-indicators and db.nomics.world/WB/WDI resolve with matching titles."
+
+[[query]]
+id = "ecb-exchange-rates"
+text = "ECB euro foreign exchange reference rates"
+kind = "known"
+category = "finance"
+half = "held"
+targets = [
+  "https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html",
+  "https://www.ecb.europa.eu/stats/eurofxref/",
+  "https://data.ecb.europa.eu/data/datasets/EXR/data-information",
+  "https://db.nomics.world/ECB/EXR",
+  "10.57702/6x1j9z6n",
+  "10.57702/lulec1c6",
+]
+evidence = "ECB reference rates page (ecb.europa.eu ... euro_reference_exchange_rates) links the eurofxref CSV/XML files under /stats/eurofxref/ and the Data Portal reference-rates category; ECB SDMX API dataflow EXR is 'Exchange Rates' and its series EXR.D.USD.EUR.SP00.A is titled 'US dollar/Euro ECB reference exchange rate'; DataCite 10.57702/6x1j9z6n (Euro foreign exchange reference rates) and 10.57702/lulec1c6 are TIB LDM-CoyPu catalog entries authored by the ECB that link the ECB raw-data download (landing ecb.europa.eu/stats/eurofxref/)."
+
+[[query]]
+id = "era5"
+text = "ERA5 hourly reanalysis"
+kind = "known"
+category = "geospatial"
+half = "tune"
+targets = [
+  "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels",
+  "10.24381/cds.adbb2d47",
+  "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-pressure-levels",
+  "10.24381/cds.bd0915c6",
+  "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-complete",
+  "10.24381/cds.143582cf",
+  "https://developers.google.com/earth-engine/datasets/catalog/ECMWF_ERA5_HOURLY",
+  "https://developers.google.com/earth-engine/datasets/catalog/ECMWF_ERA5_HOURLY_PRESSURE_LEVELS",
+]
+evidence = "DataCite: 10.24381/cds.adbb2d47 'ERA5 hourly data on single levels from 1940 to present', 10.24381/cds.bd0915c6 'ERA5 hourly data on pressure levels from 1940 to present', 10.24381/cds.143582cf 'Complete ERA5 global atmospheric reanalysis', all published by C3S CDS at cds.climate.copernicus.eu; Earth Engine catalog page ECMWF_ERA5_HOURLY describes the full ERA5 hourly single-level product (1940 to present, 150+ bands, provider C3S), and ECMWF_ERA5_HOURLY_PRESSURE_LEVELS resolves (200)."
+
+[[query]]
+id = "ersst"
+text = "ERSST version 5 sea surface temperature"
+kind = "known"
+category = "geospatial"
+half = "held"
+targets = [
+  "https://www.ncei.noaa.gov/access/metadata/landing-page/bin/iso?id=gov.noaa.ncdc:C00927",
+  "10.7289/v5t72fnm",
+  "https://www.ncei.noaa.gov/products/extended-reconstructed-sst",
+  "https://catalog.data.gov/dataset/noaa-extended-reconstructed-sea-surface-temperature-ersst-version-5",
+  "https://catalog.data.gov/dataset/noaa-ersstv5-in-situ-only-2-global-monthly-1854-present",
+  "https://catalog.data.gov/dataset/noaa-ersstv5-in-situ-only-2-global-monthly-1854-present-lon-180",
+  "https://psl.noaa.gov/data/gridded/data.noaa.ersst.v5.html",
+  "https://cmr.earthdata.nasa.gov/search/concepts/C2036878116-POCLOUD.html",
+  "https://earthdata.nasa.gov/data/catalog/pocloud-reynolds-ncdc-l4-monthly-v5-5",
+  "10.5067/ersst-l4n50",
+  "https://gdex.ucar.edu/datasets/d277009/",
+  "10.5065/jz08-3w17",
+]
+evidence = "DataCite: 10.7289/v5t72fnm 'NOAA Extended Reconstructed Sea Surface Temperature (ERSST), Version 5' at NCEI landing C00927; 10.5067/ersst-l4n50 is PO.DAAC's ERSST Level 4 Monthly Version 5 (CMR C2036878116-POCLOUD, short name REYNOLDS_NCDC_L4_MONTHLY_V5); 10.5065/jz08-3w17 is NCAR GDEX d277009, whose page describes ERSSTv5 and lists 'Version 5' products; data.gov ERSST v5 entry and the two ERDDAP-derived ERSSTv5 entries carry the NCEI ERSST v5 page as alias; NCEI product page and PSL ersst.v5 page resolve (200)."
+
+[[query]]
+id = "modis-land-cover"
+text = "MODIS land cover type MCD12Q1"
+kind = "known"
+category = "geospatial"
+half = "tune"
+targets = [
+  "https://www.earthdata.nasa.gov/data/catalog/lpcloud-mcd12q1-061",
+  "10.5067/modis/mcd12q1.061",
+  "https://cmr.earthdata.nasa.gov/search/concepts/C2484079608-LPCLOUD.html",
+  "https://www.earthdata.nasa.gov/data/catalog/lpcloud-mcd12q1-006",
+  "10.5067/modis/mcd12q1.006",
+  "https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD12Q1",
+  "https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MCD12Q1",
+  "https://browser.stac.dataspace.copernicus.eu/collections/modis-terraaqua-mcd12q1",
+]
+evidence = "DataCite: 10.5067/modis/mcd12q1.061 and 10.5067/modis/mcd12q1.006 are MCD12Q1 V061 and V006 from NASA LP DAAC, landing at earthdata.nasa.gov lpcloud-mcd12q1-061/-006 (lpdaac.usgs.gov/products/mcd12q1v061 and v006 redirect there); CMR collection C2484079608-LPCLOUD is short name MCD12Q1 version 061; Earth Engine MODIS_061_MCD12Q1 credits NASA LP DAAC; CDSE STAC collection modis-terraaqua-mcd12q1 is MCD12Q1 v6.1, 2001 to present."
+
+[[query]]
+id = "nyc-311"
+text = "NYC 311 service requests"
+kind = "known"
+category = "government"
+half = "held"
+targets = [
+  "https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2020-to-Present/erm2-nwe9",
+  "https://data.cityofnewyork.us/d/erm2-nwe9",
+  "https://data.cityofnewyork.us/d/76ig-c548",
+  "https://catalog.data.gov/dataset/311-service-requests-from-2010-to-present",
+]
+evidence = "NYC Open Data views API: erm2-nwe9 is '311 Service Requests from 2020 to Present' and 76ig-c548 is '311 Service Requests from 2010 to 2019', both published by NYC 311; catalog.data.gov/dataset/311-service-requests-from-2010-to-present is titled 'City of New York - 311 Service Requests from 2020 to Present'."
+
+[[query]]
+id = "tabula-sapiens"
+text = "Tabula Sapiens"
+kind = "known"
+category = "life-sciences"
+half = "tune"
+targets = [
+  "https://figshare.com/articles/dataset/Tabula_Sapiens_release_1_0/14267219",
+  "10.6084/m9.figshare.14267219",
+  "10.6084/m9.figshare.14267219.v1",
+  "10.6084/m9.figshare.14267219.v2",
+  "10.6084/m9.figshare.14267219.v3",
+  "10.6084/m9.figshare.14267219.v4",
+  "10.6084/m9.figshare.14267219.v5",
+  "https://cellxgene.cziscience.com/collections/e5f58829-1a66-40b5-a624-9046778e74f5",
+  "https://registry.opendata.aws/tabula-sapiens/",
+  "10.60489/roda.m4yet5",
+  "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE201333",
+  "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE306755",
+  "https://www.omicsdi.org/dataset/geo/GSE201333",
+  "https://www.omicsdi.org/dataset/geo/GSE306755",
+  "https://www.omicsdi.org/dataset/project/PRJNA830893",
+]
+evidence = "figshare API: article 14267219 'Tabula Sapiens Single-Cell Dataset' by the Tabula Sapiens Consortium, versions 1-5, per-tissue TS_*.h5ad files; CELLxGENE curation API: collection e5f58829 'Tabula Sapiens' (DOI 10.1126/science.abl4896, CZ Biohub); DataCite 10.60489/roda.m4yet5 -> registry.opendata.aws/tabula-sapiens/ (Registry of Open Data on AWS); NCBI GEO esummary: GSE201333 'Tabula Sapiens' (BioProject PRJNA830893, H5AD supplement) and GSE306755 'Tabula Sapiens v2'."
+
+[[query]]
+id = "iris"
+text = "Iris flower dataset"
+kind = "known"
+category = "machine-learning"
+half = "held"
+targets = [
+  "https://archive.ics.uci.edu/dataset/53",
+  "10.24432/c56c76",
+  "https://www.openml.org/d/61",
+  "https://huggingface.co/datasets/scikit-learn/iris",
+  "https://www.tensorflow.org/datasets/catalog/iris",
+  "https://www.kaggle.com/datasets/uciml/iris",
+  "https://www.openml.org/d/43839",
+  "https://zenodo.org/records/3608990",
+  "10.5281/zenodo.3608990",
+  "10.21227/rz7n-kj20",
+]
+evidence = "DataCite: 10.24432/c56c76 -> archive.ics.uci.edu/dataset/53 'Iris' (UCI ML Repository); OpenML API: data 61 'iris' from UCI and data 43839 'IRIS-flower-dataset', both 150 instances x 5 features; HF API scikit-learn/iris card 'Iris Species Dataset'; Kaggle uciml/iris title 'Iris Species'; TFDS catalog/iris resolves; Zenodo 3608990 file iris.csv has 150 data rows of R's iris; DataCite 10.21227/rz7n-kj20 is IEEE DataPort 'iris' describing Fisher's 150-sample set."
+
+[[query]]
+id = "mnist"
+text = "MNIST handwritten digits"
+kind = "known"
+category = "machine-learning"
+half = "tune"
+targets = [
+  "https://archive.ics.uci.edu/dataset/683",
+  "10.24432/c53k8q",
+  "https://huggingface.co/datasets/ylecun/mnist",
+  "https://www.openml.org/d/554",
+  "https://www.tensorflow.org/datasets/catalog/mnist",
+  "https://www.kaggle.com/datasets/hojjatk/mnist-dataset",
+  "https://figshare.com/articles/dataset/MNIST_dataset/27980390",
+  "10.6084/m9.figshare.27980390.v1",
+]
+evidence = "DataCite: 10.24432/c53k8q -> archive.ics.uci.edu/dataset/683 'MNIST Database of Handwritten Digits' (UCI ML Repository); OpenML API data 554 mnist_784, 70,000 instances, source yann.lecun.com; HF API ylecun/mnist card '70,000 28x28 ... handwritten digits'; Kaggle hojjatk/mnist-dataset title 'MNIST Dataset'; TFDS catalog/mnist resolves; figshare 27980390 raw.zip holds the eight original train/t10k idx files."
+
+[[query]]
+id = "squad"
+text = "SQuAD question answering"
+kind = "known"
+category = "machine-learning"
+half = "held"
+targets = [
+  "https://rajpurkar.github.io/SQuAD-explorer/",
+  "https://github.com/rajpurkar/SQuAD-explorer",
+  "https://huggingface.co/datasets/rajpurkar/squad",
+  "https://huggingface.co/datasets/rajpurkar/squad_v2",
+  "https://www.tensorflow.org/datasets/catalog/squad",
+  "https://www.modelscope.cn/datasets/OmniData/SQuAD",
+  "https://www.kaggle.com/datasets/stanfordu/stanford-question-answering-dataset",
+]
+evidence = "GitHub API: rajpurkar/SQuAD-explorer (homepage rajpurkar.github.io/SQuAD-explorer) holds dataset/train-v1.1.json, dev-v1.1.json, train-v2.0.json, dev-v2.0.json; HF API rajpurkar/squad (SQuAD) and rajpurkar/squad_v2 (SQuAD2.0); ModelScope OmniData/SQuAD holds raw/train-v2.0.json and raw/dev-v2.0.json with byte sizes identical to the official files; TFDS catalog/squad resolves; Kaggle stanfordu/stanford-question-answering-dataset title 'Stanford Question Answering Dataset'. SQuAD has no dataset DOI."
+
+[[query]]
+id = "mimic-iv"
+text = "MIMIC-IV clinical database"
+kind = "known"
+category = "neuroscience"
+half = "tune"
+targets = [
+  "https://physionet.org/content/mimiciv/",
+  "10.13026/07hj-2a80",
+  "https://physionet.org/content/mimiciv/0.3/",
+  "10.13026/a2mm-bn44",
+  "https://physionet.org/content/mimiciv/0.4/",
+  "10.13026/a3wn-hq05",
+  "https://physionet.org/content/mimiciv/1.0/",
+  "10.13026/s6n6-xd98",
+  "https://physionet.org/content/mimiciv/2.0/",
+  "10.13026/7vcr-e114",
+  "https://physionet.org/content/mimiciv/2.1/",
+  "10.13026/rrgf-xw32",
+  "https://physionet.org/content/mimiciv/2.2/",
+  "10.13026/6mm1-ek67",
+  "https://physionet.org/content/mimiciv/3.0/",
+  "10.13026/hxp0-hg59",
+  "https://physionet.org/content/mimiciv/3.1/",
+  "10.13026/kpb9-mt58",
+]
+evidence = "PhysioNet project mimiciv lists versions 0.3 to 3.1 (published-projects API and version pages); DataCite resolves 10.13026/07hj-2a80 to physionet.org/content/mimiciv/ (version 'latest') and a2mm-bn44, a3wn-hq05, s6n6-xd98, 7vcr-e114, rrgf-xw32, 6mm1-ek67, hxp0-hg59, kpb9-mt58 to /content/mimiciv/0.3/ through /3.1/, all titled 'MIMIC-IV'."
+
+[[query]]
+id = "higgs-challenge"
+text = "ATLAS Higgs boson machine learning challenge"
+kind = "known"
+category = "physics"
+half = "held"
+targets = [
+  "https://opendata.cern.ch/record/328",
+  "10.7483/opendata.atlas.zbp2.m5t8",
+  "https://www.openml.org/d/45549",
+  "https://www.openml.org/d/45550",
+  "https://www.openml.org/d/45551",
+]
+evidence = "DataCite: 10.7483/opendata.atlas.zbp2.m5t8 'Dataset from the ATLAS Higgs Boson Machine Learning Challenge 2014' (CERN Open Data Portal) -> opendata.cern.ch/record/328; OpenML API: 45549, 45550 and 45551 are versions 1-3 of 'ATLAS-Higgs-Boson-Machine-Learning-Challenge-2014' downloaded from CERN record 328 (45549/45550: 818,238 rows; 45551: the first 800k samples used by the Kaggle competition, -999 encoded as NaN)."
+
+[[query]]
+id = "european-social-survey"
+text = "European Social Survey"
+kind = "known"
+category = "social-science"
+half = "tune"
+targets = [
+  "https://www.europeansocialsurvey.org/data-portal",
+  "https://ess.sikt.no/en/",
+  "10.21338/nsd-ess1-2002",
+  "10.21338/nsd-ess2-2004",
+  "10.21338/nsd-ess3-2006",
+  "10.21338/nsd-ess4-2008",
+  "10.21338/nsd-ess5-2010",
+  "10.21338/nsd-ess6-2012",
+  "10.21338/nsd-ess7-2014",
+  "10.21338/nsd-ess8-2016",
+  "10.21338/nsd-ess9-2018",
+  "10.21338/nsd-ess10-2020",
+  "10.21338/ess11-2023",
+  "https://catalog.ihsn.org/catalog/8933",
+  "https://catalog.ihsn.org/catalog/8921",
+  "https://catalog.ihsn.org/catalog/8934",
+  "https://catalog.ihsn.org/catalog/8935",
+  "https://catalog.ihsn.org/catalog/7341",
+  "https://catalog.ihsn.org/catalog/7338",
+  "https://catalog.ihsn.org/catalog/7337",
+  "https://catalog.ihsn.org/catalog/7328",
+  "https://catalog.ihsn.org/catalog/8936",
+  "https://microdata.worldbank.org/catalog/2932",
+  "https://microdata.worldbank.org/catalog/2931",
+  "https://microdata.worldbank.org/catalog/2930",
+  "https://microdata.worldbank.org/catalog/2928",
+]
+evidence = "DataCite: 10.21338/nsd-ess1-2002 ... nsd-ess10-2020 and 10.21338/ess11-2023 are 'European Social Survey (ESS), Round N' collections published by Sikt at ess.sikt.no/en/study/<uuid>; IHSN and World Bank Microdata catalog pages for these ids are titled 'ECA Region - European Social Survey <year>, Round N' or 'Austria, Belgium, Switzerland...and 20 more - European Social Survey 2016, Round 8' with producer ESS ERIC; europeansocialsurvey.org/data-portal and ess.sikt.no resolve (200)."
+
+[[query]]
+id = "american-community-survey"
+text = "American Community Survey 5-year estimates"
+kind = "known"
+category = "statistics"
+half = "held"
+targets = [
+  "https://www.census.gov/data/developers/data-sets/acs-5year.html",
+  "https://api.census.gov/data/2009/acs5.html",
+  "https://api.census.gov/data/2009/acs/acs5.html",
+  "https://api.census.gov/data/2010/acs/acs5.html",
+  "https://api.census.gov/data/2011/acs/acs5.html",
+  "https://api.census.gov/data/2012/acs/acs5.html",
+  "https://api.census.gov/data/2013/acs/acs5.html",
+  "https://api.census.gov/data/2014/acs/acs5.html",
+  "https://api.census.gov/data/2015/acs/acs5.html",
+  "https://api.census.gov/data/2016/acs/acs5.html",
+  "https://api.census.gov/data/2017/acs/acs5.html",
+  "https://api.census.gov/data/2018/acs/acs5.html",
+  "https://api.census.gov/data/2019/acs/acs5.html",
+  "https://api.census.gov/data/2020/acs/acs5.html",
+  "https://api.census.gov/data/2021/acs/acs5.html",
+  "https://api.census.gov/data/2022/acs/acs5.html",
+  "https://api.census.gov/data/2023/acs/acs5.html",
+  "https://api.census.gov/data/2024/acs/acs5.html",
+  "https://catalog.data.gov/dataset/american-community-survey-5-year-estimates-detailed-tables-5-year",
+  "https://catalog.data.gov/dataset/american-community-survey-5-year-estimates-detailed-tables-5-year-97048",
+]
+evidence = "Census API catalog api.census.gov/data.json lists '2005-2009 American Community Survey 5-Year Estimates' at /data/2009/acs5 and the base 5-year dataset of every vintage 2009-2024 at /data/<year>/acs/acs5 (titled 'ACS 5-Year Detailed Tables' or '... 5-Year Estimates: Detailed Tables 5-Year'), each with an .html landing page (200); census.gov acs-5year developer page resolves (200); the two data.gov Detailed Tables entries are published by U.S. Census Bureau. No DOI exists for the product."
+
+[[query]]
+id = "source-code"
+text = "python source code"
+kind = "topical"
+category = "code"
+half = "tune"
+
+[[query]]
+id = "bird-occurrence"
+text = "bird species occurrence"
+kind = "topical"
+category = "ecology"
+half = "held"
+
+[[query]]
+id = "consumer-price-index"
+text = "consumer price index"
+kind = "topical"
+category = "economics"
+half = "tune"
+
+[[query]]
+id = "stock-prices"
+text = "stock market daily prices"
+kind = "topical"
+category = "finance"
+half = "held"
+
+[[query]]
+id = "climate-temperature"
+text = "climate temperature"
+kind = "topical"
+category = "geospatial"
+half = "tune"
+
+[[query]]
+id = "sst-monthly"
+text = "sea surface temperature monthly"
+kind = "topical"
+category = "geospatial"
+half = "held"
+
+[[query]]
+id = "air-quality"
+text = "air quality"
+kind = "topical"
+category = "government"
+half = "tune"
+
+[[query]]
+id = "traffic-accidents"
+text = "traffic accidents"
+kind = "topical"
+category = "government"
+half = "held"
+
+[[query]]
+id = "gene-expression-cancer"
+text = "gene expression cancer"
+kind = "topical"
+category = "life-sciences"
+half = "tune"
+
+[[query]]
+id = "single-cell-lung"
+text = "single cell RNA-seq lung"
+kind = "topical"
+category = "life-sciences"
+half = "held"
+
+[[query]]
+id = "image-classification"
+text = "image classification"
+kind = "topical"
+category = "machine-learning"
+half = "tune"
+
+[[query]]
+id = "eeg-motor-imagery"
+text = "EEG motor imagery"
+kind = "topical"
+category = "neuroscience"
+half = "held"
+
+[[query]]
+id = "band-gap"
+text = "crystal structure band gap"
+kind = "topical"
+category = "physics"
+half = "tune"
+
+[[query]]
+id = "household-income"
+text = "household income survey"
+kind = "topical"
+category = "social-science"
+half = "held"
+
+[[query]]
+id = "population-census"
+text = "population census"
+kind = "topical"
+category = "statistics"
+half = "tune"
+
+[[query]]
+id = "unemployment-rate"
+text = "unemployment rate"
+kind = "topical"
+category = "statistics"
+half = "held"
+
+[[query]]
+id = "github-issues"
+text = "GitHub issues and pull requests for training code models"
+kind = "natural"
+category = "code"
+half = "tune"
+
+[[query]]
+id = "wolf-sightings"
+text = "where have wolves been observed in Europe"
+kind = "natural"
+category = "ecology"
+half = "held"
+
+[[query]]
+id = "inflation-by-country"
+text = "monthly inflation by country since 2000"
+kind = "natural"
+category = "economics"
+half = "tune"
+
+[[query]]
+id = "euro-dollar"
+text = "historical exchange rates of the euro against the dollar"
+kind = "natural"
+category = "finance"
+half = "held"
+
+[[query]]
+id = "amazon-deforestation"
+text = "deforestation in the Amazon from satellite imagery"
+kind = "natural"
+category = "geospatial"
+half = "tune"
+
+[[query]]
+id = "germany-rainfall"
+text = "daily rainfall measurements for weather stations in Germany"
+kind = "natural"
+category = "geospatial"
+half = "held"
+
+[[query]]
+id = "covid-admissions"
+text = "COVID-19 hospital admissions by week"
+kind = "natural"
+category = "government"
+half = "tune"
+
+[[query]]
+id = "sars-cov-2-structures"
+text = "protein structures of SARS-CoV-2"
+kind = "natural"
+category = "life-sciences"
+half = "held"
+
+[[query]]
+id = "chest-xray"
+text = "chest x-rays labeled for pneumonia"
+kind = "natural"
+category = "machine-learning"
+half = "tune"
+
+[[query]]
+id = "skin-lesions"
+text = "labeled images of skin lesions for melanoma detection"
+kind = "natural"
+category = "machine-learning"
+half = "held"
+
+[[query]]
+id = "fmri-movies"
+text = "fMRI recordings of people watching movies"
+kind = "natural"
+category = "neuroscience"
+half = "tune"
+
+[[query]]
+id = "lhc-collisions"
+text = "particle collision events from the Large Hadron Collider"
+kind = "natural"
+category = "physics"
+half = "held"
+
+[[query]]
+id = "co2-per-country"
+text = "CO2 emissions per country per year"
+kind = "natural"
+category = "research"
+half = "tune"
+
+[[query]]
+id = "household-electricity"
+text = "hourly electricity consumption of households"
+kind = "natural"
+category = "research"
+half = "held"
+
+[[query]]
+id = "trust-in-government"
+text = "survey of trust in government across European countries"
+kind = "natural"
+category = "social-science"
+half = "tune"
+
+[[query]]
+id = "county-population"
+text = "how many people live in each US county"
+kind = "natural"
+category = "statistics"
+half = "held"

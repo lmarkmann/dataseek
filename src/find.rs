@@ -389,10 +389,10 @@ mod tests {
     }
 
     const PUBLISHER_BYTES: usize = 16_000;
-    /// What ranking [`answered`] allocated when the test was written: keys,
-    /// the owner map, hits, the text weighing reads. One publisher copied
-    /// on top of it reaches the bound.
-    const RANKING_BYTES: usize = 409_516;
+    /// What ranking [`answered`] allocates: keys, the owner map, hits, the
+    /// text weighing reads and the term sets rarity weighting builds. One
+    /// publisher copied on top of it reaches the bound.
+    const RANKING_BYTES: usize = 430_068;
 
     fn rain(url: &str, publisher: bool) -> Dataset {
         let mut d = Dataset::new("Rain", url);
