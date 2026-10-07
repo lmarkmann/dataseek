@@ -55,6 +55,9 @@ const CONNECT_RETRY_PAUSE: Duration = Duration::from_millis(300);
 pub enum SourceError {
     #[error("unreachable ({0})")]
     Unreachable(String),
+    /// Only rustls builds tell a refused certificate apart; native-tls
+    /// reports every handshake failure as one opaque error.
+    #[cfg_attr(any(windows, target_os = "macos"), allow(dead_code))]
     #[error("could not verify the certificate ({0})")]
     Certificate(String),
     #[error("timed out")]
