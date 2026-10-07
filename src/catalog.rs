@@ -110,7 +110,7 @@ fn score(
 /// `text` lowercased, split on everything that is not a letter or a digit,
 /// and joined back with a space before every word, so "CO2-emissions"
 /// becomes " co2 emissions".
-fn words(text: &str) -> String {
+pub fn words(text: &str) -> String {
     let mut out = String::with_capacity(text.len().saturating_add(1));
     words_into(text, &mut out);
     out

@@ -94,3 +94,9 @@ debug = "line-tables-only"
 name = "search"
 harness = false
 required-features = ["internals"]
+
+# The relevance benchmark: docs/reference/development.md.
+[[example]]
+name = "relevance"
+required-features = ["internals"]
+test = true

@@ -27,6 +27,11 @@ pub struct Hit {
     #[serde(flatten)]
     pub dataset: Dataset,
     pub sources: Vec<&'static str>,
+    /// Each source's best rank, zero-based, in the order of `sources`; only
+    /// the relevance benchmark reads it.
+    #[cfg(feature = "internals")]
+    #[serde(skip)]
+    pub ranks: Vec<usize>,
     pub score: f64,
 }
 
@@ -153,6 +158,8 @@ impl Building {
         Hit {
             dataset: self.dataset,
             sources: self.best_rank.iter().map(|(s, _)| *s).collect(),
+            #[cfg(feature = "internals")]
+            ranks: self.best_rank.iter().map(|(_, r)| *r).collect(),
             score,
         }
     }
