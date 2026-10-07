@@ -782,6 +782,16 @@ const ROUGH_SIZE_PAGE: &str = r#"<html><head>
 </script>
 </head></html>"#;
 
+/// A page whose metadata carries terminal escapes, a bell and a C1 control
+/// beside the line breaks and tabs a description may hold.
+const ESCAPING_PAGE: &str = r#"<html><head>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "Dataset",
+ "name": "Rain\u001b[2Jfall\u009b", "files": "the page's own",
+ "description": "daily\ntotals\tin mm\u0007"}
+</script>
+</head></html>"#;
+
 /// A local server answering every request with `page`; its address.
 fn serve_page(page: &'static str) -> String {
     let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
@@ -826,13 +836,18 @@ fn inspect_page(page: &'static str, args: &[&str]) -> std::process::Output {
         .unwrap()
 }
 
+/// `inspect --json` of a local page.
+fn inspect_json(page: &'static str) -> Value {
+    let out = inspect_page(page, &["--json"]);
+    assert!(out.status.success(), "{out:?}");
+    serde_json::from_slice(&out.stdout).unwrap()
+}
+
 #[test]
 fn inspect_lists_the_files_a_page_describes() {
-    let out = inspect_page(DATASET_PAGE, &["--json"]);
-    assert!(out.status.success(), "{out:?}");
-    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    let report = inspect_json(DATASET_PAGE);
     assert_eq!(
-        report["dataset"]["files"],
+        report["files"],
         json!([{
             "name": "rain.csv",
             "format": "text/csv",
@@ -855,9 +870,23 @@ fn inspect_says_when_a_page_lists_no_files() {
     let out = inspect_page(BARE_PAGE, &["--json"]);
     assert!(out.status.success(), "{out:?}");
     let report: Value = serde_json::from_slice(&out.stdout).unwrap();
-    assert_eq!(report["dataset"]["files"], json!([]));
+    assert_eq!(report["files"], json!([]));
     let stderr = String::from_utf8(out.stderr).unwrap();
     assert!(stderr.contains("the page's metadata lists no files"), "{stderr}");
+}
+
+#[test]
+fn inspect_prints_no_control_character_from_the_page() {
+    let report = inspect_json(ESCAPING_PAGE);
+    assert_eq!(report["dataset"]["name"], "Rain [2Jfall ");
+    assert_eq!(report["dataset"]["description"], "daily\ntotals\tin mm ");
+    assert_eq!(report["dataset"]["files"], "the page's own");
+    assert_eq!(report["files"], json!([]));
+
+    let out = inspect_page(ESCAPING_PAGE, &[]);
+    let text = String::from_utf8(out.stdout).unwrap();
+    assert!(text.contains("Rain [2Jfall"), "{text}");
+    assert!(!text.chars().any(|c| c.is_control() && c != '\n'), "{text:?}");
 }
 
 #[test]
@@ -973,7 +1002,7 @@ fn linux_trusts_the_root_certificates_the_system_names() {
     let report: Value = serde_json::from_slice(&out.stdout).unwrap();
     assert_eq!(report["dataset"]["name"], "Rainfall");
     assert_eq!(
-        report["dataset"]["files"],
+        report["files"],
         json!([{
             "name": "rain.csv",
             "format": "text/csv",
@@ -1405,6 +1434,7 @@ fn json_shapes_snapshot() {
             "schema": json_of(&["help", "search", "--json"])["schema"],
         },
         "search": seeded_search_json(),
+        "inspect": inspect_json(DATASET_PAGE),
     });
     filters::with_snapshot_filters(|| {
         insta::assert_snapshot!(

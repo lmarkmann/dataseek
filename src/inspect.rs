@@ -19,7 +19,7 @@ use serde_json::Value;
 use crate::find::human_bytes;
 use crate::http::{Http, SourceError};
 use crate::output::Out;
-use crate::record::{clean, number, summary, text};
+use crate::record::{clean, number, scrub_controls, summary, text};
 use crate::ui;
 
 #[derive(Debug, thiserror::Error)]
@@ -89,7 +89,9 @@ pub fn run(url: &str, out: &Out) -> Result<()> {
         })
     };
     progress.finish_and_clear();
-    let page = found?;
+    let mut page = found?;
+    scrub_controls(&mut page.dataset);
+    page.graph.iter_mut().for_each(scrub_controls);
     let files = page.files();
     if files.is_empty() {
         match page.entries().len() {
@@ -364,14 +366,11 @@ fn is_dataset(kind: Option<&Value>) -> bool {
 
 fn print(out: &Out, url: &str, page: &Page, files: &[File]) -> Result<()> {
     if out.json {
-        let mut dataset = page.dataset.clone();
-        if let Value::Object(fields) = &mut dataset {
-            fields.insert("files".to_owned(), serde_json::json!(files));
-        }
         return out.json(&serde_json::json!({
             "schema": "dataseek-inspect/1",
             "url": url,
-            "dataset": dataset,
+            "dataset": page.dataset,
+            "files": files,
         }));
     }
     let field = |label: &str, value: Option<String>| -> std::io::Result<()> {

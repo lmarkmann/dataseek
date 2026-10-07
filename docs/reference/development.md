@@ -40,6 +40,8 @@ Every adapter splits its request (`search` or `list`) from a pure `parse`, and e
 
 To re-record a fixture after a source changes, repeat the adapter's request with `xh` and the dataseek User-Agent (`dataseek/<version> (mailto:user@dataseek.dev)`), never with a key, trim arrays to a few rows with `jq 'walk(if type=="array" then .[:4] else . end)'`, shorten long descriptions to a real prefix, replace any individual's e-mail address with `contact@example.org`, and then re-derive the expected record by reading the new file. Sources that need a key (FRED, Roboflow) use the example response from their API docs, linked above the test.
 
+`inspect` reads its file lists from recorded pages in `tests/fixtures/inspect/`, recorded under the same rules. Its `--json` shape is part of `json_shapes_snapshot` in `tests/cli.rs`, read from a page served on a random local port that a snapshot filter replaces with `[LOCAL_ADDR]`.
+
 proptest writes the inputs that once failed to `proptest-regressions/`; they are committed so every run replays them first.
 
 Not every test can live in `tests/cli.rs`. That file runs the compiled binary, so it can assert on flags, exit codes, and stdout, but it cannot reach into the crate: the library's modules are private, so there is nothing for an integration test to import. Anything that needs a Rust value rather than a process is a `#[cfg(test)]` module beside the code, which is why `palette`, `ui`, `fs`, and `cli` each carry one.
