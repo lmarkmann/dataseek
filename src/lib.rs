@@ -3,7 +3,8 @@
 //! The crate is a library only so that one program can ship under two names:
 //! `src/main.rs` builds `dataseek` and `src/bin/dsk.rs` builds `dsk`, and both
 //! call [`main`]. Nothing here is a public API; every module is private, and
-//! the `internals` feature exposes only what `benches/` measures.
+//! the `internals` feature exposes only what `benches/` measures and the
+//! relevance benchmark in `examples/relevance/` scores.
 //! This file holds the entry point: SIGPIPE handling, argument parsing,
 //! dispatch, and the error printer.
 
@@ -14,7 +15,7 @@
         clippy::must_use_candidate,
         clippy::return_self_not_must_use,
         clippy::missing_errors_doc,
-        reason = "public-API lints; internals makes private items reachable for benches only"
+        reason = "public-API lints; internals makes private items reachable for the benches and the relevance example only"
     )
 )]
 
@@ -41,8 +42,8 @@ mod search;
 mod sources;
 mod ui;
 
-/// What `benches/search.rs` measures. Not an API: it follows the code it
-/// points at.
+/// What `benches/search.rs` measures and `examples/relevance/` scores. Not
+/// an API: it follows the code it points at.
 #[cfg(feature = "internals")]
 #[doc(hidden)]
 pub mod internals {

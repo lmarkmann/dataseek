@@ -215,11 +215,12 @@ fn fill(target: &mut Dataset, other: Dataset) {
 /// coverage is the weight of the query terms found in the title or
 /// description over the weight of all of them. A term weighs its inverse
 /// document frequency among the hits being ranked, so a word nearly every
-/// hit carries ("country", "data", the source's own topic) counts for
-/// little and the rarer, telling one for a lot. A hit that shows a
-/// description yet mentions no term at all is dropped; one without a
-/// description is kept at the floor, since there was little to check it
-/// against.
+/// hit carries ("country", "annual", the source's own topic) counts for
+/// little and the rarer, telling one for a lot. Only the first 64 terms
+/// are weighed; a hit matching only later ones counts as matching nothing.
+/// A hit that shows a description yet mentions no term at all is dropped;
+/// one without a description is kept at the floor, since there was little
+/// to check it against.
 pub fn weigh(hits: Vec<Hit>, query: &str) -> Vec<Hit> {
     let terms = crate::catalog::terms(query);
     if terms.is_empty() {
