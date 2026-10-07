@@ -1593,7 +1593,8 @@ fn an_mcp_client_drives_a_whole_session_over_stdio() {
     assert_eq!(failed["isError"], true);
     let text = failed["content"][0]["text"].as_str().unwrap();
     assert!(
-        text.starts_with("Error: ") && text.contains("\n  Try:"),
+        text.starts_with("Error: invalid value 'not-a-source' for '--source")
+            && text.contains("\n  Try:"),
         "{text}"
     );
     assert_eq!(failed["structuredContent"]["event"], "error");

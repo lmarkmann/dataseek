@@ -626,6 +626,7 @@ mod tests {
     fn calls_are_checked_before_anything_runs() {
         let unknown = now(&request("tools/call", &json!({"name": "delete"})));
         assert_eq!(unknown["error"]["code"], INVALID_PARAMS);
+        assert_eq!(unknown["error"]["message"], "Unknown tool: delete");
         let shapeless = now(&request(
             "tools/call",
             &json!({"name": "search", "arguments": [1]}),
@@ -637,6 +638,8 @@ mod tests {
             &json!({"name": "search", "arguments": {"query": "x", "timeout": 0}}),
         ));
         assert_eq!(refused["result"]["isError"], true);
+        let text = refused["result"]["content"][0]["text"].as_str().unwrap();
+        assert!(text.contains("always has a deadline"), "{text}");
         assert!(matches!(
             handle(request("tools/call", &json!({"name": "sources"})).as_bytes()),
             Reply::Call { argv, .. } if argv == ["sources", "--json"]

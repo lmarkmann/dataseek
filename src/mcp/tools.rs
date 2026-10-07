@@ -620,6 +620,58 @@ mod tests {
         assert_eq!(timeout, 20);
     }
 
+    /// Values the schema `property` allows: its default and bounds, its
+    /// possible values, and one of its type.
+    fn allowed(property: &Value) -> Vec<Value> {
+        let mut values: Vec<Value> = ["default", "minimum", "maximum"]
+            .iter()
+            .filter_map(|key| property.get(*key).cloned())
+            .collect();
+        match property["type"].as_str().unwrap() {
+            "array" => {
+                let items = allowed(&property["items"]);
+                values.extend(items.into_iter().map(|item| json!([item])));
+            }
+            _ if property.get("enum").is_some() => {
+                values.extend(property["enum"].as_array().unwrap().clone());
+            }
+            "boolean" => values.push(json!(true)),
+            "integer" => values.push(json!(1)),
+            _ => values.push(json!("x")),
+        }
+        values
+    }
+
+    // Whatever a schema allows becomes a command line clap accepts, so a
+    // call that follows the schema never fails as a usage error.
+    #[test]
+    fn every_value_a_schema_allows_parses() {
+        for tool in TOOLS {
+            let schema = schema(tool);
+            let properties = schema["properties"].as_object().unwrap();
+            let required: Map<String, Value> = schema["required"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|key| {
+                    let key = key.as_str().unwrap();
+                    (key.to_owned(), allowed(&properties[key]).remove(0))
+                })
+                .collect();
+            for (key, property) in properties {
+                for value in allowed(property) {
+                    let mut call = required.clone();
+                    call.insert(key.clone(), value.clone());
+                    let line = argv(tool, &call).unwrap();
+                    let words = std::iter::once("dsk".to_owned()).chain(line);
+                    if let Err(e) = Cli::try_parse_from(words) {
+                        panic!("{tool} {key}={value}: {e}");
+                    }
+                }
+            }
+        }
+    }
+
     #[test]
     fn values_that_look_like_flags_stay_values() {
         let parse = |call: Value| {
