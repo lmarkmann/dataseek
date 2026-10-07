@@ -92,7 +92,13 @@ pub fn run(url: &str, out: &Out) -> Result<()> {
     let page = found?;
     let files = page.files();
     if files.is_empty() {
-        ui::warn("the page's metadata lists no files");
+        match page.entries().len() {
+            0 => ui::warn("the page's metadata lists no files"),
+            1 => ui::warn("the page lists 1 file dataseek could not read"),
+            n => ui::warn(format!(
+                "the page lists {n} files dataseek could not read"
+            )),
+        }
     }
     print(out, url, &page, &files)
 }
@@ -131,7 +137,9 @@ impl Page {
             .unwrap_or(node)
     }
 
-    fn files(&self) -> Vec<File> {
+    /// Every entry of the dataset's file list, references resolved,
+    /// whether or not dataseek can read it.
+    fn entries(&self) -> Vec<&Value> {
         ["distribution", "distributions"]
             .iter()
             .filter_map(|k| property(&self.dataset, k))
@@ -139,27 +147,46 @@ impl Page {
                 Value::Array(items) => items.iter().collect(),
                 other => vec![other],
             })
-            .map(|entry| self.file(self.resolve(entry)))
-            .filter(|file| *file != File::default())
+            .map(|entry| self.resolve(entry))
             .collect()
     }
 
-    fn file(&self, entry: &Value) -> File {
-        File {
+    fn files(&self) -> Vec<File> {
+        self.entries().into_iter().filter_map(|e| self.file(e)).collect()
+    }
+
+    /// One entry as a [`File`], `None` when nothing in it is readable. A
+    /// bare string is the file's link; so is an `@id` that is a web address,
+    /// when the entry names no other.
+    fn file(&self, entry: &Value) -> Option<File> {
+        if entry.is_string() {
+            let url = text(entry, "")?;
+            return Some(File { url: Some(url), ..File::default() });
+        }
+        let size = property(entry, "contentSize");
+        let size_bytes = size.and_then(|size| {
+            number(size, "")
+                .or_else(|| text(size, "").as_deref().and_then(with_unit))
+        });
+        let file = File {
             name: property_text(entry, "name"),
             format: self.names(
                 property(entry, "encodingFormat")
                     .or_else(|| property(entry, "fileFormat")),
             ),
-            size_bytes: property(entry, "contentSize").and_then(|size| {
-                number(size, "")
-                    .or_else(|| text(size, "").as_deref().and_then(with_unit))
-            }),
+            size_bytes,
+            size_text: size
+                .filter(|_| size_bytes.is_none())
+                .and_then(|size| text(size, "")),
             checksum: checksum(entry),
-            url: property_text(entry, "contentUrl")
-                .or_else(|| property_text(entry, "url")),
+            url: first_text_in(property(entry, "contentUrl"))
+                .or_else(|| property_text(entry, "url"))
+                .or_else(|| {
+                    text(entry, "/@id").filter(|id| id.starts_with("http"))
+                }),
             includes: self.names(property(entry, "includes")),
-        }
+        };
+        (file != File::default()).then_some(file)
     }
 
     /// A readable rendering of a schema.org value that may be a string, an
@@ -205,6 +232,14 @@ fn property_text(node: &Value, key: &str) -> Option<String> {
     property(node, key).and_then(|v| text(v, ""))
 }
 
+/// The text of a value, or of the first entry of a list that has one.
+fn first_text_in(value: Option<&Value>) -> Option<String> {
+    match value? {
+        Value::Array(items) => items.iter().find_map(|v| text(v, "")),
+        other => text(other, ""),
+    }
+}
+
 /// One entry of a dataset's file list, as the page's metadata describes it.
 /// A Croissant file set has no link of its own: it names the files matching
 /// `includes` inside another entry, usually the repository.
@@ -216,6 +251,11 @@ struct File {
     format: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     size_bytes: Option<u64>,
+    /// `contentSize` as the page wrote it, when it is not a size dataseek
+    /// reads. Only the text listing shows it; the JSON output carries the
+    /// page's own metadata beside the file list.
+    #[serde(skip)]
+    size_text: Option<String>,
     /// `sha256:<hex>` or `md5:<hex>`.
     #[serde(skip_serializing_if = "Option::is_none")]
     checksum: Option<String>,
@@ -226,7 +266,7 @@ struct File {
 }
 
 /// A size written with its unit, such as Zenodo's "8.19 MB": decimal units
-/// up to TB, binary ones up to TiB. `None` for anything else, rather than a
+/// up to PB, binary ones up to PiB. `None` for anything else, rather than a
 /// guess.
 fn with_unit(size: &str) -> Option<u64> {
     let unit_at = size.find(|c: char| !c.is_ascii_digit() && c != '.')?;
@@ -237,10 +277,12 @@ fn with_unit(size: &str) -> Option<u64> {
         "mb" => 1e6,
         "gb" => 1e9,
         "tb" => 1e12,
+        "pb" => 1e15,
         "kib" => 1024.0,
         "mib" => 1_048_576.0,
         "gib" => 1_073_741_824.0,
         "tib" => 1_099_511_627_776.0,
+        "pib" => 1_125_899_906_842_624.0,
         _ => return None,
     };
     let bytes = value.parse::<f64>().ok()? * scale;
@@ -369,7 +411,7 @@ fn listing(out: &Out, file: &File) -> String {
     [
         file.name.clone(),
         file.format.clone(),
-        file.size_bytes.map(human_bytes),
+        file.size_bytes.map(human_bytes).or_else(|| file.size_text.clone()),
         file.checksum.clone(),
         file.includes.clone(),
         file.url.as_deref().map(|url| out.link(url)),
@@ -545,11 +587,36 @@ mod tests {
     }
 
     #[test]
+    fn a_link_is_read_from_a_bare_string_a_list_or_an_id() {
+        let dataset = json!({"@type": "Dataset", "distribution": [
+            "https://example.org/a.csv",
+            {"contentUrl": ["https://example.org/b.csv", "https://mirror.example.org/b.csv"]},
+            {"@type": "DataDownload", "@id": "https://example.org/c.csv"},
+            {"@type": "DataDownload", "@id": "_:b0"},
+            42,
+        ]});
+        let page = Page { dataset, graph: Vec::new() };
+        let link =
+            |url: &str| File { url: Some(url.into()), ..File::default() };
+        assert_eq!(
+            page.files(),
+            [
+                link("https://example.org/a.csv"),
+                link("https://example.org/b.csv"),
+                link("https://example.org/c.csv"),
+            ]
+        );
+        assert_eq!(page.entries().len(), 5);
+    }
+
+    #[test]
     fn sizes_are_read_with_their_units_or_not_at_all() {
         assert_eq!(with_unit("8.19 MB"), Some(8_190_000));
         assert_eq!(with_unit("1.5 GiB"), Some(1_610_612_736));
         assert_eq!(with_unit("12 bytes"), Some(12));
         assert_eq!(with_unit("2kB"), Some(2_000));
+        assert_eq!(with_unit("1.5 PB"), Some(1_500_000_000_000_000));
+        assert_eq!(with_unit("1 PiB"), Some(1_125_899_906_842_624));
         assert_eq!(with_unit("3 parsecs"), None);
         assert_eq!(with_unit("about 2 MB"), None);
         assert_eq!(with_unit("1,024 B"), None);

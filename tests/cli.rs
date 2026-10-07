@@ -764,6 +764,24 @@ const BARE_PAGE: &str = r#"<html><head>
 </script>
 </head></html>"#;
 
+/// A file list of two entries that name nothing dataseek can show.
+const UNREADABLE_FILES_PAGE: &str = r#"<html><head>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "Dataset", "name": "Rainfall",
+ "distribution": [{"@type": "DataDownload"},
+  {"@type": "DataDownload", "description": "daily totals"}]}
+</script>
+</head></html>"#;
+
+/// A file whose size is written in words.
+const ROUGH_SIZE_PAGE: &str = r#"<html><head>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "Dataset", "name": "Rainfall",
+ "distribution": [{"@type": "DataDownload", "name": "rain.csv",
+  "contentSize": "about 2 MB", "contentUrl": "https://example.org/rain.csv"}]}
+</script>
+</head></html>"#;
+
 /// A local server answering every request with `page`; its address.
 fn serve_page(page: &'static str) -> String {
     let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
@@ -840,6 +858,29 @@ fn inspect_says_when_a_page_lists_no_files() {
     assert_eq!(report["dataset"]["files"], json!([]));
     let stderr = String::from_utf8(out.stderr).unwrap();
     assert!(stderr.contains("the page's metadata lists no files"), "{stderr}");
+}
+
+#[test]
+fn inspect_counts_the_files_it_could_not_read() {
+    let out = inspect_page(UNREADABLE_FILES_PAGE, &[]);
+    assert!(out.status.success(), "{out:?}");
+    let stderr = String::from_utf8(out.stderr).unwrap();
+    assert!(
+        stderr.contains("the page lists 2 files dataseek could not read"),
+        "{stderr}"
+    );
+}
+
+#[test]
+fn inspect_prints_a_size_it_cannot_read_as_written() {
+    let out = inspect_page(ROUGH_SIZE_PAGE, &[]);
+    assert!(out.status.success(), "{out:?}");
+    let text = String::from_utf8(out.stdout).unwrap();
+    let line = format!(
+        "{:<12} rain.csv  about 2 MB  https://example.org/rain.csv",
+        "files"
+    );
+    assert!(text.lines().any(|l| l == line), "{text}");
 }
 
 /// A root certificate generated for one test, like the one a TLS-inspecting
