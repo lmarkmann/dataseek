@@ -1357,19 +1357,23 @@ struct Mcp {
 impl Mcp {
     /// Every request the server or its children send goes to `proxy`.
     fn start(dir: &Path, proxy: &str) -> Self {
+        Self::start_as(Path::new(env!("CARGO_BIN_EXE_dataseek")), dir, proxy)
+    }
+
+    /// The server as `program`, a copy of the binary under test.
+    fn start_as(program: &Path, dir: &Path, proxy: &str) -> Self {
         use std::io::BufRead;
         use std::process::Stdio;
 
-        let mut child =
-            sandboxed(Path::new(env!("CARGO_BIN_EXE_dataseek")), dir)
-                .env("HTTPS_PROXY", proxy)
-                .env("HTTP_PROXY", proxy)
-                .arg("mcp")
-                .stdin(Stdio::piped())
-                .stdout(Stdio::piped())
-                .stderr(Stdio::piped())
-                .spawn()
-                .unwrap();
+        let mut child = sandboxed(program, dir)
+            .env("HTTPS_PROXY", proxy)
+            .env("HTTP_PROXY", proxy)
+            .arg("mcp")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
         let stdin = child.stdin.take();
         let lines =
             std::io::BufReader::new(child.stdout.take().unwrap()).lines();
@@ -1721,18 +1725,7 @@ fn an_mcp_server_keeps_working_after_its_binary_is_replaced() {
     let dir = tempfile::tempdir().unwrap();
     let program = dir.path().join("dataseek");
     std::fs::copy(env!("CARGO_BIN_EXE_dataseek"), &program).unwrap();
-    let mut child = sandboxed(&program, dir.path())
-        .arg("mcp")
-        .stdin(std::process::Stdio::piped())
-        .stdout(std::process::Stdio::piped())
-        .stderr(std::process::Stdio::null())
-        .spawn()
-        .unwrap();
-    let stdin = child.stdin.take();
-    let lines = std::io::BufRead::lines(std::io::BufReader::new(
-        child.stdout.take().unwrap(),
-    ));
-    let mut mcp = Mcp { child, stdin, lines };
+    let mut mcp = Mcp::start_as(&program, dir.path(), "http://127.0.0.1:9");
     assert_eq!(
         mcp.ask(1, "ping", json!({}))["result"]["resultType"],
         "complete"
