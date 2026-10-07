@@ -89,9 +89,8 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
     }
 
     ui::stage(format!(
-        "searching {} source{} for \"{query}\"{}",
-        plan.sources.len(),
-        if plan.sources.len() == 1 { "" } else { "s" },
+        "searching {} for \"{query}\"{}",
+        ui::count(plan.sources.len(), "source"),
         if offline { ", offline" } else { "" }
     ));
     let progress = ui::bar(plan.sources.len() as u64, "sources");
@@ -197,16 +196,28 @@ fn warn_failures(outcomes: &[Outcome]) {
         .filter(|o| matches!(o.status, Status::Failed(SourceError::Offline)))
         .count();
     if skipped > 0 {
-        ui::warn(format!("{skipped} sources had nothing cached (--offline)"));
+        ui::warn(format!(
+            "{} had nothing cached (--offline)",
+            ui::count(skipped, "source")
+        ));
     }
     let catalogs: Vec<&str> =
         outcomes.iter().filter(downloading).map(|o| o.source.id).collect();
     if !catalogs.is_empty() {
-        ui::warn(format!(
-            "{} were still downloading their catalogs; `dataseek cache warm` fetches them once",
-            catalogs.join(", ")
-        ));
+        ui::warn(still_downloading(&catalogs));
     }
+}
+
+fn still_downloading(ids: &[&str]) -> String {
+    let (verb, whose, them) = if ids.len() == 1 {
+        ("was", "its catalog", "it")
+    } else {
+        ("were", "their catalogs", "them")
+    };
+    format!(
+        "{} {verb} still downloading {whose}; `dataseek cache warm` fetches {them} once",
+        ids.join(", ")
+    )
 }
 
 /// The closing lines on stderr, after the results: what failed, then one
@@ -215,15 +226,17 @@ fn summarize(query: &str, shown: usize, found: usize, outcomes: &[Outcome]) {
     warn_failures(outcomes);
     let answered = outcomes.iter().filter(|o| o.status.answered()).count();
     let attempted = outcomes.iter().filter(|o| o.status.attempted()).count();
-    let sources = format!("{answered} of {attempted} sources answered");
+    let sources =
+        format!("{answered} of {} answered", ui::count(attempted, "source"));
     if found == 0 {
         ui::warn(format!("no datasets matched \"{query}\"; {sources}"));
     } else if shown < found {
         ui::ok(format!(
-            "{shown} of {found} results; {sources}; -n {found} shows all"
+            "{shown} of {}; {sources}; -n {found} shows all",
+            ui::count(found, "result")
         ));
     } else {
-        ui::ok(format!("{found} results; {sources}"));
+        ui::ok(format!("{}; {sources}", ui::count(found, "result")));
     }
 }
 
@@ -359,6 +372,17 @@ mod tests {
         assert_eq!(human_bytes(512), "512 B");
         assert_eq!(human_bytes(155_173), "155.2 KB");
         assert_eq!(human_bytes(2_559_248_010_229), "2.6 TB");
+    }
+
+    #[test]
+    fn the_downloading_warning_agrees_with_its_count() {
+        assert!(
+            still_downloading(&["openneuro"])
+                .starts_with("openneuro was still downloading its catalog;")
+        );
+        assert!(still_downloading(&["openneuro", "physionet"]).starts_with(
+            "openneuro, physionet were still downloading their catalogs;"
+        ));
     }
 
     fn failed_with(errors: Vec<SourceError>) -> Vec<Outcome> {

@@ -125,6 +125,11 @@ pub fn warn(msg: impl Display) {
     say("warning", "  ", &paint(palette::warning(), mark), msg);
 }
 
+/// `1 source`, `3 sources`: a count with its noun in agreement.
+pub fn count(n: usize, noun: &str) -> String {
+    if n == 1 { format!("1 {noun}") } else { format!("{n} {noun}s") }
+}
+
 /// A spinner for work of unknown length. Without a live terminal the message
 /// becomes a stage line instead, so the wait is still announced.
 pub fn spinner(msg: impl Into<String>) -> ProgressBar {
@@ -222,5 +227,12 @@ mod tests {
             ProgressStyle::with_template(&spinner_template()).unwrap();
             ProgressStyle::with_template(&bar_template()).unwrap();
         }
+    }
+
+    #[test]
+    fn counts_agree_with_their_noun() {
+        assert_eq!(count(0, "source"), "0 sources");
+        assert_eq!(count(1, "source"), "1 source");
+        assert_eq!(count(2, "catalog"), "2 catalogs");
     }
 }
