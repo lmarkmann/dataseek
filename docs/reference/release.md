@@ -21,7 +21,7 @@ Uncategorized is the changelog telling you a subject was not conventional. Add `
 
 ## The loop
 
-On every push to `main`, the `release-pr` job opens or updates a PR that bumps the version and writes the changelog section from the commits since the last tag, then queues it for auto-merge. CI runs on that PR like on any other; once the required `linux` check is green, GitHub squash-merges it and deletes the branch, and the `release` job on that merge commit tags it and cuts the GitHub release, whose body is the changelog section. Nobody clicks anything between a `feat:` landing and its release.
+On every push to `main`, the `release-pr` job opens or updates a PR that bumps the version and writes the changelog section from the commits since the last tag, then queues it for auto-merge. CI runs on that PR like on any other; once the required `linux` check is green, GitHub squash-merges it and deletes the branch, and the `release` job on that merge commit tags it and cuts the GitHub release, whose body is the changelog section. Publishing that GitHub release starts `.github/workflows/release.yml`, which builds the wheels and uploads them to PyPI (below). Nobody clicks anything between a `feat:` landing and its release.
 
 Nothing earlier than v0.3.0 exists: release-plz diffs against the newest `v*` tag, and that baseline was tagged by hand.
 
@@ -29,7 +29,7 @@ Nothing earlier than v0.3.0 exists: release-plz diffs against the newest `v*` ta
 
 `.github/release-plz.toml`, passed through the action's `config` input in both jobs and `--config` locally:
 
-- `git_only = true`, `publish = false`: the previous version comes from git tags, not crates.io, and nothing is published.
+- `git_only = true`, `publish = false`: the previous version comes from git tags, not crates.io, and release-plz publishes nothing. Both go once the first crates.io release exists (below).
 - `git_release_enable = true`, `git_release_type = "auto"`, `git_release_body = "{{ changelog }}"`: every tag gets a GitHub release carrying that version's section.
 - `release_commits`: release-plz decides whether to release from changed files, not from changelog groups, so without it a `ci:` merge alone opens a release with an empty section. That is how v0.3.1 happened.
 - `features_always_increment_minor = true`: see ADR 0003.
@@ -57,7 +57,19 @@ No release-plz subcommand has a dry-run flag, so the recipe runs the real `relea
 
 ## Publishing to crates.io
 
-1. Drop `publish = false` from `Cargo.toml` and add `license`.
-2. Drop `publish = false` and `git_only = true` from `.github/release-plz.toml`.
-3. Give the `release` job `id-token: write` and register the repo as a crates.io trusted publisher; release-plz does the OIDC exchange, so there is no registry token. The first publish is manual.
-4. Turn `semver_check` on if the crate grows a library, and revisit ADR 0003.
+`cargo install dataseek` installs `dataseek` and `dsk`. The package holds only what building needs (`cargo package --list`); the `internals` feature is for the benches and unstable.
+
+crates.io trusts a publisher only for a crate that exists, so the first release goes up by hand:
+
+1. Merge the release PR; release-plz tags `vX.Y.Z`.
+2. `git switch --detach vX.Y.Z && cargo publish --locked`, with a new-crate token in `CARGO_REGISTRY_TOKEN`.
+3. Add the trusted publisher on crates.io (`lmarkmann/dataseek`, workflow `release-plz.yml`, environment `crates-io`), then revoke the token.
+4. Drop `git_only` and `publish = false` from `.github/release-plz.toml`, and give the `release` job `environment: crates-io` and `id-token: write`.
+
+## Publishing to PyPI
+
+`uvx dataseek` runs a wheel holding both binaries, built by maturin with the version from `Cargo.toml`. `release.yml` builds the wheels on each GitHub release and uploads them with `uv publish` through trusted publishing ([ADR 0017](../adr/0017-release-wheels-on-a-platform-matrix.md)).
+
+Before the first release, add a pending publisher at <https://pypi.org/manage/account/publishing/>: project `dataseek`, `lmarkmann/dataseek`, workflow `release.yml`, environment `pypi`.
+
+`dsk` is also an unrelated PyPI project; installing both into one environment makes their scripts collide.
