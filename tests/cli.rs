@@ -378,19 +378,16 @@ fn errors_under_json_are_events_on_stderr() {
     assert_eq!(event["causes"], json!(["<QUERY>..."]));
 }
 
-// A script written for --jq must fail as a usage error that names the
-// replacement, never run a search with "--jq" swallowed into the query.
+// A script written for the old --jq must fail as a usage error, never run a
+// search with "--jq" swallowed into the query.
 #[test]
-fn the_removed_jq_flag_points_at_json_and_jq() {
+fn an_unknown_flag_is_never_read_as_query_words() {
     let out = bin()
         .args(["search", "census", "--jq", ".results[].url", "--offline"])
         .output()
         .unwrap();
     assert_eq!(out.status.code(), Some(2));
     assert_eq!(out.stdout, b"");
-    let stderr = String::from_utf8(out.stderr).unwrap();
-    assert!(stderr.contains("pipe --json into jq"), "{stderr}");
-    assert!(!stderr.contains("-- --jq"), "{stderr}");
 
     let out = bin()
         .args(["--json", "sources", "--jq", ".sources"])

@@ -122,25 +122,8 @@ pub struct Cli {
     )]
     pub connect_timeout: u64,
 
-    /// Removed; kept hidden so a script that still passes it learns what
-    /// replaced it instead of reading clap's generic unknown-argument error.
-    #[arg(
-        long,
-        value_name = "EXPR",
-        global = true,
-        hide = true,
-        value_parser = removed_jq
-    )]
-    pub jq: Option<String>,
-
     #[command(subcommand)]
     pub command: Option<Command>,
-}
-
-fn removed_jq(_: &str) -> Result<String, &'static str> {
-    Err("--jq was removed; pipe --json into jq instead, as in \
-         `dsk search census --json | jq -r '.results[].url'`, under \
-         `set -o pipefail` so a failed search still fails the pipeline")
 }
 
 /// Which sources to ask, shared by `search` and `bench`.
