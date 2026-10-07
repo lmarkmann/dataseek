@@ -2,6 +2,51 @@
 
 What shipped, newest first. release-plz writes each section from the conventional commits merged since the previous tag; see [`reference/release.md`](reference/release.md).
 
+## 0.7.0 - 2026-10-07
+
+### Changed
+
+- The overview says dsk mcp serves search, sources and inspect, and relayed stderr lines share the event writer
+- MCP argument types are a fixed set, and a count flag takes how many times to repeat it
+
+### Docs
+
+- MCP mode's errors, limits and lifetime in the contract, ADR 0015 sizes under the current release profile, and the inspect fixtures as they are
+- What just bloat --what-if measures, and size figures that match their byte counts
+- Binary size per target before and after, with every lever measured
+
+### Fixed
+
+- Dsk mcp runs at most four calls at once and refuses a fifth as a tool error
+- A cancelled dsk mcp call can no longer collect a later call that reuses its request id
+- Dsk mcp keeps running its calls after an upgrade replaces the binary
+- Dsk mcp refuses an argument holding a NUL character as a tool error, not a server fault
+- Dsk mcp refuses a search timeout over 300 seconds, and tool schemas give the range of every ranged integer
+- A usage error under --json keeps the missing argument and the possible values, and dsk mcp names a missing argument
+- A dsk mcp call that fails without an error, or succeeds without a JSON object, says what it printed instead
+- Dsk mcp stops its running calls when the client closes the pipe, instead of dying of SIGPIPE
+- Dsk mcp answers a line that is not UTF-8 or a request without a method, and keeps serving
+- MCP clients can pass offline and refresh, whose schema no longer limits a boolean to strings
+- --jq names its replacement instead of failing as an unknown flag
+
+### Other
+
+- The changelog marks breaking changes
+- Drop dependency features dataseek never uses
+- Just bloat runs cargo-bsize
+
+### Performance
+
+- Breaking: Drop --jq; pipe --json into jq instead
+- Release binary is 23% smaller: fat LTO, dependencies optimized for size
+
+### Uncategorized
+
+- Merge branch 'mcp-server' into relevance-benchmark
+- Merge branch 'platform-certs-owned-merge-file-list' into mcp-server
+- Merge branch 'platform-certs-owned-merge-file-list' into mcp-server
+- Merge branch 'binary-size' into platform-certs-owned-merge-file-list
+
 ## 0.6.0 - 2026-10-06
 
 ### Added
