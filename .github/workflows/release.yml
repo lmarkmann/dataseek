@@ -1,9 +1,10 @@
 # Release builds once release-plz has published a GitHub release: a wheel and
-# a binary archive per platform, the archives attached to the release and the
-# wheels sent to PyPI. release-plz owns the version, the tag and crates.io
-# (docs/reference/release.md). One machine per platform, because these are the
-# only jobs that must run on macOS and Windows (ADR 0017). A pull request that
-# changes the release build runs the builds without publishing anything.
+# a binary archive per platform, the archives attached to the release, the
+# wheels sent to PyPI and the Homebrew formula rewritten. release-plz owns the
+# version, the tag and crates.io (docs/reference/release.md). One machine per
+# platform, because these are the only jobs that must run on macOS and Windows
+# (ADR 0017). A pull request that changes the release build runs the builds
+# without publishing anything.
 name: release
 
 on:
@@ -184,3 +185,58 @@ jobs:
           enable-cache: false
       - name: publish
         run: uv publish --trusted-publishing always dist/*
+
+  # Rewrites Formula/dataseek.rb in lmarkmann/homebrew-tap from the checksums
+  # just attached, with a release App token scoped to that one repository.
+  homebrew:
+    if: github.event_name == 'release' && !github.event.release.prerelease
+    needs: assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: harden runner
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+      - name: token
+        id: app
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          owner: lmarkmann
+          repositories: homebrew-tap
+          permission-contents: write
+      - name: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: checkout tap
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: lmarkmann/homebrew-tap
+          token: ${{ steps.app.outputs.token }}
+          path: tap
+          persist-credentials: false
+      - name: formula
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          gh release download "$TAG" --repo "$REPO" -p '*.tar.gz.sha256' -D sums
+          scripts/homebrew-formula.sh "$TAG" sums > tap/Formula/dataseek.rb
+      - name: push
+        working-directory: tap
+        env:
+          TOKEN: ${{ steps.app.outputs.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          git config user.name "lmarkmann-release[bot]"
+          git config user.email "333785277+lmarkmann-release[bot]@users.noreply.github.com"
+          git add Formula/dataseek.rb
+          git diff --cached --quiet && exit 0
+          git commit -m "dataseek $TAG"
+          git push "https://x-access-token:$TOKEN@github.com/lmarkmann/homebrew-tap.git" HEAD:main

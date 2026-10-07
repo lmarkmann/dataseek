@@ -13,9 +13,10 @@ Most sources need no key and nothing to set up. Results come back in the termina
 ## Install
 
 ```sh
-cargo install --locked dataseek   # builds dataseek and dsk from source
-cargo binstall dataseek           # a prebuilt binary when the release has one, else builds
-uv tool install dataseek          # installs dataseek and dsk with uv
+brew install lmarkmann/tap/dataseek   # dataseek and dsk, with completions and the man page
+cargo binstall dataseek                # the prebuilt binaries from the release
+cargo install --locked dataseek        # builds them from source
+uv tool install dataseek               # the binaries in a wheel
 ```
 
 To run it once without installing:
@@ -25,7 +26,7 @@ crgx --allow-build dataseek search sea surface temperature
 uvx dataseek search sea surface temperature
 ```
 
-To upgrade, run the install command again, or `uv tool upgrade dataseek` for uv. Building from source needs a recent stable Rust toolchain; from a clone, `cargo install --locked --path .` does the same.
+To upgrade, run the install command again, or `brew upgrade dataseek` and `uv tool upgrade dataseek`. Building from source needs a recent stable Rust toolchain; from a clone, `cargo install --locked --path .` does the same.
 
 ## Usage
 
