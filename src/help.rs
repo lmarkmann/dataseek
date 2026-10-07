@@ -44,7 +44,7 @@ const GROUPS: [(&str, &[(&str, &str)]); 3] = [
             ("sources", "list sources and their keys"),
             ("inspect", "read a dataset page's metadata and files"),
             ("bench", "time and compare sources"),
-            ("mcp", "serve search to MCP clients"),
+            ("mcp", "serve search, sources and inspect over MCP"),
         ],
     ),
     (

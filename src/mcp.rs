@@ -37,7 +37,7 @@ const HANDSHAKE: [&str; 2] = [NEWEST_HANDSHAKE, "2025-06-18"];
 const NEWEST_HANDSHAKE: &str = "2025-11-25";
 const VERSION_KEY: &str = "io.modelcontextprotocol/protocolVersion";
 const CAPABILITIES_KEY: &str = "io.modelcontextprotocol/clientCapabilities";
-/// The tool list changes only with the binary, which restarts the server.
+/// The tool list is fixed for the life of this process.
 const LIST_TTL_MS: u64 = 3_600_000;
 
 const PARSE_ERROR: i64 = -32700;
