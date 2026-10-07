@@ -302,24 +302,13 @@ fn names(value: Option<&Value>) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
-    use std::path::Path;
-
     use super::*;
+    use crate::sources::fixture;
     use serde_json::json;
-
-    /// Recorded responses under `tests/fixtures/inspect`, the oracle the
-    /// expected values below are read from by hand.
-    fn fixture(name: &str) -> String {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("tests/fixtures/inspect")
-            .join(name);
-        std::fs::read_to_string(&path)
-            .unwrap_or_else(|e| panic!("{}: {e}", path.display()))
-    }
 
     #[test]
     fn a_zenodo_page_names_its_dataset_by_full_address() {
-        let page = fixture("zenodo.html");
+        let page = fixture::read("inspect", "zenodo.html");
         let found = json_ld(&page).into_iter().find_map(find_dataset).unwrap();
         assert_eq!(found["@type"], "https://schema.org/Dataset");
         assert_eq!(
@@ -358,7 +347,7 @@ mod tests {
 
     #[test]
     fn zenodo_lists_each_file_by_format_and_link() {
-        let page = fixture("zenodo.html");
+        let page = fixture::read("inspect", "zenodo.html");
         let dataset =
             json_ld(&page).into_iter().find_map(find_dataset).unwrap();
         let files = files(&dataset);
@@ -375,9 +364,11 @@ mod tests {
 
     #[test]
     fn dataverse_lists_names_sizes_and_formats() {
-        let dataset: Value =
-            serde_json::from_str(&fixture("dataverse-schema-org.json"))
-                .unwrap();
+        let dataset: Value = serde_json::from_str(&fixture::read(
+            "inspect",
+            "dataverse-schema-org.json",
+        ))
+        .unwrap();
         let files = files(&dataset);
         assert_eq!(files.len(), 2);
         assert_eq!(
@@ -394,9 +385,11 @@ mod tests {
 
     #[test]
     fn croissant_file_objects_carry_their_checksums() {
-        let dataset: Value =
-            serde_json::from_str(&fixture("dataverse-croissant.json"))
-                .unwrap();
+        let dataset: Value = serde_json::from_str(&fixture::read(
+            "inspect",
+            "dataverse-croissant.json",
+        ))
+        .unwrap();
         assert_eq!(
             files(&dataset)[1],
             File {
@@ -412,9 +405,11 @@ mod tests {
 
     #[test]
     fn a_croissant_file_set_names_its_pattern_not_a_link() {
-        let dataset: Value =
-            serde_json::from_str(&fixture("huggingface-croissant.json"))
-                .unwrap();
+        let dataset: Value = serde_json::from_str(&fixture::read(
+            "inspect",
+            "huggingface-croissant.json",
+        ))
+        .unwrap();
         assert_eq!(
             files(&dataset),
             [
