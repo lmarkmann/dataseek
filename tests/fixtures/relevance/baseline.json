@@ -1,10 +1,10 @@
 {
   "metrics": {
     "ndcg": {
-      "mean": 0.64628,
-      "low": 0.571516,
-      "high": 0.720051,
-      "tolerance": 0.009505
+      "mean": 0.650335,
+      "low": 0.575101,
+      "high": 0.7249,
+      "tolerance": 0.009546
     },
     "precision": {
       "mean": 0.721875,
@@ -32,7 +32,7 @@
       0.1
     ],
     "band-gap": [
-      0.445969,
+      0.46231,
       0.5
     ],
     "bird-occurrence": [
@@ -40,7 +40,7 @@
       0.9
     ],
     "chest-xray": [
-      0.788862,
+      0.842691,
       0.8
     ],
     "climate-temperature": [
@@ -106,7 +106,7 @@
       1.0
     ],
     "household-electricity": [
-      0.640667,
+      0.671647,
       0.7
     ],
     "household-income": [
@@ -171,7 +171,7 @@
       0.8
     ],
     "stock-prices": [
-      0.645748,
+      0.67435,
       0.8
     ],
     "tabula-sapiens": [
