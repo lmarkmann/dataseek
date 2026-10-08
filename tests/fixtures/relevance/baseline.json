@@ -1,22 +1,22 @@
 {
   "metrics": {
     "ndcg": {
-      "mean": 0.650335,
-      "low": 0.575101,
-      "high": 0.7249,
-      "tolerance": 0.009546
+      "mean": 0.640268,
+      "low": 0.556751,
+      "high": 0.719724,
+      "tolerance": 0.010345
     },
     "precision": {
-      "mean": 0.721875,
-      "low": 0.628125,
-      "high": 0.809375,
-      "tolerance": 0.011722
+      "mean": 0.759375,
+      "low": 0.6625,
+      "high": 0.84375,
+      "tolerance": 0.011539
     },
     "mrr": {
-      "mean": 0.51714,
-      "low": 0.308239,
-      "high": 0.732639,
-      "tolerance": 0.026908
+      "mean": 0.518403,
+      "low": 0.309722,
+      "high": 0.733333,
+      "tolerance": 0.026859
     }
   },
   "queries": {
@@ -25,30 +25,30 @@
       1.0
     ],
     "amazon-deforestation": [
-      0.439285,
-      0.5
+      0.448122,
+      0.6
     ],
     "american-community-survey": [
       0.1
     ],
     "band-gap": [
-      0.46231,
-      0.5
+      0.460983,
+      0.6
     ],
     "bird-occurrence": [
-      0.591188,
+      0.633601,
       0.9
     ],
     "chest-xray": [
-      0.842691,
-      0.8
+      0.797013,
+      0.9
     ],
     "climate-temperature": [
       0.843985,
       0.9
     ],
     "co2-per-country": [
-      0.601626,
+      0.516278,
       0.9
     ],
     "consumer-price-index": [
@@ -56,8 +56,8 @@
       0.8
     ],
     "county-population": [
-      0.356207,
-      0.1
+      0.0,
+      0.0
     ],
     "covid-admissions": [
       1.0,
@@ -67,18 +67,18 @@
       1.0
     ],
     "eeg-motor-imagery": [
-      1.0,
+      0.947734,
       1.0
     ],
     "era5": [
-      0.090909
+      0.083333
     ],
     "ersst": [
       1.0
     ],
     "euro-dollar": [
-      0.683403,
-      0.8
+      0.634808,
+      0.9
     ],
     "european-social-survey": [
       1.0
@@ -95,18 +95,18 @@
       0.9
     ],
     "germany-rainfall": [
-      0.76687,
+      0.781361,
       0.9
     ],
     "github-issues": [
-      0.901796,
-      0.4
+      0.951662,
+      1.0
     ],
     "higgs-challenge": [
       1.0
     ],
     "household-electricity": [
-      0.671647,
+      0.660284,
       0.7
     ],
     "household-income": [
@@ -114,11 +114,11 @@
       0.9
     ],
     "image-classification": [
-      0.904803,
+      0.856411,
       1.0
     ],
     "inflation-by-country": [
-      0.1763,
+      0.179477,
       0.2
     ],
     "iris": [
@@ -138,7 +138,7 @@
       0.25
     ],
     "nyc-311": [
-      0.055556
+      0.05
     ],
     "penn-world-table": [
       1.0
@@ -152,26 +152,26 @@
       0.9
     ],
     "single-cell-lung": [
-      0.891332,
+      0.936379,
       0.9
     ],
     "skin-lesions": [
-      0.343183,
-      0.4
+      0.579553,
+      0.6
     ],
     "source-code": [
-      0.308554,
+      0.186831,
       0.2
     ],
     "squad": [
-      0.166667
+      0.2
     ],
     "sst-monthly": [
       0.62365,
       0.8
     ],
     "stock-prices": [
-      0.67435,
+      0.645748,
       0.8
     ],
     "tabula-sapiens": [
@@ -182,12 +182,12 @@
       0.7
     ],
     "trust-in-government": [
-      0.272894,
-      0.6
+      0.37215,
+      0.8
     ],
     "unemployment-rate": [
-      0.62583,
-      0.8
+      0.603746,
+      0.7
     ],
     "wolf-sightings": [
       0.554473,
