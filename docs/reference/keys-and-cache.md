@@ -37,7 +37,7 @@ Every request carries the repository URL and the contact address `user@dataseek.
 | outage marks | 10 minutes | sources skipped after an outage unless named with `--source` |
 | warming marks | 10 minutes | catalogs a search already set downloading in the background |
 
-The cache directory is trimmed to 30 MB and 2,000 files after every search, oldest first. `DATASEEK_CACHE_MAX_MB` sets another size budget, in whole megabytes from 1 to 10,000; a larger one keeps more downloaded catalogs between searches, a smaller one fetches them again sooner. A value outside that range is a usage error (exit 2). `--cache-dir DIR` or `DATASEEK_CACHE_DIR` moves the directory.
+The cache directory is trimmed to 30 MB and 2,000 files after every search, oldest first, catalogs last: a search writes about 70 query files, so oldest-first alone would evict every catalog within some 30 searches. `DATASEEK_CACHE_MAX_MB` sets another size budget, in whole megabytes from 1 to 10,000; a larger one keeps more downloaded catalogs between searches, a smaller one fetches them again sooner. A value outside that range is a usage error (exit 2). `--cache-dir DIR` or `DATASEEK_CACHE_DIR` moves the directory.
 
 ```sh
 dataseek cache info                 # path, size and budget

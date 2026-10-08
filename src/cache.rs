@@ -6,7 +6,8 @@
 //! served without a request; expired ones are kept as a fallback for when the
 //! source is down. The whole directory stays under [`budget_bytes`] and
 //! [`BUDGET_FILES`]: [`Cache::trim`] evicts the least recently written
-//! entries first and runs once at the end of every search, never per write.
+//! entries first, catalogs only once no other entry is left to evict, and
+//! runs once at the end of every search, never per write.
 //! Everything here is best effort: a cache that cannot be read or written
 //! degrades to fetching, it never fails a search.
 
@@ -268,15 +269,21 @@ impl Cache {
     fn files(&self) -> Vec<CachedFile> {
         Kind::ALL
             .iter()
-            .filter_map(|kind| {
-                std::fs::read_dir(self.root.join(kind.dir())).ok()
+            .filter_map(|&kind| {
+                let entries = std::fs::read_dir(self.root.join(kind.dir()));
+                Some(
+                    entries
+                        .ok()?
+                        .filter_map(Result::ok)
+                        .map(move |e| (kind, e)),
+                )
             })
             .flatten()
-            .filter_map(Result::ok)
-            .filter_map(|entry| {
+            .filter_map(|(kind, entry)| {
                 let meta = entry.metadata().ok()?;
                 meta.is_file().then(|| CachedFile {
                     path: entry.path(),
+                    kind,
                     bytes: meta.len(),
                     modified: meta.modified().unwrap_or(UNIX_EPOCH),
                 })
@@ -287,6 +294,7 @@ impl Cache {
 
 struct CachedFile {
     path: PathBuf,
+    kind: Kind,
     bytes: u64,
     modified: SystemTime,
 }
@@ -296,7 +304,10 @@ fn trim_files(
     max_bytes: u64,
     max_files: usize,
 ) -> Usage {
-    files.sort_by_key(|f| f.modified);
+    // A search writes one query file per source, about 70, and a catalog is
+    // written once a week, so oldest-first alone evicted every catalog after
+    // some 30 searches, and the slowest take half a minute to download again.
+    files.sort_by_key(|f| (f.kind == Kind::Catalog, f.modified));
     let mut bytes: u64 = files.iter().map(|f| f.bytes).sum();
     let mut count = files.len();
     for file in &files {
@@ -416,6 +427,7 @@ mod tests {
             std::fs::write(&path, vec![b'x'; 100]).unwrap();
             files.push(CachedFile {
                 path,
+                kind: Kind::Query,
                 bytes: 100,
                 modified: UNIX_EPOCH + Duration::from_secs(1000 - age),
             });
@@ -424,6 +436,29 @@ mod tests {
         assert_eq!(usage.files, 2);
         assert!(!dir.path().join("0.json").exists(), "oldest survived");
         assert!(dir.path().join("2.json").exists(), "newest evicted");
+    }
+
+    #[test]
+    fn trimming_evicts_newer_queries_before_an_older_catalog() {
+        let dir = tempfile::tempdir().unwrap();
+        let file = |name: &str, kind: Kind, age: u64| {
+            let path = dir.path().join(name);
+            std::fs::write(&path, vec![b'x'; 100]).unwrap();
+            CachedFile {
+                path,
+                kind,
+                bytes: 100,
+                modified: UNIX_EPOCH + Duration::from_secs(1000 - age),
+            }
+        };
+        let files = vec![
+            file("catalog.json", Kind::Catalog, 50),
+            file("query-old.json", Kind::Query, 20),
+            file("query-new.json", Kind::Query, 10),
+        ];
+        let usage = trim_files(files, 100, 10);
+        assert_eq!(usage.files, 1);
+        assert!(dir.path().join("catalog.json").exists(), "catalog evicted");
     }
 
     #[test]
