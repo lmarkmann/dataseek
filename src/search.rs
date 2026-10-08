@@ -2,6 +2,12 @@
 //! independently walks the same states, so one slow or broken source can
 //! cost time but never results.
 //!
+//! A catalog with no copy on disk downloads during the search, and some take
+//! longer than the deadline (OpenNeuro pages its list 100 at a time, about 40
+//! seconds in all). With a deadline set, the loop stops waiting for those once
+//! every other source has answered; the caller finishes them in the
+//! background.
+//!
 //! Per source, in order: skipped when a required key is missing; skipped for
 //! a few minutes after an outage unless the user named it; served from the
 //! query cache when fresh (unless `--refresh`); otherwise fetched. A fetch
@@ -37,6 +43,8 @@ pub enum Status {
     Cached,
     /// The fetch failed; an expired cache entry was served instead.
     Stale(SourceError),
+    /// An expired catalog was searched; it wants downloading again.
+    Expired,
     Failed(SourceError),
     NeedsKey(Key),
     /// Skipped because the source had an outage this long ago.
@@ -47,7 +55,10 @@ pub enum Status {
 
 impl Status {
     pub fn answered(&self) -> bool {
-        matches!(self, Self::Fetched | Self::Cached | Self::Stale(_))
+        matches!(
+            self,
+            Self::Fetched | Self::Cached | Self::Stale(_) | Self::Expired
+        )
     }
 
     pub fn attempted(&self) -> bool {
@@ -59,6 +70,7 @@ impl Status {
             Self::Fetched => "ok".to_owned(),
             Self::Cached => "cached".to_owned(),
             Self::Stale(e) => format!("stale cache ({e})"),
+            Self::Expired => "expired catalog".to_owned(),
             Self::Failed(e) => e.to_string(),
             Self::NeedsKey(key) => format!("needs ${}", key.env_var()),
             Self::Resting(ago) => {
@@ -86,6 +98,13 @@ pub fn run(
     deadline: Option<Duration>,
 ) -> Vec<Outcome> {
     let started = Instant::now();
+    let first_download: Vec<bool> = plan
+        .sources
+        .iter()
+        .map(|s| s.is_catalog() && !services.cache.has(Kind::Catalog, s.id))
+        .collect();
+    let mut others = first_download.iter().filter(|&&first| !first).count();
+    let waits_for_downloads = deadline.is_none() || others == 0;
     let (sender, receiver) = mpsc::channel();
     for (index, &source) in plan.sources.iter().enumerate() {
         let (services, plan, progress, sender) = (
@@ -107,8 +126,12 @@ pub fn run(
     let mut slots: Vec<Option<Outcome>> =
         plan.sources.iter().map(|_| None).collect();
     let mut waiting = plan.sources.len();
-    let mut deadline_passed = false;
+    let mut gave_up = false;
     while waiting > 0 {
+        if others == 0 && !waits_for_downloads {
+            gave_up = true;
+            break;
+        }
         let next = match deadline {
             None => {
                 receiver.recv().map_err(|_| RecvTimeoutError::Disconnected)
@@ -123,10 +146,13 @@ pub fn run(
                 if let Some(slot) = slots.get_mut(index) {
                     *slot = Some(outcome);
                     waiting = waiting.saturating_sub(1);
+                    if first_download.get(index) == Some(&false) {
+                        others = others.saturating_sub(1);
+                    }
                 }
             }
             Err(RecvTimeoutError::Timeout) => {
-                deadline_passed = true;
+                gave_up = true;
                 break;
             }
             Err(RecvTimeoutError::Disconnected) => break,
@@ -138,7 +164,7 @@ pub fn run(
         .map(|(slot, &source)| {
             slot.unwrap_or_else(|| Outcome {
                 source,
-                status: if deadline_passed {
+                status: if gave_up {
                     Status::Running(started.elapsed())
                 } else {
                     Status::Failed(SourceError::shape("the adapter crashed"))
@@ -182,10 +208,10 @@ fn one(ctx: &Ctx<'_>, plan: &Plan, source: &'static Source) -> Outcome {
     }
 
     match source.search(ctx, &plan.query, plan.per_source) {
-        Ok(Answer { datasets, stale: Some(error) }) => {
-            done(Status::Stale(error), datasets)
+        Ok(Answer { datasets, expired: true }) => {
+            done(Status::Expired, datasets)
         }
-        Ok(Answer { datasets, stale: None }) => {
+        Ok(Answer { datasets, expired: false }) => {
             if !http::is_offline() {
                 ctx.cache.clear_outage(source.id);
             }
@@ -234,6 +260,12 @@ mod tests {
         Err(SourceError::Timeout)
     }
 
+    #[expect(clippy::unnecessary_wraps, reason = "the Listing signature")]
+    fn list_hangs(_: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
+        std::thread::sleep(Duration::from_secs(5));
+        Ok(found())
+    }
+
     #[expect(
         clippy::panic_in_result_fn,
         reason = "being called at all is the failure"
@@ -277,6 +309,10 @@ mod tests {
     static CATALOG_DOWN: Source = Source {
         adapter: Adapter::Catalog(list_times_out),
         ..fake("catalog-down", answers)
+    };
+    static CATALOG_HANGS: Source = Source {
+        adapter: Adapter::Catalog(list_hangs),
+        ..fake("catalog-hangs", answers)
     };
 
     fn plan(source: &'static Source, forced: bool) -> Plan {
@@ -391,17 +427,18 @@ mod tests {
     }
 
     #[test]
-    fn a_catalog_searched_from_an_expired_copy_reports_stale() {
+    fn a_catalog_searched_from_an_expired_copy_reports_expired() {
         let dir = tempfile::tempdir().unwrap();
         let services = Services::scratch(dir.path());
         let ctx = services.ctx(false);
         ctx.cache.store_expired(Kind::Catalog, CATALOG_DOWN.id, &found());
         let outcome = one(&ctx, &plan(&CATALOG_DOWN, true), &CATALOG_DOWN);
         assert!(
-            matches!(outcome.status, Status::Stale(SourceError::Timeout)),
+            matches!(outcome.status, Status::Expired),
             "{:?}",
             outcome.status
         );
+        assert!(outcome.status.answered());
         assert_eq!(outcome.datasets, found());
     }
 
@@ -442,6 +479,30 @@ mod tests {
             "returned an unexpected shape: the adapter crashed"
         );
         assert!(!outcome.status.answered());
+    }
+
+    #[test]
+    fn a_first_catalog_download_is_not_waited_for_once_the_rest_answered() {
+        let dir = tempfile::tempdir().unwrap();
+        let services = Arc::new(Services::scratch(dir.path()));
+        let plan = Arc::new(Plan {
+            sources: vec![&ANSWERS, &CATALOG_HANGS],
+            ..plan(&ANSWERS, true)
+        });
+        let started = Instant::now();
+        let outcomes = run(
+            &services,
+            false,
+            &plan,
+            &ProgressBar::hidden(),
+            Some(Duration::from_secs(20)),
+        );
+        assert!(started.elapsed() < Duration::from_secs(4));
+        let statuses: Vec<_> = outcomes.iter().map(|o| &o.status).collect();
+        assert!(
+            matches!(statuses[..], [Status::Fetched, Status::Running(_)]),
+            "{statuses:?}"
+        );
     }
 
     #[test]

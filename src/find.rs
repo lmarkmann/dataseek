@@ -17,6 +17,7 @@ use anyhow::Result;
 use clap::builder::styling::Style;
 use serde::Serialize;
 
+use crate::cache::Cache;
 use crate::cli::{Selection, Sort};
 use crate::dedup::{Hit, merge, weigh};
 use crate::http::SourceError;
@@ -40,6 +41,10 @@ pub enum Error {
         "no source's certificate could be verified, so none answered\n  Try:   {0}"
     )]
     Certificate(String),
+    #[error(
+        "no source answered before the deadline\n  Try:   search again in a minute, or add --timeout 0 to wait for every source"
+    )]
+    Unanswered,
     #[error(
         "nothing cached answers this query\n  Try:   run it once without --offline, or `dataseek cache warm` while online"
     )]
@@ -121,6 +126,7 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         timeout.map(Duration::from_secs),
     );
     progress.finish_and_clear();
+    let renewing = renew(&services.cache, &outcomes);
     services.cache.trim();
 
     notes(out, &outcomes);
@@ -132,7 +138,7 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         );
     }
     if !outcomes.iter().any(|o| o.status.answered()) {
-        warn_failures(&outcomes);
+        warn_failures(&outcomes, renewing);
         return Err(failure(&outcomes, offline).into());
     }
 
@@ -141,8 +147,22 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
     let found = hits.len();
     hits.truncate(limit);
     print(out, &query, &hits, sources)?;
-    summarize(&query, hits.len(), found, &outcomes);
+    summarize(&query, hits.len(), found, &outcomes, renewing);
     Ok(())
+}
+
+/// Download again, in the background, the catalogs this search searched
+/// expired or stopped waiting for. Whether that download is under way.
+fn renew(cache: &Cache, outcomes: &[Outcome]) -> bool {
+    let ids: Vec<&str> = outcomes
+        .iter()
+        .filter(|o| o.source.is_catalog())
+        .filter(|o| matches!(o.status, Status::Running(_) | Status::Expired))
+        .map(|o| o.source.id)
+        .collect();
+    !ids.is_empty()
+        && !crate::http::is_offline()
+        && crate::cache_cmd::warm_in_background(cache, &ids)
 }
 
 /// Every source's results, moved out of their outcomes, merged and ordered.
@@ -168,6 +188,8 @@ fn failure(outcomes: &[Outcome], offline: bool) -> Error {
         || outcomes.iter().filter(|o| o.status.attempted()).map(|o| &o.status);
     if offline {
         Error::NothingCached
+    } else if failed().all(|s| matches!(s, Status::Running(_))) {
+        Error::Unanswered
     } else if failed()
         .all(|s| matches!(s, Status::Failed(SourceError::Unreachable(_))))
     {
@@ -196,7 +218,7 @@ fn notes(out: &Out, outcomes: &[Outcome]) {
 
 /// Sources that did not answer, and catalogs still downloading. Sources
 /// skipped by `--offline` are counted, not listed: there would be dozens.
-fn warn_failures(outcomes: &[Outcome]) {
+fn warn_failures(outcomes: &[Outcome], renewing: bool) {
     let downloading = |o: &&Outcome| {
         o.source.is_catalog() && matches!(o.status, Status::Running(_))
     };
@@ -223,26 +245,43 @@ fn warn_failures(outcomes: &[Outcome]) {
     let catalogs: Vec<&str> =
         outcomes.iter().filter(downloading).map(|o| o.source.id).collect();
     if !catalogs.is_empty() {
-        ui::warn(still_downloading(&catalogs));
+        ui::warn(still_downloading(&catalogs, renewing));
     }
 }
 
-fn still_downloading(ids: &[&str]) -> String {
+fn still_downloading(ids: &[&str], renewing: bool) -> String {
     let (verb, whose, them) = if ids.len() == 1 {
         ("was", "its catalog", "it")
     } else {
         ("were", "their catalogs", "them")
     };
-    format!(
-        "{} {verb} still downloading {whose}; `dataseek cache warm` fetches {them} once",
+    let next = if renewing {
+        "the download goes on in the background for the next search".to_owned()
+    } else {
+        format!("`dataseek cache warm` fetches {them} once")
+    };
+    let who = if ids.len() > NAMED_DOWNLOADS {
+        ui::count(ids.len(), "source")
+    } else {
         ids.join(", ")
-    )
+    };
+    format!("{who} {verb} still downloading {whose}; {next}")
 }
+
+/// Past this many, the downloading line counts the sources instead of
+/// naming them; a first search can leave ten, and `-v` names each.
+const NAMED_DOWNLOADS: usize = 3;
 
 /// The closing lines on stderr, after the results: what failed, then one
 /// line on how it went and how to see more.
-fn summarize(query: &str, shown: usize, found: usize, outcomes: &[Outcome]) {
-    warn_failures(outcomes);
+fn summarize(
+    query: &str,
+    shown: usize,
+    found: usize,
+    outcomes: &[Outcome],
+    renewing: bool,
+) {
+    warn_failures(outcomes, renewing);
     let answered = outcomes.iter().filter(|o| o.status.answered()).count();
     let attempted = outcomes.iter().filter(|o| o.status.attempted()).count();
     let sources =
@@ -396,12 +435,19 @@ mod tests {
     #[test]
     fn the_downloading_warning_agrees_with_its_count() {
         assert!(
-            still_downloading(&["openneuro"])
+            still_downloading(&["openneuro"], false)
                 .starts_with("openneuro was still downloading its catalog;")
         );
-        assert!(still_downloading(&["openneuro", "physionet"]).starts_with(
-            "openneuro, physionet were still downloading their catalogs;"
-        ));
+        assert!(
+            still_downloading(&["openneuro", "physionet"], true).starts_with(
+                "openneuro, physionet were still downloading their catalogs;"
+            )
+        );
+        assert!(
+            still_downloading(&["a", "b", "c", "d"], true).starts_with(
+                "4 sources were still downloading their catalogs;"
+            )
+        );
     }
 
     fn failed_with(errors: Vec<SourceError>) -> Vec<Outcome> {

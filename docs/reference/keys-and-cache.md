@@ -35,12 +35,14 @@ Every request carries the repository URL and the contact address `user@dataseek.
 | query results | 6 hours | one file per source and query; never for Kaggle |
 | catalogs | 7 days | the full lists of the `local` sources |
 | outage marks | 10 minutes | sources skipped after an outage unless named with `--source` |
+| warming marks | 10 minutes | catalogs a search already set downloading in the background |
 
 The cache directory is trimmed to 30 MB and 2,000 files after every search, oldest first. `DATASEEK_CACHE_MAX_MB` sets another size budget, in whole megabytes from 1 to 10,000; a larger one keeps more downloaded catalogs between searches, a smaller one fetches them again sooner. A value outside that range is a usage error (exit 2). `--cache-dir DIR` or `DATASEEK_CACHE_DIR` moves the directory.
 
 ```sh
 dataseek cache info                 # path, size and budget
 dataseek cache warm                 # download every catalog now, no deadline
+dataseek cache warm -s openneuro    # only the named catalogs
 dataseek cache clear --dry-run      # what clearing would delete
 dataseek cache clear                # delete every entry; other files in the directory stay
 dataseek search ... --refresh       # ask every live source again
@@ -48,4 +50,6 @@ dataseek search ... --offline       # cached answers and catalogs only, no netwo
 dataseek search ... --timeout 0     # wait for every source, however slow
 ```
 
-A fetch that fails serves the expired entry when one exists; `-v` and `--json` label an answer served that way as stale, a catalog searched from an expired copy included. An entry written by another release counts as expired, because that release may have parsed the source differently: it is refetched when online and still served when the fetch fails. `--offline` sends no request at all, so it never marks a source as down or clears that mark. A host that misses a `--connect-timeout` you set is not marked as down either: that limit is your choice, and the source is asked again on the next search. Why the numbers are what they are: [ADR 0007](../adr/0007-cache-budget-and-failure-handling.md).
+A fetch that fails serves the expired entry when one exists; `-v` and `--json` label an answer served that way as stale. An entry written by another release counts as expired, because that release may have parsed the source differently: it is refetched when online and still served when the fetch fails.
+
+A search never waits for a catalog download it can do without ([ADR 0018](../adr/0018-a-search-never-waits-for-a-catalog-download.md)). An expired catalog is searched as it is, labeled `expired catalog`, and downloaded again in the background. A catalog with no copy yet downloads during the search until every other source has answered; if it is not done by then, the search reports it as still downloading and the download carries on in a detached `dataseek cache warm --source <ids>` that outlives the search, so the next search has it. `--timeout 0` waits for every download, and `--offline` starts none. `--offline` sends no request at all, so it never marks a source as down or clears that mark. A host that misses a `--connect-timeout` you set is not marked as down either: that limit is your choice, and the source is asked again on the next search. Why the numbers are what they are: [ADR 0007](../adr/0007-cache-budget-and-failure-handling.md).

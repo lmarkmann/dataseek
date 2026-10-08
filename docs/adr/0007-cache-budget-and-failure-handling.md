@@ -1,6 +1,6 @@
 # ADR 0007: A 30 MB cache, a search deadline, and sources that fail alone
 
-- Status: accepted
+- Status: amended by [ADR 0018](0018-a-search-never-waits-for-a-catalog-download.md) (catalog downloads)
 - Date: 2026-10-06
 
 ## Context

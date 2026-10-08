@@ -178,6 +178,15 @@ fn source_ids() -> PossibleValuesParser {
     PossibleValuesParser::new(crate::sources::SOURCES.iter().map(|s| s.id))
 }
 
+fn catalog_ids() -> PossibleValuesParser {
+    PossibleValuesParser::new(
+        crate::sources::SOURCES
+            .iter()
+            .filter(|s| s.is_catalog())
+            .map(|s| s.id),
+    )
+}
+
 /// The command every surface builds from: parsing, help, the man page,
 /// completions and `help --json`. A flag with a fixed set of values names
 /// them in its own help, so clap's `[possible values: ...]` would repeat
@@ -362,12 +371,23 @@ pub enum Command {
     },
 }
 
-#[derive(Subcommand, Clone, Copy)]
+#[derive(Subcommand, Clone)]
 pub enum CacheAction {
     /// Where the cache lives, how full it is, and its budget.
     Info,
     /// Download every catalog-searched source's list now.
     Warm {
+        /// Only these catalogs, comma-separated.
+        #[arg(
+            short = 's',
+            long = "source",
+            value_name = "IDS",
+            value_delimiter = ',',
+            value_parser = catalog_ids(),
+            hide_possible_values = true
+        )]
+        only: Vec<String>,
+
         /// List the catalogs that would be downloaded, and download none.
         #[arg(long)]
         dry_run: bool,

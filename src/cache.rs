@@ -70,20 +70,28 @@ pub const QUERY_TTL: Duration = Duration::from_hours(6);
 pub const CATALOG_TTL: Duration = Duration::from_hours(7 * 24);
 /// How long a source that just had an outage is skipped.
 pub const OUTAGE_TTL: Duration = Duration::from_mins(10);
+/// How long a catalog download started in the background keeps later
+/// searches from starting the same one.
+pub const WARMING_TTL: Duration = Duration::from_mins(10);
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Kind {
     Query,
     Catalog,
     Outage,
+    Warming,
 }
 
 impl Kind {
+    const ALL: [Self; 4] =
+        [Self::Query, Self::Catalog, Self::Outage, Self::Warming];
+
     fn dir(self) -> &'static str {
         match self {
             Self::Query => "queries",
             Self::Catalog => "catalogs",
             Self::Outage => "outages",
+            Self::Warming => "warming",
         }
     }
 }
@@ -194,10 +202,35 @@ impl Cache {
 
     /// How long ago the source last had an outage, if within [`OUTAGE_TTL`].
     pub fn recent_outage(&self, source: &str) -> Option<Duration> {
-        let bytes = std::fs::read(self.path(Kind::Outage, source)).ok()?;
+        self.marked(Kind::Outage, source, OUTAGE_TTL)
+    }
+
+    pub fn mark_warming(&self, source: &str) {
+        self.store(Kind::Warming, source, &());
+    }
+
+    /// Whether a background download of the source's catalog started
+    /// within [`WARMING_TTL`].
+    pub fn warming(&self, source: &str) -> bool {
+        self.marked(Kind::Warming, source, WARMING_TTL).is_some()
+    }
+
+    fn marked(
+        &self,
+        kind: Kind,
+        key: &str,
+        ttl: Duration,
+    ) -> Option<Duration> {
+        let bytes = std::fs::read(self.path(kind, key)).ok()?;
         let entry: Entry<()> = serde_json::from_slice(&bytes).ok()?;
         let age = now().saturating_sub(entry.stored);
-        (age < OUTAGE_TTL.as_secs()).then(|| Duration::from_secs(age))
+        (age < ttl.as_secs()).then(|| Duration::from_secs(age))
+    }
+
+    /// Whether any copy of the entry is on disk, fresh or not, without
+    /// reading it.
+    pub fn has(&self, kind: Kind, key: &str) -> bool {
+        self.path(kind, key).is_file()
     }
 
     pub fn clear_outage(&self, source: &str) {
@@ -220,7 +253,7 @@ impl Cache {
     /// Remove the entries, never the root: `--cache-dir` can point at a
     /// directory that holds other files. The root goes only once empty.
     pub fn clear(&self) -> std::io::Result<()> {
-        for kind in [Kind::Query, Kind::Catalog, Kind::Outage] {
+        for kind in Kind::ALL {
             match std::fs::remove_dir_all(self.root.join(kind.dir())) {
                 Err(e) if e.kind() != std::io::ErrorKind::NotFound => {
                     return Err(e);
@@ -233,7 +266,7 @@ impl Cache {
     }
 
     fn files(&self) -> Vec<CachedFile> {
-        [Kind::Query, Kind::Catalog, Kind::Outage]
+        Kind::ALL
             .iter()
             .filter_map(|kind| {
                 std::fs::read_dir(self.root.join(kind.dir())).ok()
