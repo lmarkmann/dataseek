@@ -216,8 +216,9 @@ fn notes(out: &Out, outcomes: &[Outcome]) {
     }
 }
 
-/// Sources that did not answer, and catalogs still downloading. Sources
-/// skipped by `--offline` are counted, not listed: there would be dozens.
+/// Sources that failed, and catalogs still downloading. Sources skipped by
+/// `--offline` are counted, not listed: there would be dozens. Live sources
+/// still running are not failures; the summary names them.
 fn warn_failures(outcomes: &[Outcome], renewing: bool) {
     let downloading = |o: &&Outcome| {
         o.source.is_catalog() && matches!(o.status, Status::Running(_))
@@ -226,7 +227,7 @@ fn warn_failures(outcomes: &[Outcome], renewing: bool) {
         .iter()
         .filter(|o| o.status.attempted() && !o.status.answered())
         .filter(|o| !matches!(o.status, Status::Failed(SourceError::Offline)))
-        .filter(|o| !downloading(o))
+        .filter(|o| !matches!(o.status, Status::Running(_)))
         .map(|o| format!("{} ({})", o.source.id, o.status.label()))
         .collect();
     if !failed.is_empty() {
@@ -260,17 +261,20 @@ fn still_downloading(ids: &[&str], renewing: bool) -> String {
     } else {
         format!("`dataseek cache warm` fetches {them} once")
     };
-    let who = if ids.len() > NAMED_DOWNLOADS {
+    format!("{} {verb} still downloading {whose}; {next}", named(ids))
+}
+
+/// The ids, or past [`NAMED`] of them, their count; a first search can leave
+/// ten catalogs downloading, and `-v` names each.
+fn named(ids: &[&str]) -> String {
+    if ids.len() > NAMED {
         ui::count(ids.len(), "source")
     } else {
         ids.join(", ")
-    };
-    format!("{who} {verb} still downloading {whose}; {next}")
+    }
 }
 
-/// Past this many, the downloading line counts the sources instead of
-/// naming them; a first search can leave ten, and `-v` names each.
-const NAMED_DOWNLOADS: usize = 3;
+const NAMED: usize = 3;
 
 /// The closing lines on stderr, after the results: what failed, then one
 /// line on how it went and how to see more.
@@ -284,8 +288,21 @@ fn summarize(
     warn_failures(outcomes, renewing);
     let answered = outcomes.iter().filter(|o| o.status.answered()).count();
     let attempted = outcomes.iter().filter(|o| o.status.attempted()).count();
-    let sources =
-        format!("{answered} of {} answered", ui::count(attempted, "source"));
+    let running: Vec<&str> = outcomes
+        .iter()
+        .filter(|o| !o.source.is_catalog())
+        .filter(|o| matches!(o.status, Status::Running(_)))
+        .map(|o| o.source.id)
+        .collect();
+    let still = if running.is_empty() {
+        String::new()
+    } else {
+        format!(", {} still running", named(&running))
+    };
+    let sources = format!(
+        "{answered} of {} answered{still}",
+        ui::count(attempted, "source")
+    );
     if found == 0 {
         ui::warn(format!("no datasets matched \"{query}\"; {sources}"));
     } else if shown < found {

@@ -8,6 +8,11 @@
 //! every other source has answered; the caller finishes them in the
 //! background.
 //!
+//! Most sources answer within two seconds and one or two take five to
+//! fifteen, a different one each time. With a deadline set and no source
+//! named, once [`QUORUM_PERCENT`] of the asked sources have finished, the
+//! loop waits at most [`GRACE`] longer for the rest (ADR 0019).
+//!
 //! Per source, in order: skipped when a required key is missing; skipped for
 //! a few minutes after an outage unless the user named it; served from the
 //! query cache when fresh (unless `--refresh`); otherwise fetched. A fetch
@@ -31,6 +36,12 @@ use crate::credentials::Key;
 use crate::http::{self, SourceError};
 use crate::record::Dataset;
 use crate::sources::{Answer, Ctx, Services, Source};
+
+/// The share of the asked sources, in percent, after which the stragglers
+/// get only [`GRACE`].
+const QUORUM_PERCENT: usize = 90;
+/// How long past the quorum the loop waits for the sources still working.
+const GRACE: Duration = Duration::from_millis(1000);
 
 pub struct Plan {
     pub query: String,
@@ -109,6 +120,11 @@ pub fn run(
         .collect();
     let mut others = first_download.iter().filter(|&&first| !first).count();
     let waits_for_downloads = deadline.is_none() || others == 0;
+    let mut asked = plan.sources.len();
+    let mut finished: usize = 0;
+    let mut quorum_applies = deadline.is_some() && !plan.forced;
+    // Measured from `started`, like the deadline, which it only shortens.
+    let mut stop = deadline;
     let (sender, receiver) = mpsc::channel();
     for (index, &source) in plan.sources.iter().enumerate() {
         let (services, plan, progress, sender) = (
@@ -136,7 +152,7 @@ pub fn run(
             gave_up = true;
             break;
         }
-        let next = match deadline {
+        let next = match stop {
             None => {
                 receiver.recv().map_err(|_| RecvTimeoutError::Disconnected)
             }
@@ -147,6 +163,16 @@ pub fn run(
         };
         match next {
             Ok((index, outcome)) => {
+                if outcome.status.attempted() {
+                    finished = finished.saturating_add(1);
+                } else {
+                    asked = asked.saturating_sub(1);
+                }
+                if quorum_applies && finished >= quorum(asked) {
+                    quorum_applies = false;
+                    let grace = started.elapsed().saturating_add(GRACE);
+                    stop = stop.map(|limit| limit.min(grace));
+                }
                 if let Some(slot) = slots.get_mut(index) {
                     *slot = Some(outcome);
                     waiting = waiting.saturating_sub(1);
@@ -179,6 +205,12 @@ pub fn run(
             })
         })
         .collect()
+}
+
+/// How many of `asked` sources finishing make the quorum, rounded up, so a
+/// search of a handful of sources waits for all of them.
+const fn quorum(asked: usize) -> usize {
+    asked.saturating_mul(QUORUM_PERCENT).div_ceil(100)
 }
 
 fn one(ctx: &Ctx<'_>, plan: &Plan, source: &'static Source) -> Outcome {
@@ -282,6 +314,12 @@ mod tests {
     }
 
     #[expect(clippy::unnecessary_wraps, reason = "the Live signature")]
+    fn outlasts_the_grace(_: &Ctx<'_>, _: &str, _: usize) -> Answer {
+        std::thread::sleep(GRACE.saturating_add(Duration::from_millis(300)));
+        Ok(found())
+    }
+
+    #[expect(clippy::unnecessary_wraps, reason = "the Live signature")]
     fn hangs(_: &Ctx<'_>, _: &str, _: usize) -> Answer {
         std::thread::sleep(Duration::from_secs(5));
         Ok(Vec::new())
@@ -313,6 +351,7 @@ mod tests {
     static UNPERSISTED: Source =
         Source { persist: false, ..fake("unpersisted", answers) };
     static HANGS: Source = fake("hangs", hangs);
+    static SLOW: Source = fake("slow", outlasts_the_grace);
     static CATALOG_DOWN: Source = Source {
         adapter: Adapter::Catalog(list_times_out),
         ..fake("catalog-down", answers)
@@ -510,6 +549,52 @@ mod tests {
             matches!(statuses[..], [Status::Fetched, Status::Running(_)]),
             "{statuses:?}"
         );
+    }
+
+    fn ten(last: &'static Source, forced: bool) -> (Vec<Outcome>, Duration) {
+        let dir = tempfile::tempdir().unwrap();
+        let services = Arc::new(Services::scratch(dir.path()));
+        let mut sources = vec![&ANSWERS; 9];
+        sources.push(last);
+        let plan = Arc::new(Plan { sources, ..plan(&ANSWERS, forced) });
+        let started = Instant::now();
+        let outcomes = run(
+            &services,
+            false,
+            &plan,
+            &ProgressBar::hidden(),
+            Some(Duration::from_secs(20)),
+        );
+        (outcomes, started.elapsed())
+    }
+
+    #[test]
+    fn past_the_quorum_a_straggler_gets_only_the_grace() {
+        let (outcomes, took) = ten(&HANGS, false);
+        assert!(
+            took < GRACE.saturating_add(Duration::from_secs(2)),
+            "{took:?}"
+        );
+        assert!(outcomes.iter().take(9).all(|o| o.status.answered()));
+        assert!(matches!(
+            outcomes.last().map(|o| &o.status),
+            Some(Status::Running(_))
+        ));
+    }
+
+    #[test]
+    fn named_sources_are_waited_for_past_the_grace() {
+        let (outcomes, took) = ten(&SLOW, true);
+        assert!(took > GRACE, "{took:?}");
+        assert!(outcomes.iter().all(|o| o.status.answered()));
+    }
+
+    #[test]
+    fn a_handful_of_sources_is_a_quorum_only_when_all_finish() {
+        assert_eq!(quorum(1), 1);
+        assert_eq!(quorum(5), 5);
+        assert_eq!(quorum(10), 9);
+        assert_eq!(quorum(71), 64);
     }
 
     #[test]
