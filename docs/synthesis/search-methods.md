@@ -1,6 +1,6 @@
 # Search methods across the sources
 
-dataseek asks every source for `--per-source` results (default 10, at most 100), so a page cap below that matters: Zenodo (25), Kaggle (20), CERN (10 a request), Roboflow (12) and Hugging Face's multi-word scan are paged until the count is met, and the others answer in one request.
+dataseek asks every source for `--per-source` results (default 10, at most 100), so a page cap below that matters: Zenodo (25), Kaggle (20), CERN (10 a request) and Roboflow (12) are paged until the count is met, Hugging Face asks once per anchor word of a multi-word query, and the others answer in one request.
 
 How each search interface takes a query, pages, ranks and limits, as found when the adapters were written (2026-10-06). The adapter for each row lives in `src/sources/`. What dataseek does with the differences is decided in ADRs 0005 to 0007 and 0013.
 
@@ -8,7 +8,7 @@ How each search interface takes a query, pages, ranks and limits, as found when 
 
 | interface | method and endpoint | query parameter | matching | ranking | documented page cap |
 |---|---|---|---|---|---|
-| Hugging Face Hub | GET `/api/datasets` | `search` | substring of the repo id only | `sort=downloads` (no relevance) | 1,000 (observed); `skip` offset or `Link` cursor |
+| Hugging Face Hub | GET `/api/datasets` | `search` | substring of the repo id only | `sort=downloads` (no relevance) | 1,000 (observed); `Link` cursor, as `skip` answers HTTP 400 from 4,000 |
 | Kaggle | GET `/api/v1/datasets/list` | `search` | title, subtitle, tags | Kaggle "hottest" by default | 20, fixed (observed); `page` reaches page 100 at least |
 | DataCite | GET `/dois` | `query` (Elasticsearch query string) | all metadata fields | `sort=relevance` (the API's default returns newest updated first) | 1,000 per page, 10,000 deep |
 | OpenAIRE Graph | GET `/graph/v3/research-products` | `search` | title, abstract, subjects | relevance | 100 per page, 10,000 deep; `cursor` beyond |
