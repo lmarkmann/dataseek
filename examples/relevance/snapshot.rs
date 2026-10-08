@@ -139,6 +139,9 @@ pub struct Retrieval {
     pub lists: Lists,
     /// How each source answered, in the same order.
     pub sources: Vec<Answered>,
+    /// The release that recorded the snapshot; splicing one source in
+    /// keeps it.
+    pub dataseek: String,
 }
 
 fn retrieval_path(id: &str) -> PathBuf {
@@ -210,7 +213,7 @@ fn parse_retrieval(
             ))
         })
         .collect::<Result<_>>()?;
-    Ok(Retrieval { lists, sources: header.sources })
+    Ok(Retrieval { lists, sources: header.sources, dataseek: header.dataseek })
 }
 
 /// How each source answered when `query` was last recorded; empty when it
@@ -223,10 +226,15 @@ pub fn recorded(query: &Query) -> Result<Vec<Answered>> {
     Ok(header(&text, &path)?.sources)
 }
 
-pub fn save(query: &Query, sources: &[Answered], lists: &Lists) -> Result<()> {
+pub fn save(
+    query: &Query,
+    dataseek: &str,
+    sources: &[Answered],
+    lists: &Lists,
+) -> Result<()> {
     let mut out = serde_json::to_string(&Header {
         query: query.text.clone(),
-        dataseek: env!("CARGO_PKG_VERSION").to_owned(),
+        dataseek: dataseek.to_owned(),
         sources: sources.to_vec(),
     })?;
     out.push('\n');
