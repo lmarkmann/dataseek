@@ -97,6 +97,10 @@ pub struct Answered {
     pub id: String,
     pub status: String,
     pub results: usize,
+    /// The release that recorded this source's list, when it was spliced
+    /// into a snapshot another release recorded.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub recorded_with: Option<String>,
 }
 
 impl Answered {
@@ -708,6 +712,7 @@ mod tests {
             id: "s".into(),
             status: status.label(),
             results: 0,
+            recorded_with: None,
         };
         let resting = Status::Resting(Duration::from_secs(5));
         let running = Status::Running(Duration::from_secs(5));

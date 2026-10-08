@@ -43,6 +43,7 @@ pub fn run(queries: &[Query], args: &[String]) -> Result<()> {
     };
     let mut err = std::io::stderr().lock();
     let mut kept = Vec::new();
+    let mut ready = Vec::new();
     for (i, query) in chosen.iter().enumerate() {
         let ask = |sources| {
             let plan = Arc::new(Plan {
@@ -70,11 +71,14 @@ pub fn run(queries: &[Query], args: &[String]) -> Result<()> {
                 }
             }
         }
-        kept.extend(if spliced.is_some() {
-            splice(query, &outcomes, accept_lost)?
+        if spliced.is_some() {
+            match splice(query, &outcomes, accept_lost)? {
+                Ok(retrieval) => ready.push((*query, retrieval)),
+                Err(lost) => kept.push(lost),
+            }
         } else {
-            store(query, &outcomes, accept_lost)?
-        });
+            kept.extend(store(query, &outcomes, accept_lost)?);
+        }
         let records: usize = outcomes.iter().map(|o| o.datasets.len()).sum();
         let ok = outcomes.iter().filter(|o| o.status.answered()).count();
         writeln!(
@@ -84,6 +88,20 @@ pub fn run(queries: &[Query], args: &[String]) -> Result<()> {
             chosen.len(),
             query.id,
             outcomes.len()
+        )?;
+    }
+    if !kept.is_empty() && spliced.is_some() {
+        bail!(
+            "sources that answered last time failed, so no snapshot was changed:\n  {}\n  Try:   re-record later, or pass --accept-lost to record the failures",
+            kept.join("\n  ")
+        );
+    }
+    for (query, retrieval) in &ready {
+        snapshot::save(
+            query,
+            &retrieval.dataseek,
+            &retrieval.sources,
+            &retrieval.lists,
         )?;
     }
     if !kept.is_empty() {
@@ -143,21 +161,23 @@ fn source_flag(
     Ok((Some(source), rest))
 }
 
-/// Replaces one source's list and status in the recorded snapshot of
-/// `query`, keeping every other source's; the same lost-source rule as
-/// [`store`] applies.
+/// The recorded snapshot of `query` with one source's list and status
+/// replaced, every other source's kept, ready to save; or, as [`store`]
+/// decides, the lost sources. Nothing is written here, so a run that stops
+/// partway leaves every snapshot as it was.
 fn splice(
     query: &Query,
     outcomes: &[Outcome],
     accept_lost: bool,
-) -> Result<Option<String>> {
+) -> Result<Result<snapshot::Retrieval, String>> {
     let (answered, lists) = freeze(outcomes);
     let mut recorded = snapshot::load(query)?;
     let gone = lost(&recorded.sources, &answered);
     if !gone.is_empty() && !accept_lost {
-        return Ok(Some(format!("{}: {}", query.id, gone.join(", "))));
+        return Ok(Err(format!("{}: {}", query.id, gone.join(", "))));
     }
-    for (status, (id, list)) in answered.into_iter().zip(lists) {
+    for (mut status, (id, list)) in answered.into_iter().zip(lists) {
+        status.recorded_with = Some(env!("CARGO_PKG_VERSION").to_owned());
         if let Some(i) =
             recorded.sources.iter().position(|s| s.id == status.id)
         {
@@ -172,13 +192,7 @@ fn splice(
             recorded.lists.push((id, list));
         }
     }
-    snapshot::save(
-        query,
-        &recorded.dataseek,
-        &recorded.sources,
-        &recorded.lists,
-    )?;
-    Ok(None)
+    Ok(Ok(recorded))
 }
 
 /// The queries named in `only`, or all of them; an unknown id is an error.
@@ -213,6 +227,7 @@ fn freeze(outcomes: &[Outcome]) -> (Vec<Answered>, Lists) {
             id: o.source.id.to_owned(),
             status: o.status.label(),
             results: o.datasets.len(),
+            recorded_with: None,
         })
         .collect();
     let lists = outcomes
@@ -232,7 +247,12 @@ mod tests {
     use crate::snapshot::{Half, Kind};
 
     fn answered(id: &str, status: &str) -> Answered {
-        Answered { id: id.into(), status: status.into(), results: 0 }
+        Answered {
+            id: id.into(),
+            status: status.into(),
+            results: 0,
+            recorded_with: None,
+        }
     }
 
     #[test]
