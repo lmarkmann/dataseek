@@ -57,7 +57,7 @@ pub mod internals {
     pub use crate::search::{Outcome, Plan, Status, run as search};
     pub use crate::sources::eurostat::parse as eurostat_toc;
     pub use crate::sources::sdmx::flows as sdmx_dataflows;
-    pub use crate::sources::{SOURCES, Services, select};
+    pub use crate::sources::{SOURCES, Services, Source, select};
 }
 
 use std::ffi::OsString;

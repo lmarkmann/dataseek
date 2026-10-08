@@ -1,12 +1,17 @@
 //! Recording the snapshot: every default source asked every query, live,
 //! the way `dataseek search` asks them, with no key and an empty cache.
+//! `--source <id>` asks that one source and splices its lists into the
+//! snapshot, so an adapter change is measured without every other source's
+//! lists moving too.
 
 use std::io::Write;
 use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::{Result, bail};
-use dataseek::internals::{Outcome, Plan, Services, search, select};
+use dataseek::internals::{
+    Outcome, Plan, SOURCES, Services, Source, search, select,
+};
 use indicatif::ProgressBar;
 
 use crate::snapshot::{self, Answered, Lists, Query};
@@ -23,14 +28,19 @@ const RETRY_AFTER: Duration = Duration::from_secs(5);
 /// the run fails at the end, unless `--accept-lost` is given.
 pub fn run(queries: &[Query], args: &[String]) -> Result<()> {
     let accept_lost = args.iter().any(|a| a == "--accept-lost");
+    let (spliced, args) = source_flag(args)?;
     let only: Vec<String> =
-        args.iter().filter(|a| *a != "--accept-lost").cloned().collect();
+        args.into_iter().filter(|a| a != "--accept-lost").collect();
     let chosen = pick(queries, &only)?;
     let scratch = tempfile::tempdir()?;
     let services = Arc::new(Services::scratch(scratch.path()));
     // Sources whose terms bar storing their results are never written down.
-    let sources: Vec<_> =
-        select(&[], &[], &[]).into_iter().filter(|s| s.persist).collect();
+    let sources: Vec<_> = match spliced {
+        Some(source) => vec![source],
+        None => {
+            select(&[], &[], &[]).into_iter().filter(|s| s.persist).collect()
+        }
+    };
     let mut err = std::io::stderr().lock();
     let mut kept = Vec::new();
     for (i, query) in chosen.iter().enumerate() {
@@ -60,7 +70,11 @@ pub fn run(queries: &[Query], args: &[String]) -> Result<()> {
                 }
             }
         }
-        kept.extend(store(query, &outcomes, accept_lost)?);
+        kept.extend(if spliced.is_some() {
+            splice(query, &outcomes, accept_lost)?
+        } else {
+            store(query, &outcomes, accept_lost)?
+        });
         let records: usize = outcomes.iter().map(|o| o.datasets.len()).sum();
         let ok = outcomes.iter().filter(|o| o.status.answered()).count();
         writeln!(
@@ -94,7 +108,76 @@ fn store(
     if !gone.is_empty() && !accept_lost {
         return Ok(Some(format!("{}: {}", query.id, gone.join(", "))));
     }
-    snapshot::save(query, &answered, &lists)?;
+    snapshot::save(query, env!("CARGO_PKG_VERSION"), &answered, &lists)?;
+    Ok(None)
+}
+
+/// The source `--source <id>` names, and the arguments without the flag. A
+/// source whose terms bar storing its results is refused, as in a full
+/// recording.
+fn source_flag(
+    args: &[String],
+) -> Result<(Option<&'static Source>, Vec<String>)> {
+    let Some(at) = args.iter().position(|a| a == "--source") else {
+        return Ok((None, args.to_vec()));
+    };
+    let Some(id) = args.get(at.saturating_add(1)) else {
+        bail!(
+            "--source needs a source id\n  Try:   just relevance record --source huggingface"
+        );
+    };
+    let Some(source) = SOURCES.iter().find(|s| s.id == id) else {
+        bail!(
+            "no source has the id {id:?}\n  Try:   an id from `dataseek sources`"
+        );
+    };
+    if !source.persist {
+        bail!("{id}'s terms bar storing its results, so it is never recorded");
+    }
+    let rest = args
+        .iter()
+        .enumerate()
+        .filter(|(i, _)| *i != at && *i != at.saturating_add(1))
+        .map(|(_, a)| a.clone())
+        .collect();
+    Ok((Some(source), rest))
+}
+
+/// Replaces one source's list and status in the recorded snapshot of
+/// `query`, keeping every other source's; the same lost-source rule as
+/// [`store`] applies.
+fn splice(
+    query: &Query,
+    outcomes: &[Outcome],
+    accept_lost: bool,
+) -> Result<Option<String>> {
+    let (answered, lists) = freeze(outcomes);
+    let mut recorded = snapshot::load(query)?;
+    let gone = lost(&recorded.sources, &answered);
+    if !gone.is_empty() && !accept_lost {
+        return Ok(Some(format!("{}: {}", query.id, gone.join(", "))));
+    }
+    for (status, (id, list)) in answered.into_iter().zip(lists) {
+        if let Some(i) =
+            recorded.sources.iter().position(|s| s.id == status.id)
+        {
+            if let Some(slot) = recorded.sources.get_mut(i) {
+                *slot = status;
+            }
+            if let Some(slot) = recorded.lists.get_mut(i) {
+                *slot = (id, list);
+            }
+        } else {
+            recorded.sources.push(status);
+            recorded.lists.push((id, list));
+        }
+    }
+    snapshot::save(
+        query,
+        &recorded.dataseek,
+        &recorded.sources,
+        &recorded.lists,
+    )?;
     Ok(None)
 }
 
@@ -166,6 +249,21 @@ mod tests {
             answered("d", "timed out"),
         ];
         assert_eq!(lost(&before, &now), ["a (answered HTTP 400)"]);
+    }
+
+    #[test]
+    fn the_source_flag_names_one_storable_source() {
+        let args = |a: &[&str]| -> Vec<String> {
+            a.iter().map(|s| (*s).to_owned()).collect()
+        };
+        let (source, rest) =
+            source_flag(&args(&["iris", "--source", "huggingface"])).unwrap();
+        assert_eq!(source.map(|s| s.id), Some("huggingface"));
+        assert_eq!(rest, ["iris"]);
+        assert!(source_flag(&args(&["iris"])).unwrap().0.is_none());
+        assert!(source_flag(&args(&["--source"])).is_err());
+        assert!(source_flag(&args(&["--source", "nope"])).is_err());
+        assert!(source_flag(&args(&["--source", "kaggle"])).is_err());
     }
 
     #[test]
