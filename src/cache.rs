@@ -19,7 +19,6 @@ use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
 use crate::fs::write_atomic;
-use crate::record::Dataset;
 
 /// The size budget unless [`BUDGET_VAR`] sets another, in decimal megabytes
 /// like every size dataseek prints.
@@ -28,9 +27,6 @@ pub const BUDGET_FILES: usize = 2000;
 /// Replaces the size budget, in whole megabytes within [`BUDGET_MB`].
 pub const BUDGET_VAR: &str = "DATASEEK_CACHE_MAX_MB";
 pub const BUDGET_MB: RangeInclusive<u64> = 1..=10_000;
-/// The release whose parse shape [`Entry.version`] holds. Another release
-/// may have parsed a source differently, so its entries are never fresh.
-const RELEASE: &str = env!("CARGO_PKG_VERSION");
 
 static BUDGET: OnceLock<u64> = OnceLock::new();
 
@@ -74,20 +70,28 @@ pub const QUERY_TTL: Duration = Duration::from_hours(6);
 pub const CATALOG_TTL: Duration = Duration::from_hours(7 * 24);
 /// How long a source that just had an outage is skipped.
 pub const OUTAGE_TTL: Duration = Duration::from_mins(10);
+/// How long a catalog download started in the background keeps later
+/// searches from starting the same one.
+pub const WARMING_TTL: Duration = Duration::from_mins(10);
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Kind {
     Query,
     Catalog,
     Outage,
+    Warming,
 }
 
 impl Kind {
+    const ALL: [Self; 4] =
+        [Self::Query, Self::Catalog, Self::Outage, Self::Warming];
+
     fn dir(self) -> &'static str {
         match self {
             Self::Query => "queries",
             Self::Catalog => "catalogs",
             Self::Outage => "outages",
+            Self::Warming => "warming",
         }
     }
 }
@@ -98,23 +102,12 @@ pub enum Freshness {
     Stale,
 }
 
-/// A catalog copy on disk a search can admit without downloading.
-#[derive(Debug, Clone, PartialEq)]
-pub enum CatalogCopy {
-    /// Within its TTL.
-    Fresh(Vec<Dataset>),
-    /// Past its TTL, or written by another release: still served, with
-    /// the copy's age on the label, until `cache warm` replaces it.
-    Outdated(Vec<Dataset>, Duration),
-}
-
 #[derive(Serialize, Deserialize)]
 struct Entry<T> {
     stored: u64,
     /// The release that wrote it. Another release may parse a source
-    /// differently: its query entries count as stale, refetched online
-    /// and served when a fetch fails, and its catalog entries are served
-    /// as outdated until `cache warm` replaces them.
+    /// differently, so its entries count as stale: refetched when online,
+    /// still served when the fetch fails.
     #[serde(default)]
     version: String,
     value: T,
@@ -155,7 +148,9 @@ impl Cache {
         let json = std::fs::read_to_string(self.path(kind, key)).ok()?;
         let entry: Entry<T> = serde_json::from_str(&json).ok()?;
         let age = now().saturating_sub(entry.stored);
-        let freshness = if age < ttl.as_secs() && entry.version == RELEASE {
+        let freshness = if age < ttl.as_secs()
+            && entry.version == env!("CARGO_PKG_VERSION")
+        {
             Freshness::Fresh
         } else {
             Freshness::Stale
@@ -164,9 +159,7 @@ impl Cache {
     }
 
     pub fn store<T: Serialize>(&self, kind: Kind, key: &str, value: &T) {
-        let entry =
-            Entry { stored: now(), version: RELEASE.to_owned(), value };
-        self.write(kind, key, &entry);
+        self.write(kind, key, now(), value);
     }
 
     /// An entry written at the epoch, long past every TTL.
@@ -177,48 +170,21 @@ impl Cache {
         key: &str,
         value: &T,
     ) {
-        let entry = Entry { stored: 0, version: RELEASE.to_owned(), value };
-        self.write(kind, key, &entry);
+        self.write(kind, key, 0, value);
     }
 
-    /// An entry written by another release, which is never fresh because
-    /// that release may have parsed the source differently.
-    #[cfg(test)]
-    pub fn store_foreign_release<T: Serialize>(
+    fn write<T: Serialize>(
         &self,
         kind: Kind,
         key: &str,
+        stored: u64,
         value: &T,
     ) {
         let entry = Entry {
-            stored: now(),
-            version: "other-release".to_owned(),
+            stored,
+            version: env!("CARGO_PKG_VERSION").to_owned(),
             value,
         };
-        self.write(kind, key, &entry);
-    }
-
-    /// A catalog copy a search admits without downloading, [`None`] when
-    /// no readable copy is on disk.
-    pub fn catalog(&self, id: &str, ttl: Duration) -> Option<CatalogCopy> {
-        let json =
-            std::fs::read_to_string(self.path(Kind::Catalog, id)).ok()?;
-        let entry: Entry<Vec<Dataset>> = serde_json::from_str(&json).ok()?;
-        let age = now().saturating_sub(entry.stored);
-        Some(if age < ttl.as_secs() && entry.version == RELEASE {
-            CatalogCopy::Fresh(entry.value)
-        } else {
-            CatalogCopy::Outdated(entry.value, Duration::from_secs(age))
-        })
-    }
-
-    /// Whether a catalog copy is on disk, without parsing it, so the search
-    /// stage can count its members on the main thread.
-    pub fn has_catalog(&self, id: &str) -> bool {
-        self.path(Kind::Catalog, id).is_file()
-    }
-
-    fn write<T: Serialize>(&self, kind: Kind, key: &str, entry: &Entry<T>) {
         if let Ok(bytes) = serde_json::to_vec(&entry) {
             let _ = write_atomic(&self.path(kind, key), &bytes);
         }
@@ -236,10 +202,35 @@ impl Cache {
 
     /// How long ago the source last had an outage, if within [`OUTAGE_TTL`].
     pub fn recent_outage(&self, source: &str) -> Option<Duration> {
-        let bytes = std::fs::read(self.path(Kind::Outage, source)).ok()?;
+        self.marked(Kind::Outage, source, OUTAGE_TTL)
+    }
+
+    pub fn mark_warming(&self, source: &str) {
+        self.store(Kind::Warming, source, &());
+    }
+
+    /// Whether a background download of the source's catalog started
+    /// within [`WARMING_TTL`].
+    pub fn warming(&self, source: &str) -> bool {
+        self.marked(Kind::Warming, source, WARMING_TTL).is_some()
+    }
+
+    fn marked(
+        &self,
+        kind: Kind,
+        key: &str,
+        ttl: Duration,
+    ) -> Option<Duration> {
+        let bytes = std::fs::read(self.path(kind, key)).ok()?;
         let entry: Entry<()> = serde_json::from_slice(&bytes).ok()?;
         let age = now().saturating_sub(entry.stored);
-        (age < OUTAGE_TTL.as_secs()).then(|| Duration::from_secs(age))
+        (age < ttl.as_secs()).then(|| Duration::from_secs(age))
+    }
+
+    /// Whether any copy of the entry is on disk, fresh or not, without
+    /// reading it.
+    pub fn has(&self, kind: Kind, key: &str) -> bool {
+        self.path(kind, key).is_file()
     }
 
     pub fn clear_outage(&self, source: &str) {
@@ -254,9 +245,7 @@ impl Cache {
         }
     }
 
-    /// Evict the oldest entries until the directory fits the budget,
-    /// catalogs last: a search never downloads one again, so an evicted
-    /// catalog stays out of every search until `cache warm`.
+    /// Evict the oldest entries until the directory fits the budget.
     pub fn trim(&self) -> Usage {
         trim_files(self.files(), budget_bytes(), BUDGET_FILES)
     }
@@ -264,7 +253,7 @@ impl Cache {
     /// Remove the entries, never the root: `--cache-dir` can point at a
     /// directory that holds other files. The root goes only once empty.
     pub fn clear(&self) -> std::io::Result<()> {
-        for kind in [Kind::Query, Kind::Catalog, Kind::Outage] {
+        for kind in Kind::ALL {
             match std::fs::remove_dir_all(self.root.join(kind.dir())) {
                 Err(e) if e.kind() != std::io::ErrorKind::NotFound => {
                     return Err(e);
@@ -277,21 +266,19 @@ impl Cache {
     }
 
     fn files(&self) -> Vec<CachedFile> {
-        [Kind::Query, Kind::Catalog, Kind::Outage]
-            .into_iter()
+        Kind::ALL
+            .iter()
             .filter_map(|kind| {
-                let dir =
-                    std::fs::read_dir(self.root.join(kind.dir())).ok()?;
-                Some(dir.filter_map(Result::ok).map(move |e| (kind, e)))
+                std::fs::read_dir(self.root.join(kind.dir())).ok()
             })
             .flatten()
-            .filter_map(|(kind, entry)| {
+            .filter_map(Result::ok)
+            .filter_map(|entry| {
                 let meta = entry.metadata().ok()?;
                 meta.is_file().then(|| CachedFile {
                     path: entry.path(),
                     bytes: meta.len(),
                     modified: meta.modified().unwrap_or(UNIX_EPOCH),
-                    catalog: kind == Kind::Catalog,
                 })
             })
             .collect()
@@ -302,7 +289,6 @@ struct CachedFile {
     path: PathBuf,
     bytes: u64,
     modified: SystemTime,
-    catalog: bool,
 }
 
 fn trim_files(
@@ -310,7 +296,7 @@ fn trim_files(
     max_bytes: u64,
     max_files: usize,
 ) -> Usage {
-    files.sort_by_key(|f| (f.catalog, f.modified));
+    files.sort_by_key(|f| f.modified);
     let mut bytes: u64 = files.iter().map(|f| f.bytes).sum();
     let mut count = files.len();
     for file in &files {
@@ -432,74 +418,12 @@ mod tests {
                 path,
                 bytes: 100,
                 modified: UNIX_EPOCH + Duration::from_secs(1000 - age),
-                catalog: false,
             });
         }
         let usage = trim_files(files, 200, 10);
         assert_eq!(usage.files, 2);
         assert!(!dir.path().join("0.json").exists(), "oldest survived");
         assert!(dir.path().join("2.json").exists(), "newest evicted");
-    }
-
-    #[test]
-    fn trimming_evicts_catalogs_after_every_query_entry() {
-        let dir = tempfile::tempdir().unwrap();
-        let mut files = Vec::new();
-        for (i, (age, catalog)) in
-            [(30_u64, true), (20, false), (10, false)].iter().enumerate()
-        {
-            let path = dir.path().join(format!("{i}.json"));
-            std::fs::write(&path, vec![b'x'; 100]).unwrap();
-            files.push(CachedFile {
-                path,
-                bytes: 100,
-                modified: UNIX_EPOCH + Duration::from_secs(1000 - age),
-                catalog: *catalog,
-            });
-        }
-        trim_files(files, 200, 10);
-        assert!(dir.path().join("0.json").exists(), "the catalog was evicted");
-        assert!(!dir.path().join("1.json").exists(), "oldest query survived");
-    }
-
-    #[test]
-    fn a_catalog_probe_serves_any_readable_copy() {
-        let dir = tempfile::tempdir().unwrap();
-        let cache = Cache::new(dir.path().to_path_buf());
-        assert!(cache.catalog("zenodo", CATALOG_TTL).is_none());
-        assert!(!cache.has_catalog("zenodo"));
-        cache.store(Kind::Catalog, "zenodo", &vec![Dataset::new("A", "u")]);
-        assert!(matches!(
-            cache.catalog("zenodo", CATALOG_TTL),
-            Some(CatalogCopy::Fresh(_))
-        ));
-        cache.store_expired(
-            Kind::Catalog,
-            "zenodo",
-            &vec![Dataset::new("B", "v")],
-        );
-        match cache.catalog("zenodo", CATALOG_TTL) {
-            Some(CatalogCopy::Outdated(entries, age)) => {
-                assert_eq!(entries.len(), 1);
-                assert!(age > CATALOG_TTL, "the copy is not past its TTL");
-            }
-            other => panic!("an expired copy came back {other:?}"),
-        }
-        cache.store_foreign_release(
-            Kind::Catalog,
-            "zenodo",
-            &vec![Dataset::new("B", "v")],
-        );
-        assert!(cache.has_catalog("zenodo"));
-        assert!(
-            matches!(
-                cache.catalog("zenodo", CATALOG_TTL),
-                Some(CatalogCopy::Outdated(..))
-            ),
-            "another release's copy is fresh"
-        );
-        std::fs::write(cache.path(Kind::Catalog, "zenodo"), "{").unwrap();
-        assert!(cache.catalog("zenodo", CATALOG_TTL).is_none());
     }
 
     #[test]

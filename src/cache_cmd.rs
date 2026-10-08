@@ -1,6 +1,7 @@
 //! `cache info`, `cache warm` and `cache clear`.
 
 use std::io::Write;
+use std::process::{Command, Stdio};
 
 use anyhow::{Context, Result};
 
@@ -27,7 +28,7 @@ pub fn run(action: CacheAction, out: &Out) -> Result<()> {
     let cache = Cache::new(paths::resolve()?.cache);
     match action {
         CacheAction::Info => info(&cache, out),
-        CacheAction::Warm { dry_run } => warm(out, dry_run),
+        CacheAction::Warm { only, dry_run } => warm(out, &only, dry_run),
         CacheAction::Clear { dry_run } => clear(&cache, out, dry_run),
     }
 }
@@ -62,10 +63,15 @@ fn clear(cache: &Cache, out: &Out, dry_run: bool) -> Result<()> {
     Ok(())
 }
 
-/// Every catalog source downloads in parallel, with no deadline. Successes
-/// go to stdout, each failure to stderr, and any failure fails the run.
-fn warm(out: &Out, dry_run: bool) -> Result<()> {
-    let catalogs: Vec<_> = SOURCES.iter().filter(|s| s.is_catalog()).collect();
+/// Every catalog source, or the ones named, downloads in parallel, with no
+/// deadline. Successes go to stdout, each failure to stderr, and any failure
+/// fails the run.
+fn warm(out: &Out, only: &[String], dry_run: bool) -> Result<()> {
+    let catalogs: Vec<_> = SOURCES
+        .iter()
+        .filter(|s| s.is_catalog())
+        .filter(|s| only.is_empty() || only.iter().any(|id| id == s.id))
+        .collect();
     let results: Vec<(&str, Option<Result<usize, SourceError>>)> = if dry_run {
         catalogs.iter().map(|s| (s.id, None)).collect()
     } else {
@@ -157,6 +163,39 @@ fn download<'a>(
     progress.finish_and_clear();
     services.cache.trim();
     Ok(results)
+}
+
+/// Download these catalogs in a detached `cache warm` that outlives this
+/// process, so a download a search stopped waiting for still reaches the
+/// cache. A catalog another search set downloading within
+/// [`cache::WARMING_TTL`] is left to that download. False when none could
+/// start.
+pub fn warm_in_background(cache: &Cache, ids: &[&str]) -> bool {
+    let ids: Vec<&str> =
+        ids.iter().copied().filter(|id| !cache.warming(id)).collect();
+    if ids.is_empty() {
+        return true;
+    }
+    let Ok(program) = std::env::current_exe() else { return false };
+    let mut command = Command::new(program);
+    command
+        .args(["--quiet", "cache", "warm", "--source"])
+        .arg(ids.join(","))
+        .env("DATASEEK_CACHE_DIR", cache.root())
+        .stdin(Stdio::null())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null());
+    // Out of the terminal's foreground group, so a Ctrl-C at the prompt
+    // after the search does not reach it.
+    #[cfg(unix)]
+    std::os::unix::process::CommandExt::process_group(&mut command, 0);
+    if command.spawn().is_err() {
+        return false;
+    }
+    for id in ids {
+        cache.mark_warming(id);
+    }
+    true
 }
 
 fn info(cache: &Cache, out: &Out) -> Result<()> {
