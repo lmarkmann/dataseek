@@ -273,6 +273,9 @@ pub enum Command {
         offline: bool,
 
         /// Seconds to wait for slow sources before printing; 0 waits for all.
+        ///
+        /// Once 90% of the sources asked have answered, the rest get one
+        /// more second. Sources named with -s get the whole limit.
         #[arg(
             long,
             value_name = "SECS",
