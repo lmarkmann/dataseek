@@ -104,6 +104,7 @@ impl Answered {
     pub fn answered(&self) -> bool {
         self.status == "ok"
             || self.status == "cached"
+            || self.status == "expired catalog"
             || self.status.starts_with("stale cache")
     }
 
