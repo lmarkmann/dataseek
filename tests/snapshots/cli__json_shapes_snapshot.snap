@@ -158,6 +158,7 @@ expression: "serde_json::to_string_pretty(&shapes).unwrap()"
     "url": "http://[LOCAL_ADDR]/"
   },
   "search": {
+    "complete": true,
     "query": "rainfall",
     "results": [
       {

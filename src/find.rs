@@ -139,14 +139,21 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
     }
     if !outcomes.iter().any(|o| o.status.answered()) {
         warn_failures(&outcomes, renewing, &services.cache);
+        let late = not_waited_for(&outcomes);
+        if !late.is_empty() {
+            ui::warn(format!("{} not waited for", named(&late)));
+        }
         return Err(failure(&outcomes, offline).into());
     }
 
     let sources = reports(&outcomes);
+    let complete = !outcomes
+        .iter()
+        .any(|o| matches!(o.status, Status::Running(_) | Status::Downloading));
     let mut hits = ranked(&mut outcomes, &query, sort);
     let found = hits.len();
     hits.truncate(limit);
-    print(out, &query, &hits, sources)?;
+    print(out, &query, &hits, sources, complete)?;
     summarize(&query, hits.len(), found, &outcomes, renewing, &services.cache);
     Ok(())
 }
@@ -211,7 +218,7 @@ fn failure(outcomes: &[Outcome], offline: bool) -> Error {
     if offline {
         Error::NothingCached
     } else if failed()
-        .all(|s| matches!(s, Status::Running(_) | Status::Downloading))
+        .any(|s| matches!(s, Status::Running(_) | Status::Downloading))
     {
         Error::Unanswered
     } else if failed()
@@ -252,7 +259,7 @@ fn warn_failures(outcomes: &[Outcome], renewing: bool, cache: &Cache) {
         .filter(|o| {
             !matches!(o.status, Status::Running(_) | Status::Downloading)
         })
-        .map(|o| format!("{} ({})", o.source.id, o.status.label()))
+        .map(|o| format!("{} ({}{})", o.source.id, o.status.label(), hint(o)))
         .collect();
     if !failed.is_empty() {
         ui::warn(format!("no answer from {}", failed.join(", ")));
@@ -289,6 +296,29 @@ fn still_downloading(ids: &[&str], renewing: bool) -> String {
     format!("{} {verb} still downloading {whose}; {next}", named(ids))
 }
 
+/// What may lift a refusal: a key, when the source takes one. A refused
+/// request carried none, or it would read as rejected credentials.
+fn hint(outcome: &Outcome) -> String {
+    match (&outcome.status, outcome.source.key) {
+        (Status::Failed(SourceError::Refused(_)), Some((key, _))) => format!(
+            "; ${} may lift it, see `{} doctor`",
+            key.env_var(),
+            crate::invoked_name()
+        ),
+        _ => String::new(),
+    }
+}
+
+/// Sources the search stopped waiting for, past the deadline or the grace;
+/// their answers are discarded.
+fn not_waited_for(outcomes: &[Outcome]) -> Vec<&'static str> {
+    outcomes
+        .iter()
+        .filter(|o| matches!(o.status, Status::Running(_)))
+        .map(|o| o.source.id)
+        .collect()
+}
+
 /// The ids, or past [`NAMED`] of them, their count; a first search can leave
 /// ten catalogs downloading, and `-v` names each.
 fn named(ids: &[&str]) -> String {
@@ -314,16 +344,11 @@ fn summarize(
     warn_failures(outcomes, renewing, cache);
     let answered = outcomes.iter().filter(|o| o.status.answered()).count();
     let attempted = outcomes.iter().filter(|o| o.status.attempted()).count();
-    let running: Vec<&str> = outcomes
-        .iter()
-        .filter(|o| !o.source.is_catalog())
-        .filter(|o| matches!(o.status, Status::Running(_)))
-        .map(|o| o.source.id)
-        .collect();
-    let still = if running.is_empty() {
+    let late = not_waited_for(outcomes);
+    let still = if late.is_empty() {
         String::new()
     } else {
-        format!(", {} still running", named(&running))
+        format!(", {} not waited for", named(&late))
     };
     let sources = format!(
         "{answered} of {} answered{still}",
@@ -348,6 +373,9 @@ const SCHEMA: &str = "dataseek-search/1";
 struct Report<'a> {
     schema: &'static str,
     query: &'a str,
+    /// False when the search stopped waiting for a source or a catalog was
+    /// still downloading, so the results may lack what those would add.
+    complete: bool,
     results: &'a [Hit],
     sources: Vec<SourceReport>,
 }
@@ -380,11 +408,13 @@ fn print(
     query: &str,
     hits: &[Hit],
     sources: Vec<SourceReport>,
+    complete: bool,
 ) -> Result<()> {
     if out.json {
         return out.json(&Report {
             schema: SCHEMA,
             query,
+            complete,
             results: hits,
             sources,
         });
