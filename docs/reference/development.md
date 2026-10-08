@@ -82,6 +82,7 @@ just relevance pool        # worksheets for every unjudged result a ranking puts
 just relevance absorb      # fold graded worksheets into judgments.tsv
 just relevance --bless     # accept the current scores as the baseline
 just relevance record      # re-record the snapshot from the live sources (network)
+just relevance cutoff tests/fixtures/relevance/latency.jsonl   # what stopping before the slowest sources costs
 ```
 
 The speed benchmarks say how fast a search is; this one says whether its top 10 is any good. It separates retrieval from ranking: what each source returned for a fixed set of queries is recorded once and committed, and the merged ranking is then scored offline, deterministically, against graded judgments. No key and no network are involved after recording. `just ci` and the CI job run `just relevance`. The harness is `examples/relevance/`, built against `dataseek::internals` like the Criterion bench, and its files live in `tests/fixtures/relevance/`.
@@ -105,6 +106,8 @@ A change is adopted when, on the held-out half, the paired bootstrap interval of
 ### Re-recording
 
 `just relevance record` asks every default source every query, live, with an empty cache and no key, and rewrites the snapshot; `just relevance record <id> ...` re-records only those queries. When a source that answered last time fails now, that query keeps its old snapshot and the run fails at the end; `--accept-lost` records the failure anyway. Re-recording after an adapter changes is how that change is measured, but it changes what each source returned, so expect new unjudged results: pool, grade, absorb, and re-bless in the same commit as the new snapshot. The first recording, its size and the excluded sources are in [`../bench/2026-10-07-relevance.md`](../bench/2026-10-07-relevance.md).
+
+`just relevance cutoff <file>` measures how long a search waits for its slowest sources ([ADR 0019](../adr/0019-stop-waiting-past-a-quorum.md)). The file holds one `search --json` source report per line, `{"query": id, "sources": [...]}`, recorded live with `--timeout 0 --refresh` and every catalog cached; `tests/fixtures/relevance/latency.jsonl` is one such round. For each stopping rule in `examples/relevance/cutoff.rs`, the sources that would have answered after the rule stopped waiting get empty lists, the snapshot is merged and ranked as shipped, and the table gives wall time, the share of the full top 10 still shown, and the paired change in nDCG@10 per half and in known-item MRR. Record a new round as first asks only: some sources cache repeated queries on their side. The 2026-10-08 measurement is [`../bench/2026-10-08-straggler-cutoff.md`](../bench/2026-10-08-straggler-cutoff.md).
 
 ## Dependencies
 
