@@ -781,6 +781,25 @@ fn cache_warm_dry_run_lists_catalogs_and_downloads_none() {
     assert!(!cache.exists(), "--dry-run created the cache");
 }
 
+#[test]
+fn cache_warm_source_lists_only_the_named_catalogs() {
+    let out = bin()
+        .args(["cache", "warm", "-s", "openml,uci", "--dry-run"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    let text = String::from_utf8(out.stdout).unwrap();
+    let ids: Vec<&str> =
+        text.lines().filter_map(|l| l.split_whitespace().next()).collect();
+    assert_eq!(ids, ["openml", "uci"], "{text}");
+
+    let live = bin()
+        .args(["cache", "warm", "-s", "zenodo", "--dry-run"])
+        .output()
+        .unwrap();
+    assert_eq!(live.status.code(), Some(2), "a live source was accepted");
+}
+
 // Some catalogs failing is a failed run: each named on stderr, the count as
 // the last line, exit 1. Under -q the Error line alone still names them.
 #[test]

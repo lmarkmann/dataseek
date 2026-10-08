@@ -138,7 +138,7 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         );
     }
     if !outcomes.iter().any(|o| o.status.answered()) {
-        warn_failures(&outcomes, renewing);
+        warn_failures(&outcomes, renewing, &services.cache);
         return Err(failure(&outcomes, offline).into());
     }
 
@@ -147,22 +147,44 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
     let found = hits.len();
     hits.truncate(limit);
     print(out, &query, &hits, sources)?;
-    summarize(&query, hits.len(), found, &outcomes, renewing);
+    summarize(&query, hits.len(), found, &outcomes, renewing, &services.cache);
     Ok(())
 }
 
 /// Download again, in the background, the catalogs this search searched
 /// expired or stopped waiting for. Whether that download is under way.
 fn renew(cache: &Cache, outcomes: &[Outcome]) -> bool {
-    let ids: Vec<&str> = outcomes
+    let ids = to_renew(outcomes);
+    !ids.is_empty()
+        && !crate::http::is_offline()
+        && crate::cache_cmd::warm_in_background(cache, &ids)
+}
+
+fn to_renew(outcomes: &[Outcome]) -> Vec<&'static str> {
+    outcomes
         .iter()
         .filter(|o| o.source.is_catalog())
         .filter(|o| matches!(o.status, Status::Downloading | Status::Expired))
         .map(|o| o.source.id)
-        .collect();
-    !ids.is_empty()
-        && !crate::http::is_offline()
-        && crate::cache_cmd::warm_in_background(cache, &ids)
+        .collect()
+}
+
+/// Catalogs searched from an expired copy, or not downloaded yet, whose
+/// last download failed: the background download's failures surface here.
+fn warn_download_failures(cache: &Cache, outcomes: &[Outcome]) {
+    for o in outcomes.iter().filter(|o| o.source.is_catalog()) {
+        let Some(reason) = cache.last_failure(o.source.id) else { continue };
+        let id = o.source.id;
+        match o.status {
+            Status::Expired => ui::warn(format!(
+                "{id} was searched from an expired catalog; its last download failed ({reason})"
+            )),
+            Status::Downloading => ui::warn(format!(
+                "{id} has no catalog yet; its last download failed ({reason})"
+            )),
+            _ => {}
+        }
+    }
 }
 
 /// Every source's results, moved out of their outcomes, merged and ordered.
@@ -221,7 +243,7 @@ fn notes(out: &Out, outcomes: &[Outcome]) {
 /// Sources that failed, and catalogs still downloading. Sources skipped by
 /// `--offline` are counted, not listed: there would be dozens. Live sources
 /// still running are not failures; the summary names them.
-fn warn_failures(outcomes: &[Outcome], renewing: bool) {
+fn warn_failures(outcomes: &[Outcome], renewing: bool, cache: &Cache) {
     let downloading = |o: &&Outcome| matches!(o.status, Status::Downloading);
     let failed: Vec<String> = outcomes
         .iter()
@@ -250,6 +272,7 @@ fn warn_failures(outcomes: &[Outcome], renewing: bool) {
     if !catalogs.is_empty() {
         ui::warn(still_downloading(&catalogs, renewing));
     }
+    warn_download_failures(cache, outcomes);
 }
 
 fn still_downloading(ids: &[&str], renewing: bool) -> String {
@@ -286,8 +309,9 @@ fn summarize(
     found: usize,
     outcomes: &[Outcome],
     renewing: bool,
+    cache: &Cache,
 ) {
-    warn_failures(outcomes, renewing);
+    warn_failures(outcomes, renewing, cache);
     let answered = outcomes.iter().filter(|o| o.status.answered()).count();
     let attempted = outcomes.iter().filter(|o| o.status.attempted()).count();
     let running: Vec<&str> = outcomes
@@ -449,6 +473,31 @@ mod tests {
         assert_eq!(human_bytes(512), "512 B");
         assert_eq!(human_bytes(155_173), "155.2 KB");
         assert_eq!(human_bytes(2_559_248_010_229), "2.6 TB");
+    }
+
+    #[test]
+    fn only_catalogs_searched_expired_or_still_downloading_are_renewed() {
+        let mut catalogs = SOURCES.iter().filter(|s| s.is_catalog());
+        let (Some(a), Some(b), Some(c)) =
+            (catalogs.next(), catalogs.next(), catalogs.next())
+        else {
+            panic!("fewer than three catalogs");
+        };
+        let live = SOURCES.iter().find(|s| !s.is_catalog()).unwrap();
+        let outcome = |source, status| Outcome {
+            source,
+            status,
+            elapsed: Duration::ZERO,
+            datasets: Vec::new(),
+        };
+        let outcomes = [
+            outcome(a, Status::Downloading),
+            outcome(b, Status::Expired),
+            outcome(c, Status::Fetched),
+            outcome(live, Status::Expired),
+            outcome(live, Status::Running(Duration::ZERO)),
+        ];
+        assert_eq!(to_renew(&outcomes), [a.id, b.id]);
     }
 
     #[test]

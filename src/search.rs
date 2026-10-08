@@ -698,7 +698,9 @@ mod tests {
                 vec![&ANSWERS, &CATALOG_WARMING],
                 forced,
                 DEADLINE,
-                |services| services.cache.mark_warming(CATALOG_WARMING.id),
+                |services| {
+                    assert!(services.cache.claim_warming(CATALOG_WARMING.id));
+                },
             );
             assert!(took < Duration::from_secs(5), "{took:?}");
             let statuses = statuses(&outcomes);
