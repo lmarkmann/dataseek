@@ -11,10 +11,11 @@
 //! query words each row's id, description and tags start a word with, keeps
 //! the rows that hold at least half of them and at least two, and orders them
 //! by that count, then downloads. Half, because a question's filler words
-//! ("how many people live in each US county") match anything two at a time. One page per anchor replaces paging: `skip` answers HTTP 400
-//! from 4,000 on. An anchor that fails costs its rows, and the source fails
-//! only when every anchor did. Anonymous clients get 500 API requests per IP
-//! in 5 minutes (Hugging Face Hub, October 2026).
+//! ("how many people live in each US county") match anything two at a time.
+//! One page per anchor replaces paging: `skip` answers HTTP 400 from 4,000
+//! on. A failed anchor fails the search, so a list missing an anchor's rows
+//! is never cached as the answer. Anonymous clients get 500 API requests per
+//! IP in 5 minutes (Hugging Face Hub, October 2026).
 //!
 //! The listing's description is the card's text with each heading alone on a
 //! line that starts with two tabs, cut short with "See the full description
@@ -62,18 +63,17 @@ pub fn search(
             })
             .collect()
     });
-    let mut bodies = Vec::new();
-    let mut failure = None;
-    for page in pages {
-        match page {
-            Ok(body) => bodies.push(body),
-            Err(error) => failure = failure.or(Some(error)),
-        }
-    }
-    match failure {
-        Some(error) if bodies.is_empty() => Err(error),
-        _ => pick(&bodies, &terms, limit),
-    }
+    settle(pages, &terms, limit)
+}
+
+/// The anchors' pages as one answer, or the first anchor's failure.
+fn settle(
+    pages: Vec<Result<Value, SourceError>>,
+    terms: &[String],
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
+    let bodies = pages.into_iter().collect::<Result<Vec<_>, _>>()?;
+    pick(&bodies, terms, limit)
 }
 
 fn page(
@@ -281,8 +281,6 @@ mod tests {
         );
     }
 
-    /// The rows from `next`'s offset, and a Hub link to the rest while
-    /// any are left; the cursor stands in for the Hub's opaque one.
     fn row(id: &str, description: &str, downloads: u64) -> Value {
         serde_json::json!({
             "id": id,
@@ -356,6 +354,15 @@ mod tests {
             ids(&parse(&body, &terms, 10).unwrap()),
             ["y/climate-funds"]
         );
+    }
+
+    #[test]
+    fn one_failed_anchor_fails_the_search() {
+        let terms = words(&["climate", "fund"]);
+        let found = serde_json::json!([row("y/climate-funds", "", 10)]);
+        let pages = vec![Ok(found), Err(SourceError::RateLimited)];
+        let outcome = settle(pages, &terms, 10);
+        assert!(matches!(outcome, Err(SourceError::RateLimited)));
     }
 
     #[test]
