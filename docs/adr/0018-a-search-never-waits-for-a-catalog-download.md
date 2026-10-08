@@ -15,6 +15,7 @@ Fetching the work in parallel does not remove the wait. The OpenNeuro cursor is 
 - A catalog with no copy at all downloads during the search. With a deadline set, the search stops waiting for it once every other source has answered, and reports it as still downloading. With `--timeout 0`, and in `bench`, the search still waits for every source. When only such catalogs were chosen, the deadline is the only limit.
 - After a search, the catalogs it searched expired or stopped waiting for are handed to a detached `dataseek --quiet cache warm --source <ids>` child with no stdin, stdout or stderr, in its own process group on Unix, writing to the same cache directory. A mark in the cache's `warming` directory keeps later searches from starting the same download for 10 minutes. `--offline` starts none.
 - `cache warm --source` downloads only the named catalogs.
+- The trim evicts catalogs only once no other entry is left to evict. A search writes about 70 query files and a catalog is written once a week, so oldest first emptied the catalogs after some 30 searches under the 2,000 file cap: a cache measured at 1,972 query files held queries from only the last four minutes, and its catalogs had been evicted and downloaded again many times over.
 
 ## Consequences
 
