@@ -12,25 +12,25 @@ Fetching the work in parallel does not remove the wait. The OpenNeuro cursor is 
 ## Decision
 
 - A catalog with a copy on disk is searched from that copy, fresh or not. An expired copy is reported as `expired catalog` and downloaded again after the search.
-- A catalog with no copy at all downloads during the search. With a deadline set, the search stops waiting for it once every other source has answered, and reports it as still downloading. With `--timeout 0`, and in `bench`, the search still waits for every source. When only such catalogs were chosen, the deadline is the only limit.
-- After a search, the catalogs it searched expired or stopped waiting for are handed to a detached `dataseek --quiet cache warm --source <ids>` child with no stdin, stdout or stderr, in its own process group on Unix, writing to the same cache directory. A mark in the cache's `warming` directory keeps later searches from starting the same download for 10 minutes. `--offline` starts none.
+- A catalog with no copy at all downloads during the search. With a deadline set and the catalog not named with `-s`, the search stops waiting for it once every other source has finished, and reports it as still downloading. A named catalog, `--timeout 0` and `bench` wait for it, bounded only by the deadline. A catalog whose warming mark another search holds is not downloaded again; it reads as downloading at once. A cache entry that cannot be parsed is removed when read, so it counts as no copy.
+- After a search, the catalogs it searched expired or stopped waiting for are handed to a detached `dataseek --quiet cache warm --source <ids>` child with no stdin, stdout or stderr, in its own process group on Unix, writing to the same cache directory. The mark in the cache's `warming` directory is claimed by creating its file exclusively before the child starts, and released when it cannot start, so two searches never start the same download; it lasts 10 minutes, and the child releases it once the catalog has downloaded. A download that fails is recorded in the cache's `failures` directory until one succeeds, and a search that finds the catalog expired or still missing names the failure in its warnings. `--offline` starts none.
 - `cache warm --source` downloads only the named catalogs.
-- The trim evicts catalogs only once no other entry is left to evict. A search writes about 70 query files and a catalog is written once a week, so oldest first emptied the catalogs after some 30 searches under the 2,000 file cap: a cache measured at 1,972 query files held queries from only the last four minutes, and its catalogs had been evicted and downloaded again many times over.
+- The trim evicts query results first, catalogs next and the marks last. A search writes about 42 query files (the 26 catalogs, Kaggle and the sources without their key write none) and a catalog is written once a week, so oldest first emptied the catalogs after some 45 searches under the 2,000 file cap: a cache measured at 1,972 query files held queries from only the last four minutes, and its catalogs had been evicted and downloaded again many times over.
 
 ## Consequences
 
 - The first search on an empty cache costs what the live sources cost; the slow catalogs join from the next search on.
 - A search can leave a process running for up to a minute after it exits. It writes only the cache, so a `dsk mcp` call still leaks nothing into the next call's output.
-- A catalog whose background download fails is tried in the search again (still bounded by the other sources), and in the background again after 10 minutes.
+- A catalog whose background download fails is tried in the search again (still bounded by the other sources), and in the background again after 10 minutes; until one succeeds, each search that needed it says why the last one failed.
 - An expired catalog's results are up to a week older than a fresh download's would be, for one search.
 
 ## Evidence
 
-Release builds on an Apple M4, 2026-10-07 and 2026-10-08, against the live sources.
+Release builds on an Apple M4, 2026-10-07 and 2026-10-08, against the live sources. The first row was measured again with the quorum of ADR 0019 in place, three new queries each on an empty cache.
 
 | run | before | after |
 |---|---|---|
-| first search, empty cache, default deadline | 20.0 s, 3 catalogs missing, every time | 2.0 s, 10 catalogs downloading in the background |
+| first search, empty cache, default deadline | 20.0 s, 3 catalogs missing, every time | 2.00 to 2.41 s, 62 or 63 of 71 sources answered, 5 to 7 catalogs downloading in the background |
 | the same search once the background download finished (about 33 s) | 20.0 s | 0.25 s from the query cache, 2.3 s for a new query |
 | a search with PhysioNet's catalog expired | 20.0 s until `cache warm` ran | PhysioNet answered from the expired copy in 2 ms and was downloaded again in the background |
 

@@ -1,13 +1,16 @@
 //! The disk cache: per-query results, whole catalogs for the sources that are
-//! searched locally, and short-lived marks for sources that just failed.
+//! searched locally, short-lived marks for sources that just failed and for
+//! catalogs a background download holds, and why a catalog's last download
+//! failed.
 //!
 //! One JSON file per entry under the cache directory, written atomically, so
 //! parallel source threads never share a file or a lock. Fresh entries are
 //! served without a request; expired ones are kept as a fallback for when the
 //! source is down. The whole directory stays under [`budget_bytes`] and
-//! [`BUDGET_FILES`]: [`Cache::trim`] evicts the least recently written
-//! entries first, catalogs only once no other entry is left to evict, and
-//! runs once at the end of every search, never per write.
+//! [`BUDGET_FILES`]: [`Cache::trim`] evicts query results first, catalogs
+//! next and the marks last, the least recently written first within each,
+//! and runs once at the end of every search, never per write. A malformed
+//! entry is removed when read.
 //! Everything here is best effort: a cache that cannot be read or written
 //! degrades to fetching, it never fails a search.
 
@@ -313,7 +316,8 @@ impl Cache {
         }
     }
 
-    /// Evict the oldest entries until the directory fits the budget.
+    /// Evict entries until the directory fits the budget: queries, then
+    /// catalogs, then marks, the oldest first within each.
     pub fn trim(&self) -> Usage {
         trim_files(self.files(), budget_bytes(), BUDGET_FILES)
     }
@@ -381,9 +385,9 @@ fn trim_files(
     max_bytes: u64,
     max_files: usize,
 ) -> Usage {
-    // A search writes one query file per source, about 70, and a catalog is
-    // written once a week, so oldest-first alone evicted every catalog after
-    // some 30 searches, and the slowest take half a minute to download again.
+    // A search writes about 42 query files and a catalog is written once a
+    // week, so oldest-first alone evicted every catalog after some 45
+    // searches, and the slowest take half a minute to download again.
     files.sort_by_key(|f| (eviction_order(f.kind), f.modified));
     let mut bytes: u64 = files.iter().map(|f| f.bytes).sum();
     let mut count = files.len();
