@@ -13,7 +13,7 @@ use std::io::{self, Write};
 use std::path::Path;
 
 use anyhow::{Context, Result, bail};
-use dataseek::internals::{Hit, SOURCES, merge, weigh};
+use dataseek::internals::{Hit, SOURCES, merge, quorum, weigh};
 use serde::Deserialize;
 
 use crate::metrics::{DEPTH, Interval, SEED, mean, paired, real};
@@ -43,11 +43,26 @@ impl Timed {
             && !self.status.starts_with("skipped, outage")
     }
 
+    /// Whether the source returned a list, as `Status::answered` decides.
+    fn answered(&self) -> bool {
+        self.status == "ok"
+            || self.status == "cached"
+            || self.status == "expired catalog"
+            || self.status.starts_with("stale cache")
+    }
+
     fn ms(&self) -> u64 {
         let catalog =
             SOURCES.iter().any(|s| s.id == self.id && s.is_catalog());
         if catalog { 0 } else { self.ms }
     }
+}
+
+/// One asked source finishing: when, and whether it answered.
+#[derive(Clone, Copy)]
+struct Arrival {
+    ms: u64,
+    answered: bool,
 }
 
 /// When a search stops waiting for the sources still working.
@@ -56,9 +71,10 @@ enum Rule {
     All,
     /// A fixed deadline in milliseconds.
     Cap(u64),
-    /// Once this share of the asked sources has finished, this many more
-    /// milliseconds.
-    Quorum(f64, u64),
+    /// Once this percentage of the sources that have not failed has
+    /// answered, this many more milliseconds: `search.rs`'s rule, through
+    /// its own `quorum`.
+    Quorum(usize, u64),
 }
 
 impl Rule {
@@ -66,27 +82,38 @@ impl Rule {
         match self {
             Self::All => "wait for all".to_owned(),
             Self::Cap(ms) => format!("deadline {ms} ms"),
-            Self::Quorum(share, grace) => {
-                format!("{:.0}% + {grace} ms", share * 100.0)
-            }
+            Self::Quorum(percent, grace) => format!("{percent}% + {grace} ms"),
         }
     }
 
     /// The moment the search stops waiting, given every asked source's
-    /// time, sorted.
-    fn stop(self, times: &[u64]) -> u64 {
-        let last = times.last().copied().unwrap_or(0);
+    /// arrival in time order.
+    fn stop(self, arrivals: &[Arrival]) -> u64 {
+        let last = arrivals.last().map_or(0, |a| a.ms);
         let stop = match self {
             Self::All => last,
             Self::Cap(ms) => ms,
-            Self::Quorum(share, grace) => times
-                .get(rank(share, times.len()).saturating_sub(1))
-                .copied()
-                .unwrap_or(last)
-                .saturating_add(grace),
+            Self::Quorum(percent, grace) => reached(arrivals, percent)
+                .map_or(last, |at| at.saturating_add(grace)),
         };
         stop.min(last).min(DEADLINE_MS)
     }
+}
+
+/// When the quorum of `percent` is reached, counted as the search loop
+/// counts it: answers out of the sources that have not failed.
+fn reached(arrivals: &[Arrival], percent: usize) -> Option<u64> {
+    let (mut answered, mut failed): (usize, usize) = (0, 0);
+    arrivals.iter().find_map(|a| {
+        if a.answered {
+            answered = answered.saturating_add(1);
+        } else {
+            failed = failed.saturating_add(1);
+        }
+        let reachable = arrivals.len().saturating_sub(failed);
+        (answered > 0 && answered >= quorum(reachable, percent))
+            .then_some(a.ms)
+    })
 }
 
 #[expect(
@@ -103,15 +130,15 @@ const RULES: [Rule; 13] = [
     Rule::Cap(1000),
     Rule::Cap(2000),
     Rule::Cap(3000),
-    Rule::Quorum(0.8, 0),
-    Rule::Quorum(0.8, 1000),
-    Rule::Quorum(0.9, 0),
-    Rule::Quorum(0.9, 500),
-    Rule::Quorum(0.9, 1000),
-    Rule::Quorum(0.9, 2000),
-    Rule::Quorum(0.95, 500),
-    Rule::Quorum(0.95, 1000),
-    Rule::Quorum(0.95, 2000),
+    Rule::Quorum(80, 0),
+    Rule::Quorum(80, 1000),
+    Rule::Quorum(90, 0),
+    Rule::Quorum(90, 500),
+    Rule::Quorum(90, 1000),
+    Rule::Quorum(90, 2000),
+    Rule::Quorum(95, 500),
+    Rule::Quorum(95, 1000),
+    Rule::Quorum(95, 2000),
 ];
 
 /// One rule over every recorded search, averaged per query.
@@ -225,10 +252,13 @@ fn replay(
         let mut kept = Vec::new();
         let mut scores = Vec::new();
         for timed in searches {
-            let mut times: Vec<u64> =
-                timed.iter().filter(|t| t.asked()).map(Timed::ms).collect();
-            times.sort_unstable();
-            let stop = rule.stop(&times);
+            let mut arrivals: Vec<Arrival> = timed
+                .iter()
+                .filter(|t| t.asked())
+                .map(|t| Arrival { ms: t.ms(), answered: t.answered() })
+                .collect();
+            arrivals.sort_by_key(|a| a.ms);
+            let stop = rule.stop(&arrivals);
             let late: HashSet<&str> = timed
                 .iter()
                 .filter(|t| t.asked() && t.ms() > stop)
@@ -318,4 +348,41 @@ fn percentile(values: &[u64], q: f64) -> u64 {
 )]
 fn seconds(ms: u64) -> f64 {
     ms as f64 / 1000.0
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn arrivals(each: &[(u64, bool)]) -> Vec<Arrival> {
+        each.iter().map(|&(ms, answered)| Arrival { ms, answered }).collect()
+    }
+
+    #[test]
+    fn a_quorum_stops_a_grace_after_enough_answers() {
+        let mut ten: Vec<(u64, bool)> =
+            (1..=9).map(|i| (i * 100, true)).collect();
+        ten.push((9000, true));
+        let ten = arrivals(&ten);
+        assert_eq!(Rule::Quorum(90, 1000).stop(&ten), 1900);
+        assert_eq!(Rule::Quorum(80, 0).stop(&ten), 800);
+        assert_eq!(Rule::All.stop(&ten), 9000);
+        assert_eq!(Rule::Cap(2000).stop(&ten), 2000);
+    }
+
+    #[test]
+    fn fast_failures_do_not_make_a_quorum() {
+        let mut ten: Vec<(u64, bool)> =
+            (1..=9).map(|i| (i * 10, false)).collect();
+        ten.push((3000, true));
+        assert_eq!(Rule::Quorum(90, 1000).stop(&arrivals(&ten)), 3000);
+    }
+
+    #[test]
+    fn no_rule_waits_past_the_last_source_or_the_deadline() {
+        let short = arrivals(&[(100, true), (200, true)]);
+        assert_eq!(Rule::Cap(3000).stop(&short), 200);
+        let slow = arrivals(&[(30_000, true)]);
+        assert_eq!(Rule::All.stop(&slow), DEADLINE_MS);
+    }
 }
