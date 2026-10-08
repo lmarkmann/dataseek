@@ -91,7 +91,7 @@ fn polite<'a>(ctx: &Ctx<'_>, call: Call<'a>) -> Call<'a> {
         .query("tool", "dataseek")
         .query("email", CONTACT);
     match ctx.creds.get(Key::Ncbi) {
-        Some(secret) => call.query("api_key", secret.token()),
+        Some(secret) => call.key_query("api_key", secret.token()),
         None => call,
     }
 }

@@ -29,7 +29,7 @@ pub fn search(
     let body = ctx
         .http
         .get("https://api.datacommons.org/v2/resolve")
-        .header("X-API-Key", secret.token())
+        .key_header("X-API-Key", secret.token())
         .query("nodes", query)
         .query("resolver", "indicator")
         .json()?;

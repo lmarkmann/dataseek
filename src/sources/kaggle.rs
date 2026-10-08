@@ -31,7 +31,7 @@ pub fn search(
             .query("search", query)
             .query("page", page);
         if let Some(secret) = ctx.creds.get(Key::Kaggle) {
-            call = call.header("Authorization", secret.authorization());
+            call = call.key_header("Authorization", secret.authorization());
         }
         call.json()
     })

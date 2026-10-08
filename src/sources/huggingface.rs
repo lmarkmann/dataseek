@@ -54,7 +54,7 @@ pub fn search(
             call = call.query("expand[]", field);
         }
         if let Some(secret) = ctx.creds.get(Key::HuggingFace) {
-            call = call.header("Authorization", secret.authorization());
+            call = call.key_header("Authorization", secret.authorization());
         }
         call.json()
     })
