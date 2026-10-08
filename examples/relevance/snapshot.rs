@@ -711,7 +711,14 @@ mod tests {
         };
         let resting = Status::Resting(Duration::from_secs(5));
         let running = Status::Running(Duration::from_secs(5));
-        for status in [Status::Fetched, Status::Cached, resting, running] {
+        for status in [
+            Status::Fetched,
+            Status::Cached,
+            Status::Expired,
+            Status::Downloading,
+            resting,
+            running,
+        ] {
             let a = read(&status);
             assert_eq!(a.answered(), status.answered(), "{}", a.status);
             assert_eq!(a.attempted(), status.attempted(), "{}", a.status);

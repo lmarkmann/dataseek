@@ -4,14 +4,16 @@
 //!
 //! A catalog with no copy on disk downloads during the search, and some take
 //! longer than the deadline (OpenNeuro pages its list 100 at a time, about 40
-//! seconds in all). With a deadline set, the loop stops waiting for those once
-//! every other source has answered; the caller finishes them in the
-//! background.
+//! seconds in all). With a deadline set and no source named, the loop stops
+//! waiting for those once every other source has finished; the caller
+//! finishes them in the background. One a background download already holds
+//! is not downloaded again.
 //!
 //! Most sources answer within two seconds and one or two take five to
 //! fifteen, a different one each time. With a deadline set and no source
-//! named, once [`QUORUM_PERCENT`] of the asked sources have finished, the
-//! loop waits at most [`GRACE`] longer for the rest (ADR 0019).
+//! named, once [`QUORUM_PERCENT`] of the sources waited for have answered,
+//! not counting those that failed, the loop waits at most [`GRACE`] longer
+//! for the rest (ADR 0019).
 //!
 //! Per source, in order: skipped when a required key is missing; skipped for
 //! a few minutes after an outage unless the user named it; served from the
@@ -39,9 +41,9 @@ use crate::sources::{Answer, Ctx, Services, Source};
 
 /// The share of the asked sources, in percent, after which the stragglers
 /// get only [`GRACE`].
-const QUORUM_PERCENT: usize = 90;
+pub const QUORUM_PERCENT: usize = 90;
 /// How long past the quorum the loop waits for the sources still working.
-const GRACE: Duration = Duration::from_millis(1000);
+pub const GRACE: Duration = Duration::from_millis(1000);
 
 pub struct Plan {
     pub query: String,
@@ -64,8 +66,11 @@ pub enum Status {
     NeedsKey(Key),
     /// Skipped because the source had an outage this long ago.
     Resting(Duration),
-    /// Still working when the search deadline passed.
+    /// Not waited for any longer: past the deadline, or past the grace after
+    /// the quorum. Its answer is discarded.
     Running(Duration),
+    /// A catalog's first download, left to finish in the background.
+    Downloading,
 }
 
 impl Status {
@@ -92,8 +97,9 @@ impl Status {
                 format!("skipped, outage {} s ago", ago.as_secs())
             }
             Self::Running(after) => {
-                format!("still running after {} s", after.as_secs())
+                format!("not waited for after {} s", after.as_secs())
             }
+            Self::Downloading => "downloading its catalog".to_owned(),
         }
     }
 }
@@ -118,34 +124,33 @@ pub fn run(
         .iter()
         .map(|s| s.is_catalog() && !services.cache.has(Kind::Catalog, s.id))
         .collect();
+    let in_background: Vec<bool> = plan
+        .sources
+        .iter()
+        .zip(&first_download)
+        .map(|(s, &first)| first && services.cache.warming(s.id))
+        .collect();
+    let waits_for_downloads =
+        deadline.is_none() || plan.forced || !first_download.contains(&false);
+    let waited_for = |index: usize| {
+        first_download.get(index) == Some(&false)
+            || (waits_for_downloads
+                && in_background.get(index) == Some(&false))
+    };
+    let mut tally = Tally {
+        asked: (0..plan.sources.len()).filter(|&i| waited_for(i)).count(),
+        answered: 0,
+        failed: 0,
+    };
     let mut others = first_download.iter().filter(|&&first| !first).count();
-    let waits_for_downloads = deadline.is_none() || others == 0;
-    let mut asked = plan.sources.len();
-    let mut finished: usize = 0;
     let mut quorum_applies = deadline.is_some() && !plan.forced;
     // Measured from `started`, like the deadline, which it only shortens.
     let mut stop = deadline;
-    let (sender, receiver) = mpsc::channel();
-    for (index, &source) in plan.sources.iter().enumerate() {
-        let (services, plan, progress, sender) = (
-            Arc::clone(services),
-            Arc::clone(plan),
-            progress.clone(),
-            sender.clone(),
-        );
-        std::thread::spawn(move || {
-            let outcome = one(&services.ctx(refresh), &plan, source);
-            if !matches!(outcome.status, Status::NeedsKey(_)) {
-                progress.inc(1);
-            }
-            let _ = sender.send((index, outcome));
-        });
-    }
-    drop(sender);
+    let (receiver, mut waiting) =
+        spawn(services, refresh, plan, progress, &in_background);
 
     let mut slots: Vec<Option<Outcome>> =
         plan.sources.iter().map(|_| None).collect();
-    let mut waiting = plan.sources.len();
     let mut gave_up = false;
     while waiting > 0 {
         if others == 0 && !waits_for_downloads {
@@ -163,12 +168,10 @@ pub fn run(
         };
         match next {
             Ok((index, outcome)) => {
-                if outcome.status.attempted() {
-                    finished = finished.saturating_add(1);
-                } else {
-                    asked = asked.saturating_sub(1);
+                if waited_for(index) {
+                    tally.count(&outcome.status);
                 }
-                if quorum_applies && finished >= quorum(asked) {
+                if quorum_applies && tally.reached() {
                     quorum_applies = false;
                     let grace = started.elapsed().saturating_add(GRACE);
                     stop = stop.map(|limit| limit.min(grace));
@@ -191,14 +194,16 @@ pub fn run(
     }
     slots
         .into_iter()
-        .zip(&plan.sources)
-        .map(|(slot, &source)| {
+        .zip(
+            plan.sources.iter().zip(first_download.iter().zip(&in_background)),
+        )
+        .map(|(slot, (&source, (&first, &background)))| {
             slot.unwrap_or_else(|| Outcome {
                 source,
-                status: if gave_up {
-                    Status::Running(started.elapsed())
+                status: if background {
+                    Status::Downloading
                 } else {
-                    Status::Failed(SourceError::shape("the adapter crashed"))
+                    unfinished(first, gave_up, started)
                 },
                 elapsed: started.elapsed(),
                 datasets: Vec::new(),
@@ -207,10 +212,80 @@ pub fn run(
         .collect()
 }
 
-/// How many of `asked` sources finishing make the quorum, rounded up, so a
-/// search of a handful of sources waits for all of them.
-const fn quorum(asked: usize) -> usize {
-    asked.saturating_mul(QUORUM_PERCENT).div_ceil(100)
+/// One thread per source not marked in `skip`; the channel their outcomes
+/// arrive on, and how many there are.
+fn spawn(
+    services: &Arc<Services>,
+    refresh: bool,
+    plan: &Arc<Plan>,
+    progress: &ProgressBar,
+    skip: &[bool],
+) -> (mpsc::Receiver<(usize, Outcome)>, usize) {
+    let (sender, receiver) = mpsc::channel();
+    let mut spawned: usize = 0;
+    for (index, &source) in plan.sources.iter().enumerate() {
+        if skip.get(index) == Some(&true) {
+            continue;
+        }
+        let (services, plan, progress, sender) = (
+            Arc::clone(services),
+            Arc::clone(plan),
+            progress.clone(),
+            sender.clone(),
+        );
+        std::thread::spawn(move || {
+            let outcome = one(&services.ctx(refresh), &plan, source);
+            if !matches!(outcome.status, Status::NeedsKey(_)) {
+                progress.inc(1);
+            }
+            let _ = sender.send((index, outcome));
+        });
+        spawned = spawned.saturating_add(1);
+    }
+    (receiver, spawned)
+}
+
+/// How the sources the quorum is taken over have ended so far.
+struct Tally {
+    asked: usize,
+    answered: usize,
+    failed: usize,
+}
+
+impl Tally {
+    fn count(&mut self, status: &Status) {
+        if !status.attempted() {
+            self.asked = self.asked.saturating_sub(1);
+        } else if status.answered() {
+            self.answered = self.answered.saturating_add(1);
+        } else {
+            self.failed = self.failed.saturating_add(1);
+        }
+    }
+
+    /// Whether enough have answered, out of those that have not failed.
+    fn reached(&self) -> bool {
+        let reachable = self.asked.saturating_sub(self.failed);
+        self.answered > 0 && self.answered >= quorum(reachable, QUORUM_PERCENT)
+    }
+}
+
+/// The status of a source the loop did not hear from: a first download
+/// left to the background, one given up on, or an adapter that died.
+fn unfinished(download: bool, gave_up: bool, started: Instant) -> Status {
+    if download && gave_up {
+        Status::Downloading
+    } else if gave_up {
+        Status::Running(started.elapsed())
+    } else {
+        Status::Failed(SourceError::shape("the adapter crashed"))
+    }
+}
+
+/// How many of `reachable` sources answering make a quorum of `percent`,
+/// rounded up, so a search of a handful of sources waits for all of them.
+pub const fn quorum(reachable: usize, percent: usize) -> usize {
+    reachable.saturating_mul(percent).div_ceil(100)
 }
 
 fn one(ctx: &Ctx<'_>, plan: &Plan, source: &'static Source) -> Outcome {
@@ -301,8 +376,22 @@ mod tests {
 
     #[expect(clippy::unnecessary_wraps, reason = "the Listing signature")]
     fn list_hangs(_: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
-        std::thread::sleep(Duration::from_secs(5));
+        std::thread::sleep(Duration::from_secs(10));
         Ok(found())
+    }
+
+    #[expect(clippy::unnecessary_wraps, reason = "the Listing signature")]
+    fn list_quickly(_: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
+        std::thread::sleep(Duration::from_millis(300));
+        Ok(found())
+    }
+
+    #[expect(
+        clippy::panic_in_result_fn,
+        reason = "being called at all is the failure"
+    )]
+    fn list_must_not_run(_: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
+        panic!("a catalog downloading in the background was downloaded again");
     }
 
     #[expect(
@@ -320,8 +409,14 @@ mod tests {
     }
 
     #[expect(clippy::unnecessary_wraps, reason = "the Live signature")]
+    fn within_the_grace(_: &Ctx<'_>, _: &str, _: usize) -> Answer {
+        std::thread::sleep(Duration::from_millis(300));
+        Ok(found())
+    }
+
+    #[expect(clippy::unnecessary_wraps, reason = "the Live signature")]
     fn hangs(_: &Ctx<'_>, _: &str, _: usize) -> Answer {
-        std::thread::sleep(Duration::from_secs(5));
+        std::thread::sleep(Duration::from_secs(10));
         Ok(Vec::new())
     }
 
@@ -352,6 +447,7 @@ mod tests {
         Source { persist: false, ..fake("unpersisted", answers) };
     static HANGS: Source = fake("hangs", hangs);
     static SLOW: Source = fake("slow", outlasts_the_grace);
+    static LATE: Source = fake("late", within_the_grace);
     static CATALOG_DOWN: Source = Source {
         adapter: Adapter::Catalog(list_times_out),
         ..fake("catalog-down", answers)
@@ -359,6 +455,14 @@ mod tests {
     static CATALOG_HANGS: Source = Source {
         adapter: Adapter::Catalog(list_hangs),
         ..fake("catalog-hangs", answers)
+    };
+    static CATALOG_QUICK: Source = Source {
+        adapter: Adapter::Catalog(list_quickly),
+        ..fake("catalog-quick", answers)
+    };
+    static CATALOG_WARMING: Source = Source {
+        adapter: Adapter::Catalog(list_must_not_run),
+        ..fake("catalog-warming", answers)
     };
 
     fn plan(source: &'static Source, forced: bool) -> Plan {
@@ -527,52 +631,95 @@ mod tests {
         assert!(!outcome.status.answered());
     }
 
+    /// `sources` searched with `deadline`, unnamed unless `forced`, in a
+    /// scratch cache `prime` may write to first; the outcomes and how long
+    /// the loop took.
+    fn search(
+        sources: Vec<&'static Source>,
+        forced: bool,
+        deadline: Option<Duration>,
+        prime: impl FnOnce(&Services),
+    ) -> (Vec<Outcome>, Duration) {
+        let dir = tempfile::tempdir().unwrap();
+        let services = Services::scratch(dir.path());
+        prime(&services);
+        let services = Arc::new(services);
+        let plan = Arc::new(Plan { sources, ..plan(&ANSWERS, forced) });
+        let started = Instant::now();
+        let outcomes =
+            run(&services, false, &plan, &ProgressBar::hidden(), deadline);
+        (outcomes, started.elapsed())
+    }
+
+    const DEADLINE: Option<Duration> = Some(Duration::from_secs(20));
+
+    fn statuses(outcomes: &[Outcome]) -> Vec<&Status> {
+        outcomes.iter().map(|o| &o.status).collect()
+    }
+
     #[test]
     fn a_first_catalog_download_is_not_waited_for_once_the_rest_answered() {
-        let dir = tempfile::tempdir().unwrap();
-        let services = Arc::new(Services::scratch(dir.path()));
-        let plan = Arc::new(Plan {
-            sources: vec![&ANSWERS, &CATALOG_HANGS],
-            ..plan(&ANSWERS, true)
-        });
-        let started = Instant::now();
-        let outcomes = run(
-            &services,
-            false,
-            &plan,
-            &ProgressBar::hidden(),
-            Some(Duration::from_secs(20)),
-        );
-        assert!(started.elapsed() < Duration::from_secs(4));
-        let statuses: Vec<_> = outcomes.iter().map(|o| &o.status).collect();
+        let (outcomes, took) =
+            search(vec![&ANSWERS, &CATALOG_HANGS], false, DEADLINE, |_| {});
+        assert!(took < Duration::from_secs(5), "{took:?}");
+        let statuses = statuses(&outcomes);
         assert!(
-            matches!(statuses[..], [Status::Fetched, Status::Running(_)]),
+            matches!(statuses[..], [Status::Fetched, Status::Downloading]),
             "{statuses:?}"
         );
     }
 
+    #[test]
+    fn a_named_catalog_is_waited_for_on_its_first_download() {
+        let (outcomes, _) =
+            search(vec![&ANSWERS, &CATALOG_QUICK], true, DEADLINE, |_| {});
+        assert!(
+            outcomes.iter().all(|o| o.status.answered()),
+            "{:?}",
+            statuses(&outcomes)
+        );
+    }
+
+    #[test]
+    fn without_a_deadline_a_first_catalog_download_is_waited_for() {
+        let (outcomes, _) =
+            search(vec![&ANSWERS, &CATALOG_QUICK], false, None, |_| {});
+        assert!(
+            outcomes.iter().all(|o| o.status.answered()),
+            "{:?}",
+            statuses(&outcomes)
+        );
+    }
+
+    #[test]
+    fn a_catalog_downloading_in_the_background_is_not_downloaded_again() {
+        for forced in [false, true] {
+            let (outcomes, took) = search(
+                vec![&ANSWERS, &CATALOG_WARMING],
+                forced,
+                DEADLINE,
+                |services| services.cache.mark_warming(CATALOG_WARMING.id),
+            );
+            assert!(took < Duration::from_secs(5), "{took:?}");
+            let statuses = statuses(&outcomes);
+            assert!(
+                matches!(statuses[..], [Status::Fetched, Status::Downloading]),
+                "forced {forced}: {statuses:?}"
+            );
+        }
+    }
+
     fn ten(last: &'static Source, forced: bool) -> (Vec<Outcome>, Duration) {
-        let dir = tempfile::tempdir().unwrap();
-        let services = Arc::new(Services::scratch(dir.path()));
         let mut sources = vec![&ANSWERS; 9];
         sources.push(last);
-        let plan = Arc::new(Plan { sources, ..plan(&ANSWERS, forced) });
-        let started = Instant::now();
-        let outcomes = run(
-            &services,
-            false,
-            &plan,
-            &ProgressBar::hidden(),
-            Some(Duration::from_secs(20)),
-        );
-        (outcomes, started.elapsed())
+        search(sources, forced, DEADLINE, |_| {})
     }
 
     #[test]
     fn past_the_quorum_a_straggler_gets_only_the_grace() {
         let (outcomes, took) = ten(&HANGS, false);
         assert!(
-            took < GRACE.saturating_add(Duration::from_secs(2)),
+            took < GRACE.saturating_add(Duration::from_secs(4)),
             "{took:?}"
         );
         assert!(outcomes.iter().take(9).all(|o| o.status.answered()));
@@ -583,6 +730,16 @@ mod tests {
     }
 
     #[test]
+    fn a_straggler_within_the_grace_is_kept() {
+        let (outcomes, _) = ten(&LATE, false);
+        assert!(
+            outcomes.iter().all(|o| o.status.answered()),
+            "{:?}",
+            statuses(&outcomes)
+        );
+    }
+
+    #[test]
     fn named_sources_are_waited_for_past_the_grace() {
         let (outcomes, took) = ten(&SLOW, true);
         assert!(took > GRACE, "{took:?}");
@@ -590,15 +747,47 @@ mod tests {
     }
 
     #[test]
-    fn a_handful_of_sources_is_a_quorum_only_when_all_finish() {
-        assert_eq!(quorum(1), 1);
-        assert_eq!(quorum(5), 5);
-        assert_eq!(quorum(10), 9);
-        assert_eq!(quorum(71), 64);
+    fn fast_failures_do_not_make_a_quorum() {
+        let mut sources = vec![&TIMES_OUT; 9];
+        sources.push(&SLOW);
+        let (outcomes, _) = search(sources, false, DEADLINE, |_| {});
+        assert!(
+            outcomes.last().is_some_and(|o| o.status.answered()),
+            "{:?}",
+            statuses(&outcomes)
+        );
     }
 
     #[test]
-    fn an_adapter_past_the_deadline_is_still_running() {
+    fn a_cold_cache_reaches_its_quorum_without_the_catalogs() {
+        let mut sources = vec![&ANSWERS; 9];
+        sources.extend([&HANGS, &CATALOG_HANGS, &CATALOG_HANGS]);
+        let (outcomes, took) = search(sources, false, DEADLINE, |_| {});
+        assert!(
+            took < GRACE.saturating_add(Duration::from_secs(4)),
+            "{took:?}"
+        );
+        let statuses = statuses(&outcomes);
+        assert!(
+            matches!(
+                statuses[9..],
+                [Status::Running(_), Status::Downloading, Status::Downloading]
+            ),
+            "{statuses:?}"
+        );
+    }
+
+    #[test]
+    fn a_handful_of_sources_is_a_quorum_only_when_all_answer() {
+        assert_eq!(quorum(1, 90), 1);
+        assert_eq!(quorum(5, 90), 5);
+        assert_eq!(quorum(10, 90), 9);
+        assert_eq!(quorum(71, 90), 64);
+        assert_eq!(quorum(10, 80), 8);
+    }
+
+    #[test]
+    fn an_adapter_past_the_deadline_is_not_waited_for() {
         let outcome = run_one(&HANGS, Some(Duration::from_millis(50)));
         assert!(
             matches!(outcome.status, Status::Running(_)),

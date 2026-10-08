@@ -157,7 +157,7 @@ fn renew(cache: &Cache, outcomes: &[Outcome]) -> bool {
     let ids: Vec<&str> = outcomes
         .iter()
         .filter(|o| o.source.is_catalog())
-        .filter(|o| matches!(o.status, Status::Running(_) | Status::Expired))
+        .filter(|o| matches!(o.status, Status::Downloading | Status::Expired))
         .map(|o| o.source.id)
         .collect();
     !ids.is_empty()
@@ -188,7 +188,9 @@ fn failure(outcomes: &[Outcome], offline: bool) -> Error {
         || outcomes.iter().filter(|o| o.status.attempted()).map(|o| &o.status);
     if offline {
         Error::NothingCached
-    } else if failed().all(|s| matches!(s, Status::Running(_))) {
+    } else if failed()
+        .all(|s| matches!(s, Status::Running(_) | Status::Downloading))
+    {
         Error::Unanswered
     } else if failed()
         .all(|s| matches!(s, Status::Failed(SourceError::Unreachable(_))))
@@ -220,14 +222,14 @@ fn notes(out: &Out, outcomes: &[Outcome]) {
 /// `--offline` are counted, not listed: there would be dozens. Live sources
 /// still running are not failures; the summary names them.
 fn warn_failures(outcomes: &[Outcome], renewing: bool) {
-    let downloading = |o: &&Outcome| {
-        o.source.is_catalog() && matches!(o.status, Status::Running(_))
-    };
+    let downloading = |o: &&Outcome| matches!(o.status, Status::Downloading);
     let failed: Vec<String> = outcomes
         .iter()
         .filter(|o| o.status.attempted() && !o.status.answered())
         .filter(|o| !matches!(o.status, Status::Failed(SourceError::Offline)))
-        .filter(|o| !matches!(o.status, Status::Running(_)))
+        .filter(|o| {
+            !matches!(o.status, Status::Running(_) | Status::Downloading)
+        })
         .map(|o| format!("{} ({})", o.source.id, o.status.label()))
         .collect();
     if !failed.is_empty() {

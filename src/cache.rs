@@ -136,8 +136,9 @@ impl Cache {
         self.root.join(kind.dir()).join(format!("{key}.json"))
     }
 
-    /// The entry and whether it is still within `ttl`. Unreadable or
-    /// malformed entries read as absent. The file is checked as UTF-8 once
+    /// The entry and whether it is still within `ttl`. A malformed entry
+    /// reads as absent and is removed, so the next search sees no copy at
+    /// all rather than one it cannot use. The file is checked as UTF-8 once
     /// and parsed as a `str`, which spares serde_json checking every string
     /// in a catalog of thousands on its own.
     pub fn load<T: DeserializeOwned>(
@@ -146,8 +147,16 @@ impl Cache {
         key: &str,
         ttl: Duration,
     ) -> Option<(T, Freshness)> {
-        let json = std::fs::read_to_string(self.path(kind, key)).ok()?;
-        let entry: Entry<T> = serde_json::from_str(&json).ok()?;
+        let path = self.path(kind, key);
+        let parsed = match std::fs::read_to_string(&path) {
+            Ok(json) => serde_json::from_str::<Entry<T>>(&json).ok(),
+            Err(e) if e.kind() == std::io::ErrorKind::InvalidData => None,
+            Err(_) => return None,
+        };
+        let Some(entry) = parsed else {
+            let _ = std::fs::remove_file(&path);
+            return None;
+        };
         let age = now().saturating_sub(entry.stored);
         let freshness = if age < ttl.as_secs()
             && entry.version == env!("CARGO_PKG_VERSION")
@@ -405,6 +414,19 @@ mod tests {
         let (loaded, _): (Vec<Dataset>, _) =
             cache.load(Kind::Catalog, "nsidc", CATALOG_TTL).unwrap();
         assert_eq!(loaded, stored);
+    }
+
+    #[test]
+    fn a_malformed_entry_reads_as_absent_and_is_removed() {
+        let dir = tempfile::tempdir().unwrap();
+        let cache = Cache::new(dir.path().to_path_buf());
+        let path = cache.path(Kind::Catalog, "uci");
+        write_atomic(&path, b"{\"stored\": 1, \"val").unwrap();
+        assert!(cache.has(Kind::Catalog, "uci"));
+        let loaded: Option<(Vec<String>, Freshness)> =
+            cache.load(Kind::Catalog, "uci", CATALOG_TTL);
+        assert!(loaded.is_none());
+        assert!(!cache.has(Kind::Catalog, "uci"), "the bad copy was kept");
     }
 
     #[test]
