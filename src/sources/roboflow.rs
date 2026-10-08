@@ -39,7 +39,7 @@ pub fn search(
             .get("https://api.roboflow.com/universe/search")
             .query("q", query)
             .query("page", page)
-            .header("Authorization", secret.authorization())
+            .key_header("Authorization", secret.authorization())
             .json()
     })
 }

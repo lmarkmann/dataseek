@@ -30,7 +30,7 @@ pub fn search(
         Some(secret) => ctx
             .http
             .get("https://api.gsa.gov/technology/datagov/v4/search")
-            .header("X-Api-Key", secret.token()),
+            .key_header("X-Api-Key", secret.token()),
         None => ctx.http.get("https://catalog.data.gov/search"),
     };
     let body = call.query("q", query).query("per_page", limit).json()?;

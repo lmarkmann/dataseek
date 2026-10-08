@@ -69,6 +69,10 @@ pub enum SourceError {
     RateLimited,
     #[error("rejected the credentials (HTTP {0})")]
     Unauthorized(u16),
+    /// A 401 or 403 to a request that carried no key: a firewall rule or an
+    /// access policy, often for this query alone.
+    #[error("refused the request (HTTP {0})")]
+    Refused(u16),
     #[error("answered HTTP {0}")]
     Status(u16),
     #[error("sent a challenge page instead of results")]
@@ -94,6 +98,7 @@ impl SourceError {
             Self::Status(code) => *code >= 500,
             Self::Certificate(_)
             | Self::Unauthorized(_)
+            | Self::Refused(_)
             | Self::Shape(_)
             | Self::ConnectLimit(_)
             | Self::Offline => false,
@@ -171,6 +176,9 @@ pub struct Call<'a> {
     headers: Vec<(String, String)>,
     body: Option<Value>,
     timeout: Duration,
+    /// Whether a key went with the request, which is what lets a 401 or 403
+    /// mean the key was rejected.
+    keyed: bool,
 }
 
 impl<'a> Call<'a> {
@@ -183,6 +191,7 @@ impl<'a> Call<'a> {
             headers: Vec::new(),
             body: None,
             timeout: Duration::from_secs(15),
+            keyed: false,
         }
     }
 
@@ -202,6 +211,19 @@ impl<'a> Call<'a> {
     pub fn header(mut self, key: &str, value: impl ToString) -> Self {
         self.headers.push((key.to_owned(), value.to_string()));
         self
+    }
+
+    /// A header that carries a key.
+    pub fn key_header(mut self, key: &str, value: impl ToString) -> Self {
+        self.keyed = true;
+        self.header(key, value)
+    }
+
+    /// A query parameter that carries a key, for the APIs that take it
+    /// nowhere else; the URL is never printed (ADR 0009).
+    pub fn key_query(mut self, key: &str, value: impl ToString) -> Self {
+        self.keyed = true;
+        self.query(key, value)
     }
 
     pub fn json_body(mut self, body: Value) -> Self {
@@ -302,7 +324,10 @@ impl<'a> Call<'a> {
             401 | 403 if looks_like_challenge(&body) => {
                 Err(Retry::Fail(SourceError::Blocked))
             }
-            401 | 403 => Err(Retry::Fail(SourceError::Unauthorized(status))),
+            401 | 403 if self.keyed => {
+                Err(Retry::Fail(SourceError::Unauthorized(status)))
+            }
+            401 | 403 => Err(Retry::Fail(SourceError::Refused(status))),
             _ => Err(Retry::Fail(SourceError::Status(status))),
         }
     }
@@ -423,6 +448,7 @@ mod tests {
             (SourceError::Status(500), true),
             (SourceError::Status(404), false),
             (SourceError::Unauthorized(401), false),
+            (SourceError::Refused(403), false),
             (SourceError::RateLimited, true),
             (SourceError::shape("no hits"), false),
         ] {
@@ -580,7 +606,10 @@ mod tests {
         ] {
             let (url, server) =
                 serve(vec![response("403 Forbidden", &headers, b"")]);
-            let outcome = Http::new().get(&url).text();
+            let outcome = Http::new()
+                .get(&url)
+                .key_header("Authorization", "Bearer token")
+                .text();
             assert_eq!(
                 matches!(outcome, Err(SourceError::RateLimited)),
                 expected_limited,
@@ -599,24 +628,33 @@ mod tests {
     #[test]
     fn statuses_map_to_the_failure_taxonomy() {
         let cloudflare = b"<html><title>Just a moment...</title></html>";
-        for (status, body, expected) in [
-            ("403 Forbidden", &cloudflare[..], SourceError::Blocked),
+        let waf = b"<title>Request Blocked by WAF</title>";
+        for (status, body, keyed, expected) in [
+            ("403 Forbidden", &cloudflare[..], false, SourceError::Blocked),
             (
                 "403 Forbidden",
                 b"<div id=\"cf-chl-widget\">",
+                true,
                 SourceError::Blocked,
             ),
             (
                 "401 Unauthorized",
                 b"{\"message\":\"bad key\"}",
+                true,
                 SourceError::Unauthorized(401),
             ),
-            ("403 Forbidden", b"denied", SourceError::Unauthorized(403)),
-            ("503 Service Unavailable", b"", SourceError::Status(503)),
-            ("404 Not Found", b"", SourceError::Status(404)),
+            ("403 Forbidden", b"denied", true, SourceError::Unauthorized(403)),
+            ("403 Forbidden", &waf[..], false, SourceError::Refused(403)),
+            ("401 Unauthorized", b"", false, SourceError::Refused(401)),
+            ("503 Service Unavailable", b"", false, SourceError::Status(503)),
+            ("404 Not Found", b"", false, SourceError::Status(404)),
         ] {
             let (url, server) = serve(vec![response(status, &[], body)]);
-            let outcome = Http::new().get(&url).text().unwrap_err();
+            let http = Http::new();
+            let call = http.get(&url);
+            let call =
+                if keyed { call.key_query("api_key", "k") } else { call };
+            let outcome = call.text().unwrap_err();
             assert_eq!(outcome.to_string(), expected.to_string(), "{status}");
             server.join().unwrap();
         }
