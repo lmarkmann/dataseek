@@ -17,6 +17,7 @@ use anyhow::Result;
 use clap::builder::styling::Style;
 use serde::Serialize;
 
+use crate::cache::Cache;
 use crate::cli::{Selection, Sort};
 use crate::dedup::{Hit, merge, weigh};
 use crate::http::SourceError;
@@ -41,9 +42,9 @@ pub enum Error {
     )]
     Certificate(String),
     #[error(
-        "every chosen source's catalog is missing from disk\n  Try:   run `dataseek cache warm`, then search again"
+        "no source answered before the deadline\n  Try:   search again in a minute, or add --timeout 0 to wait for every source"
     )]
-    NotCached,
+    Unanswered,
     #[error(
         "nothing cached answers this query\n  Try:   run it once without --offline, or `dataseek cache warm` while online"
     )]
@@ -87,7 +88,6 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         ),
         per_source: usize::from(selection.per_source),
         forced: offline || !selection.only.is_empty(),
-        named: selection.only.clone(),
     });
     if plan.sources.is_empty() {
         return Err(Error::NoneSelected.into());
@@ -100,17 +100,7 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         .iter()
         .filter(|s| s.missing_key(&services.creds).is_some())
         .count();
-    let cold = plan
-        .sources
-        .iter()
-        .filter(|s| {
-            plan.reads_off_disk(s)
-                && s.missing_key(&services.creds).is_none()
-                && !services.cache.has_catalog(s.id)
-        })
-        .count();
-    let asked =
-        plan.sources.len().saturating_sub(keyless).saturating_sub(cold);
+    let asked = plan.sources.len().saturating_sub(keyless);
     if asked > 0 {
         let need = if keyless == 1 { "needs" } else { "need" };
         let keys = if keyless > 0 {
@@ -136,40 +126,72 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         timeout.map(Duration::from_secs),
     );
     progress.finish_and_clear();
+    let renewing = renew(&services.cache, &outcomes);
     services.cache.trim();
 
     notes(out, &outcomes);
     if !outcomes.iter().any(|o| o.status.attempted()) {
-        let cold =
-            outcomes.iter().all(|o| matches!(o.status, Status::NeedsWarm));
         let resting =
             outcomes.iter().any(|o| matches!(o.status, Status::Resting(_)));
-        if !cold {
-            warn_failures(&outcomes);
-        }
-        return Err(if cold && offline {
-            Error::NothingCached
-        } else if cold {
-            Error::NotCached
-        } else if resting {
-            Error::Resting
-        } else {
-            Error::NothingRan
-        }
-        .into());
+        return Err(
+            if resting { Error::Resting } else { Error::NothingRan }.into()
+        );
     }
     if !outcomes.iter().any(|o| o.status.answered()) {
-        warn_failures(&outcomes);
+        warn_failures(&outcomes, renewing, &services.cache);
+        let late = not_waited_for(&outcomes);
+        if !late.is_empty() {
+            ui::warn(format!("{} not waited for", named(&late)));
+        }
         return Err(failure(&outcomes, offline).into());
     }
 
     let sources = reports(&outcomes);
+    let complete = !outcomes
+        .iter()
+        .any(|o| matches!(o.status, Status::Running(_) | Status::Downloading));
     let mut hits = ranked(&mut outcomes, &query, sort);
     let found = hits.len();
     hits.truncate(limit);
-    print(out, &query, &hits, sources)?;
-    summarize(&query, hits.len(), found, &outcomes);
+    print(out, &query, &hits, sources, complete)?;
+    summarize(&query, hits.len(), found, &outcomes, renewing, &services.cache);
     Ok(())
+}
+
+/// Download again, in the background, the catalogs this search searched
+/// expired or stopped waiting for. Whether that download is under way.
+fn renew(cache: &Cache, outcomes: &[Outcome]) -> bool {
+    let ids = to_renew(outcomes);
+    !ids.is_empty()
+        && !crate::http::is_offline()
+        && crate::cache_cmd::warm_in_background(cache, &ids)
+}
+
+fn to_renew(outcomes: &[Outcome]) -> Vec<&'static str> {
+    outcomes
+        .iter()
+        .filter(|o| o.source.is_catalog())
+        .filter(|o| matches!(o.status, Status::Downloading | Status::Expired))
+        .map(|o| o.source.id)
+        .collect()
+}
+
+/// Catalogs searched from an expired copy, or not downloaded yet, whose
+/// last download failed: the background download's failures surface here.
+fn warn_download_failures(cache: &Cache, outcomes: &[Outcome]) {
+    for o in outcomes.iter().filter(|o| o.source.is_catalog()) {
+        let Some(reason) = cache.last_failure(o.source.id) else { continue };
+        let id = o.source.id;
+        match o.status {
+            Status::Expired => ui::warn(format!(
+                "{id} was searched from an expired catalog; its last download failed ({reason})"
+            )),
+            Status::Downloading => ui::warn(format!(
+                "{id} has no catalog yet; its last download failed ({reason})"
+            )),
+            _ => {}
+        }
+    }
 }
 
 /// Every source's results, moved out of their outcomes, merged and ordered.
@@ -196,6 +218,10 @@ fn failure(outcomes: &[Outcome], offline: bool) -> Error {
     if offline {
         Error::NothingCached
     } else if failed()
+        .any(|s| matches!(s, Status::Running(_) | Status::Downloading))
+    {
+        Error::Unanswered
+    } else if failed()
         .all(|s| matches!(s, Status::Failed(SourceError::Unreachable(_))))
     {
         Error::Offline
@@ -221,20 +247,19 @@ fn notes(out: &Out, outcomes: &[Outcome]) {
     }
 }
 
-/// Sources that did not answer, catalogs still downloading, catalogs a
-/// search never downloaded, and outdated ones it served. Sources skipped by
-/// `--offline` and outdated catalogs are counted, not listed: there would
-/// be dozens.
-fn warn_failures(outcomes: &[Outcome]) {
-    let downloading = |o: &&Outcome| {
-        o.source.is_catalog() && matches!(o.status, Status::Running(_))
-    };
+/// Sources that failed, and catalogs still downloading. Sources skipped by
+/// `--offline` are counted, not listed: there would be dozens. Live sources
+/// still running are not failures; the summary names them.
+fn warn_failures(outcomes: &[Outcome], renewing: bool, cache: &Cache) {
+    let downloading = |o: &&Outcome| matches!(o.status, Status::Downloading);
     let failed: Vec<String> = outcomes
         .iter()
         .filter(|o| o.status.attempted() && !o.status.answered())
         .filter(|o| !matches!(o.status, Status::Failed(SourceError::Offline)))
-        .filter(|o| !downloading(o))
-        .map(|o| format!("{} ({})", o.source.id, o.status.label()))
+        .filter(|o| {
+            !matches!(o.status, Status::Running(_) | Status::Downloading)
+        })
+        .map(|o| format!("{} ({}{})", o.source.id, o.status.label(), hint(o)))
         .collect();
     if !failed.is_empty() {
         ui::warn(format!("no answer from {}", failed.join(", ")));
@@ -252,61 +277,83 @@ fn warn_failures(outcomes: &[Outcome]) {
     let catalogs: Vec<&str> =
         outcomes.iter().filter(downloading).map(|o| o.source.id).collect();
     if !catalogs.is_empty() {
-        ui::warn(still_downloading(&catalogs));
+        ui::warn(still_downloading(&catalogs, renewing));
     }
-    let frozen: Vec<&str> = outcomes
-        .iter()
-        .filter(|o| matches!(o.status, Status::NeedsWarm))
-        .map(|o| o.source.id)
-        .collect();
-    if !frozen.is_empty() {
-        ui::warn(not_cached(&frozen));
-    }
-    let outdated = outcomes
-        .iter()
-        .filter(|o| matches!(o.status, Status::Outdated(_)))
-        .count();
-    if outdated > 0 {
-        let (verb, them) =
-            if outdated == 1 { ("is", "it") } else { ("are", "them") };
-        ui::warn(format!(
-            "{} {verb} outdated; `dataseek cache warm` refreshes {them}",
-            ui::count(outdated, "catalog")
-        ));
-    }
+    warn_download_failures(cache, outcomes);
 }
 
-fn still_downloading(ids: &[&str]) -> String {
+fn still_downloading(ids: &[&str], renewing: bool) -> String {
     let (verb, whose, them) = if ids.len() == 1 {
         ("was", "its catalog", "it")
     } else {
         ("were", "their catalogs", "them")
     };
-    format!(
-        "{} {verb} still downloading {whose}; `dataseek cache warm` fetches {them} once",
-        ids.join(", ")
-    )
+    let next = if renewing {
+        "the download goes on in the background for the next search".to_owned()
+    } else {
+        format!("`dataseek cache warm` fetches {them} once")
+    };
+    format!("{} {verb} still downloading {whose}; {next}", named(ids))
 }
 
-/// The closing word for the catalogs a search left to `cache warm`, named
-/// so the fix is the next thing the eye lands on.
-fn not_cached(ids: &[&str]) -> String {
-    let (verb, them) =
-        if ids.len() == 1 { ("has", "it") } else { ("have", "them") };
-    format!(
-        "{} {verb} no catalog on disk; `dataseek cache warm` fetches {them}",
-        ids.join(", ")
-    )
+/// What may lift a refusal: a key, when the source takes one. A refused
+/// request carried none, or it would read as rejected credentials.
+fn hint(outcome: &Outcome) -> String {
+    match (&outcome.status, outcome.source.key) {
+        (Status::Failed(SourceError::Refused(_)), Some((key, _))) => format!(
+            "; ${} may lift it, see `{} doctor`",
+            key.env_var(),
+            crate::invoked_name()
+        ),
+        _ => String::new(),
+    }
 }
+
+/// Sources the search stopped waiting for, past the deadline or the grace;
+/// their answers are discarded.
+fn not_waited_for(outcomes: &[Outcome]) -> Vec<&'static str> {
+    outcomes
+        .iter()
+        .filter(|o| matches!(o.status, Status::Running(_)))
+        .map(|o| o.source.id)
+        .collect()
+}
+
+/// The ids, or past [`NAMED`] of them, their count; a first search can leave
+/// ten catalogs downloading, and `-v` names each.
+fn named(ids: &[&str]) -> String {
+    if ids.len() > NAMED {
+        ui::count(ids.len(), "source")
+    } else {
+        ids.join(", ")
+    }
+}
+
+const NAMED: usize = 3;
 
 /// The closing lines on stderr, after the results: what failed, then one
 /// line on how it went and how to see more.
-fn summarize(query: &str, shown: usize, found: usize, outcomes: &[Outcome]) {
-    warn_failures(outcomes);
+fn summarize(
+    query: &str,
+    shown: usize,
+    found: usize,
+    outcomes: &[Outcome],
+    renewing: bool,
+    cache: &Cache,
+) {
+    warn_failures(outcomes, renewing, cache);
     let answered = outcomes.iter().filter(|o| o.status.answered()).count();
     let attempted = outcomes.iter().filter(|o| o.status.attempted()).count();
-    let sources =
-        format!("{answered} of {} answered", ui::count(attempted, "source"));
+    let late = not_waited_for(outcomes);
+    let still = if late.is_empty() {
+        String::new()
+    } else {
+        format!(", {} not waited for", named(&late))
+    };
+    let sources = format!(
+        "{answered} of {} answered{still}",
+        ui::count(attempted, "source")
+    );
     if found == 0 {
         ui::warn(format!("no datasets matched \"{query}\"; {sources}"));
     } else if shown < found {
@@ -326,6 +373,9 @@ const SCHEMA: &str = "dataseek-search/1";
 struct Report<'a> {
     schema: &'static str,
     query: &'a str,
+    /// False when the search stopped waiting for a source or a catalog was
+    /// still downloading, so the results may lack what those would add.
+    complete: bool,
     results: &'a [Hit],
     sources: Vec<SourceReport>,
 }
@@ -358,11 +408,13 @@ fn print(
     query: &str,
     hits: &[Hit],
     sources: Vec<SourceReport>,
+    complete: bool,
 ) -> Result<()> {
     if out.json {
         return out.json(&Report {
             schema: SCHEMA,
             query,
+            complete,
             results: hits,
             sources,
         });
@@ -454,14 +506,46 @@ mod tests {
     }
 
     #[test]
+    fn only_catalogs_searched_expired_or_still_downloading_are_renewed() {
+        let mut catalogs = SOURCES.iter().filter(|s| s.is_catalog());
+        let (Some(a), Some(b), Some(c)) =
+            (catalogs.next(), catalogs.next(), catalogs.next())
+        else {
+            panic!("fewer than three catalogs");
+        };
+        let live = SOURCES.iter().find(|s| !s.is_catalog()).unwrap();
+        let outcome = |source, status| Outcome {
+            source,
+            status,
+            elapsed: Duration::ZERO,
+            datasets: Vec::new(),
+        };
+        let outcomes = [
+            outcome(a, Status::Downloading),
+            outcome(b, Status::Expired),
+            outcome(c, Status::Fetched),
+            outcome(live, Status::Expired),
+            outcome(live, Status::Running(Duration::ZERO)),
+        ];
+        assert_eq!(to_renew(&outcomes), [a.id, b.id]);
+    }
+
+    #[test]
     fn the_downloading_warning_agrees_with_its_count() {
         assert!(
-            still_downloading(&["openneuro"])
+            still_downloading(&["openneuro"], false)
                 .starts_with("openneuro was still downloading its catalog;")
         );
-        assert!(still_downloading(&["openneuro", "physionet"]).starts_with(
-            "openneuro, physionet were still downloading their catalogs;"
-        ));
+        assert!(
+            still_downloading(&["openneuro", "physionet"], true).starts_with(
+                "openneuro, physionet were still downloading their catalogs;"
+            )
+        );
+        assert!(
+            still_downloading(&["a", "b", "c", "d"], true).starts_with(
+                "4 sources were still downloading their catalogs;"
+            )
+        );
     }
 
     fn failed_with(errors: Vec<SourceError>) -> Vec<Outcome> {

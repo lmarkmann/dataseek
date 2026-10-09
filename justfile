@@ -74,7 +74,7 @@ bench-startup *args:
         "$bin sources"
     uv run --script scripts/bench_check.py docs/bench/startup.json {{ args }}
 
-# Relevance of the merged ranking, scored offline against the judged snapshot; fails on a regression. `--bless`, `variants`, `pool`, `absorb`, `record`: docs/reference/development.md.
+# Relevance of the merged ranking, scored offline against the judged snapshot; fails on a regression. `--bless`, `variants`, `pool`, `absorb`, `record`, `cutoff`: docs/reference/development.md.
 relevance *args:
     cargo run --quiet --locked --features internals --example relevance -- {{ args }}
 
@@ -190,7 +190,7 @@ release-preview:
     trap 'git reset --quiet && git checkout --quiet -- . && git clean --quiet -fd' EXIT
 
     release-plz update --config .github/release-plz.toml
-    git add --intent-to-add --quiet .
+    git add --intent-to-add .
     git --no-pager diff
 
 # Keep package metadata, CLI help, README, and GitHub in step.

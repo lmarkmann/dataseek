@@ -97,6 +97,10 @@ pub struct Answered {
     pub id: String,
     pub status: String,
     pub results: usize,
+    /// The release that recorded this source's list, when it was spliced
+    /// into a snapshot another release recorded.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub recorded_with: Option<String>,
 }
 
 impl Answered {
@@ -104,6 +108,7 @@ impl Answered {
     pub fn answered(&self) -> bool {
         self.status == "ok"
             || self.status == "cached"
+            || self.status == "expired catalog"
             || self.status.starts_with("stale cache")
     }
 
@@ -138,6 +143,9 @@ pub struct Retrieval {
     pub lists: Lists,
     /// How each source answered, in the same order.
     pub sources: Vec<Answered>,
+    /// The release that recorded the snapshot; splicing one source in
+    /// keeps it.
+    pub dataseek: String,
 }
 
 fn retrieval_path(id: &str) -> PathBuf {
@@ -209,7 +217,7 @@ fn parse_retrieval(
             ))
         })
         .collect::<Result<_>>()?;
-    Ok(Retrieval { lists, sources: header.sources })
+    Ok(Retrieval { lists, sources: header.sources, dataseek: header.dataseek })
 }
 
 /// How each source answered when `query` was last recorded; empty when it
@@ -222,10 +230,15 @@ pub fn recorded(query: &Query) -> Result<Vec<Answered>> {
     Ok(header(&text, &path)?.sources)
 }
 
-pub fn save(query: &Query, sources: &[Answered], lists: &Lists) -> Result<()> {
+pub fn save(
+    query: &Query,
+    dataseek: &str,
+    sources: &[Answered],
+    lists: &Lists,
+) -> Result<()> {
     let mut out = serde_json::to_string(&Header {
         query: query.text.clone(),
-        dataseek: env!("CARGO_PKG_VERSION").to_owned(),
+        dataseek: dataseek.to_owned(),
         sources: sources.to_vec(),
     })?;
     out.push('\n');
@@ -699,10 +712,18 @@ mod tests {
             id: "s".into(),
             status: status.label(),
             results: 0,
+            recorded_with: None,
         };
         let resting = Status::Resting(Duration::from_secs(5));
         let running = Status::Running(Duration::from_secs(5));
-        for status in [Status::Fetched, Status::Cached, resting, running] {
+        for status in [
+            Status::Fetched,
+            Status::Cached,
+            Status::Expired,
+            Status::Downloading,
+            resting,
+            running,
+        ] {
             let a = read(&status);
             assert_eq!(a.answered(), status.answered(), "{}", a.status);
             assert_eq!(a.attempted(), status.attempted(), "{}", a.status);

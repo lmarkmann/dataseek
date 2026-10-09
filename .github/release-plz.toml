@@ -34,6 +34,12 @@ body = """
 {% endfor %}
 """
 commit_parsers = [
+  # The never-download catalog design, replaced by background downloads
+  # before 0.9.0 shipped; its lines would describe behavior no release has.
+  { sha = "fda0c484b114c828eb45f1211be0374f21dc948c", skip = true },
+  { sha = "87feb88d7e772bf61d0de28371d2920e080626ab", skip = true },
+  { sha = "8f5ffe70db718415153d22132ab14075d04769f1", skip = true },
+  { sha = "7a31886df8726dcc357d05b025b9c31d6d74cf82", skip = true },
   { message = "^feat", group = "added" },
   { message = "^fix", group = "fixed" },
   { message = "^perf", group = "performance" },

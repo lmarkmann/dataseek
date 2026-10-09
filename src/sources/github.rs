@@ -32,7 +32,7 @@ pub fn search(
         .query("per_page", limit.clamp(1, 100))
         .header("X-GitHub-Api-Version", "2022-11-28");
     if let Some(secret) = ctx.creds.get(Key::GitHub) {
-        call = call.header("Authorization", secret.authorization());
+        call = call.key_header("Authorization", secret.authorization());
     }
     let body = call.json()?;
     parse(&body, limit)

@@ -1,30 +1,42 @@
-//! Hugging Face Hub dataset search. Sorted by downloads: the Hub has no
-//! relevance ranking, and the most used match is the useful default.
+//! Hugging Face Hub dataset search. The Hub has no relevance ranking, and its
+//! `search` matches a substring of the repository id, so one word rarely
+//! names the dataset: "Iris flower dataset" searched as "dataset" matches
+//! thousands of ids, and "climate temperature" as one phrase matches almost
+//! none (Hugging Face Hub, October 2026).
 //!
-//! The Hub's `search` matches a substring of the repository id, so
-//! "climate temperature" finds almost nothing. A multi-word query therefore
-//! asks for the longest word and keeps the rows whose id, description or tags
-//! contain every word. It reads pages of 1,000, the most the Hub returns, and
-//! moves on with `skip` until `limit` rows have passed or five pages are
-//! read; a one-word query asks for `limit` rows and stops there. `skip` is
-//! not in the Hub's published spec but pages the list, as the Link header's
-//! cursor does. Anonymous clients get 500 API requests per IP in 5 minutes
-//! (Hugging Face Hub, October 2026).
+//! A query of one meaningful word (see [`crate::catalog::terms`]) asks for
+//! `limit` rows sorted by downloads and keeps them as they come. A longer one
+//! asks once per anchor, its [`ANCHORS`] longest words, for a page of 1,000
+//! sorted by downloads, all at once; it merges the rows by id, counts the
+//! query words each row's id, description and tags start a word with, keeps
+//! the rows that hold at least half of them and at least two, and orders them
+//! by that count, then downloads. Half, because a question's filler words
+//! ("how many people live in each US county") match anything two at a time.
+//! One page per anchor replaces paging: `skip` answers HTTP 400 from 4,000
+//! on. A failed anchor fails the search, so a list missing an anchor's rows
+//! is never cached as the answer. Anonymous clients get 500 API requests per
+//! IP in 5 minutes (Hugging Face Hub, October 2026).
 //!
 //! The listing's description is the card's text with each heading alone on a
 //! line that starts with two tabs, cut short with "See the full description
 //! on the dataset page" and the page's address (Hugging Face Hub, October
 //! 2026). The headings and that notice are dropped so the teaser is prose.
 
+use std::collections::HashSet;
+
 use serde_json::Value;
 
 use super::Ctx;
+use crate::catalog;
 use crate::credentials::Key;
 use crate::http::SourceError;
 use crate::record::{Dataset, day, items, number, text};
 
 const PAGE: usize = 1000;
-const MAX_PAGES: usize = 5;
+/// How many of a query's words are searched for on the Hub, longest first.
+const ANCHORS: usize = 4;
+/// The fewest query words a row of a longer query holds, above half of them.
+const LEAST_WORDS: usize = 2;
 const CUT_NOTICE: &str = " See the full description on the dataset page:";
 
 const FIELDS: [&str; 6] =
@@ -35,67 +47,128 @@ pub fn search(
     query: &str,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    let words: Vec<String> =
-        query.split_whitespace().map(str::to_lowercase).collect();
-    let anchor =
-        words.iter().max_by_key(|w| w.len()).cloned().unwrap_or_default();
-    scan(&words, limit, |skip, size| {
-        if ctx.stopped() {
-            return Err(SourceError::Stopped);
-        }
-        let mut call = ctx
-            .http
-            .get("https://huggingface.co/api/datasets")
-            .query("search", &anchor)
-            .query("sort", "downloads")
-            .query("limit", size)
-            .query("skip", skip);
-        for field in FIELDS {
-            call = call.query("expand[]", field);
-        }
-        if let Some(secret) = ctx.creds.get(Key::HuggingFace) {
-            call = call.header("Authorization", secret.authorization());
-        }
-        call.json()
-    })
+    let terms = catalog::terms(query);
+    let size = if terms.len() > 1 { PAGE } else { limit };
+    let pages: Vec<Result<Value, SourceError>> = std::thread::scope(|scope| {
+        let workers: Vec<_> = anchors(&terms)
+            .into_iter()
+            .map(|anchor| scope.spawn(move || page(ctx, anchor, size)))
+            .collect();
+        workers
+            .into_iter()
+            .map(|worker| {
+                worker.join().unwrap_or_else(|_| {
+                    Err(SourceError::shape("the adapter crashed"))
+                })
+            })
+            .collect()
+    });
+    settle(pages, &terms, limit)
 }
 
-fn scan(
-    words: &[String],
+/// The anchors' pages as one answer, or the first anchor's failure.
+fn settle(
+    pages: Vec<Result<Value, SourceError>>,
+    terms: &[String],
     limit: usize,
-    mut fetch: impl FnMut(usize, usize) -> Result<Value, SourceError>,
 ) -> Result<Vec<Dataset>, SourceError> {
-    let size = if words.len() > 1 { PAGE } else { limit };
-    let mut hits = Vec::new();
-    for page in 0..MAX_PAGES {
-        let body = fetch(page.saturating_mul(size), size)?;
-        hits.extend(parse(&body, words, limit.saturating_sub(hits.len()))?);
-        let ran_out = body.as_array().map_or(0, Vec::len) < size;
-        if ran_out || hits.len() >= limit {
-            break;
+    let bodies = pages.into_iter().collect::<Result<Vec<_>, _>>()?;
+    pick(&bodies, terms, limit)
+}
+
+fn page(
+    ctx: &Ctx<'_>,
+    anchor: &str,
+    size: usize,
+) -> Result<Value, SourceError> {
+    let mut call = ctx
+        .http
+        .get("https://huggingface.co/api/datasets")
+        .query("search", anchor)
+        .query("sort", "downloads")
+        .query("limit", size);
+    for field in FIELDS {
+        call = call.query("expand[]", field);
+    }
+    if let Some(secret) = ctx.creds.get(Key::HuggingFace) {
+        call = call.key_header("Authorization", secret.authorization());
+    }
+    call.json()
+}
+
+/// The [`ANCHORS`] longest distinct terms, the longest first and ties in
+/// query order.
+fn anchors(terms: &[String]) -> Vec<&str> {
+    let mut distinct: Vec<&str> = Vec::new();
+    for term in terms {
+        if !distinct.contains(&term.as_str()) {
+            distinct.push(term);
         }
     }
-    Ok(hits)
+    distinct.sort_by_key(|term| std::cmp::Reverse(term.len()));
+    distinct.truncate(ANCHORS);
+    distinct
 }
 
+/// One recorded page, as [`pick`] reads it.
+#[cfg(test)]
 pub(super) fn parse(
     body: &Value,
-    words: &[String],
+    terms: &[String],
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    let wide = words.len() > 1;
-    let rows = body
-        .as_array()
-        .ok_or_else(|| SourceError::shape("expected a list of datasets"))?;
-    Ok(rows
-        .iter()
-        .filter(|row| !wide || mentions_all(row, words))
-        .filter_map(record)
-        .take(limit)
-        .collect())
+    pick(std::slice::from_ref(body), terms, limit)
 }
 
-fn mentions_all(row: &Value, words: &[String]) -> bool {
+/// The rows of every page, each once: for one term in the Hub's order, for
+/// several those holding at least half of them and at least [`LEAST_WORDS`],
+/// the most first.
+fn pick(
+    bodies: &[Value],
+    terms: &[String],
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
+    let wide = terms.len() > 1;
+    let needles = catalog::needles(terms);
+    let least = terms.len().div_ceil(2).max(terms.len().min(LEAST_WORDS));
+    let mut seen = HashSet::new();
+    let mut scored: Vec<(usize, Dataset)> = Vec::new();
+    for body in bodies {
+        let rows = body.as_array().ok_or_else(|| {
+            SourceError::shape("expected a list of datasets")
+        })?;
+        for row in rows {
+            let Some(id) = text(row, "/id") else { continue };
+            if !seen.insert(id) {
+                continue;
+            }
+            let held = if wide { holds(row, &needles) } else { 0 };
+            if wide && held < least {
+                continue;
+            }
+            if let Some(dataset) = record(row) {
+                scored.push((held, dataset));
+            }
+        }
+    }
+    if wide {
+        scored.sort_by(|(a, x), (b, y)| {
+            b.cmp(a)
+                .then_with(|| y.popularity.cmp(&x.popularity))
+                .then_with(|| x.title.cmp(&y.title))
+        });
+    }
+    Ok(scored.into_iter().take(limit).map(|(_, dataset)| dataset).collect())
+}
+
+/// How many of the query's words start a word of the row's id, description
+/// or tags.
+fn holds(row: &Value, needles: &[String]) -> usize {
+    let bits = catalog::found(&haystack(row), needles).count_ones();
+    usize::try_from(bits).unwrap_or(usize::MAX)
+}
+
+fn haystack(row: &Value) -> String {
     let mut haystack = text(row, "/id").unwrap_or_default();
     haystack.push(' ');
     haystack.push_str(&text(row, "/description").unwrap_or_default());
@@ -103,8 +176,7 @@ fn mentions_all(row: &Value, words: &[String]) -> bool {
         haystack.push(' ');
         haystack.push_str(tag);
     }
-    let haystack = haystack.to_lowercase();
-    words.iter().all(|w| haystack.contains(w.as_str()))
+    haystack
 }
 
 fn record(row: &Value) -> Option<Dataset> {
@@ -144,10 +216,6 @@ mod tests {
 
     fn words(query: &[&str]) -> Vec<String> {
         query.iter().map(|w| (*w).to_owned()).collect()
-    }
-
-    fn recorded_rows() -> Vec<Value> {
-        fixture::json("huggingface.json").as_array().unwrap().clone()
     }
 
     #[test]
@@ -213,61 +281,97 @@ mod tests {
         );
     }
 
-    fn page(rows: &[Value], skip: usize, size: usize) -> Value {
-        Value::Array(rows.iter().skip(skip).take(size).cloned().collect())
+    fn row(id: &str, description: &str, downloads: u64) -> Value {
+        serde_json::json!({
+            "id": id,
+            "author": id.split('/').next(),
+            "description": description,
+            "downloads": downloads,
+            "tags": [],
+        })
+    }
+
+    fn ids(found: &[Dataset]) -> Vec<&str> {
+        found.iter().map(|d| d.title.as_str()).collect()
     }
 
     #[test]
-    fn a_one_word_query_asks_for_exactly_limit_rows_and_stops() {
-        let rows = recorded_rows();
-        let mut asked = Vec::new();
-        let hits = scan(&words(&["climate"]), 2, |skip, size| {
-            asked.push((skip, size));
-            Ok(page(&rows, skip, size))
-        })
-        .unwrap();
-        assert_eq!(hits.len(), 2);
-        assert_eq!(asked, [(0, 2)]);
+    fn anchors_are_the_longest_meaningful_words() {
+        let terms = catalog::terms("Iris flower dataset");
+        assert_eq!(anchors(&terms), ["flower", "iris"]);
+        let terms = catalog::terms(
+            "GitHub issues and pull requests for training code models",
+        );
+        assert_eq!(
+            anchors(&terms),
+            ["requests", "training", "github", "issues"]
+        );
+        let terms = catalog::terms("iris iris");
+        assert_eq!(anchors(&terms), ["iris"]);
     }
 
     #[test]
-    fn a_short_page_means_the_hub_has_no_more() {
-        let rows = recorded_rows();
-        let mut asked = Vec::new();
-        let hits = scan(&words(&["climate"]), 10, |skip, size| {
-            asked.push((skip, size));
-            Ok(page(&rows, skip, size))
-        })
-        .unwrap();
-        assert_eq!(hits.len(), 3);
-        assert_eq!(asked, [(0, 10)]);
+    fn rows_from_several_anchors_count_once_and_rank_by_words_held() {
+        let terms = words(&["protein", "folding", "benchmark"]);
+        let protein = serde_json::json!([
+            row("a/protein-folding-benchmark", "", 1),
+            row("b/protein-structures", "folding simulations", 900),
+            row("c/protein-only", "sequences", 5000),
+        ]);
+        let benchmark = serde_json::json!([
+            row("a/protein-folding-benchmark", "", 1),
+            row("d/benchmark-suite", "", 7000),
+        ]);
+        let found = pick(&[protein, benchmark], &terms, 10).unwrap();
+        assert_eq!(
+            ids(&found),
+            ["a/protein-folding-benchmark", "b/protein-structures"]
+        );
     }
 
     #[test]
-    fn a_wide_query_reads_on_with_skip_until_enough_rows_match() {
-        let recorded = recorded_rows();
-        let mut stream = vec![recorded[0].clone(); PAGE];
-        stream.extend(recorded);
-        let mut asked = Vec::new();
-        let hits = scan(&words(&["climate", "fund"]), 5, |skip, size| {
-            asked.push((skip, size));
-            Ok(page(&stream, skip, size))
-        })
-        .unwrap();
-        assert_eq!(hits.len(), 1);
-        assert_eq!(asked, [(0, PAGE), (PAGE, PAGE)]);
+    fn a_long_question_needs_half_its_words_not_any_two() {
+        let terms = catalog::terms("how many people live in each US county");
+        assert_eq!(terms.len(), 7);
+        let body = serde_json::json!([
+            row("x/how-many-benchmark", "how many", 900),
+            row("y/us-county-people", "how many live in each", 10),
+        ]);
+        assert_eq!(
+            ids(&parse(&body, &terms, 10).unwrap()),
+            ["y/us-county-people"]
+        );
     }
 
     #[test]
-    fn a_wide_query_gives_up_after_five_pages() {
-        let stream = vec![recorded_rows()[0].clone(); PAGE * (MAX_PAGES + 1)];
-        let mut asked = 0;
-        let hits = scan(&words(&["climate", "fund"]), 5, |skip, size| {
-            asked += 1;
-            Ok(page(&stream, skip, size))
-        })
-        .unwrap();
-        assert_eq!(hits.len(), 0);
-        assert_eq!(asked, MAX_PAGES);
+    fn query_words_match_whole_word_starts_only() {
+        let terms = words(&["climate", "fund"]);
+        let body = serde_json::json!([
+            row("x/climate-refund", "a refund policy", 50),
+            row("y/climate-funds", "", 10),
+        ]);
+        assert_eq!(
+            ids(&parse(&body, &terms, 10).unwrap()),
+            ["y/climate-funds"]
+        );
+    }
+
+    #[test]
+    fn one_failed_anchor_fails_the_search() {
+        let terms = words(&["climate", "fund"]);
+        let found = serde_json::json!([row("y/climate-funds", "", 10)]);
+        let pages = vec![Ok(found), Err(SourceError::RateLimited)];
+        let outcome = settle(pages, &terms, 10);
+        assert!(matches!(outcome, Err(SourceError::RateLimited)));
+    }
+
+    #[test]
+    fn a_one_word_query_keeps_the_hubs_order_unfiltered() {
+        let body =
+            serde_json::json!(
+                [row("x/least", "", 1), row("y/most", "", 900),]
+            );
+        let found = parse(&body, &words(&["iris"]), 10).unwrap();
+        assert_eq!(ids(&found), ["x/least", "y/most"]);
     }
 }

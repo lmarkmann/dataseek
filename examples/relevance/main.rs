@@ -8,11 +8,13 @@
 //! just relevance pool       worksheets for every unjudged top-10 result
 //! just relevance absorb     fold filled-in worksheets into judgments.tsv
 //! just relevance record     re-record the snapshot from the live sources
+//! just relevance cutoff F   what stopping before the slowest sources costs
 //! ```
 //!
 //! docs/reference/development.md has the workflow.
 
 mod compare;
+mod cutoff;
 mod metrics;
 mod pool;
 mod record;
@@ -43,8 +45,14 @@ fn main() -> Result<()> {
         Some("pool") => pool::pool(&queries),
         Some("absorb") => pool::absorb(&queries),
         Some("record") => record::run(&queries, args.get(1..).unwrap_or(&[])),
+        Some("cutoff") => match args.get(1) {
+            Some(path) => cutoff::run(&queries, Path::new(path)),
+            None => bail!(
+                "cutoff needs a file of `search --json` source timings\n  Try:   just relevance cutoff tests/fixtures/relevance/latency.jsonl"
+            ),
+        },
         Some(other) => bail!(
-            "unknown mode {other:?}\n  Try:   check, --bless, variants, pool, absorb or record"
+            "unknown mode {other:?}\n  Try:   check, --bless, variants, pool, absorb, record or cutoff"
         ),
     }
 }

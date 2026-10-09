@@ -31,7 +31,7 @@ pub fn search(
         .http
         .get("https://api.stlouisfed.org/fred/series/search")
         .query("search_text", query)
-        .query("api_key", secret.token())
+        .key_query("api_key", secret.token())
         .query("file_type", "json")
         .query("limit", limit.clamp(1, 1000))
         .json()?;

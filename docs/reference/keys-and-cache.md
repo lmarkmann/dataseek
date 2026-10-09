@@ -33,14 +33,17 @@ Every request carries the repository URL and the contact address `user@dataseek.
 | kind | lives | what |
 |---|---|---|
 | query results | 6 hours | one file per source and query; never for Kaggle |
-| catalogs | 7 days or until the next release, then served as outdated until `cache warm` | the full lists of the `local` sources |
+| catalogs | 7 days | the full lists of the `local` sources |
 | outage marks | 10 minutes | sources skipped after an outage unless named with `--source` |
+| warming marks | 10 minutes | catalogs a search already set downloading in the background |
+| download failures | until a download succeeds | why a catalog's last download failed, named in the next search's warnings |
 
-The cache directory is trimmed to 30 MB and 2,000 files after every search, oldest first, catalogs only after every query entry. `DATASEEK_CACHE_MAX_MB` sets another size budget, in whole megabytes from 1 to 10,000. A search never downloads a catalog unless `-s` names it, so a budget too small for the catalogs leaves the evicted ones out of searches until the next `dataseek cache warm`. A value outside that range is a usage error (exit 2). `--cache-dir DIR` or `DATASEEK_CACHE_DIR` moves the directory.
+The cache directory is trimmed to 30 MB and 2,000 files after every search: query results go first, catalogs next and the marks last, the oldest first within each. A search writes about 42 query files, so oldest-first alone would evict every catalog within some 45 searches. A malformed entry is removed when read. `DATASEEK_CACHE_MAX_MB` sets another size budget, in whole megabytes from 1 to 10,000; a larger one keeps more downloaded catalogs between searches, a smaller one fetches them again sooner. A value outside that range is a usage error (exit 2). `--cache-dir DIR` or `DATASEEK_CACHE_DIR` moves the directory.
 
 ```sh
 dataseek cache info                 # path, size and budget
 dataseek cache warm                 # download every catalog now, no deadline
+dataseek cache warm -s openneuro    # only the named catalogs
 dataseek cache clear --dry-run      # what clearing would delete
 dataseek cache clear                # delete every entry; other files in the directory stay
 dataseek search ... --refresh       # ask every live source again
@@ -48,4 +51,6 @@ dataseek search ... --offline       # cached answers and catalogs only, no netwo
 dataseek search ... --timeout 0     # wait for every source, however slow
 ```
 
-A fetch that fails serves the expired entry when one exists; `-v` and `--json` label an answer served that way as stale. An entry written by another release counts as expired, because that release may have parsed the source differently: a query entry is refetched when online and still served when the fetch fails. A catalog copy past its 7 days or from another release is searched anyway and labeled `outdated catalog (N d old)`, and the closing summary counts them until `dataseek cache warm` replaces them. `--offline` sends no request at all, so it never marks a source as down or clears that mark. A host that misses a `--connect-timeout` you set is not marked as down either: that limit is your choice, and the source is asked again on the next search. Why the numbers are what they are: [ADR 0007](../adr/0007-cache-budget-and-failure-handling.md).
+A fetch that fails serves the expired entry when one exists; `-v` and `--json` label an answer served that way as stale. An entry written by another release counts as expired, because that release may have parsed the source differently: a query is asked again when online and its old answer served when that fails, and a catalog is searched as it is and downloaded again in the background.
+
+A search never waits for a catalog download it can do without ([ADR 0018](../adr/0018-a-search-never-waits-for-a-catalog-download.md)). An expired catalog is searched as it is, labeled `expired catalog`, and downloaded again in the background. A catalog with no copy yet downloads during the search until every other source has finished; if it is not done by then, the search reports it as still downloading and the download carries on in a detached `dataseek cache warm --source <ids>` that outlives the search, so the next search has it. A catalog named with `-s` and `--timeout 0` wait for the download, a catalog another search is already downloading is not downloaded twice, and `--offline` starts none. When a download fails, the next search that needs the catalog says why. `--offline` sends no request at all, so it never marks a source as down or clears that mark. A host that misses a `--connect-timeout` you set is not marked as down either: that limit is your choice, and the source is asked again on the next search. Why the numbers are what they are: [ADR 0007](../adr/0007-cache-budget-and-failure-handling.md).

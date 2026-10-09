@@ -84,9 +84,6 @@ pub fn run(
             sources: sources.clone(),
             per_source: usize::from(selection.per_source),
             forced: true,
-            // The bench measures the source, not the cache's luck: each
-            // catalog downloads here the way a named search would.
-            named: sources.iter().map(|s| s.id.to_owned()).collect(),
         });
         let outcomes = search(&services, true, &plan, &progress, None);
         for o in &outcomes {

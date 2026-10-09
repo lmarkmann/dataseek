@@ -66,7 +66,7 @@ Trigger: the first run with a `ROBOFLOW_API_KEY`. Record a real response into `t
 
 ## OpenNeuro live search
 
-OpenNeuro is downloaded as a catalog: 20 GraphQL requests, 37 to 90 seconds cold, so the first search misses the 20 second deadline until `dataseek cache warm`. `advancedSearch(query: {keywords: [...], publicOnly: true}, first: N)` answers anonymously, ranked by relevance, in 0.9 seconds for 100 hits (October 2026), while the plain `search` field still returns null. Parked because switching `openneuro` from `listed` to `live` needs a new request, a re-recorded fixture and a `live_parsers` entry, which is a change of its own.
+OpenNeuro is downloaded as a catalog: 20 GraphQL requests, 37 to 90 seconds cold. A search does not wait for that download (ADR 0018), so on an empty cache OpenNeuro's results arrive only once the background download has landed, about a minute later. `advancedSearch(query: {keywords: [...], publicOnly: true}, first: N)` answers anonymously, ranked by relevance, in 0.9 seconds for 100 hits (October 2026), while the plain `search` field still returns null. Parked because switching `openneuro` from `listed` to `live` needs a new request, a re-recorded fixture and a `live_parsers` entry, which is a change of its own.
 
 Trigger: the next change to `openneuro.rs`, or `dataseek bench` showing OpenNeuro past the deadline on a cold cache.
 

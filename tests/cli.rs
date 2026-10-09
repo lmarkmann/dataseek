@@ -299,52 +299,6 @@ fn offline_search_fails_with_a_hint_and_clean_stdout() {
     assert!(stderr.contains("looks offline"), "{stderr}");
 }
 
-// In the sandbox fred lacks its key and every other finance source is a
-// catalog with no copy on disk, so nothing runs. The key error leads; the
-// catalogs are still named.
-#[test]
-fn a_keyless_source_among_cold_catalogs_keeps_its_own_error() {
-    let out =
-        bin().args(["search", "yield", "-c", "finance"]).output().unwrap();
-    assert_eq!(out.status.code(), Some(1));
-    let stderr = String::from_utf8_lossy(&out.stderr);
-    assert!(stderr.contains("none of the chosen sources can run"), "{stderr}");
-    assert!(stderr.contains("have no catalog on disk"), "{stderr}");
-
-    let out = bin()
-        .args(["search", "yield", "-c", "finance", "-x", "fred"])
-        .output()
-        .unwrap();
-    assert_eq!(out.status.code(), Some(1));
-    let stderr = String::from_utf8_lossy(&out.stderr);
-    assert!(stderr.contains("catalog is missing from disk"), "{stderr}");
-}
-
-// A copy an earlier release wrote is searched, not dropped, and the summary
-// says it wants `cache warm`.
-#[test]
-fn an_earlier_releases_catalog_is_served_and_counted_as_outdated() {
-    let mut sandbox = bin();
-    let catalogs = sandbox.cache().join("catalogs");
-    std::fs::create_dir_all(&catalogs).unwrap();
-    std::fs::write(
-        catalogs.join("ecb.json"),
-        r#"{"stored":1,"version":"0.0.1","value":[{"title":"Euro yield curves","url":"https://data.ecb.europa.eu/yc"}]}"#,
-    )
-    .unwrap();
-    let out = sandbox
-        .args(["search", "yield", "-c", "finance"])
-        .args(["-x", "fred,bis,bundesbank,fiscal-data"])
-        .output()
-        .unwrap();
-    let stderr = String::from_utf8_lossy(&out.stderr);
-    assert!(out.status.success(), "{stderr}");
-    assert!(
-        String::from_utf8_lossy(&out.stdout).contains("Euro yield curves")
-    );
-    assert!(stderr.contains("1 catalog is outdated"), "{stderr}");
-}
-
 // A piped stderr gets the status lines a terminal would, as plain lines: no
 // carriage returns, no escapes, and the start announced before the error.
 #[test]
@@ -825,6 +779,25 @@ fn cache_warm_dry_run_lists_catalogs_and_downloads_none() {
     assert_eq!(text.lines().count(), catalog_ids().len(), "{text}");
     assert!(text.lines().all(|l| l.ends_with("would download")), "{text}");
     assert!(!cache.exists(), "--dry-run created the cache");
+}
+
+#[test]
+fn cache_warm_source_lists_only_the_named_catalogs() {
+    let out = bin()
+        .args(["cache", "warm", "-s", "openml,uci", "--dry-run"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    let text = String::from_utf8(out.stdout).unwrap();
+    let ids: Vec<&str> =
+        text.lines().filter_map(|l| l.split_whitespace().next()).collect();
+    assert_eq!(ids, ["openml", "uci"], "{text}");
+
+    let live = bin()
+        .args(["cache", "warm", "-s", "zenodo", "--dry-run"])
+        .output()
+        .unwrap();
+    assert_eq!(live.status.code(), Some(2), "a live source was accepted");
 }
 
 // Some catalogs failing is a failed run: each named on stderr, the count as

@@ -1,6 +1,7 @@
 //! `cache info`, `cache warm` and `cache clear`.
 
 use std::io::Write;
+use std::process::{Command, Stdio};
 
 use anyhow::{Context, Result};
 
@@ -27,7 +28,7 @@ pub fn run(action: CacheAction, out: &Out) -> Result<()> {
     let cache = Cache::new(paths::resolve()?.cache);
     match action {
         CacheAction::Info => info(&cache, out),
-        CacheAction::Warm { dry_run } => warm(out, dry_run),
+        CacheAction::Warm { only, dry_run } => warm(out, &only, dry_run),
         CacheAction::Clear { dry_run } => clear(&cache, out, dry_run),
     }
 }
@@ -62,10 +63,15 @@ fn clear(cache: &Cache, out: &Out, dry_run: bool) -> Result<()> {
     Ok(())
 }
 
-/// Every catalog source downloads in parallel, with no deadline. Successes
-/// go to stdout, each failure to stderr, and any failure fails the run.
-fn warm(out: &Out, dry_run: bool) -> Result<()> {
-    let catalogs: Vec<_> = SOURCES.iter().filter(|s| s.is_catalog()).collect();
+/// Every catalog source, or the ones named, downloads in parallel, with no
+/// deadline. Successes go to stdout, each failure to stderr, and any failure
+/// fails the run.
+fn warm(out: &Out, only: &[String], dry_run: bool) -> Result<()> {
+    let catalogs: Vec<_> = SOURCES
+        .iter()
+        .filter(|s| s.is_catalog())
+        .filter(|s| only.is_empty() || only.iter().any(|id| id == s.id))
+        .collect();
     let results: Vec<(&str, Option<Result<usize, SourceError>>)> = if dry_run {
         catalogs.iter().map(|s| (s.id, None)).collect()
     } else {
@@ -129,7 +135,7 @@ fn download<'a>(
     let ctx = services.ctx(true);
     ui::stage(format!("downloading {}", ui::count(catalogs.len(), "catalog")));
     let progress = ui::bar(catalogs.len() as u64, "catalogs");
-    let results = std::thread::scope(|scope| {
+    let results: Downloads<'a> = std::thread::scope(|scope| {
         let workers: Vec<_> = catalogs
             .iter()
             .map(|source| {
@@ -155,8 +161,62 @@ fn download<'a>(
             .collect()
     });
     progress.finish_and_clear();
+    for (id, result) in &results {
+        match result {
+            Some(Ok(_)) => {
+                services.cache.clear_failure(id);
+                services.cache.release_warming(id);
+            }
+            Some(Err(error)) => {
+                services.cache.record_failure(id, &error.to_string());
+            }
+            None => {}
+        }
+    }
     services.cache.trim();
     Ok(results)
+}
+
+/// Download these catalogs in a detached `cache warm` that outlives this
+/// process, so a download a search stopped waiting for still reaches the
+/// cache. A catalog whose warming mark another search holds is left to that
+/// download. True when a download of each is under way.
+pub fn warm_in_background(cache: &Cache, ids: &[&str]) -> bool {
+    let claimed: Vec<&str> =
+        ids.iter().copied().filter(|id| cache.claim_warming(id)).collect();
+    if claimed.is_empty() {
+        return ids.iter().all(|id| cache.warming(id));
+    }
+    let started = std::env::current_exe().and_then(|program| {
+        let mut command = Command::new(program);
+        command
+            .args(warm_args(&claimed))
+            .env("DATASEEK_CACHE_DIR", cache.root())
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null());
+        // Out of the terminal's foreground group, so a Ctrl-C at the prompt
+        // after the search does not reach it.
+        #[cfg(unix)]
+        std::os::unix::process::CommandExt::process_group(&mut command, 0);
+        command.spawn()
+    });
+    if started.is_err() {
+        for id in &claimed {
+            cache.release_warming(id);
+        }
+        return false;
+    }
+    true
+}
+
+/// The arguments of the background download of `ids`.
+fn warm_args(ids: &[&str]) -> Vec<String> {
+    ["--quiet", "cache", "warm", "--source"]
+        .iter()
+        .map(|arg| (*arg).to_owned())
+        .chain(std::iter::once(ids.join(",")))
+        .collect()
 }
 
 fn info(cache: &Cache, out: &Out) -> Result<()> {
@@ -187,4 +247,27 @@ fn info(cache: &Cache, out: &Out) -> Result<()> {
         BUDGET_FILES
     )?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use clap::Parser;
+
+    use super::*;
+    use crate::cli::{Cli, Command};
+
+    #[test]
+    fn the_background_download_parses_as_cache_warm() {
+        let argv = std::iter::once("dataseek".to_owned())
+            .chain(warm_args(&["openneuro", "physionet"]));
+        let cli = Cli::try_parse_from(argv).unwrap();
+        assert!(cli.quiet);
+        let Some(Command::Cache(CacheAction::Warm { only, dry_run })) =
+            cli.command
+        else {
+            panic!("not cache warm");
+        };
+        assert_eq!(only, ["openneuro", "physionet"]);
+        assert!(!dry_run);
+    }
 }

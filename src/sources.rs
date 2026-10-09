@@ -81,12 +81,12 @@ use crate::record::Dataset;
 pub type Live = fn(&Ctx<'_>, &str, usize) -> Result<Vec<Dataset>, SourceError>;
 pub type Listing = fn(&Ctx<'_>) -> Result<Vec<Dataset>, SourceError>;
 
-/// What a source answered: the records, and the failure that sent a catalog
-/// search to an expired copy when it did, so the answer reads stale, not ok.
+/// What a source answered: the records, and whether they came from an
+/// expired catalog that wants downloading again.
 #[derive(Debug)]
 pub struct Answer {
     pub datasets: Vec<Dataset>,
-    pub stale: Option<SourceError>,
+    pub expired: bool,
 }
 
 /// What an adapter gets to work with.
@@ -225,7 +225,7 @@ impl Source {
                 return self.local(ctx, query, limit);
             }
         };
-        fresh.map(|datasets| Answer { datasets, stale: None })
+        fresh.map(|datasets| Answer { datasets, expired: false })
     }
 
     /// Download and cache this source's catalog now; `None` for live
@@ -258,11 +258,12 @@ impl Source {
         }))
     }
 
-    /// Search the cached catalog, downloading it when it is missing or
-    /// expired. A failed or empty download falls back to an expired copy,
-    /// and the answer carries the failure so it reads stale.
-    /// `--refresh` does not apply: catalogs have their own TTL and `cache
-    /// warm`.
+    /// Search the cached catalog, downloading it only when there is no copy
+    /// at all. An expired copy is searched as it is and the answer says so,
+    /// because a download can outlast the search deadline (PhysioNet builds
+    /// its list for about 30 seconds) and would then never be stored; the
+    /// caller downloads it again outside the search. `--refresh` does not
+    /// apply: catalogs have their own TTL and `cache warm`.
     fn local(
         &self,
         ctx: &Ctx<'_>,
@@ -274,24 +275,18 @@ impl Source {
             self.id,
             CATALOG_TTL,
         );
-        let (entries, stale) = match cached {
-            Some((entries, Freshness::Fresh)) => (entries, None),
-            expired => match self.download(ctx).unwrap_or_else(|| {
+        let (entries, expired) = if let Some((entries, freshness)) = cached {
+            (entries, freshness == Freshness::Stale)
+        } else {
+            let entries = self.download(ctx).unwrap_or_else(|| {
                 Err(SourceError::shape("a live source has no catalog"))
-            }) {
-                Ok(entries) => {
-                    ctx.cache.store(Kind::Catalog, self.id, &entries);
-                    (entries, None)
-                }
-                Err(error) => match expired {
-                    Some((entries, _)) => (entries, Some(error)),
-                    None => return Err(error),
-                },
-            },
+            })?;
+            ctx.cache.store(Kind::Catalog, self.id, &entries);
+            (entries, false)
         };
         Ok(Answer {
             datasets: crate::catalog::search(&entries, query, limit),
-            stale,
+            expired,
         })
     }
 }
@@ -1230,10 +1225,10 @@ mod tests {
 
     #[expect(
         clippy::panic_in_result_fn,
-        reason = "an Err would be masked by the stale fallback"
+        reason = "being called at all is the failure"
     )]
     fn untouchable(_: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
-        panic!("a fresh catalog must not be downloaded again");
+        panic!("a cached catalog must not be downloaded during a search");
     }
 
     struct Rig {
@@ -1258,30 +1253,11 @@ mod tests {
         ctx.cache.store(Kind::Catalog, "fake", &vec![entry("Rainfall")]);
         let answer = catalog(untouchable).search(&ctx, "rain", 10).unwrap();
         assert_eq!(answer.datasets, vec![entry("Rainfall")]);
-        assert!(answer.stale.is_none());
+        assert!(!answer.expired);
     }
 
     #[test]
-    fn a_failed_download_falls_back_to_the_expired_catalog() {
-        let primed = rig();
-        let ctx = primed.services.ctx(false);
-        ctx.cache.store_expired(
-            Kind::Catalog,
-            "fake",
-            &vec![entry("Rainfall")],
-        );
-        let answer = catalog(down).search(&ctx, "rain", 10).unwrap();
-        assert_eq!(answer.datasets, vec![entry("Rainfall")]);
-        assert!(matches!(answer.stale, Some(SourceError::Timeout)));
-
-        let empty = rig();
-        let without =
-            catalog(down).search(&empty.services.ctx(false), "rain", 10);
-        assert!(matches!(without, Err(SourceError::Timeout)), "{without:?}");
-    }
-
-    #[test]
-    fn an_empty_download_falls_back_to_the_expired_catalog() {
+    fn an_expired_catalog_is_searched_without_downloading() {
         let rig = rig();
         let ctx = rig.services.ctx(false);
         ctx.cache.store_expired(
@@ -1289,9 +1265,20 @@ mod tests {
             "fake",
             &vec![entry("Rainfall")],
         );
-        let answer = catalog(nothing).search(&ctx, "rain", 10).unwrap();
+        let answer = catalog(untouchable).search(&ctx, "rain", 10).unwrap();
         assert_eq!(answer.datasets, vec![entry("Rainfall")]);
-        assert!(matches!(answer.stale, Some(SourceError::Shape(_))));
+        assert!(answer.expired);
+    }
+
+    #[test]
+    fn a_failed_first_download_is_the_source_failing() {
+        let rig = rig();
+        let ctx = rig.services.ctx(false);
+        let down = catalog(down).search(&ctx, "rain", 10);
+        assert!(matches!(down, Err(SourceError::Timeout)), "{down:?}");
+        let empty = catalog(nothing).search(&ctx, "rain", 10);
+        assert!(matches!(empty, Err(SourceError::Shape(_))), "{empty:?}");
+        assert!(cached(&ctx).is_none());
     }
 
     #[test]
@@ -1300,7 +1287,7 @@ mod tests {
         let ctx = rig.services.ctx(false);
         let answer = catalog(rain).search(&ctx, "snow", 10).unwrap();
         assert_eq!(answer.datasets.len(), 1);
-        assert!(answer.stale.is_none());
+        assert!(!answer.expired);
         let (stored, freshness) = cached(&ctx).unwrap();
         assert_eq!(stored, rain(&ctx).unwrap());
         assert_eq!(freshness, Freshness::Fresh);
