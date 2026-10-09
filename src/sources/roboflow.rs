@@ -35,6 +35,9 @@ pub fn search(
     let secret =
         ctx.creds.get(Key::Roboflow).ok_or(SourceError::Unauthorized(401))?;
     collect_pages(limit, |page| {
+        if ctx.stopped() {
+            return Err(SourceError::Stopped);
+        }
         ctx.http
             .get("https://api.roboflow.com/universe/search")
             .query("q", query)

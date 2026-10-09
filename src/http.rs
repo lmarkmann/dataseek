@@ -63,6 +63,11 @@ pub enum SourceError {
     Certificate(String),
     #[error("timed out")]
     Timeout,
+    /// The search deadline passed while this source still had pages to ask.
+    /// The rows in hand belong to a partial answer, so nothing is cached
+    /// from it and no host is marked down.
+    #[error("stopped by the search deadline")]
+    Stopped,
     #[error("did not connect within --connect-timeout ({0} s)")]
     ConnectLimit(u64),
     #[error("rate limited by the source")]
@@ -92,7 +97,8 @@ impl SourceError {
             | Self::Blocked
             | Self::RateLimited => true,
             Self::Status(code) => *code >= 500,
-            Self::Certificate(_)
+            Self::Stopped
+            | Self::Certificate(_)
             | Self::Unauthorized(_)
             | Self::Shape(_)
             | Self::ConnectLimit(_)
@@ -424,6 +430,7 @@ mod tests {
             (SourceError::Status(404), false),
             (SourceError::Unauthorized(401), false),
             (SourceError::RateLimited, true),
+            (SourceError::Stopped, false),
             (SourceError::shape("no hits"), false),
         ] {
             assert_eq!(error.is_outage(), outage, "{error:?}");

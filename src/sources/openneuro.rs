@@ -26,6 +26,9 @@ pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
     let mut entries = Vec::new();
     let mut after = Value::Null;
     for _ in 0..PAGES {
+        if ctx.stopped() {
+            return Err(SourceError::Stopped);
+        }
         let body = ctx
             .http
             .post("https://openneuro.org/crn/graphql")

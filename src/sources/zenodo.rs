@@ -24,6 +24,9 @@ pub fn search(
 ) -> Result<Vec<Dataset>, SourceError> {
     with_plain_retry(query, |query| {
         pages(limit, |size, page| {
+            if ctx.stopped() {
+                return Err(SourceError::Stopped);
+            }
             ctx.http
                 .get("https://zenodo.org/api/records")
                 .query("q", query)

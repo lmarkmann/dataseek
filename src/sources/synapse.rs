@@ -31,6 +31,9 @@ pub fn search(
         if remaining == 0 {
             break;
         }
+        if ctx.stopped() {
+            return Err(SourceError::Stopped);
+        }
         let body = ctx
             .http
             .post("https://repo-prod.prod.sagebase.org/repo/v1/search")

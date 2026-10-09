@@ -6,11 +6,15 @@
 //! a few minutes after an outage unless the user named it; served from the
 //! query cache when fresh (unless `--refresh`); otherwise fetched. A fetch
 //! that fails falls back to an expired cache entry when one exists, and an
-//! outage-class failure marks the source so the next searches skip it. The
-//! loop returns one [`Outcome`] per source in registry order; merging and
-//! printing are the caller's.
+//! outage-class failure marks the source so the next searches skip it. A
+//! search also owns a deadline: once it passes, the loop stops waiting and
+//! sets [`Services::stop`], every adapter stops before its next page, and
+//! the failure it reports is never marked as an outage, because slow is
+//! not down. The loop returns one [`Outcome`] per source in registry
+//! order; merging and printing are the caller's.
 
 use std::sync::Arc;
+use std::sync::atomic::Ordering;
 use std::sync::mpsc::{self, RecvTimeoutError};
 use std::time::{Duration, Instant};
 
@@ -127,6 +131,7 @@ pub fn run(
             }
             Err(RecvTimeoutError::Timeout) => {
                 deadline_passed = true;
+                services.stop.store(true, Ordering::Relaxed);
                 break;
             }
             Err(RecvTimeoutError::Disconnected) => break,
@@ -195,7 +200,9 @@ fn one(ctx: &Ctx<'_>, plan: &Plan, source: &'static Source) -> Outcome {
             done(Status::Fetched, datasets)
         }
         Err(error) => {
-            if error.is_outage() {
+            // A source the deadline cut off is slow, not down: its next
+            // page may be another host's fault, or the client's own limit.
+            if error.is_outage() && !ctx.stopped() {
                 ctx.cache.mark_outage(source.id);
             }
             match cached {
@@ -452,5 +459,56 @@ mod tests {
             "{:?}",
             outcome.status
         );
+    }
+
+    #[test]
+    fn the_passing_deadline_sets_the_stop_flag() {
+        let dir = tempfile::tempdir().unwrap();
+        let services = Arc::new(Services::scratch(dir.path()));
+        let plan = Arc::new(plan(&HANGS, true));
+        let outcomes = run(
+            &services,
+            false,
+            &plan,
+            &ProgressBar::hidden(),
+            Some(Duration::from_millis(50)),
+        );
+        assert!(
+            services.stop.load(Ordering::Relaxed),
+            "a passing deadline left the sources paging"
+        );
+        assert!(matches!(
+            outcomes.first().unwrap().status,
+            Status::Running(_)
+        ));
+    }
+
+    #[test]
+    fn a_failure_past_the_deadline_parks_no_source() {
+        let dir = tempfile::tempdir().unwrap();
+        let services = Services::scratch(dir.path());
+        services.stop.store(true, Ordering::Relaxed);
+        let ctx = services.ctx(false);
+        let outcome = one(&ctx, &plan(&TIMES_OUT, true), &TIMES_OUT);
+        assert!(matches!(
+            outcome.status,
+            Status::Failed(SourceError::Timeout)
+        ));
+        assert!(
+            ctx.cache.recent_outage(TIMES_OUT.id).is_none(),
+            "a deadline-cut-off source was parked as down"
+        );
+    }
+
+    #[test]
+    fn a_complete_answer_is_kept_even_past_the_deadline() {
+        let dir = tempfile::tempdir().unwrap();
+        let services = Services::scratch(dir.path());
+        services.stop.store(true, Ordering::Relaxed);
+        let ctx = services.ctx(false);
+        let outcome = one(&ctx, &plan(&ANSWERS, true), &ANSWERS);
+        assert!(matches!(outcome.status, Status::Fetched));
+        assert_eq!(outcome.datasets, found());
+        assert_eq!(ctx.cache.usage().files, 1, "the full answer was not kept");
     }
 }

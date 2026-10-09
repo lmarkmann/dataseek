@@ -71,6 +71,7 @@ mod worldbank;
 mod zenodo;
 
 use std::fmt;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 use crate::cache::{CATALOG_TTL, Cache, Freshness, Kind};
 use crate::credentials::{Credentials, Key};
@@ -94,6 +95,17 @@ pub struct Ctx<'a> {
     pub creds: &'a Credentials,
     pub cache: &'a Cache,
     pub refresh: bool,
+    stop: &'a AtomicBool,
+}
+
+impl Ctx<'_> {
+    /// Whether the search deadline has passed. An adapter stops before its
+    /// next page and reports [`SourceError::Stopped`], so the rows in hand
+    /// are never cached as a full answer and no host is marked down.
+    /// `cache warm` never sets it.
+    pub fn stopped(&self) -> bool {
+        self.stop.load(Ordering::Relaxed)
+    }
 }
 
 pub enum Adapter {
@@ -308,6 +320,9 @@ pub struct Services {
     pub http: Http,
     pub creds: Credentials,
     pub cache: Cache,
+    /// Set when a search reaches its deadline; adapters see it through
+    /// [`Ctx::stopped`]. Nothing else sets it.
+    pub stop: AtomicBool,
 }
 
 impl Services {
@@ -317,6 +332,7 @@ impl Services {
             http: Http::new(),
             creds: Credentials::load(&dirs.config),
             cache: Cache::new(dirs.cache),
+            stop: AtomicBool::new(false),
         })
     }
 
@@ -328,6 +344,7 @@ impl Services {
             http: Http::new(),
             creds: Credentials::default(),
             cache: Cache::new(dir.to_path_buf()),
+            stop: AtomicBool::new(false),
         }
     }
 
@@ -337,6 +354,7 @@ impl Services {
             creds: &self.creds,
             cache: &self.cache,
             refresh,
+            stop: &self.stop,
         }
     }
 }

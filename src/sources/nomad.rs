@@ -21,6 +21,9 @@ pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
     let mut entries = Vec::new();
     let mut after: Option<String> = None;
     for _ in 0..20 {
+        if ctx.stopped() {
+            return Err(SourceError::Stopped);
+        }
         let mut call = ctx
             .http
             .get("https://nomad-lab.eu/prod/v1/api/v1/datasets/")
