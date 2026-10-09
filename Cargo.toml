@@ -1,6 +1,6 @@
 [package]
 name = "dataseek"
-version = "0.8.0"
+version = "0.9.0"
 description = "Search for datasets from the terminal"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/lmarkmann/dataseek"
