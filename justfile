@@ -190,7 +190,7 @@ release-preview:
     trap 'git reset --quiet && git checkout --quiet -- . && git clean --quiet -fd' EXIT
 
     release-plz update --config .github/release-plz.toml
-    git add --intent-to-add --quiet .
+    git add --intent-to-add .
     git --no-pager diff
 
 # Keep package metadata, CLI help, README, and GitHub in step.
