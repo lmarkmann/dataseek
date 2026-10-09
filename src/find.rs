@@ -104,8 +104,8 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         .sources
         .iter()
         .filter(|s| {
-            s.is_catalog()
-                && !selection.only.iter().any(|id| id == s.id)
+            plan.reads_off_disk(s)
+                && s.missing_key(&services.creds).is_none()
                 && !services.cache.catalog_ready(s.id)
         })
         .count();

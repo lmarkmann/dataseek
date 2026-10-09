@@ -44,6 +44,14 @@ pub struct Plan {
     pub named: Vec<String>,
 }
 
+impl Plan {
+    /// Whether this search admits the source from its catalog copy on
+    /// disk instead of downloading: every catalog the user did not name.
+    pub fn reads_off_disk(&self, source: &Source) -> bool {
+        source.is_catalog() && !self.named.iter().any(|id| id == source.id)
+    }
+}
+
 #[derive(Debug)]
 pub enum Status {
     Fetched,
@@ -89,10 +97,9 @@ impl Status {
                 format!("still running after {} s", after.as_secs())
             }
             Self::NeedsWarm => "catalog not cached".to_owned(),
-            Self::Expired(age) => format!(
-                "expired catalog ({} d old)",
-                age.as_secs().checked_div(86_400).unwrap_or(u64::MAX)
-            ),
+            Self::Expired(age) => {
+                format!("expired catalog ({} d old)", age.as_secs() / 86_400)
+            }
         }
     }
 }
@@ -192,8 +199,7 @@ fn one(ctx: &Ctx<'_>, plan: &Plan, source: &'static Source) -> Outcome {
     if let Some(key) = source.missing_key(ctx.creds) {
         return done(Status::NeedsKey(key), Vec::new());
     }
-    let named = plan.named.iter().any(|id| id.as_str() == source.id);
-    if source.is_catalog() && !named {
+    if plan.reads_off_disk(source) {
         let admitted = ctx.cache.catalog(source.id, CATALOG_TTL);
         let (status, entries) = match admitted {
             Some(CatalogCopy::Fresh(entries)) => (Status::Fetched, entries),
