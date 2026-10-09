@@ -106,7 +106,7 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         .filter(|s| {
             plan.reads_off_disk(s)
                 && s.missing_key(&services.creds).is_none()
-                && !services.cache.catalog_ready(s.id)
+                && !services.cache.has_catalog(s.id)
         })
         .count();
     let asked =
@@ -121,17 +121,8 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         } else {
             String::new()
         };
-        let warm = if cold > 0 {
-            format!(
-                "; {} not on disk, `dataseek cache warm` fetches {}",
-                ui::count(cold, "catalog"),
-                if cold == 1 { "it" } else { "them" }
-            )
-        } else {
-            String::new()
-        };
         ui::stage(format!(
-            "searching {} for \"{query}\"{}{keys}{warm}",
+            "searching {} for \"{query}\"{}{keys}",
             ui::count(asked, "source"),
             if offline { ", offline" } else { "" }
         ));
@@ -150,9 +141,12 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
     notes(out, &outcomes);
     if !outcomes.iter().any(|o| o.status.attempted()) {
         let cold =
-            outcomes.iter().any(|o| matches!(o.status, Status::NeedsWarm));
+            outcomes.iter().all(|o| matches!(o.status, Status::NeedsWarm));
         let resting =
             outcomes.iter().any(|o| matches!(o.status, Status::Resting(_)));
+        if !cold {
+            warn_failures(&outcomes);
+        }
         return Err(if cold && offline {
             Error::NothingCached
         } else if cold {
@@ -227,9 +221,10 @@ fn notes(out: &Out, outcomes: &[Outcome]) {
     }
 }
 
-/// Sources that did not answer, catalogs still downloading, and catalogs
-/// a search never downloaded. Sources skipped by `--offline` are counted,
-/// not listed: there would be dozens.
+/// Sources that did not answer, catalogs still downloading, catalogs a
+/// search never downloaded, and outdated ones it served. Sources skipped by
+/// `--offline` and outdated catalogs are counted, not listed: there would
+/// be dozens.
 fn warn_failures(outcomes: &[Outcome]) {
     let downloading = |o: &&Outcome| {
         o.source.is_catalog() && matches!(o.status, Status::Running(_))
@@ -266,6 +261,18 @@ fn warn_failures(outcomes: &[Outcome]) {
         .collect();
     if !frozen.is_empty() {
         ui::warn(not_cached(&frozen));
+    }
+    let outdated = outcomes
+        .iter()
+        .filter(|o| matches!(o.status, Status::Outdated(_)))
+        .count();
+    if outdated > 0 {
+        let (verb, them) =
+            if outdated == 1 { ("is", "it") } else { ("are", "them") };
+        ui::warn(format!(
+            "{} {verb} outdated; `dataseek cache warm` refreshes {them}",
+            ui::count(outdated, "catalog")
+        ));
     }
 }
 

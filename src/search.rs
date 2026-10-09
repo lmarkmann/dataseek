@@ -10,10 +10,10 @@
 //! search also owns a deadline: once it passes, the loop stops waiting and
 //! sets [`Services::stop`], every adapter stops before its next page, and
 //! the failure it reports is never marked as an outage, because slow is
-//! not down. A catalog member is admitted from disk alone: a copy this
-//! release wrote is searched, an expired one is served labeled with its
-//! age, and a missing one is not fetched here at all; `dataseek cache
-//! warm` owns the downloads (ADR 0018). The loop returns one [`Outcome`]
+//! not down. A catalog member is admitted from disk alone: a fresh copy is
+//! searched, an expired one or one from another release is served labeled
+//! with its age, and a missing one is not fetched here at all; `dataseek
+//! cache warm` owns the downloads (ADR 0018). The loop returns one [`Outcome`]
 //! per source in registry order; merging and printing are the caller's.
 
 use std::sync::Arc;
@@ -67,15 +67,16 @@ pub enum Status {
     /// The list is not on disk and a search never downloads one; only
     /// `cache warm` fetches it.
     NeedsWarm,
-    /// Served from an expired catalog copy; `cache warm` refreshes it.
-    Expired(Duration),
+    /// Served from a catalog copy past its TTL or from another release;
+    /// `cache warm` refreshes it.
+    Outdated(Duration),
 }
 
 impl Status {
     pub fn answered(&self) -> bool {
         matches!(
             self,
-            Self::Fetched | Self::Cached | Self::Stale(_) | Self::Expired(_)
+            Self::Fetched | Self::Cached | Self::Stale(_) | Self::Outdated(_)
         )
     }
 
@@ -97,8 +98,8 @@ impl Status {
                 format!("still running after {} s", after.as_secs())
             }
             Self::NeedsWarm => "catalog not cached".to_owned(),
-            Self::Expired(age) => {
-                format!("expired catalog ({} d old)", age.as_secs() / 86_400)
+            Self::Outdated(age) => {
+                format!("outdated catalog ({} d old)", age.as_secs() / 86_400)
             }
         }
     }
@@ -203,8 +204,8 @@ fn one(ctx: &Ctx<'_>, plan: &Plan, source: &'static Source) -> Outcome {
         let admitted = ctx.cache.catalog(source.id, CATALOG_TTL);
         let (status, entries) = match admitted {
             Some(CatalogCopy::Fresh(entries)) => (Status::Fetched, entries),
-            Some(CatalogCopy::Expired(entries, age)) => {
-                (Status::Expired(age), entries)
+            Some(CatalogCopy::Outdated(entries, age)) => {
+                (Status::Outdated(age), entries)
             }
             None => return done(Status::NeedsWarm, Vec::new()),
         };
@@ -482,7 +483,7 @@ mod tests {
         ctx.cache.store_expired(Kind::Catalog, CATALOG_COLD.id, &found());
         let outcome = one(&ctx, &plan(&CATALOG_COLD, true), &CATALOG_COLD);
         assert!(
-            matches!(outcome.status, Status::Expired(_)),
+            matches!(outcome.status, Status::Outdated(_)),
             "{:?}",
             outcome.status
         );
@@ -505,7 +506,7 @@ mod tests {
     }
 
     #[test]
-    fn a_foreign_release_catalog_waits_for_cache_warm() {
+    fn a_foreign_release_catalog_is_served_outdated() {
         let dir = tempfile::tempdir().unwrap();
         let services = Services::scratch(dir.path());
         let ctx = services.ctx(false);
@@ -515,12 +516,13 @@ mod tests {
             &found(),
         );
         let outcome = one(&ctx, &plan(&CATALOG_COLD, true), &CATALOG_COLD);
-        assert!(matches!(outcome.status, Status::NeedsWarm));
-        assert_eq!(
-            ctx.cache.usage().files,
-            1,
-            "the stale copy beside the point is all there is"
+        assert!(
+            matches!(outcome.status, Status::Outdated(_)),
+            "{:?}",
+            outcome.status
         );
+        assert_eq!(outcome.datasets, found());
+        assert_eq!(ctx.cache.usage().files, 1, "nothing was downloaded");
     }
 
     #[test]

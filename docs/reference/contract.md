@@ -46,7 +46,7 @@ Every byte of stdout goes through a handle from `src/output.rs`, including the t
 
 So a piped search still announces itself at once and sums up at the end, and no spinner frame can reach a log. What must never happen is a frame on stdout, and that is guaranteed by the layer only ever writing to stderr. `doctor` does not narrate: its checks take milliseconds, so it prints only its report.
 
-`search` opens with the number of sources it will ask. A source missing its required key is skipped before any request, so it is left out of that number and counted after it (`1 needs a key, see dataseek doctor`); a catalog copy that is not on disk is skipped the same way and counted in its own clause (`5 catalogs not on disk, dataseek cache warm fetches them`), while a named one (`-s`) still downloads (ADR 0018); when no chosen source can run, there is no opening line, only the error.
+`search` opens with the number of sources it will ask. A source missing its required key is skipped before any request, so it is left out of that number and counted after it (`1 needs a key, see dataseek doctor`); a catalog with no copy on disk is skipped the same way and left out of that number, the closing summary names it (`physionet has no catalog on disk; dataseek cache warm fetches it`), and a named one (`-s`) still downloads (ADR 0018); a catalog copy past its 7 days or written by an earlier release is still searched, and the summary counts those (`3 catalogs are outdated; dataseek cache warm refreshes them`); when no chosen source can run, there is no opening line, only the error.
 
 `search` prints its summary after the results, so the last line says how many matched, how many sources answered and how to see more. An empty result is a stderr line, never text on stdout.
 
