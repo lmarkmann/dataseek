@@ -19,6 +19,7 @@ use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
 use crate::fs::write_atomic;
+use crate::record::Dataset;
 
 /// The size budget unless [`BUDGET_VAR`] sets another, in decimal megabytes
 /// like every size dataseek prints.
@@ -27,6 +28,10 @@ pub const BUDGET_FILES: usize = 2000;
 /// Replaces the size budget, in whole megabytes within [`BUDGET_MB`].
 pub const BUDGET_VAR: &str = "DATASEEK_CACHE_MAX_MB";
 pub const BUDGET_MB: RangeInclusive<u64> = 1..=10_000;
+/// The release whose parse shape [`Entry.version`] holds. A search serves
+/// another release's catalogs as absent: that release may have parsed the
+/// source differently, and only `cache warm` refetches now.
+const RELEASE: &str = env!("CARGO_PKG_VERSION");
 
 static BUDGET: OnceLock<u64> = OnceLock::new();
 
@@ -94,12 +99,22 @@ pub enum Freshness {
     Stale,
 }
 
+/// A catalog copy on disk a search can admit without downloading.
+#[derive(Debug, Clone, PartialEq)]
+pub enum CatalogCopy {
+    /// Within its TTL.
+    Fresh(Vec<Dataset>),
+    /// Past its TTL: still served, with the copy's age on the label.
+    Expired(Vec<Dataset>, Duration),
+}
+
 #[derive(Serialize, Deserialize)]
 struct Entry<T> {
     stored: u64,
     /// The release that wrote it. Another release may parse a source
-    /// differently, so its entries count as stale: refetched when online,
-    /// still served when the fetch fails.
+    /// differently: its query entries count as stale, refetched online
+    /// and served when a fetch fails, and its catalog entries count as
+    /// absent, replaced only by `cache warm`.
     #[serde(default)]
     version: String,
     value: T,
@@ -140,9 +155,7 @@ impl Cache {
         let json = std::fs::read_to_string(self.path(kind, key)).ok()?;
         let entry: Entry<T> = serde_json::from_str(&json).ok()?;
         let age = now().saturating_sub(entry.stored);
-        let freshness = if age < ttl.as_secs()
-            && entry.version == env!("CARGO_PKG_VERSION")
-        {
+        let freshness = if age < ttl.as_secs() && entry.version == RELEASE {
             Freshness::Fresh
         } else {
             Freshness::Stale
@@ -151,7 +164,9 @@ impl Cache {
     }
 
     pub fn store<T: Serialize>(&self, kind: Kind, key: &str, value: &T) {
-        self.write(kind, key, now(), value);
+        let entry =
+            Entry { stored: now(), version: RELEASE.to_owned(), value };
+        self.write(kind, key, &entry);
     }
 
     /// An entry written at the epoch, long past every TTL.
@@ -162,21 +177,67 @@ impl Cache {
         key: &str,
         value: &T,
     ) {
-        self.write(kind, key, 0, value);
+        let entry = Entry { stored: 0, version: RELEASE.to_owned(), value };
+        self.write(kind, key, &entry);
     }
 
-    fn write<T: Serialize>(
+    /// An entry written by another release, which a search treats as
+    /// absent because that release may have parsed the source differently.
+    #[cfg(test)]
+    pub fn store_foreign_release<T: Serialize>(
         &self,
         kind: Kind,
         key: &str,
-        stored: u64,
         value: &T,
     ) {
         let entry = Entry {
-            stored,
-            version: env!("CARGO_PKG_VERSION").to_owned(),
+            stored: now(),
+            version: "other-release".to_owned(),
             value,
         };
+        self.write(kind, key, &entry);
+    }
+
+    /// A catalog copy a search admits without downloading. [`None`] when
+    /// no copy is on disk, or when another release wrote it, because that
+    /// release may have parsed the source differently; only `cache warm`
+    /// replaces such a copy. `Expired` still serves, and carries the
+    /// copy's age for the label.
+    pub fn catalog(&self, id: &str, ttl: Duration) -> Option<CatalogCopy> {
+        let json =
+            std::fs::read_to_string(self.path(Kind::Catalog, id)).ok()?;
+        let entry: Entry<Vec<Dataset>> = serde_json::from_str(&json).ok()?;
+        if entry.version != RELEASE {
+            return None;
+        }
+        let age = now().saturating_sub(entry.stored);
+        if age < ttl.as_secs() {
+            Some(CatalogCopy::Fresh(entry.value))
+        } else {
+            Some(CatalogCopy::Expired(entry.value, Duration::from_secs(age)))
+        }
+    }
+
+    /// Whether a search would admit this source's catalog: a copy is on
+    /// disk and this release wrote it, whichever TTL side it sits on. It
+    /// reads the entry's head alone, so the search stage can count its
+    /// member set without parsing catalogs on the main thread. The head
+    /// layout is `Entry`'s field order, `stored` first and `version`
+    /// second, which serde writes in declaration order; the method's test
+    /// locks that order.
+    pub fn catalog_ready(&self, id: &str) -> bool {
+        match head(&self.path(Kind::Catalog, id)) {
+            Some(head) => {
+                head_field(&head, "\"version\":\"", '"') == Some(RELEASE)
+                    && head_field(&head, "\"stored\":", ',')
+                        .and_then(|value| value.parse::<u64>().ok())
+                        .is_some()
+            }
+            None => false,
+        }
+    }
+
+    fn write<T: Serialize>(&self, kind: Kind, key: &str, entry: &Entry<T>) {
         if let Ok(bytes) = serde_json::to_vec(&entry) {
             let _ = write_atomic(&self.path(kind, key), &bytes);
         }
@@ -292,6 +353,28 @@ pub fn query_key(source: &str, query: &str, limit: usize) -> String {
     format!("{source}-{hash:016x}")
 }
 
+/// The first bytes of an entry file, for checks that need no parse of
+/// entries that can run to tens of thousands.
+const HEAD_BYTES: u64 = 192;
+
+fn head(path: &Path) -> Option<String> {
+    use std::io::Read;
+    let mut file = std::fs::File::open(path).ok()?;
+    let mut head = String::new();
+    (&mut file).take(HEAD_BYTES).read_to_string(&mut head).ok()?;
+    Some(head)
+}
+
+/// The text of an entry's head after a field's key, up to the next
+/// `stop` byte; a value cut off at the head limit then fails its parse
+/// and reads as absent.
+fn head_field<'t>(head: &'t str, name: &str, stop: char) -> Option<&'t str> {
+    let at = head.find(name)?;
+    let from =
+        at.checked_add(name.len()).filter(|&from| from <= head.len())?;
+    head.get(from..)?.split(stop).next()
+}
+
 fn now() -> u64 {
     SystemTime::now().duration_since(UNIX_EPOCH).map_or(0, |d| d.as_secs())
 }
@@ -391,6 +474,66 @@ mod tests {
         assert_eq!(usage.files, 2);
         assert!(!dir.path().join("0.json").exists(), "oldest survived");
         assert!(dir.path().join("2.json").exists(), "newest evicted");
+    }
+
+    // serde writes `Entry` fields in declaration order, so this test is
+    // what breaks if the head a `catalog_ready` count leans on drifts.
+    #[test]
+    fn counting_admitted_catalogs_reads_only_the_head() {
+        let dir = tempfile::tempdir().unwrap();
+        let cache = Cache::new(dir.path().to_path_buf());
+        assert!(!cache.catalog_ready("zenodo"), "no file is not ready");
+        cache.store(Kind::Catalog, "zenodo", &vec![Dataset::new("A", "u")]);
+        assert!(cache.catalog_ready("zenodo"));
+        cache.store_expired(
+            Kind::Catalog,
+            "zenodo",
+            &vec![Dataset::new("B", "v")],
+        );
+        assert!(
+            cache.catalog_ready("zenodo"),
+            "an expired copy of this release is still admitted"
+        );
+        cache.store_foreign_release(
+            Kind::Catalog,
+            "zenodo",
+            &vec![Dataset::new("B", "v")],
+        );
+        assert!(!cache.catalog_ready("zenodo"), "another release is not");
+    }
+
+    #[test]
+    fn a_catalog_probe_reads_this_releases_copy_only() {
+        let dir = tempfile::tempdir().unwrap();
+        let cache = Cache::new(dir.path().to_path_buf());
+        assert!(cache.catalog("zenodo", CATALOG_TTL).is_none());
+        cache.store(Kind::Catalog, "zenodo", &vec![Dataset::new("A", "u")]);
+        assert!(matches!(
+            cache.catalog("zenodo", CATALOG_TTL),
+            Some(CatalogCopy::Fresh(_))
+        ));
+        cache.store_expired(
+            Kind::Catalog,
+            "zenodo",
+            &vec![Dataset::new("B", "v")],
+        );
+        match cache.catalog("zenodo", CATALOG_TTL) {
+            Some(CatalogCopy::Expired(entries, age)) => {
+                assert_eq!(entries.len(), 1);
+                assert!(age > CATALOG_TTL, "the copy is not past its TTL");
+            }
+            other => panic!("an expired copy came back {other:?}"),
+        }
+        cache.store_foreign_release(
+            Kind::Catalog,
+            "zenodo",
+            &vec![Dataset::new("B", "v")],
+        );
+        assert!(
+            cache.catalog("zenodo", CATALOG_TTL).is_none(),
+            "another release's entries read as absent"
+        );
+        assert!(cache.catalog("nowhere", CATALOG_TTL).is_none());
     }
 
     #[test]

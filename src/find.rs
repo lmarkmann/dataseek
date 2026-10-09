@@ -41,6 +41,10 @@ pub enum Error {
     )]
     Certificate(String),
     #[error(
+        "every chosen source's catalog is missing from disk\n  Try:   run `dataseek cache warm`, then search again"
+    )]
+    NotCached,
+    #[error(
         "nothing cached answers this query\n  Try:   run it once without --offline, or `dataseek cache warm` while online"
     )]
     NothingCached,
@@ -83,6 +87,7 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         ),
         per_source: usize::from(selection.per_source),
         forced: offline || !selection.only.is_empty(),
+        named: selection.only.clone(),
     });
     if plan.sources.is_empty() {
         return Err(Error::NoneSelected.into());
@@ -95,7 +100,17 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         .iter()
         .filter(|s| s.missing_key(&services.creds).is_some())
         .count();
-    let asked = plan.sources.len().saturating_sub(keyless);
+    let cold = plan
+        .sources
+        .iter()
+        .filter(|s| {
+            s.is_catalog()
+                && !selection.only.iter().any(|id| id == s.id)
+                && !services.cache.catalog_ready(s.id)
+        })
+        .count();
+    let asked =
+        plan.sources.len().saturating_sub(keyless).saturating_sub(cold);
     if asked > 0 {
         let need = if keyless == 1 { "needs" } else { "need" };
         let keys = if keyless > 0 {
@@ -106,8 +121,17 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         } else {
             String::new()
         };
+        let warm = if cold > 0 {
+            format!(
+                "; {} not on disk, `dataseek cache warm` fetches {}",
+                ui::count(cold, "catalog"),
+                if cold == 1 { "it" } else { "them" }
+            )
+        } else {
+            String::new()
+        };
         ui::stage(format!(
-            "searching {} for \"{query}\"{}{keys}",
+            "searching {} for \"{query}\"{}{keys}{warm}",
             ui::count(asked, "source"),
             if offline { ", offline" } else { "" }
         ));
@@ -125,11 +149,20 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
 
     notes(out, &outcomes);
     if !outcomes.iter().any(|o| o.status.attempted()) {
+        let cold =
+            outcomes.iter().any(|o| matches!(o.status, Status::NeedsWarm));
         let resting =
             outcomes.iter().any(|o| matches!(o.status, Status::Resting(_)));
-        return Err(
-            if resting { Error::Resting } else { Error::NothingRan }.into()
-        );
+        return Err(if cold && offline {
+            Error::NothingCached
+        } else if cold {
+            Error::NotCached
+        } else if resting {
+            Error::Resting
+        } else {
+            Error::NothingRan
+        }
+        .into());
     }
     if !outcomes.iter().any(|o| o.status.answered()) {
         warn_failures(&outcomes);
@@ -194,8 +227,9 @@ fn notes(out: &Out, outcomes: &[Outcome]) {
     }
 }
 
-/// Sources that did not answer, and catalogs still downloading. Sources
-/// skipped by `--offline` are counted, not listed: there would be dozens.
+/// Sources that did not answer, catalogs still downloading, and catalogs
+/// a search never downloaded. Sources skipped by `--offline` are counted,
+/// not listed: there would be dozens.
 fn warn_failures(outcomes: &[Outcome]) {
     let downloading = |o: &&Outcome| {
         o.source.is_catalog() && matches!(o.status, Status::Running(_))
@@ -225,6 +259,14 @@ fn warn_failures(outcomes: &[Outcome]) {
     if !catalogs.is_empty() {
         ui::warn(still_downloading(&catalogs));
     }
+    let frozen: Vec<&str> = outcomes
+        .iter()
+        .filter(|o| matches!(o.status, Status::NeedsWarm))
+        .map(|o| o.source.id)
+        .collect();
+    if !frozen.is_empty() {
+        ui::warn(not_cached(&frozen));
+    }
 }
 
 fn still_downloading(ids: &[&str]) -> String {
@@ -235,6 +277,17 @@ fn still_downloading(ids: &[&str]) -> String {
     };
     format!(
         "{} {verb} still downloading {whose}; `dataseek cache warm` fetches {them} once",
+        ids.join(", ")
+    )
+}
+
+/// The closing word for the catalogs a search left to `cache warm`, named
+/// so the fix is the next thing the eye lands on.
+fn not_cached(ids: &[&str]) -> String {
+    let (verb, them) =
+        if ids.len() == 1 { ("has", "it") } else { ("have", "them") };
+    format!(
+        "{} {verb} no catalog on disk; `dataseek cache warm` fetches {them}",
         ids.join(", ")
     )
 }
