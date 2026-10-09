@@ -273,7 +273,9 @@ impl Cache {
         }
     }
 
-    /// Evict the oldest entries until the directory fits the budget.
+    /// Evict the oldest entries until the directory fits the budget,
+    /// catalogs last: a search never downloads one again, so an evicted
+    /// catalog stays out of every search until `cache warm`.
     pub fn trim(&self) -> Usage {
         trim_files(self.files(), budget_bytes(), BUDGET_FILES)
     }
@@ -295,18 +297,20 @@ impl Cache {
 
     fn files(&self) -> Vec<CachedFile> {
         [Kind::Query, Kind::Catalog, Kind::Outage]
-            .iter()
+            .into_iter()
             .filter_map(|kind| {
-                std::fs::read_dir(self.root.join(kind.dir())).ok()
+                let dir =
+                    std::fs::read_dir(self.root.join(kind.dir())).ok()?;
+                Some(dir.filter_map(Result::ok).map(move |e| (kind, e)))
             })
             .flatten()
-            .filter_map(Result::ok)
-            .filter_map(|entry| {
+            .filter_map(|(kind, entry)| {
                 let meta = entry.metadata().ok()?;
                 meta.is_file().then(|| CachedFile {
                     path: entry.path(),
                     bytes: meta.len(),
                     modified: meta.modified().unwrap_or(UNIX_EPOCH),
+                    catalog: kind == Kind::Catalog,
                 })
             })
             .collect()
@@ -317,6 +321,7 @@ struct CachedFile {
     path: PathBuf,
     bytes: u64,
     modified: SystemTime,
+    catalog: bool,
 }
 
 fn trim_files(
@@ -324,7 +329,7 @@ fn trim_files(
     max_bytes: u64,
     max_files: usize,
 ) -> Usage {
-    files.sort_by_key(|f| f.modified);
+    files.sort_by_key(|f| (f.catalog, f.modified));
     let mut bytes: u64 = files.iter().map(|f| f.bytes).sum();
     let mut count = files.len();
     for file in &files {
@@ -357,12 +362,14 @@ pub fn query_key(source: &str, query: &str, limit: usize) -> String {
 /// entries that can run to tens of thousands.
 const HEAD_BYTES: u64 = 192;
 
+/// Lossy, because the cut can split a title's multibyte character, and the
+/// fields read from the head come before any title.
 fn head(path: &Path) -> Option<String> {
     use std::io::Read;
-    let mut file = std::fs::File::open(path).ok()?;
-    let mut head = String::new();
-    (&mut file).take(HEAD_BYTES).read_to_string(&mut head).ok()?;
-    Some(head)
+    let file = std::fs::File::open(path).ok()?;
+    let mut head = Vec::new();
+    file.take(HEAD_BYTES).read_to_end(&mut head).ok()?;
+    Some(String::from_utf8_lossy(&head).into_owned())
 }
 
 /// The text of an entry's head after a field's key, up to the next
@@ -468,12 +475,34 @@ mod tests {
                 path,
                 bytes: 100,
                 modified: UNIX_EPOCH + Duration::from_secs(1000 - age),
+                catalog: false,
             });
         }
         let usage = trim_files(files, 200, 10);
         assert_eq!(usage.files, 2);
         assert!(!dir.path().join("0.json").exists(), "oldest survived");
         assert!(dir.path().join("2.json").exists(), "newest evicted");
+    }
+
+    #[test]
+    fn trimming_evicts_catalogs_after_every_query_entry() {
+        let dir = tempfile::tempdir().unwrap();
+        let mut files = Vec::new();
+        for (i, (age, catalog)) in
+            [(30_u64, true), (20, false), (10, false)].iter().enumerate()
+        {
+            let path = dir.path().join(format!("{i}.json"));
+            std::fs::write(&path, vec![b'x'; 100]).unwrap();
+            files.push(CachedFile {
+                path,
+                bytes: 100,
+                modified: UNIX_EPOCH + Duration::from_secs(1000 - age),
+                catalog: *catalog,
+            });
+        }
+        trim_files(files, 200, 10);
+        assert!(dir.path().join("0.json").exists(), "the catalog was evicted");
+        assert!(!dir.path().join("1.json").exists(), "oldest query survived");
     }
 
     // serde writes `Entry` fields in declaration order, so this test is
@@ -500,6 +529,18 @@ mod tests {
             &vec![Dataset::new("B", "v")],
         );
         assert!(!cache.catalog_ready("zenodo"), "another release is not");
+    }
+
+    #[test]
+    fn a_head_cut_inside_a_multibyte_title_still_counts() {
+        let dir = tempfile::tempdir().unwrap();
+        let cache = Cache::new(dir.path().to_path_buf());
+        // One of the two lands the head limit inside an "é".
+        for (id, lead) in [("even", ""), ("odd", "a")] {
+            let title = format!("{lead}{}", "é".repeat(200));
+            cache.store(Kind::Catalog, id, &vec![Dataset::new(&title, "u")]);
+            assert!(cache.catalog_ready(id), "{id}");
+        }
     }
 
     #[test]

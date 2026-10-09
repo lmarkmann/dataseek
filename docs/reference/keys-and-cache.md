@@ -33,10 +33,10 @@ Every request carries the repository URL and the contact address `user@dataseek.
 | kind | lives | what |
 |---|---|---|
 | query results | 6 hours | one file per source and query; never for Kaggle |
-| catalogs | 7 days | the full lists of the `local` sources |
+| catalogs | 7 days, then served as expired until `cache warm` | the full lists of the `local` sources |
 | outage marks | 10 minutes | sources skipped after an outage unless named with `--source` |
 
-The cache directory is trimmed to 30 MB and 2,000 files after every search, oldest first. `DATASEEK_CACHE_MAX_MB` sets another size budget, in whole megabytes from 1 to 10,000; a larger one keeps more downloaded catalogs between searches, a smaller one fetches them again sooner. A value outside that range is a usage error (exit 2). `--cache-dir DIR` or `DATASEEK_CACHE_DIR` moves the directory.
+The cache directory is trimmed to 30 MB and 2,000 files after every search, oldest first, catalogs only after every query entry. `DATASEEK_CACHE_MAX_MB` sets another size budget, in whole megabytes from 1 to 10,000. A search never downloads a catalog unless `-s` names it, so a budget too small for the catalogs leaves the evicted ones out of searches until the next `dataseek cache warm`. A value outside that range is a usage error (exit 2). `--cache-dir DIR` or `DATASEEK_CACHE_DIR` moves the directory.
 
 ```sh
 dataseek cache info                 # path, size and budget
