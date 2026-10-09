@@ -16,6 +16,7 @@ ADR 0007 waits for every source up to a 20 second deadline. With catalogs search
 ## Consequences
 
 - A default search ends about a second after 90% of its sources have answered, unless that never happens, when the 20 second deadline still bounds it.
+- A source left behind is told so: the search sets a stop flag, and every adapter that pages checks it before its next page and gives up with an error that never marks the host as down and is never cached as an answer. The same flag is set at the deadline and when only first catalog downloads are left, so nothing the search stopped waiting for keeps paging until the process exits.
 - The merged top 10 differs from waiting for all in about one slot in eleven, and nDCG@10 falls by 0.033 on the tuning half and not measurably on the held-out half. Anyone who wants every source pays for it with `--timeout 0`.
 - `dsk mcp` refuses a `timeout` of 0, so an MCP client cannot ask for every source; it gets the same rule as the command line.
 - Changing the share or the grace is one constant each in `src/search.rs`; `just relevance cutoff` replays a new pair, added to `RULES` in `examples/relevance/cutoff.rs`, against the recorded latencies before it ships.

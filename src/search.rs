@@ -19,12 +19,13 @@
 //! a few minutes after an outage unless the user named it; served from the
 //! query cache when fresh (unless `--refresh`); otherwise fetched. A fetch
 //! that fails falls back to an expired cache entry when one exists, and an
-//! outage-class failure marks the source so the next searches skip it. A
-//! search also owns a deadline: once it passes, the loop stops waiting and
-//! sets [`Services::stop`], every adapter stops before its next page, and
-//! the failure it reports is never marked as an outage, because slow is
-//! not down. The loop returns one [`Outcome`] per source in registry
-//! order; merging and printing are the caller's.
+//! outage-class failure marks the source so the next searches skip it.
+//! Whenever the loop stops waiting, at the deadline, after the quorum's
+//! grace or with only first catalog downloads left, it sets
+//! [`Services::stop`]: every adapter stops before its next page, and the
+//! failure it reports is never marked as an outage, because slow is not
+//! down. The loop returns one [`Outcome`] per source in registry order;
+//! merging and printing are the caller's.
 
 use std::sync::Arc;
 use std::sync::atomic::Ordering;
@@ -186,11 +187,13 @@ pub fn run(
             }
             Err(RecvTimeoutError::Timeout) => {
                 gave_up = true;
-                services.stop.store(true, Ordering::Relaxed);
                 break;
             }
             Err(RecvTimeoutError::Disconnected) => break,
         }
+    }
+    if gave_up {
+        services.stop.store(true, Ordering::Relaxed);
     }
     slots
         .into_iter()
