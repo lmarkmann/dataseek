@@ -40,6 +40,9 @@ pub fn search(
     let anchor =
         words.iter().max_by_key(|w| w.len()).cloned().unwrap_or_default();
     scan(&words, limit, |skip, size| {
+        if ctx.stopped() {
+            return Err(SourceError::Stopped);
+        }
         let mut call = ctx
             .http
             .get("https://huggingface.co/api/datasets")

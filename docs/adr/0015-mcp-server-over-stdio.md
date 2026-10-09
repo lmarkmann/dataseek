@@ -18,7 +18,7 @@ dataseek is blocking (ureq) and its release binary size is tracked (#20). Its co
 
 ## Consequences
 
-- A tool's result is byte for byte what `--json` prints, and `--offline`, the narration mode and detached search threads end with the child, so no call leaks into the next.
+- A tool's result is byte for byte what `--json` prints, and `--offline`, the narration mode and detached search threads end with the child, so no call leaks into the next. Since [ADR 0018](0018-search-never-downloads-a-catalog.md) only live stragglers outlive a deadline and they stop before their next page, so the child now isolates `--offline`, the narration mode and the cache location alone; moving those onto construction arguments would make the child optional.
 - The server's own stdout is written only by the response writer, so it carries protocol messages and nothing else.
 - Each call pays one process start, under the 20 ms startup budget, against a search that spends seconds on the network.
 - Moving to an SDK means taking on an async runtime; the protocol code to replace is `src/mcp.rs`.

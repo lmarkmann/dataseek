@@ -6,7 +6,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::{Result, bail};
-use dataseek::internals::{Outcome, Plan, Services, search, select};
+use dataseek::internals::{Outcome, Plan, Services, Source, search, select};
 use indicatif::ProgressBar;
 
 use crate::snapshot::{self, Answered, Lists, Query};
@@ -34,12 +34,16 @@ pub fn run(queries: &[Query], args: &[String]) -> Result<()> {
     let mut err = std::io::stderr().lock();
     let mut kept = Vec::new();
     for (i, query) in chosen.iter().enumerate() {
-        let ask = |sources| {
+        let ask = |sources: Vec<&'static Source>| {
+            // The snapshot records the sources' own answers: every
+            // catalog downloads the way a named search would.
+            let named = sources.iter().map(|s| s.id.to_owned()).collect();
             let plan = Arc::new(Plan {
                 query: query.text.clone(),
                 sources,
                 per_source: PER_SOURCE,
                 forced: true,
+                named,
             });
             search(&services, false, &plan, &ProgressBar::hidden(), None)
         };

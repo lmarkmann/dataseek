@@ -66,6 +66,9 @@ pub fn list(
     let mut next = Some(format!("{}?limit=1000", catalog.collections));
     for _ in 0..50 {
         let Some(url) = next.take() else { break };
+        if ctx.stopped() {
+            return Err(SourceError::Stopped);
+        }
         let body = ctx.http.get(&url).slow().json()?;
         let (page, after) = parse(catalog, &body)?;
         entries.extend(page);

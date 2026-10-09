@@ -22,6 +22,9 @@ pub fn search(
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
     paged(limit, |page| {
+        if ctx.stopped() {
+            return Err(SourceError::Stopped);
+        }
         let mut call = ctx
             .http
             .get("https://www.kaggle.com/api/v1/datasets/list")

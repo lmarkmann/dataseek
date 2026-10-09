@@ -41,6 +41,9 @@ pub fn search(
         if found.len() >= limit || !has_next(&body) {
             break;
         }
+        if ctx.stopped() {
+            return Err(SourceError::Stopped);
+        }
         body = fetch(ctx, &query, size, page)?;
         found.extend(parse(&body, limit.saturating_sub(found.len()))?);
     }
