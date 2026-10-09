@@ -37,21 +37,45 @@ def path_kind(command: str) -> str:
     return "version" if command.rstrip().endswith(("--version", "-V")) else "help"
 
 
+def mean(result: dict) -> float:
+    # hyperfine 1.x puts the statistics beside the command; 2.0.0 keeps
+    # every measurement and nests the derived ones under "summary". The
+    # wall-clock mean is the same statistic either way: average it here
+    # until the committed baselines move over.
+    if "mean" in result:
+        return result["mean"]
+    wall = [seconds(m["time_wall_clock"]) for m in result["measurements"]]
+    return sum(wall) / len(wall)
+
+
+def seconds(value) -> float:
+    # 2.0.0 tags every measurement {value, unit}, always seconds here.
+    return value["value"] if isinstance(value, dict) else value
+
+
 def load(path: Path) -> dict[str, float]:
     results = json.loads(path.read_text())["results"]
-    return {r["command"]: r["mean"] * 1000 for r in results}
+    return {r["command"]: mean(r) * 1000 for r in results}
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("results", type=Path, help="hyperfine --export-json output")
-    parser.add_argument("--baseline", type=Path, help="baseline JSON; default docs/bench/baseline-<os>-<arch>.json")
+    parser.add_argument(
+        "--baseline",
+        type=Path,
+        help="baseline JSON; default docs/bench/baseline-<os>-<arch>.json",
+    )
     parser.add_argument("--lang", choices=BUDGETS_MS, default="rust")
     parser.add_argument("--regression-pct", type=float, default=25.0)
-    parser.add_argument("--bless", action="store_true", help="copy the results over the baseline")
+    parser.add_argument(
+        "--bless", action="store_true", help="copy the results over the baseline"
+    )
     args = parser.parse_args()
 
-    baseline_path = args.baseline or Path("docs/bench") / f"baseline-{machine_class()}.json"
+    baseline_path = (
+        args.baseline or Path("docs/bench") / f"baseline-{machine_class()}.json"
+    )
     if args.bless:
         baseline_path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(args.results, baseline_path)
@@ -76,29 +100,54 @@ def main() -> int:
         if mean > budget:
             status = "OVER BUDGET"
             breached.append((command, mean, budget))
-        elif base is not None and mean - base > NOISE_FLOOR_MS and (mean - base) / base * 100 > args.regression_pct:
+        elif (
+            base is not None
+            and mean - base > NOISE_FLOOR_MS
+            and (mean - base) / base * 100 > args.regression_pct
+        ):
             status = "regressed"
             regressed.append((command, mean, base))
-        rows.append((command, f"{mean:.1f}", str(budget), f"{base:.1f}" if base is not None else "none", delta, status))
+        rows.append(
+            (
+                command,
+                f"{mean:.1f}",
+                str(budget),
+                f"{base:.1f}" if base is not None else "none",
+                delta,
+                status,
+            )
+        )
 
-    table = ["| command | ms | budget | baseline | delta | status |", "|---|---|---|---|---|---|"]
+    table = [
+        "| command | ms | budget | baseline | delta | status |",
+        "|---|---|---|---|---|---|",
+    ]
     table += ["| " + " | ".join(row) + " |" for row in rows]
     text = "\n".join(table)
     print(text)
     if not baseline:
-        print(f"no baseline for {machine_class()} at {baseline_path}; run `just bench-startup --bless` on this machine class to start one")
+        print(
+            f"no baseline for {machine_class()} at {baseline_path}; run `just bench-startup --bless` on this machine class to start one"
+        )
 
     summary = os.environ.get("GITHUB_STEP_SUMMARY")
     if summary:
         with open(summary, "a", encoding="utf-8") as fh:
-            fh.write(f"## Startup bench ({machine_class()}, budgets x{factor})\n\n{text}\n\n")
+            fh.write(
+                f"## Startup bench ({machine_class()}, budgets x{factor})\n\n{text}\n\n"
+            )
 
     for command, mean, base in regressed:
         msg = f"{command}: {mean:.1f} ms, was {base:.1f} ms in the baseline"
-        print(f"::warning title=startup regression::{msg}" if in_ci else f"warning: {msg}")
+        print(
+            f"::warning title=startup regression::{msg}" if in_ci else f"warning: {msg}"
+        )
     for command, mean, budget in breached:
         msg = f"{command}: {mean:.1f} ms over the {budget} ms budget"
-        print(f"::error title=startup budget::{msg}" if in_ci else f"error: {msg}", file=sys.stderr)
+        print(
+            f"::error title=startup budget::{msg}" if in_ci else f"error: {msg}",
+            file=sys.stderr,
+        )
     return 1 if breached else 0
 
 
