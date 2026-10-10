@@ -2,6 +2,33 @@
 
 What shipped, newest first. release-plz writes each section from the conventional commits merged since the previous tag; see [`reference/release.md`](reference/release.md).
 
+## 0.9.0 - 2026-10-09
+
+### Docs
+
+- The stopping-rule measurement, ADRs 0018 and 0019 and the cache reference state the measured numbers, and --timeout's help says failures do not count toward the quorum
+
+### Fixed
+
+- A source the search stopped waiting for stops paging, whether the deadline, the quorum or a background catalog download ended the wait
+- A Hugging Face search that loses one of its words to an error fails instead of caching a partial list as the answer
+- A search that stopped waiting for a source says so, by name, and --json reports whether the results are complete
+- A catalog whose background download failed is named in the search's warnings, and two searches no longer start the same download
+- Sources named with -s wait for their catalogs, a catalog already downloading in the background is not downloaded again, and a cold cache still stops at the quorum
+- Hugging Face searches by every meaningful word of the query, so "Iris flower dataset" and natural-language questions find their datasets instead of failing or coming back empty
+- A source that refuses a keyless request reports "refused the request" instead of "rejected the credentials", and is not rested
+- The cache evicts query results before catalogs, so a busy week of searches no longer drops every catalog
+- A search no longer waits for slow catalog downloads; they finish in the background for the next search, and cache warm -s downloads only the named catalogs
+- Stop a source's pages when the search deadline passes
+
+### Other
+
+- Each release updates the Homebrew formula, so brew install lmarkmann/tap/dataseek installs dataseek and dsk with completions and the man page
+
+### Performance
+
+- A search waits at most one more second once 90% of its sources have answered, so most searches finish in about 2 s
+
 ## 0.8.0 - 2026-10-07
 
 ### Added
