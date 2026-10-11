@@ -1,0 +1,74 @@
+{
+  "hitCount": 3296,
+  "entries": [
+    {
+      "acc": "E-GEOD-22131",
+      "id": "E-GEOD-22131",
+      "source": "biostudies-arrayexpress",
+      "fields": {
+        "name": [
+          "High resolution analysis of genomic imprinting in the embryonic and adult mouse brain AND Sex-specific imprinting in the mouse brain"
+        ],
+        "description": [
+          "Genomic imprinting results in the preferential expression of the paternal, or maternal allele of certain genes.  We have performed a genome-wide characterization of imprinting in the mouse embryonic and adult brain using F1 hybrid mice generated from reciprocal crosses of CASTEiJ and C57BL/6J mice."
+        ],
+        "abstract": [],
+        "release_date": [
+          "20100708"
+        ]
+      }
+    },
+    {
+      "acc": "E-GEOD-19709",
+      "id": "E-GEOD-19709",
+      "source": "biostudies-arrayexpress",
+      "fields": {
+        "name": [
+          "Transcriptional Response of Adult Mouse Brain to Hypoxia"
+        ],
+        "description": [
+          "Since normal brain function depends upon continuous oxygen delivery and short periods of hypoxia can precondition against subsequent ischemia, this study examined the effects of brief hypoxia on the whole genome transcriptional response in adult mouse brain."
+        ],
+        "abstract": [],
+        "release_date": [
+          "20111230"
+        ]
+      }
+    },
+    {
+      "acc": "E-GEOD-22653",
+      "id": "E-GEOD-22653",
+      "source": "biostudies-arrayexpress",
+      "fields": {
+        "name": [
+          "Deep sequencing analysis of the developing mouse brain reveals a novel microRNA"
+        ],
+        "description": [
+          "MicroRNAs (miRNAs) are small non-coding RNAs that can exert multilevel inhibition/repression at a post-transcriptional or protein synthesis level during disease or development. Characterisation of miRNAs in adult mammalian brains by deep sequencing has been reported previously."
+        ],
+        "abstract": [],
+        "release_date": [
+          "20110404"
+        ]
+      }
+    },
+    {
+      "acc": "E-GEOD-6355",
+      "id": "E-GEOD-6355",
+      "source": "biostudies-arrayexpress",
+      "fields": {
+        "name": [
+          "Connexin-dependent transcellular transcriptomic networks in mouse brain"
+        ],
+        "description": [
+          "Microarray experiments have generally focused on magnitude of gene expression changes in pathological conditions, thereby using the method as a high throughput screen to identify candidate marker genes and/or to validate phenotypic differences."
+        ],
+        "abstract": [],
+        "release_date": [
+          "20100609"
+        ]
+      }
+    }
+  ],
+  "facets": []
+}

@@ -1,0 +1,731 @@
+{
+  "data": [
+    {
+      "id": "10.34740/kaggle/dsv/7121545",
+      "type": "dois",
+      "attributes": {
+        "doi": "10.34740/kaggle/dsv/7121545",
+        "identifiers": [],
+        "creators": [
+          {
+            "name": "The world air quality index",
+            "affiliation": [],
+            "nameIdentifiers": []
+          }
+        ],
+        "titles": [
+          {
+            "title": "Air Quality Index May 2019 - April 2020 Pakistan"
+          }
+        ],
+        "publisher": "Kaggle",
+        "container": {},
+        "publicationYear": 2023,
+        "subjects": [],
+        "contributors": [],
+        "dates": [],
+        "language": null,
+        "types": {
+          "schemaOrg": "Dataset",
+          "resourceTypeGeneral": "Dataset",
+          "citeproc": "dataset",
+          "bibtex": "misc",
+          "ris": "DATA"
+        },
+        "relatedIdentifiers": [],
+        "relatedItems": [],
+        "sizes": [],
+        "formats": [],
+        "version": null,
+        "rightsList": [],
+        "descriptions": [],
+        "geoLocations": [],
+        "fundingReferences": [],
+        "url": "https://www.kaggle.com/dsv/7121545",
+        "contentUrl": null,
+        "metadataVersion": 0,
+        "schemaVersion": null,
+        "source": "api",
+        "isActive": true,
+        "state": "findable",
+        "reason": null,
+        "viewCount": 0,
+        "downloadCount": 0,
+        "referenceCount": 0,
+        "citationCount": 0,
+        "partCount": 0,
+        "partOfCount": 0,
+        "versionCount": 0,
+        "versionOfCount": 0,
+        "created": "2023-12-04T14:21:30Z",
+        "registered": "2023-12-04T14:21:30Z",
+        "published": null,
+        "updated": "2023-12-04T14:21:30Z"
+      },
+      "relationships": {
+        "client": {
+          "data": {
+            "id": "kaggle.kaggle",
+            "type": "clients"
+          }
+        }
+      }
+    },
+    {
+      "id": "10.34740/kaggle/dsv/6909048",
+      "type": "dois",
+      "attributes": {
+        "doi": "10.34740/kaggle/dsv/6909048",
+        "identifiers": [],
+        "creators": [
+          {
+            "name": "The world air quality index",
+            "affiliation": [],
+            "nameIdentifiers": []
+          }
+        ],
+        "titles": [
+          {
+            "title": "Air Quality Index May 2019 - April 2020 Pakistan"
+          }
+        ],
+        "publisher": "Kaggle",
+        "container": {},
+        "publicationYear": 2023,
+        "subjects": [],
+        "contributors": [],
+        "dates": [],
+        "language": null,
+        "types": {
+          "schemaOrg": "Dataset",
+          "resourceTypeGeneral": "Dataset",
+          "citeproc": "dataset",
+          "bibtex": "misc",
+          "ris": "DATA"
+        },
+        "relatedIdentifiers": [],
+        "relatedItems": [],
+        "sizes": [],
+        "formats": [],
+        "version": null,
+        "rightsList": [],
+        "descriptions": [],
+        "geoLocations": [],
+        "fundingReferences": [],
+        "url": "https://www.kaggle.com/dsv/6909048",
+        "contentUrl": null,
+        "metadataVersion": 0,
+        "schemaVersion": null,
+        "source": "api",
+        "isActive": true,
+        "state": "findable",
+        "reason": null,
+        "viewCount": 0,
+        "downloadCount": 0,
+        "referenceCount": 0,
+        "citationCount": 0,
+        "partCount": 0,
+        "partOfCount": 0,
+        "versionCount": 0,
+        "versionOfCount": 0,
+        "created": "2023-11-07T11:37:12Z",
+        "registered": "2023-11-07T11:37:13Z",
+        "published": null,
+        "updated": "2023-11-07T11:37:13Z"
+      },
+      "relationships": {
+        "client": {
+          "data": {
+            "id": "kaggle.kaggle",
+            "type": "clients"
+          }
+        }
+      }
+    },
+    {
+      "id": "10.7910/dvn/xuutmy",
+      "type": "dois",
+      "attributes": {
+        "doi": "10.7910/dvn/xuutmy",
+        "identifiers": [],
+        "creators": [
+          {
+            "nameType": "Organizational",
+            "affiliation": [
+              "Environmental Protection Agency"
+            ],
+            "name": "Office of Air Quality Planning and Standards",
+            "nameIdentifiers": []
+          }
+        ],
+        "titles": [
+          {
+            "title": "Extracted Data From: National Emissions Inventory &amp; Air Emissions"
+          },
+          {
+            "titleType": "AlternativeTitle",
+            "title": "NEI"
+          }
+        ],
+        "publisher": "Harvard Dataverse",
+        "container": {},
+        "publicationYear": 2025,
+        "subjects": [
+          {
+            "subject": "Earth and Environmental Sciences"
+          },
+          {
+            "schemeUri": "https://tools.niehs.nih.gov/cchhglossary/",
+            "subject": "Air Pollution"
+          },
+          {
+            "subject": "Anthropogenic Emissions"
+          },
+          {
+            "subject": "Greenhouse Gas"
+          }
+        ],
+        "contributors": [
+          {
+            "nameType": "Personal",
+            "affiliation": [
+              "Boston University School of Public Health"
+            ],
+            "givenName": "Allison",
+            "familyName": "James",
+            "name": "James, Allison",
+            "contributorType": "Distributor",
+            "nameIdentifiers": []
+          },
+          {
+            "nameType": "Personal",
+            "affiliation": [],
+            "name": "CAFE",
+            "nameIdentifiers": [],
+            "contributorType": "ContactPerson"
+          }
+        ],
+        "dates": [
+          {
+            "date": "2024-12-17",
+            "dateType": "Issued"
+          },
+          {
+            "date": "2024-12-17",
+            "dateType": "Submitted"
+          },
+          {
+            "date": "2025-01-14",
+            "dateType": "Available"
+          },
+          {
+            "date": "2025-02-11",
+            "dateType": "Updated"
+          },
+          {
+            "date": "1990-01-01/2024-12-31",
+            "dateType": "Other",
+            "dateInformation": "Time period covered by the data"
+          }
+        ],
+        "language": null,
+        "types": {
+          "schemaOrg": "Dataset",
+          "resourceTypeGeneral": "Dataset",
+          "citeproc": "dataset",
+          "bibtex": "misc",
+          "ris": "DATA",
+          "resourceType": "Extracted Data"
+        },
+        "relatedIdentifiers": [],
+        "relatedItems": [],
+        "sizes": [
+          "2267084892",
+          "29778637",
+          "31520013",
+          "31299062",
+          "1446708780",
+          "29573892",
+          "25014442",
+          "9206645537",
+          "322274856",
+          "44351313",
+          "189689612",
+          "47077288",
+          "40791297",
+          "1089789207",
+          "48096707",
+          "51850176",
+          "2433005027",
+          "1571465824",
+          "2803386530",
+          "27480381",
+          "82026"
+        ],
+        "formats": [
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/zip",
+          "application/pdf"
+        ],
+        "version": "3.0",
+        "rightsList": [
+          {
+            "rightsUri": "info:eu-repo/semantics/openAccess"
+          },
+          {
+            "rightsIdentifierScheme": "SPDX",
+            "rightsUri": "https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+            "schemeUri": "https://spdx.org/licenses/",
+            "rights": "Creative Commons Zero v1.0 Universal",
+            "lang": "en",
+            "rightsIdentifier": "cc0-1.0"
+          }
+        ],
+        "descriptions": [
+          {
+            "descriptionType": "Abstract",
+            "description": "This submission includes publicly available data extracted in its original form. &lt;br&gt;\n\nWelcome to the one-stop shop for NEI-based data, organized by Inventory Year.\nSome inventory years do not include all of our data products."
+          },
+          {
+            "descriptionType": "Methods",
+            "description": "\"<b>Terms of Use for Geospatial Data</b>\n<br><br>\nThese geospatial data and corresponding cartographic materials have been approved for use by the U.S. Environmental Protection Agency (EPA) as advised by the EPA Geospatial Advisory Committee (EGAC). This approved release is on the condition that neither the EPA nor the U.S. Government may be held liable for any damages resulting from its authorize"
+          },
+          {
+            "descriptionType": "Other",
+            "description": "This submission includes publicly available data extracted in its original form. Please reference the Related Publication listed here for source and citation information.\n\nAir Emissions Inventory data was downloaded by\nAllison James on 2024-12-17"
+          }
+        ],
+        "geoLocations": [],
+        "fundingReferences": [],
+        "url": "https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/XUUTMY",
+        "contentUrl": null,
+        "metadataVersion": 4,
+        "schemaVersion": "http://datacite.org/schema/kernel-4",
+        "source": "mds",
+        "isActive": true,
+        "state": "findable",
+        "reason": null,
+        "viewCount": 186,
+        "downloadCount": 14,
+        "referenceCount": 0,
+        "citationCount": 0,
+        "partCount": 0,
+        "partOfCount": 0,
+        "versionCount": 0,
+        "versionOfCount": 0,
+        "created": "2024-12-17T22:09:49Z",
+        "registered": "2025-01-14T18:39:03Z",
+        "published": null,
+        "updated": "2026-04-21T08:40:27Z"
+      },
+      "relationships": {
+        "client": {
+          "data": {
+            "id": "gdcc.harvard-dv",
+            "type": "clients"
+          }
+        }
+      }
+    },
+    {
+      "id": "10.17632/y6p778djzj.1",
+      "type": "dois",
+      "attributes": {
+        "doi": "10.17632/y6p778djzj.1",
+        "identifiers": [],
+        "creators": [
+          {
+            "nameType": "Personal",
+            "givenName": "Nitiraj",
+            "familyName": "Kulkarni",
+            "name": "Kulkarni, Nitiraj",
+            "affiliation": [],
+            "nameIdentifiers": []
+          }
+        ],
+        "titles": [
+          {
+            "title": "Dataset: Daily Air Quality Index and Pollutant Concentrations for Pune, India"
+          }
+        ],
+        "publisher": "Mendeley Data",
+        "container": {},
+        "publicationYear": 2026,
+        "subjects": [
+          {
+            "subject": "Air Quality"
+          },
+          {
+            "subject": "Urban Air Quality"
+          },
+          {
+            "subject": "Air Quality Study"
+          }
+        ],
+        "contributors": [],
+        "dates": [
+          {
+            "date": "2026-01-28T13:05:58Z",
+            "dateType": "Issued"
+          }
+        ],
+        "language": null,
+        "types": {
+          "schemaOrg": "Dataset",
+          "resourceTypeGeneral": "Dataset",
+          "citeproc": "dataset",
+          "bibtex": "misc",
+          "ris": "DATA",
+          "resourceType": "Dataset"
+        },
+        "relatedIdentifiers": [
+          {
+            "relationType": "IsVersionOf",
+            "resourceTypeGeneral": "Dataset",
+            "relatedIdentifier": "10.17632/y6p778djzj",
+            "relatedIdentifierType": "DOI"
+          }
+        ],
+        "relatedItems": [],
+        "sizes": [],
+        "formats": [],
+        "version": null,
+        "rightsList": [
+          {
+            "rightsUri": "info:eu-repo/semantics/openAccess"
+          },
+          {
+            "rightsIdentifierScheme": "SPDX",
+            "rightsUri": "https://creativecommons.org/licenses/by/4.0/legalcode",
+            "schemeUri": "https://spdx.org/licenses/",
+            "rights": "Creative Commons Attribution 4.0 International",
+            "rightsIdentifier": "cc-by-4.0"
+          }
+        ],
+        "descriptions": [
+          {
+            "descriptionType": "Abstract",
+            "description": "This dataset contains daily air quality measurements and Air Quality Index values for Pune, India, compiled from multiple Maharashtra Pollution Control Board monitoring stations across the city. The data spans from June 2019 to January 2026 and reflects long term air quality conditions across residential, educational, traffic influenced, and peri urban areas of Pune.\n\nThe dataset includes station "
+          }
+        ],
+        "geoLocations": [],
+        "fundingReferences": [],
+        "url": "https://data.mendeley.com/datasets/y6p778djzj/1",
+        "contentUrl": null,
+        "metadataVersion": 0,
+        "schemaVersion": "http://datacite.org/schema/kernel-4",
+        "source": "api",
+        "isActive": true,
+        "state": "findable",
+        "reason": null,
+        "viewCount": 0,
+        "downloadCount": 0,
+        "referenceCount": 0,
+        "citationCount": 0,
+        "partCount": 0,
+        "partOfCount": 0,
+        "versionCount": 0,
+        "versionOfCount": 1,
+        "created": "2026-01-28T13:06:00Z",
+        "registered": "2026-01-28T13:06:00Z",
+        "published": null,
+        "updated": "2026-01-28T13:06:00Z"
+      },
+      "relationships": {
+        "client": {
+          "data": {
+            "id": "bl.mendeley",
+            "type": "clients"
+          }
+        }
+      }
+    },
+    {
+      "id": "10.17632/y6p778djzj",
+      "type": "dois",
+      "attributes": {
+        "doi": "10.17632/y6p778djzj",
+        "identifiers": [],
+        "creators": [
+          {
+            "nameType": "Personal",
+            "givenName": "Nitiraj",
+            "familyName": "Kulkarni",
+            "name": "Kulkarni, Nitiraj",
+            "affiliation": [],
+            "nameIdentifiers": []
+          }
+        ],
+        "titles": [
+          {
+            "title": "Dataset: Daily Air Quality Index and Pollutant Concentrations for Pune, India"
+          }
+        ],
+        "publisher": "Mendeley Data",
+        "container": {},
+        "publicationYear": 2026,
+        "subjects": [
+          {
+            "subject": "Air Quality"
+          },
+          {
+            "subject": "Urban Air Quality"
+          },
+          {
+            "subject": "Air Quality Study"
+          }
+        ],
+        "contributors": [],
+        "dates": [
+          {
+            "date": "2026-01-28T13:05:58Z",
+            "dateType": "Issued"
+          }
+        ],
+        "language": null,
+        "types": {
+          "schemaOrg": "Dataset",
+          "resourceTypeGeneral": "Dataset",
+          "citeproc": "dataset",
+          "bibtex": "misc",
+          "ris": "DATA",
+          "resourceType": "Dataset"
+        },
+        "relatedIdentifiers": [
+          {
+            "relationType": "HasVersion",
+            "resourceTypeGeneral": "Dataset",
+            "relatedIdentifier": "10.17632/y6p778djzj.1",
+            "relatedIdentifierType": "DOI"
+          }
+        ],
+        "relatedItems": [],
+        "sizes": [],
+        "formats": [],
+        "version": null,
+        "rightsList": [
+          {
+            "rightsUri": "info:eu-repo/semantics/openAccess"
+          },
+          {
+            "rightsIdentifierScheme": "SPDX",
+            "rightsUri": "https://creativecommons.org/licenses/by/4.0/legalcode",
+            "schemeUri": "https://spdx.org/licenses/",
+            "rights": "Creative Commons Attribution 4.0 International",
+            "rightsIdentifier": "cc-by-4.0"
+          }
+        ],
+        "descriptions": [
+          {
+            "descriptionType": "Abstract",
+            "description": "This dataset contains daily air quality measurements and Air Quality Index values for Pune, India, compiled from multiple Maharashtra Pollution Control Board monitoring stations across the city. The data spans from June 2019 to January 2026 and reflects long term air quality conditions across residential, educational, traffic influenced, and peri urban areas of Pune.\n\nThe dataset includes station "
+          }
+        ],
+        "geoLocations": [],
+        "fundingReferences": [],
+        "url": "https://data.mendeley.com/datasets/y6p778djzj",
+        "contentUrl": null,
+        "metadataVersion": 0,
+        "schemaVersion": "http://datacite.org/schema/kernel-4",
+        "source": "api",
+        "isActive": true,
+        "state": "findable",
+        "reason": null,
+        "viewCount": 65,
+        "downloadCount": 19,
+        "referenceCount": 0,
+        "citationCount": 0,
+        "partCount": 0,
+        "partOfCount": 0,
+        "versionCount": 1,
+        "versionOfCount": 0,
+        "created": "2026-01-28T13:05:58Z",
+        "registered": "2026-01-28T13:05:59Z",
+        "published": null,
+        "updated": "2026-01-28T13:05:59Z"
+      },
+      "relationships": {
+        "client": {
+          "data": {
+            "id": "bl.mendeley",
+            "type": "clients"
+          }
+        }
+      }
+    },
+    {
+      "id": "10.17632/3h635bg8mh",
+      "type": "dois",
+      "attributes": {
+        "doi": "10.17632/3h635bg8mh",
+        "identifiers": [],
+        "creators": [
+          {
+            "nameType": "Personal",
+            "givenName": "Jagadish",
+            "familyName": "Tawade",
+            "name": "Tawade, Jagadish",
+            "nameIdentifiers": [
+              {
+                "nameIdentifierScheme": "ORCID",
+                "schemeUri": "https://orcid.org",
+                "nameIdentifier": "https://orcid.org/0000-0003-2070-1763"
+              }
+            ],
+            "affiliation": []
+          }
+        ],
+        "titles": [
+          {
+            "title": "Dataset: Air Quality Index (AQI) of Major Indian Cities and Stations 21/4/2024"
+          }
+        ],
+        "publisher": "Mendeley Data",
+        "container": {},
+        "publicationYear": 2024,
+        "subjects": [
+          {
+            "subject": "Air Pollution"
+          },
+          {
+            "subject": "Air Quality"
+          },
+          {
+            "subject": "Urban Air Quality"
+          },
+          {
+            "subject": "Air Quality Study"
+          },
+          {
+            "subject": "Air Property"
+          }
+        ],
+        "contributors": [
+          {
+            "nameType": "Personal",
+            "givenName": "Nitiraj",
+            "familyName": "Kulkarni",
+            "name": "Kulkarni, Nitiraj",
+            "nameIdentifiers": [
+              {
+                "nameIdentifierScheme": "ORCID",
+                "schemeUri": "https://orcid.org",
+                "nameIdentifier": "https://orcid.org/0009-0009-5423-6119"
+              }
+            ],
+            "contributorType": "Other",
+            "affiliation": []
+          }
+        ],
+        "dates": [
+          {
+            "date": "2024-04-23T07:05:12Z",
+            "dateType": "Issued"
+          }
+        ],
+        "language": null,
+        "types": {
+          "schemaOrg": "Dataset",
+          "resourceTypeGeneral": "Dataset",
+          "citeproc": "dataset",
+          "bibtex": "misc",
+          "ris": "DATA",
+          "resourceType": "Dataset"
+        },
+        "relatedIdentifiers": [
+          {
+            "relationType": "HasVersion",
+            "resourceTypeGeneral": "Dataset",
+            "relatedIdentifier": "10.17632/3h635bg8mh.2",
+            "relatedIdentifierType": "DOI"
+          },
+          {
+            "relationType": "HasVersion",
+            "resourceTypeGeneral": "Dataset",
+            "relatedIdentifier": "10.17632/3h635bg8mh.1",
+            "relatedIdentifierType": "DOI"
+          }
+        ],
+        "relatedItems": [],
+        "sizes": [],
+        "formats": [],
+        "version": null,
+        "rightsList": [
+          {
+            "rightsUri": "info:eu-repo/semantics/openAccess"
+          },
+          {
+            "rightsIdentifierScheme": "SPDX",
+            "rightsUri": "https://creativecommons.org/licenses/by/4.0/legalcode",
+            "schemeUri": "https://spdx.org/licenses/",
+            "rights": "Creative Commons Attribution 4.0 International",
+            "rightsIdentifier": "cc-by-4.0"
+          }
+        ],
+        "descriptions": [
+          {
+            "descriptionType": "Abstract",
+            "description": "The dataset contains air quality information for various cities across India. It includes parameters such as Air Quality Index (AQI), concentrations of particulate matter (PM2.5 and PM10), ozone (O3), nitrogen dioxide (NO2), sulfur dioxide (SO2), carbon monoxide (CO), as well as geographical coordinates and time stamps. This dataset enables analysis and comparison of air quality levels among diffe"
+          }
+        ],
+        "geoLocations": [],
+        "fundingReferences": [],
+        "url": "https://data.mendeley.com/datasets/3h635bg8mh",
+        "contentUrl": null,
+        "metadataVersion": 1,
+        "schemaVersion": "http://datacite.org/schema/kernel-4",
+        "source": "api",
+        "isActive": true,
+        "state": "findable",
+        "reason": null,
+        "viewCount": 144,
+        "downloadCount": 42,
+        "referenceCount": 0,
+        "citationCount": 0,
+        "partCount": 0,
+        "partOfCount": 0,
+        "versionCount": 2,
+        "versionOfCount": 0,
+        "created": "2024-04-22T15:08:02Z",
+        "registered": "2024-04-22T15:08:02Z",
+        "published": null,
+        "updated": "2025-05-01T05:14:52Z"
+      },
+      "relationships": {
+        "client": {
+          "data": {
+            "id": "bl.mendeley",
+            "type": "clients"
+          }
+        }
+      }
+    }
+  ],
+  "meta": {
+    "total": 33355,
+    "totalPages": 500,
+    "page": 1
+  },
+  "links": {
+    "self": "https://api.datacite.org/dois?query=air+quality&resource-type-id=dataset&page%5Bsize%5D=20&affiliation=false&sort=relevance&mailto=user%40dataseek.dev",
+    "next": "https://api.datacite.org/dois?affiliation=false&page%5Bnumber%5D=2&page%5Bsize%5D=20&query=air+quality&resource-type-id=dataset"
+  }
+}

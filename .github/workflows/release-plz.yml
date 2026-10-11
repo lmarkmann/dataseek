@@ -1,0 +1,99 @@
+# Two jobs, the App token and the config path: docs/adr/0001-release-plz-owns-the-version.md.
+name: release-plz
+
+on:
+  push:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # crates.io trusts this workflow and environment; release-plz exchanges
+    # the job's OIDC token for a short-lived publish token.
+    environment: crates-io
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: harden runner
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+      - name: token
+        id: app
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+      - name: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: toolchain
+        run: |
+          rustup update --no-self-update
+          rustup toolchain install
+      - name: release
+        uses: release-plz/action@b8d6b54b02889ff2ae2bb82e8b57c3a8fc1683a5 # v0.5.139
+        with:
+          command: release
+          version: 0.3.169
+          config: .github/release-plz.toml
+        env:
+          # The action's `token` input is the cargo registry token; GitHub's goes here.
+          GITHUB_TOKEN: ${{ steps.app.outputs.token }}
+
+  release-pr:
+    needs: release
+    if: ${{ !failure() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    concurrency:
+      group: release-plz-pr-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - name: harden runner
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+      - name: token
+        id: app
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+      - name: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: toolchain
+        run: |
+          rustup update --no-self-update
+          rustup toolchain install
+      - name: release-pr
+        id: pr
+        uses: release-plz/action@b8d6b54b02889ff2ae2bb82e8b57c3a8fc1683a5 # v0.5.139
+        with:
+          command: release-pr
+          version: 0.3.169
+          config: .github/release-plz.toml
+        env:
+          # The action's `token` input is the cargo registry token; GitHub's goes here.
+          GITHUB_TOKEN: ${{ steps.app.outputs.token }}
+      - name: automerge
+        if: steps.pr.outputs.prs_created == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          PR: ${{ fromJSON(steps.pr.outputs.pr).number }}
+        run: gh pr merge --auto --squash "$PR"

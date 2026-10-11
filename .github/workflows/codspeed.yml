@@ -1,0 +1,59 @@
+# CodSpeed's CPU simulation of benches/search.rs: docs/adr/0012-benchmarks-criterion-local-codspeed-ci.md.
+name: codspeed
+
+on:
+  # Unfiltered, so every commit on main is a baseline a pull request can be compared with.
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - src/**
+      - benches/**
+      - Cargo.toml
+      - Cargo.lock
+      - .github/workflows/codspeed.yml
+  # Lets CodSpeed backfill runs for older commits.
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  benchmarks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write # OIDC upload to CodSpeed
+    steps:
+      - name: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: toolchain
+        run: |
+          rustup update --no-self-update
+          rustup toolchain install
+      - name: cache
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      # Same version as the codspeed crate in Cargo.lock; the two move together.
+      - name: tools
+        uses: taiki-e/install-action@4cef1412cce204788f482e778a0b9187f9626a29 # v2.87.21
+        with:
+          tool: cargo-codspeed@5.0.2
+          fallback: cargo-binstall
+      - name: build
+        run: cargo codspeed build --features internals --locked
+      - name: run
+        uses: CodSpeedHQ/action@373d6868929f444bc08d901fd0eb0ad52a8875ea # v5.2.1
+        with:
+          mode: simulation
+          run: cargo codspeed run

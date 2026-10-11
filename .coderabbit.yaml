@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=https://www.coderabbit.ai/integrations/schema.v2.json
+tone_instructions: >-
+  Terse. State the defect, the input that triggers it, and the smallest fix.
+  No praise, no emoji, no restating the diff.
+reviews:
+  profile: chill
+  high_level_summary: true
+  high_level_summary_in_walkthrough: true
+  in_progress_fortune: false
+  suggested_reviewers: false
+  suggested_labels: false
+  auto_review:
+    ignore_title_keywords:
+      - "chore: release"
+    ignore_usernames:
+      - lmarkmann-release[bot]
+      - renovate[bot]
+  pre_merge_checks:
+    docstrings:
+      mode: "off"
+  path_filters:
+    - "!proptest-regressions/**"
+    - "!Cargo.lock"
+    - "!docs/CHANGELOG.md"
+  path_instructions:
+    - path: "src/**/*.rs"
+      instructions: |
+        Cargo.toml denies println!, eprintln!, unwrap, expect, panic!, indexing, unchecked arithmetic and process::exit outside tests. Flag any new allow() for these; the fix is .get(), checked_/saturating_ arithmetic, or a local #[expect(..., reason = "...")] when the invariant is real.
+        stdout is data and goes only through src/output.rs; narration, spinners and warnings go through src/ui.rs on stderr.
+        Errors are thiserror types whose message ends with a "Try:" recovery hint; report() in src/lib.rs appends the cause chain, so a message that also interpolates {source} prints it twice.
+        Every color comes from a role in src/palette.rs.
+        API keys come from the environment or credentials.toml, never from flags, and must never reach a URL, error message or log line (ADR 0009).
+        The cache is best effort and must never fail a search (ADR 0007).
+    - path: "src/sources/**"
+      instructions: |
+        Each adapter splits its request from a pure parse function, and each parse has a test against a recorded response in tests/fixtures/sources/. A new source is one SOURCES row in src/sources.rs, at most one module here, a fixture, a parse test, and its row in the ADR 0004 table. Protocol adapters (CKAN, Dataverse, NADA, Socrata, STAC, SDMX, EBI) are configured per row, not copied (ADR 0005).
+    - path: "src/cli.rs"
+      instructions: |
+        The doc comments here are the --help text and are user-visible; a change must come with an updated snapshot in tests/snapshots/ and a matching docs/reference/contract.md when a flag or output changes.
+    - path: "src/dedup.rs"
+      instructions: |
+        Ranking changes are measured offline by `just relevance` against judged queries; a change to scoring or merge order without a relevance result is unmeasured.
+    - path: "tests/**"
+      instructions: |
+        No test touches the network. Expected values in parse tests come from reading the fixture, not from the code's own output.
+    - path: ".github/workflows/**"
+      instructions: |
+        Actions are pinned by commit SHA, workflows start from `permissions: {}` and grant per job, and zizmor runs in CI.
+knowledge_base:
+  code_guidelines:
+    filePatterns:
+      - CONTRIBUTING.md
+      - docs/reference/development.md
+      - docs/reference/contract.md
+      - docs/adr/*.md

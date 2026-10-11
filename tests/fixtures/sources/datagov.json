@@ -1,0 +1,439 @@
+{
+  "after": "Wzg2LjE5NTY1NiwzLCI1N2Y3OGYxOS1kNWY1LTQ1OGMtYTU1Yi1kNmVlOGQyYzU0YTIiXQ==",
+  "results": [
+    {
+      "_score": 90.68385,
+      "_sort": [
+        90.68385,
+        13,
+        "58d32a21-9d62-44fc-ac5c-b7449daedec8"
+      ],
+      "access_level": "public",
+      "dcat": {
+        "@type": "dcat:Dataset",
+        "accessLevel": "public",
+        "contactPoint": {
+          "@type": "vcard:Contact",
+          "fn": "Rafael Maestu",
+          "hasEmail": "mailto:contact@example.org"
+        },
+        "description": "Amount of water produced by month and by source and the water delivered by type of use and by month for every Public Water System (PWS) reporting. Public Water Systems submit their annual inventory information using the electronic Annual Report (eAR) submission process.",
+        "distribution": [
+          {
+            "@type": "dcat:Distribution",
+            "describedBy": "https://data.ca.gov/api/action/datastore_search?resource_id=18e052dd-0433-4a75-b15b-1021ad6c4e16&limit=0",
+            "describedByType": "application/json",
+            "description": "Includes the produced and delivered urban water combined for each calendar month in 2021 by source type of produced water and by delivered water by connection type or water use type.",
+            "downloadURL": "https://data.ca.gov/dataset/f4d572d2-252b-4019-8820-e0782f132508/resource/18e052dd-0433-4a75-b15b-1021ad6c4e16/download/2021-produced-and-delivered-ear.csv",
+            "format": "CSV",
+            "mediaType": "text/csv",
+            "title": "Urban Water Produced and Delivered \u2013 YEAR 2021 by Month and Water Source type and Connection Type (water use type)"
+          },
+          {
+            "@type": "dcat:Distribution",
+            "describedBy": "https://data.ca.gov/api/action/datastore_search?resource_id=1b6374a3-fa5d-40ea-bedd-d8fb336257ea&limit=0",
+            "describedByType": "application/json",
+            "description": "Includes the produced water by source for each calendar month for 2018. The EAR report requires the PWS to provide the volumes of water for each month by potable or Non-potable water.",
+            "downloadURL": "https://data.ca.gov/dataset/f4d572d2-252b-4019-8820-e0782f132508/resource/1b6374a3-fa5d-40ea-bedd-d8fb336257ea/download/2018-produced-ear.csv",
+            "format": "CSV",
+            "mediaType": "text/csv",
+            "title": "Produced Water \u2013 YEAR 2018 by Month and Water Source"
+          },
+          {
+            "@type": "dcat:Distribution",
+            "describedBy": "https://data.ca.gov/api/action/datastore_search?resource_id=1e08f962-b827-46d4-b233-7290540b83ca&limit=0",
+            "describedByType": "application/json",
+            "description": "Includes the produced and delivered urban water combined for each calendar month in 2016 by source type of produced water and by delivered water by connection type or water use type.",
+            "downloadURL": "https://data.ca.gov/dataset/f4d572d2-252b-4019-8820-e0782f132508/resource/1e08f962-b827-46d4-b233-7290540b83ca/download/2016-produced-and-delivered-ear.csv",
+            "format": "CSV",
+            "mediaType": "text/csv",
+            "title": "Urban Water Produced and Delivered \u2013 YEAR 2016 by Month and Water Source type and Connection Type (water use type)"
+          },
+          {
+            "@type": "dcat:Distribution",
+            "describedBy": "https://data.ca.gov/api/action/datastore_search?resource_id=2102d23a-8eed-4ea8-b8f0-a1499ec24bc9&limit=0",
+            "describedByType": "application/json",
+            "description": "Includes the produced water by source for each calendar month for 2017. The EAR report requires the PWS to provide the volumes of water for each month by potable or Non-potable water.",
+            "downloadURL": "https://data.ca.gov/dataset/f4d572d2-252b-4019-8820-e0782f132508/resource/2102d23a-8eed-4ea8-b8f0-a1499ec24bc9/download/2017-produced-ear.csv",
+            "format": "CSV",
+            "mediaType": "text/csv",
+            "title": "Produced Water \u2013 YEAR 2017 by Month and Water Source"
+          }
+        ],
+        "identifier": "f4d572d2-252b-4019-8820-e0782f132508",
+        "issued": "2024-05-23T16:31:09.807663",
+        "keyword": [
+          "Drinking Water",
+          "Electronic Annual Report",
+          "Sources of Drinking Water",
+          "Urban Water Produced"
+        ],
+        "license": "http://www.opendefinition.org/licenses/cc-by",
+        "modified": "2024-11-27T19:35:42.416258",
+        "publisher": {
+          "@type": "org:Organization",
+          "name": "California State Water Resources Control Board"
+        },
+        "theme": [
+          "Water"
+        ],
+        "title": "Drinking Water - Public Water System Annually Reported Water Production and Delivery Information 2013-2022"
+      },
+      "description": "Amount of water produced by month and by source and the water delivered by type of use and by month for every Public Water System (PWS) reporting. Public Water Systems submit their annual inventory information using the electronic Annual Report (eAR) submission process.",
+      "distribution_titles": [
+        "Urban Water Produced and Delivered \u2013 YEAR 2021 by Month and Water Source type and Connection Type (water use type)",
+        "Produced Water \u2013 YEAR 2018 by Month and Water Source",
+        "Urban Water Produced and Delivered \u2013 YEAR 2016 by Month and Water Source type and Connection Type (water use type)",
+        "Produced Water \u2013 YEAR 2017 by Month and Water Source"
+      ],
+      "harvest_record": "https://catalog.data.gov/harvest_record/4fc4f663-ba62-4f6c-a040-f20901d05c72",
+      "harvest_record_raw": "https://catalog.data.gov/harvest_record/4fc4f663-ba62-4f6c-a040-f20901d05c72/raw",
+      "has_download": true,
+      "has_spatial": false,
+      "identifier": "f4d572d2-252b-4019-8820-e0782f132508",
+      "keyword": [
+        "Drinking Water",
+        "Electronic Annual Report",
+        "Sources of Drinking Water",
+        "Urban Water Produced"
+      ],
+      "last_harvested_date": "2026-09-10T18:16:23.938009",
+      "organization": {
+        "aliases": [
+          "ca"
+        ],
+        "code_repo_exempt": false,
+        "code_repo_url": null,
+        "description": null,
+        "id": "ae56c24b-46d3-4688-965e-94bdc208164f",
+        "logo": "https://raw.githubusercontent.com/GSA/logo/refs/heads/master/state_CA.png",
+        "name": "State of California",
+        "organization_type": "State Government",
+        "slug": "california"
+      },
+      "parent_identifier": null,
+      "popularity": 13,
+      "publisher": "California State Water Resources Control Board",
+      "slug": "drinking-water-public-water-system-annually-reported-water-production-and-delive-2013-2022",
+      "spatial_centroid": null,
+      "spatial_shape": null,
+      "theme": [
+        "Water"
+      ],
+      "title": "Drinking Water - Public Water System Annually Reported Water Production and Delivery Information 2013-2022",
+      "type": "dataset"
+    },
+    {
+      "_score": 88.52946,
+      "_sort": [
+        88.52946,
+        6,
+        "faf8e110-08af-4714-a2ee-51d99192f674"
+      ],
+      "access_level": "public",
+      "dcat": {
+        "@type": "dcat:Dataset",
+        "accessLevel": "public",
+        "contactPoint": {
+          "@type": "vcard:Contact",
+          "fn": "Greg Gearheart",
+          "hasEmail": "mailto:noemailprovided@usa.gov"
+        },
+        "description": "<p>Public Water Systems (PWS) submit their annual reports with rate information using the Electronic Annual Report (EAR) submission process on the Drinking Water Information Clearinghouse (DRINC) portal, which is reviewed, and manually updated into the Safe Drinking Water Informa",
+        "distribution": [
+          {
+            "@type": "dcat:Distribution",
+            "describedBy": "https://data.ca.gov/api/action/datastore_search?resource_id=469dae87-52cc-4c82-831c-9fe520a0f6c0&limit=0",
+            "describedByType": "application/json",
+            "description": "<p>Water rates for 2014-15, as reported in EAR by PWS.</p>",
+            "downloadURL": "https://data.ca.gov/dataset/c71eec54-d8bf-4650-ba42-9092a2a3cf10/resource/469dae87-52cc-4c82-831c-9fe520a0f6c0/download/drinking-water-pws-water-rates-2014-15.csv",
+            "format": "CSV",
+            "mediaType": "text/csv",
+            "title": "Drinking Water - PWS Water Rates 2014-15"
+          },
+          {
+            "@type": "dcat:Distribution",
+            "description": "<p>Data dictionary for Water Rates data, from EAR 2014-15</p>",
+            "downloadURL": "https://data.ca.gov/dataset/c71eec54-d8bf-4650-ba42-9092a2a3cf10/resource/3a5cbf56-bc1c-4787-bcc4-66f5edb73b62/download/drinking-water-water-rates-data-dictionary-ear-2014-15.pdf",
+            "format": "PDF",
+            "mediaType": "application/pdf",
+            "title": "Drinking Water - Water Rates Data Dictionary (EAR 2014-15)"
+          }
+        ],
+        "identifier": "c71eec54-d8bf-4650-ba42-9092a2a3cf10",
+        "issued": "2019-08-10T03:19:15.496804",
+        "keyword": [
+          "CalWater",
+          "Drinking Water",
+          "water",
+          "water rates"
+        ],
+        "modified": "2019-10-29T16:08:57.542369",
+        "publisher": {
+          "@type": "org:Organization",
+          "name": "California State Water Resources Control Board"
+        },
+        "theme": [
+          "Water"
+        ],
+        "title": "Drinking Water - Public Water Systems Rates Information"
+      },
+      "description": "<p>Public Water Systems (PWS) submit their annual reports with rate information using the Electronic Annual Report (EAR) submission process on the Drinking Water Information Clearinghouse (DRINC) portal, which is reviewed, and manually updated into the Safe Drinking Water Informa",
+      "distribution_titles": [
+        "Drinking Water - PWS Water Rates 2014-15",
+        "Drinking Water - Water Rates Data Dictionary (EAR 2014-15)"
+      ],
+      "harvest_record": "https://catalog.data.gov/harvest_record/5eda8004-02ec-4def-a3b9-3cb7d70155a1",
+      "harvest_record_raw": "https://catalog.data.gov/harvest_record/5eda8004-02ec-4def-a3b9-3cb7d70155a1/raw",
+      "has_download": true,
+      "has_spatial": false,
+      "identifier": "c71eec54-d8bf-4650-ba42-9092a2a3cf10",
+      "keyword": [
+        "CalWater",
+        "Drinking Water",
+        "water",
+        "water rates"
+      ],
+      "last_harvested_date": "2026-09-10T18:20:51.267015",
+      "organization": {
+        "aliases": [
+          "ca"
+        ],
+        "code_repo_exempt": false,
+        "code_repo_url": null,
+        "description": null,
+        "id": "ae56c24b-46d3-4688-965e-94bdc208164f",
+        "logo": "https://raw.githubusercontent.com/GSA/logo/refs/heads/master/state_CA.png",
+        "name": "State of California",
+        "organization_type": "State Government",
+        "slug": "california"
+      },
+      "parent_identifier": null,
+      "popularity": 6,
+      "publisher": "California State Water Resources Control Board",
+      "slug": "drinking-water-public-water-systems-rates-information",
+      "spatial_centroid": null,
+      "spatial_shape": null,
+      "theme": [
+        "Water"
+      ],
+      "title": "Drinking Water - Public Water Systems Rates Information",
+      "type": "dataset"
+    },
+    {
+      "_score": 88.02074,
+      "_sort": [
+        88.02074,
+        41,
+        "16a819b8-4436-4b3b-867b-70b129988d3b"
+      ],
+      "access_level": "public",
+      "dcat": {
+        "@type": "dcat:Dataset",
+        "accessLevel": "public",
+        "contactPoint": {
+          "@type": "vcard:Contact",
+          "fn": "Data Management Unit - Division of Drinking Water",
+          "hasEmail": "mailto:SDWIS@waterboards.ca.gov"
+        },
+        "description": "<p>The is a curated dataset of information for all public water systems (PWS) in California, including the name, location and some general informaiton for each PWS.",
+        "distribution": [
+          {
+            "@type": "dcat:Distribution",
+            "describedBy": "https://data.ca.gov/api/action/datastore_search?resource_id=5af27515-f0da-4cc9-92c5-0cd8eeee6843&limit=0",
+            "describedByType": "application/json",
+            "description": "<p>Public water system facility information for all facilities in CA is included in this resource.</p>",
+            "downloadURL": "https://data.ca.gov/dataset/d6d3beac-6735-4127-9324-4e70f61698d9/resource/5af27515-f0da-4cc9-92c5-0cd8eeee6843/download/drinking-water-watch-public-water-system-facilities2.csv",
+            "format": "CSV",
+            "mediaType": "text/csv",
+            "title": "Drinking Water Watch - Public Water System Facilities"
+          },
+          {
+            "@type": "dcat:Distribution",
+            "description": "<p>This data dictionary provides details of the three tables provided, fields included, description of their answer types, and legend to the primary keys to relate the data between multiple Drinking Water datasets.</p>",
+            "downloadURL": "https://data.ca.gov/dataset/d6d3beac-6735-4127-9324-4e70f61698d9/resource/52419458-eb9a-4460-8483-0695e1940453/download/dww-data-dictionary.pdf",
+            "format": "PDF",
+            "mediaType": "application/pdf",
+            "title": "DWW - Data Dictionary"
+          },
+          {
+            "@type": "dcat:Distribution",
+            "description": "Data Dictionary for https://data.ca.gov/dataset/d6d3beac-6735-4127-9324-4e70f61698d9/resource/5af27515-f0da-4cc9-92c5-0cd8eeee6843/download/drinking-water-watch-public-water-system-facilities2.csv",
+            "downloadURL": "https://data.ca.gov/datastore/dictionary_download/5af27515-f0da-4cc9-92c5-0cd8eeee6843",
+            "format": "CSV",
+            "isDataDictionary": true,
+            "mediaType": "text/csv",
+            "title": "Data Dictionary - Drinking Water Watch - Public Water System Facilities"
+          }
+        ],
+        "identifier": "d6d3beac-6735-4127-9324-4e70f61698d9",
+        "issued": "2019-08-10T03:20:55.653630",
+        "keyword": [
+          "Drinking Water",
+          "Operations",
+          "Public Water System",
+          "Water Supply"
+        ],
+        "modified": "2026-08-26T18:39:06.168827",
+        "publisher": {
+          "@type": "org:Organization",
+          "name": "California State Water Resources Control Board"
+        },
+        "theme": [
+          "Water"
+        ],
+        "title": "Drinking Water - Public Water System Information"
+      },
+      "description": "<p>The is a curated dataset of information for all public water systems (PWS) in California, including the name, location and some general informaiton for each PWS.",
+      "distribution_titles": [
+        "Drinking Water Watch - Public Water System Facilities",
+        "DWW - Data Dictionary",
+        "Data Dictionary - Drinking Water Watch - Public Water System Facilities"
+      ],
+      "harvest_record": "https://catalog.data.gov/harvest_record/96bd0830-6ce3-45f0-92ee-71dc10e5fedd",
+      "harvest_record_raw": "https://catalog.data.gov/harvest_record/96bd0830-6ce3-45f0-92ee-71dc10e5fedd/raw",
+      "has_download": true,
+      "has_spatial": false,
+      "identifier": "d6d3beac-6735-4127-9324-4e70f61698d9",
+      "keyword": [
+        "Drinking Water",
+        "Operations",
+        "Public Water System",
+        "Water Supply"
+      ],
+      "last_harvested_date": "2026-09-10T18:10:33.000510",
+      "organization": {
+        "aliases": [
+          "ca"
+        ],
+        "code_repo_exempt": false,
+        "code_repo_url": null,
+        "description": null,
+        "id": "ae56c24b-46d3-4688-965e-94bdc208164f",
+        "logo": "https://raw.githubusercontent.com/GSA/logo/refs/heads/master/state_CA.png",
+        "name": "State of California",
+        "organization_type": "State Government",
+        "slug": "california"
+      },
+      "parent_identifier": null,
+      "popularity": 41,
+      "publisher": "California State Water Resources Control Board",
+      "slug": "drinking-water-public-water-system-information",
+      "spatial_centroid": null,
+      "spatial_shape": null,
+      "theme": [
+        "Water"
+      ],
+      "title": "Drinking Water - Public Water System Information",
+      "type": "dataset"
+    },
+    {
+      "_score": 86.53359,
+      "_sort": [
+        86.53359,
+        2,
+        "873df700-b1e6-4ba0-b7d2-54cc7512662f"
+      ],
+      "access_level": "public",
+      "dcat": {
+        "@type": "dcat:Dataset",
+        "accessLevel": "public",
+        "contactPoint": {
+          "@type": "vcard:Contact",
+          "fn": "Water Boards Data Center",
+          "hasEmail": "mailto:waterdata@waterboards.ca.gov"
+        },
+        "description": "**NOTE: This dataset is no longer being updated. For current water supply and conservation data, please use this dataset: [Urban Retail Water Supplier - Water Conservation, Supply, and Demand (June 2014 onwards)](https://data.ca.gov/dataset/urws-conservation-supply-demand)**",
+        "distribution": [
+          {
+            "@type": "dcat:Distribution",
+            "describedBy": "https://data.ca.gov/api/action/datastore_search?resource_id=0c231d4c-1ea7-43c5-a041-a3a6b02bac5e&limit=0",
+            "describedByType": "application/json",
+            "description": "Monthly reports of the larger urban water suppliers in California on water production and conservation activities, from the State of California State Water Resources Control Board's **[Conservation Portal](http://www.waterboards.ca.gov/water_issues/programs/conservation_portal/co",
+            "downloadURL": "https://data.ca.gov/dataset/e4b31aa4-0a61-4e03-84bd-2ae46183db59/resource/0c231d4c-1ea7-43c5-a041-a3a6b02bac5e/download/uw_supplier_data071423.csv",
+            "format": "CSV",
+            "mediaType": "text/csv",
+            "title": "Urban Water Supplier Monitoring Reports"
+          },
+          {
+            "@type": "dcat:Distribution",
+            "description": "<p>Description of the fields in the Urban Water Supplier Monitoring Reports dataset.</p>",
+            "downloadURL": "https://data.ca.gov/dataset/e4b31aa4-0a61-4e03-84bd-2ae46183db59/resource/a3aa420d-3553-4891-8bc4-ed01aeaf3e20/download/definitions_and_data_dictionary_accessible.pdf",
+            "format": "PDF",
+            "mediaType": "application/pdf",
+            "title": "Urban Water Supplier Monitoring Reports - Data Dictionary"
+          },
+          {
+            "@type": "dcat:Distribution",
+            "description": "Data Dictionary for https://data.ca.gov/dataset/e4b31aa4-0a61-4e03-84bd-2ae46183db59/resource/0c231d4c-1ea7-43c5-a041-a3a6b02bac5e/download/uw_supplier_data071423.csv",
+            "downloadURL": "https://data.ca.gov/datastore/dictionary_download/0c231d4c-1ea7-43c5-a041-a3a6b02bac5e",
+            "format": "CSV",
+            "isDataDictionary": true,
+            "mediaType": "text/csv",
+            "title": "Data Dictionary - Urban Water Supplier Monitoring Reports"
+          }
+        ],
+        "identifier": "e4b31aa4-0a61-4e03-84bd-2ae46183db59",
+        "issued": "2019-08-10T05:05:08.386930",
+        "keyword": [
+          "Drought",
+          "Supplier",
+          "UWS",
+          "Urban"
+        ],
+        "modified": "2025-12-11T19:56:00.199080",
+        "publisher": {
+          "@type": "org:Organization",
+          "name": "California State Water Resources Control Board"
+        },
+        "theme": [
+          "Water"
+        ],
+        "title": "Drinking Water - Public Water System Operations Monthly Water Production and Conservation Information"
+      },
+      "description": "**NOTE: This dataset is no longer being updated. For current water supply and conservation data, please use this dataset: [Urban Retail Water Supplier - Water Conservation, Supply, and Demand (June 2014 onwards)](https://data.ca.gov/dataset/urws-conservation-supply-demand)**",
+      "distribution_titles": [
+        "Urban Water Supplier Monitoring Reports",
+        "Urban Water Supplier Monitoring Reports - Data Dictionary",
+        "Data Dictionary - Urban Water Supplier Monitoring Reports"
+      ],
+      "harvest_record": "https://catalog.data.gov/harvest_record/ebee3747-e360-45f5-b5d0-f7e04f8bdaf5",
+      "harvest_record_raw": "https://catalog.data.gov/harvest_record/ebee3747-e360-45f5-b5d0-f7e04f8bdaf5/raw",
+      "has_download": true,
+      "has_spatial": false,
+      "identifier": "e4b31aa4-0a61-4e03-84bd-2ae46183db59",
+      "keyword": [
+        "Drought",
+        "Supplier",
+        "UWS",
+        "Urban"
+      ],
+      "last_harvested_date": "2026-09-10T18:13:44.136455",
+      "organization": {
+        "aliases": [
+          "ca"
+        ],
+        "code_repo_exempt": false,
+        "code_repo_url": null,
+        "description": null,
+        "id": "ae56c24b-46d3-4688-965e-94bdc208164f",
+        "logo": "https://raw.githubusercontent.com/GSA/logo/refs/heads/master/state_CA.png",
+        "name": "State of California",
+        "organization_type": "State Government",
+        "slug": "california"
+      },
+      "parent_identifier": null,
+      "popularity": 2,
+      "publisher": "California State Water Resources Control Board",
+      "slug": "drinking-water-public-water-system-operations-monthly-water-production-and-conservation-in",
+      "spatial_centroid": null,
+      "spatial_shape": null,
+      "theme": [
+        "Water"
+      ],
+      "title": "Drinking Water - Public Water System Operations Monthly Water Production and Conservation Information",
+      "type": "dataset"
+    }
+  ],
+  "sort": "relevance"
+}

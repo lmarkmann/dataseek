@@ -1,0 +1,154 @@
+# Quality contract
+
+The code, not the README, enforces this contract. The lints in `Cargo.toml` exist for exactly that reason: a rule that only fires in CI is found too late to be useful.
+
+## Version
+
+The version lives only in `Cargo.toml`. Clap reads it via `#[command(version)]`, so `--version` prints `name x.y.z` and nothing else. Never hardcode a version string anywhere else.
+
+## Flags
+
+- `-h/--help`, `-V/--version`
+- Global `-q/--quiet`, `-v/--verbose` (repeatable)
+- `--json`, `--color=auto|always|never`, `--no-color`, `--plain`, `--no-progress`
+- `--cache-dir DIR` and `--connect-timeout SECS`, each with a `DATASEEK_*` variable; the cache size budget has only its variable, `DATASEEK_CACHE_MAX_MB`
+
+`search` reads `-x`, `--per-source`, `-n` and `--timeout` from `DATASEEK_EXCLUDE`, `DATASEEK_PER_SOURCE`, `DATASEEK_LIMIT` and `DATASEEK_TIMEOUT` too. A flag beats its variable, which beats the default; `dataseek help environment` lists them all. A source marked `opt-in` in `dataseek sources` runs only when `-s` names it ([ADR 0013](../adr/0013-opt-in-sources.md)).
+
+`-v` is verbose, never version. `--color` follows the ecosystem standard used by git, ripgrep, and fd:
+
+- `auto` colors only on a terminal and honors `NO_COLOR`.
+- `never` strips color.
+- `always` forces color even through a pipe, for `| less -R`.
+
+`--no-color` and `--plain` are shorthands for `--color=never`. Because clap prints its own help and usage errors before the flags are resolved, `src/lib.rs` scans the arguments for these three first and hands clap the result, so `dsk --no-color nonsense` is as colorless as `dsk --no-color sources`.
+
+`-h` lists the flags people type daily and at most three examples; `--help` adds the rest (`--no-color`, `--no-progress`, `--cache-dir`, `--connect-timeout`), the exit codes, the help topics and the issues address.
+
+Secrets never arrive as flags, which leak into shell history and process listings: API keys come from the environment or `credentials.toml` ([`keys-and-cache.md`](keys-and-cache.md), ADR 0009).
+
+## Help surfaces
+
+- A bare `dataseek` prints the overview on **stdout** and exits `0`: the name and version, the commands in three small groups (Search, Upkeep, Shell), and a footer pointing at `-h` and `--help`. It is orientation, so `dsk | head` shows it. `src/help.rs` holds the groups as names only; each line's description is the command's `about`, the same line `-h` shows. A unit test fails when the overview and `-h` list different commands or list them in a different order.
+- `dataseek help <command>` is that command's `--help`. `dataseek help environment` lists the variables that change what it does, `dataseek help exit-codes` every code it returns.
+- `dataseek help --json` describes the whole surface as data for scripts and agents: commands, flags with their type (`boolean`, `integer`, `string` or `count`), value names, possible values, defaults, the `minimum` and `maximum` of a ranged integer, and variables, and the exit codes, all generated from the clap definition. A bare `dataseek --json` prints the same object. `dataseek help <command> --json` prints that command's entry of it: its own flags, with the global ones listed once, on the root.
+
+## stdout is data, stderr is status
+
+Every byte of stdout goes through a handle from `src/output.rs`, including the two commands whose output is raw data, `completion` and `man`. Narration, spinners, and progress go through `src/ui.rs` on stderr, in one of four modes:
+
+| who reads stderr | what it gets |
+|---|---|
+| a terminal | status lines plus live bars and spinners with elapsed time |
+| a pipe, or `--no-progress` | the same status lines, plain, and no frames |
+| `--json` | each status line, and each `-v` note, as an NDJSON event tagged `dataseek-events/1` |
+| `--quiet` | nothing but the error |
+
+So a piped search still announces itself at once and sums up at the end, and no spinner frame can reach a log. What must never happen is a frame on stdout, and that is guaranteed by the layer only ever writing to stderr. `doctor` does not narrate: its checks take milliseconds, so it prints only its report.
+
+`search` opens with the number of sources it will ask. A source missing its required key is skipped before any request, so it is left out of that number and counted after it (`1 needs a key, see dataseek doctor`); when no chosen source can run, there is no opening line, only the error.
+
+`search` prints its summary after the results, so the last line says how many matched, how many sources answered, which ones it stopped waiting for, and how to see more. An empty result is a stderr line, never text on stdout.
+
+Each text result is four lines: the rank and title, the URL, a muted line of facts, and the description. The facts are the sources that found it, then publisher, date, size, license and DOI, whichever are known, separated by ` | `.
+
+Other text output fits the terminal by wrapping, never by cutting: on a terminal a long value continues under its own column, and in a pipe it stays on one line so a script can read it. `inspect` wraps its fields that way, its description within 40 to 80 columns like a search result's, and `doctor` each check's detail. `sources` sizes each column to its longest value and wraps the notes under its table, and `help environment` wraps what each variable does under its column. On a terminal its file list opens with the count and total size and gives each file two lines, name, size and format, then the link and checksum indented under them; when name, size and format do not fit side by side, size and format get a line of their own. In a pipe each file stays one line.
+
+This is why `Cargo.toml` denies `print_stdout` and `print_stderr`: a stray `println!` is a contract violation, not a style preference.
+
+## JSON
+
+Every `--json` output is one object with a `schema` tag naming its shape and version (`dataseek-search/1`, `dataseek-sources/1`, `dataseek-doctor/1`, ...). A key that changes meaning or disappears bumps the tag; a new key does not. On a terminal the JSON is indented, in a pipe it is one line. To pick fields, pipe it into `jq`. A failed run prints its error event on stderr and nothing on stdout, and `jq` exits 0 on empty input, so a script runs the pipeline under `set -o pipefail` (bash, zsh) or checks `$pipestatus[1]` (fish) to see the failure. `search --json` carries `complete`, false when the search stopped waiting for a source or a catalog was still downloading, so its results may lack what those would add. `completion` and `man` print their script and page whatever the flag when stdout is not a terminal. `tests/snapshots/` freezes the search, sources, doctor, cache info, inspect, exit-codes and error-event shapes.
+
+`inspect --json` (`dataseek-inspect/1`) prints `dataset`, the page's own JSON-LD node as the page wrote it, and beside it `files`, dataseek's reading of the file list, so a `files` key on the page is never overwritten. Every string of the page's metadata, keys included, has its control characters (C0 other than newline and tab, DEL, and C1) replaced by a space before it is printed, as text or as JSON, so a page cannot drive the terminal that shows it.
+
+## MCP mode
+
+`dataseek mcp` serves `search`, `sources` and `inspect` to MCP clients over stdio ([ADR 0015](../adr/0015-mcp-server-over-stdio.md)). A client registers it as command `dsk` with arguments `["mcp"]`.
+
+- **Protocol.** Requests naming revision `2026-07-28` in `_meta` are served statelessly, with `server/discover`; clients that open with `initialize` get revision `2025-11-25` or `2025-06-18`. A request naming any other revision gets `-32022` with the supported list.
+- **stdout** carries one JSON-RPC message per line and nothing else. stderr carries the server's own status line, as plain text, and its calls' narration, as `dataseek-events/1` lines. `-q`, `-v`, `--cache-dir` and `--connect-timeout` given to `dataseek mcp` reach every call.
+- **Tools.** Each tool's input schema is its command's `help <command> --json` entry: one property per flag, named by its long form, typed, with its possible values and default; `search`'s words are one `query` string. A call runs `dataseek <command> --json` with those flags, and the result carries the object that prints as `structuredContent` and again as text.
+- **Failures.** A failed call is a result with `isError: true`: the text is the `Error:`, `Cause:` and `Try:` lines the command line prints, and `structuredContent` the error event. A bad or missing argument is such a failure too, since the model can fix it, and so is a call made while four are already running. A JSON-RPC error answers the rest: a line that is not JSON in UTF-8 gets `-32700`, and the session goes on; a request without a string method, or reusing the id of a call still running, `-32600`; an unknown method `-32601`; an unknown tool or `arguments` that is not an object `-32602`; a server fault `-32603`, whose message says what the command left. A notification is never answered.
+- **Deadline.** Every search runs with `--timeout`, the argument or its default of 20 seconds, and with the command line's rule for stragglers: past 90% of the sources asked, the rest get one more second unless `source` names them ([ADR 0019](../adr/0019-stop-waiting-past-a-quorum.md)). A `timeout` outside 1 to 300 seconds is refused, so every call ends in a time a client waits for; the schema says so with `minimum` and `maximum`, as it does for every ranged integer.
+- **Keys** come from the environment and `credentials.toml`, as everywhere ([ADR 0009](../adr/0009-keys-and-contact-address.md)); no tool takes one as an argument.
+- **Lifetime.** Closing stdin ends the server at once, and any call still running is killed; so does closing its stdout, which the next response finds. `notifications/cancelled` kills one call, which then gets no answer. Every call runs the binary the server was started as, even after an upgrade replaces it.
+
+## SIGPIPE
+
+`src/lib.rs` resets `SIGPIPE` to the Unix default so `tool | head` exits quietly instead of panicking. `dataseek mcp` is the exception: there a client that closes the pipe must not kill the server outright, so the signal is ignored, the next response fails as a write error, and the server kills the calls still running before it exits.
+
+Both the call and the `signal-hook` dependency are gated to `cfg(unix)`, because signals are a Unix concept: `signal_hook::consts::SIGPIPE` does not exist on Windows, where the crate re-exports only `SIGABRT`, `SIGFPE`, `SIGILL`, `SIGINT`, `SIGSEGV`, and `SIGTERM`. An unconditional import there is not a runtime problem, it is a build failure, and it went unnoticed until Windows joined the CI matrix. Nothing is lost on Windows: a closed pipe surfaces as an ordinary write error, which the broken-pipe arm of `report()` already turns into a quiet success.
+
+The dependency is scoped under `[target.'cfg(unix)'.dependencies]` rather than imported and `cfg`'d away at the call site, so Windows does not build `signal-hook` or `libc` at all and `cargo-deny` stops reasoning about crates that platform never compiles.
+
+## Errors
+
+Failures are typed with `thiserror` and printed on stderr as:
+
+```text
+Error: <what went wrong>
+  Cause: <underlying cause>
+  Try:   <recovery hint>
+```
+
+The hint is baked into the thiserror message after a `\n  Try:` marker; `report()` splits it off and prints the `Cause:` chain between the two, so the order is the problem, why, then what to do. A cause is printed once, from the chain; a message that also interpolates its own `{source}` prints it twice. An error with no hint was not anticipated, so its `Try:` line is the issues address. Under `--json` the same three parts are one `error` event on stderr, and clap's usage errors take that shape too: the lines clap prints under its first, such as the missing argument or the possible values, are the causes, and clap's tip, when it has one, is the hint.
+
+Expected failures never show a stack trace. `Cargo.toml` denies every route a panic takes into production code, because a panic is a bug and never a way to exit: `unwrap_used`, `expect_used`, `panic`, `panic_in_result_fn`, `unreachable`, `unimplemented`, `todo`, and the two that are easy to overlook because they carry no macro name, `indexing_slicing` and `arithmetic_side_effects`. Exit codes are returned as `ExitCode` from `main` so destructors still run.
+
+## Exit codes
+
+- `0`: success
+- `1`: failure
+- `2`: usage error (clap)
+- `130`: interrupted by Ctrl-C (death by SIGINT, which the shell reports as 130)
+
+For `search`, success means at least one source answered, even with no results: an empty answer is a result (ADR 0007). `1` means every attempted source failed, or none could run: each lacks its key, each is resting after an outage in the last ten minutes, or `-s`, `-c` and `-x` left none. When every attempted source was unreachable (no DNS answer, a refused connection, a failed TLS handshake; a timeout does not count), the error says the machine looks offline and points at `--offline`; under `--offline` with nothing cached, it says so instead; when none answered and the search stopped waiting for at least one, the error says no source answered before the deadline, the warnings name the ones it stopped waiting for, and it points at `--timeout 0`. A 401 or 403 to a request that carried no key reads as refused rather than as rejected credentials, rests nothing, and for a source that takes a key names the variable that may lift it. A certificate dataseek cannot verify is not an outage: the source is neither retried nor rested. On Linux that happens when the system has no CA bundle or lacks the root a TLS-inspecting proxy signs with; when every attempted source fails this way, the error says so and its `Try:` names the distribution's `ca-certificates` package and `SSL_CERT_FILE`, or, when `SSL_CERT_FILE` or `SSL_CERT_DIR` points at a path that cannot be read, that variable and path. `inspect` gives the same hint. `--offline` and `-s` ask resting sources anyway. A source that fails while others answer is a warning on stderr, never a failure. Whatever part of a failure's reason came from the source (a malformed tag name, a transport error's text) has its control characters replaced before it is kept, so a source cannot drive the terminal through its own error. `cache warm` is the exception that fails partway: any catalog that did not download makes the run exit `1`, after every success is printed and every failure named, on stderr and again in the error, so `-q` still says which.
+
+`src/help.rs` holds the list `help exit-codes` prints, and `tests/cli.rs` asserts every code on it.
+
+## Completion and the man page
+
+`dataseek completion fish` (or `bash`, `zsh`, ...) prints a completion script to stdout. On a terminal, where a script would scroll past unread, it prints no script and says on stderr where to save it so the shell loads it (`dsk completion fish > ~/.config/fish/completions/dsk.fish`), for the name it was run as. `dataseek man` prints the man page, in roff, to the same place when stdout is not a terminal; on a terminal it shows the page through `man`, by way of a temporary file because BSD and macOS `man` cannot read stdin, and prints the roff if `man` is missing. `cargo install` cannot install a man page, so `man dsk` finds nothing until it is saved where `man` looks:
+
+```sh
+dsk man > ~/.local/share/man/man1/dsk.1        # then: man dsk
+```
+
+`man` is a hidden command: the overview, `-h` and `--help` leave it out, `dataseek help --json` still lists it, as it lists every command that runs.
+
+Both are data, so both go to stdout, and both are derived from the clap definition rather than maintained by hand. The man page is rendered on demand by `clap_mangen` instead of at build time by a build script, so it cannot drift from the flags. `help::man_page` adds two things clap_mangen does not: a flag hidden from `-h` still gets its description, and the examples, exit codes (from `EXIT_CODES`, like `help exit-codes`) and bug address become EXAMPLES, EXIT STATUS and REPORTING BUGS sections. The tests assert the page carries the manifest version, renders without errors, names every command, describes every option and has those three sections, and that fish parses the completion script.
+
+## Color
+
+Every color the tool emits is defined once in `src/palette.rs`:
+
+```rust
+const ACCENT: Color = ansi(AnsiColor::Blue);     // headers, the signature hue
+const SUCCESS: Color = ansi(AnsiColor::Green);   // values, "it worked"
+const WARNING: Color = ansi(AnsiColor::Yellow);  // soft alerts, placeholders
+const DANGER: Color = ansi(AnsiColor::Red);      // errors, destructive prompts
+const MUTED: Color = ansi(AnsiColor::BrightBlack); // secondary detail
+```
+
+Roles are semantic (`accent`, `success`, `danger`), not literal, so swapping a color is one edit. Use a named ANSI color for portability, or 24-bit truecolor with `rgb(0x7a, 0xa2, 0xf7)`.
+
+The same roles drive clap help styling, stdout text, and the stderr progress accent. `anstream` strips escapes whenever the stream is not a terminal, so call sites style unconditionally and never branch on color. On a color terminal, result URLs are OSC 8 hyperlinks. When stdout is a terminal, color or not, a result's title and facts line are cut to the terminal width (`COLUMNS` wins) with an ellipsis, and its description to that width held between 40 and 80 columns, so it reads as prose on a wide terminal; URLs are never cut. In a pipe, and with `--plain`, every line stays whole.
+
+indicatif parses its color token with `console::Style::from_dotted_str`, which understands named colors, `#rrggbb` truecolor, and a bare 256-color index, so `palette::accent_token()` renders whichever shape the accent takes exactly. Spinners and bars match help and stdout rather than approximating them.
+
+## Platform directories
+
+`src/paths.rs` resolves config, cache, and state separately through `etcetera`, using XDG-style directories. The tool never writes dotfiles directly into `$HOME`. `--cache-dir` (or `DATASEEK_CACHE_DIR`) moves the cache alone.
+
+## Atomic writes
+
+`src/fs.rs` writes to a temp file in the target directory and then renames, so a crash mid-write cannot corrupt the original file. `cache clear --dry-run` and `cache warm --dry-run` report what the real run would do, in the same shape, and touch nothing.
+
+## Extending the CLI
+
+Add a subcommand by adding a variant to `Command` in `src/cli.rs`, a match arm in `run()` in `src/lib.rs`, its name in `COMMANDS` and, unless it is hidden like `man`, a line in `GROUPS` in `src/help.rs`. Keep one domain per tool; prefer support subcommands (`doctor`, `cache`) over piling flags onto the root. Add a test in `tests/cli.rs` for every behavior you add, and give a command that takes arguments people get wrong at most three examples, and add its `-h` to the list `every_example_in_help_and_readme_parses` reads.
+
+A flag that takes one of a fixed set of values names them in its own help, as `Colorize output (auto, always, or never)` does, because `-h` does not list them. Build the command through `cli::command()`, never `Cli::command()` directly: it hides clap's `[possible values: ...]` list from `-h` and moves each value's meaning, taken from the `ValueEnum` doc comments, into the long help `--help` shows. The man page alone builds from the plain definition, so roff draws its own list of values.
+
+The unit test at the bottom of `src/cli.rs` calls clap's `debug_assert()` on the built command, which catches a malformed definition that still compiles: a short flag used twice, a `default_value` outside the possible values, an arg that conflicts with itself. Those otherwise panic the first time a user reaches them, inside clap, where the `panic = "deny"` lint cannot see them. A proptest beside it feeds arbitrary argv to the parser for the same reason.

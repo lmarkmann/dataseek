@@ -1,0 +1,512 @@
+[
+  {
+    "collection_id": "af893e86-8e9f-41f1-a474-ef05359b1fb7",
+    "collection_url": "https://cellxgene.cziscience.com/collections/af893e86-8e9f-41f1-a474-ef05359b1fb7",
+    "collection_version_id": "c1b538fd-0f01-41c8-a504-6f44626916c2",
+    "consortia": [
+      "CZI Cell Science"
+    ],
+    "contact_email": "contact@example.org",
+    "contact_name": "Rui Chen",
+    "created_at": "2026-06-09T23:02:06+00:00",
+    "curator_name": "Jennifer Yu-Sheng Chien",
+    "datasets": [
+      {
+        "assay": [
+          {
+            "label": "10x 3' v3",
+            "ontology_term_id": "EFO:0009922"
+          }
+        ],
+        "dataset_id": "ed419b4e-db9b-40f1-8593-68fdf8dfb076",
+        "dataset_version_id": "c8da6eeb-84d7-4379-a332-1bf6107859d6",
+        "disease": [
+          {
+            "label": "normal",
+            "ontology_term_id": "PATO:0000461"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "nucleus"
+        ],
+        "tissue": [
+          {
+            "label": "fovea centralis",
+            "ontology_term_id": "UBERON:0001786",
+            "tissue_type": "tissue"
+          },
+          {
+            "label": "macula lutea proper",
+            "ontology_term_id": "UBERON:0002822",
+            "tissue_type": "tissue"
+          }
+        ]
+      },
+      {
+        "assay": [
+          {
+            "label": "10x 3' v3",
+            "ontology_term_id": "EFO:0009922"
+          }
+        ],
+        "dataset_id": "aad97cb5-f375-45ef-ae9d-178e7f5d5180",
+        "dataset_version_id": "9db639c3-5c9c-4b8f-b285-25ed5d335417",
+        "disease": [
+          {
+            "label": "normal",
+            "ontology_term_id": "PATO:0000461"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "nucleus"
+        ],
+        "tissue": [
+          {
+            "label": "fovea centralis",
+            "ontology_term_id": "UBERON:0001786",
+            "tissue_type": "tissue"
+          },
+          {
+            "label": "macula lutea proper",
+            "ontology_term_id": "UBERON:0002822",
+            "tissue_type": "tissue"
+          }
+        ]
+      }
+    ],
+    "description": "The retina is the innermost tissue of the eyes of human and most other vertebrates. It receives the information of the visual images like the film of a camera and then translates the images into neural signals.",
+    "doi": "10.1016/j.xgen.2023.100298",
+    "is_pre_analysis": false,
+    "links": [
+      {
+        "link_name": "",
+        "link_type": "OTHER",
+        "link_url": "https://retina-atac.cells.ucsc.edu/"
+      },
+      {
+        "link_name": "",
+        "link_type": "RAW_DATA",
+        "link_url": "https://explore.data.humancellatlas.org/projects/9c20a245-f2c0-43ae-82c9-2232ec6b594f"
+      }
+    ],
+    "name": "Single-cell transcriptomic atlas for adult human retina",
+    "published_at": "2021-10-29T22:14:24+00:00",
+    "publisher_metadata": {
+      "authors": [
+        {
+          "family": "Liang",
+          "given": "Qingnan"
+        },
+        {
+          "family": "Cheng",
+          "given": "Xuesen"
+        }
+      ],
+      "is_preprint": false,
+      "journal": "Cell Genomics",
+      "published_at": 1685577600.0,
+      "published_day": 1,
+      "published_month": 6,
+      "published_year": 2023
+    },
+    "revised_at": "2026-06-11T16:52:24+00:00",
+    "revising_in": null,
+    "revision_of": null,
+    "visibility": "PUBLIC"
+  },
+  {
+    "collection_id": "77f9d7e9-5675-49c3-abed-ce02f39eef1b",
+    "collection_url": "https://cellxgene.cziscience.com/collections/77f9d7e9-5675-49c3-abed-ce02f39eef1b",
+    "collection_version_id": "4ee03caa-4822-432a-adb6-87d81158e3e9",
+    "consortia": [],
+    "contact_email": "contact@example.org",
+    "contact_name": "Claire Gustafson (Allen Institute for Immunology)",
+    "created_at": "2026-06-10T10:06:54+00:00",
+    "curator_name": "Jason Hilton",
+    "datasets": [
+      {
+        "assay": [
+          {
+            "label": "10x 3' v3",
+            "ontology_term_id": "EFO:0009922"
+          }
+        ],
+        "dataset_id": "ed78c6b7-cb40-4ebc-b55f-40bc99ba1b5d",
+        "dataset_version_id": "b6986a7f-981e-4e04-93ed-57f444749b8b",
+        "disease": [
+          {
+            "label": "cytomegalovirus infection",
+            "ontology_term_id": "MONDO:0005132"
+          },
+          {
+            "label": "normal",
+            "ontology_term_id": "PATO:0000461"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "cell"
+        ],
+        "tissue": [
+          {
+            "label": "blood",
+            "ontology_term_id": "UBERON:0000178",
+            "tissue_type": "tissue"
+          }
+        ]
+      },
+      {
+        "assay": [
+          {
+            "label": "10x 3' v3",
+            "ontology_term_id": "EFO:0009922"
+          }
+        ],
+        "dataset_id": "e522d2cd-7927-4e59-a4ed-064009569279",
+        "dataset_version_id": "c1ce03ce-4b71-4b8d-b695-c3cec99cdfc2",
+        "disease": [
+          {
+            "label": "cytomegalovirus infection",
+            "ontology_term_id": "MONDO:0005132"
+          },
+          {
+            "label": "normal",
+            "ontology_term_id": "PATO:0000461"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "cell"
+        ],
+        "tissue": [
+          {
+            "label": "blood",
+            "ontology_term_id": "UBERON:0000178",
+            "tissue_type": "tissue"
+          }
+        ]
+      }
+    ],
+    "description": "The Allen Institute for Immunology aims to deepen our understanding of the immune system - how it works when we’re healthy and what goes wrong in disease.  The generation and maintenance of protective immunity is a dynamic interplay between host and environment that is impacted by age.",
+    "doi": "10.1038/s41586-025-09686-5",
+    "is_pre_analysis": false,
+    "links": [
+      {
+        "link_name": "Human Immune Health Atlas",
+        "link_type": "OTHER",
+        "link_url": "https://apps.allenimmunology.org/aifi/resources/imm-health-atlas/"
+      },
+      {
+        "link_name": "Human Immune Health Atlas github",
+        "link_type": "OTHER",
+        "link_url": "https://github.com/aifimmunology/aifi-healthy-pbmc-reference/"
+      }
+    ],
+    "name": "Human Immune Health Atlas",
+    "published_at": "2025-10-24T23:35:58+00:00",
+    "publisher_metadata": {
+      "authors": [
+        {
+          "family": "Gong",
+          "given": "Qiuyu"
+        },
+        {
+          "family": "Sharma",
+          "given": "Mehul"
+        }
+      ],
+      "is_preprint": false,
+      "journal": "Nature",
+      "published_at": 1766016000.0,
+      "published_day": 18,
+      "published_month": 12,
+      "published_year": 2025
+    },
+    "revised_at": "2026-06-11T16:54:12+00:00",
+    "revising_in": null,
+    "revision_of": null,
+    "visibility": "PUBLIC"
+  },
+  {
+    "collection_id": "e9360edf-b0b7-4e01-bce8-e596814f13e7",
+    "collection_url": "https://cellxgene.cziscience.com/collections/e9360edf-b0b7-4e01-bce8-e596814f13e7",
+    "collection_version_id": "8c766595-269a-40f2-b092-a4d6eb4bb378",
+    "consortia": [],
+    "contact_email": "contact@example.org",
+    "contact_name": "Claire Gustafson (Allen Institute for Immunology)",
+    "created_at": "2026-06-10T09:28:20+00:00",
+    "curator_name": "Jason Hilton",
+    "datasets": [
+      {
+        "assay": [
+          {
+            "label": "10x 3' v3",
+            "ontology_term_id": "EFO:0009922"
+          }
+        ],
+        "dataset_id": "aa32098f-f7b0-43f2-a00a-601d190aae94",
+        "dataset_version_id": "1a8cdcae-a010-4f81-97a4-4136f77c1a93",
+        "disease": [
+          {
+            "label": "cytomegalovirus infection",
+            "ontology_term_id": "MONDO:0005132"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "cell"
+        ],
+        "tissue": [
+          {
+            "label": "blood",
+            "ontology_term_id": "UBERON:0000178",
+            "tissue_type": "tissue"
+          }
+        ]
+      },
+      {
+        "assay": [
+          {
+            "label": "10x 3' v3",
+            "ontology_term_id": "EFO:0009922"
+          }
+        ],
+        "dataset_id": "5fde5c9c-5b1e-4df5-982a-3f8e7635161f",
+        "dataset_version_id": "0c007e96-c225-41de-93c7-60bedef739ca",
+        "disease": [
+          {
+            "label": "cytomegalovirus infection",
+            "ontology_term_id": "MONDO:0005132"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "cell"
+        ],
+        "tissue": [
+          {
+            "label": "blood",
+            "ontology_term_id": "UBERON:0000178",
+            "tissue_type": "tissue"
+          }
+        ]
+      }
+    ],
+    "description": "The generation and maintenance of immunity is a dynamic process that is dependent on age. Here, to better understand its progression, we profiled peripheral immunity in more than 300 healthy adults (25 to 90 years of age) using single-cell RNA sequencing, proteomics and flow cytometry, following 96 adults longitudinally across 2 years with seasonal influenza vaccination.",
+    "doi": "10.1038/s41586-025-09686-5",
+    "is_pre_analysis": false,
+    "links": [
+      {
+        "link_name": "Dynamics of IHA: scRNA-seq dataset github",
+        "link_type": "OTHER",
+        "link_url": "https://github.com/aifimmunology/sound-life-scrna-analysis/"
+      },
+      {
+        "link_name": "Dynamics of IHA: Figures github",
+        "link_type": "OTHER",
+        "link_url": "https://github.com/aifimmunology/IHA-Figure"
+      }
+    ],
+    "name": "Multi-omic profiling reveals age-related immune dynamics in healthy adults",
+    "published_at": "2025-10-24T23:35:56+00:00",
+    "publisher_metadata": {
+      "authors": [
+        {
+          "family": "Gong",
+          "given": "Qiuyu"
+        },
+        {
+          "family": "Sharma",
+          "given": "Mehul"
+        }
+      ],
+      "is_preprint": false,
+      "journal": "Nature",
+      "published_at": 1766016000.0,
+      "published_day": 18,
+      "published_month": 12,
+      "published_year": 2025
+    },
+    "revised_at": "2026-06-11T16:53:28+00:00",
+    "revising_in": null,
+    "revision_of": null,
+    "visibility": "PUBLIC"
+  },
+  {
+    "collection_id": "be2285ed-d27d-4249-97a2-9b23ea924413",
+    "collection_url": "https://cellxgene.cziscience.com/collections/be2285ed-d27d-4249-97a2-9b23ea924413",
+    "collection_version_id": "86824404-8a9c-42c9-bb60-ca500ea2dfc0",
+    "consortia": [
+      "Human Cell Atlas (HCA)"
+    ],
+    "contact_email": "contact@example.org",
+    "contact_name": "Chenguang Wang",
+    "created_at": "2026-08-04T19:49:18+00:00",
+    "curator_name": "James Chaffer",
+    "datasets": [
+      {
+        "assay": [
+          {
+            "label": "10x 5' transcription profiling",
+            "ontology_term_id": "EFO:0030004"
+          },
+          {
+            "label": "10x 5' v1",
+            "ontology_term_id": "EFO:0011025"
+          }
+        ],
+        "dataset_id": "fe067858-1282-46ea-9553-b8cd19167266",
+        "dataset_version_id": "296a7df6-3505-418a-9762-4fe844bc90bc",
+        "disease": [
+          {
+            "label": "Sezary syndrome",
+            "ontology_term_id": "MONDO:0017844"
+          },
+          {
+            "label": "mycosis fungoides",
+            "ontology_term_id": "MONDO:0009691"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "cell"
+        ],
+        "tissue": [
+          {
+            "label": "blood",
+            "ontology_term_id": "UBERON:0000178",
+            "tissue_type": "tissue"
+          },
+          {
+            "label": "mesenteric lymph node",
+            "ontology_term_id": "UBERON:0002509",
+            "tissue_type": "tissue"
+          }
+        ]
+      },
+      {
+        "assay": [
+          {
+            "label": "10x 3' v2",
+            "ontology_term_id": "EFO:0009899"
+          },
+          {
+            "label": "10x 3' v3",
+            "ontology_term_id": "EFO:0009922"
+          }
+        ],
+        "dataset_id": "98b68224-956d-45dd-9eca-538747578af8",
+        "dataset_version_id": "81036f88-1a43-46ea-a800-659ea37ce815",
+        "disease": [
+          {
+            "label": "Sezary syndrome",
+            "ontology_term_id": "MONDO:0017844"
+          },
+          {
+            "label": "mycosis fungoides",
+            "ontology_term_id": "MONDO:0009691"
+          }
+        ],
+        "genetic_perturbation_strategy": null,
+        "is_pre_analysis": false,
+        "organism": [
+          {
+            "label": "Homo sapiens",
+            "ontology_term_id": "NCBITaxon:9606"
+          }
+        ],
+        "perturbation_types": null,
+        "suspension_type": [
+          "cell"
+        ],
+        "tissue": [
+          {
+            "label": "dermis",
+            "ontology_term_id": "UBERON:0002067",
+            "tissue_type": "tissue"
+          },
+          {
+            "label": "skin epidermis",
+            "ontology_term_id": "UBERON:0001003",
+            "tissue_type": "tissue"
+          }
+        ]
+      }
+    ],
+    "description": "Primary cutaneous T-cell lymphomas (CTCL) are a heterogeneous group of extranodal non-Hodgkin lymphomas. Outcomes for patients with advanced-stage disease are suboptimal, as few complete and durable responses are achieved with currently available therapeutic agents.",
+    "doi": null,
+    "is_pre_analysis": false,
+    "links": [
+      {
+        "link_name": "GSE309807",
+        "link_type": "OTHER",
+        "link_url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE309807"
+      }
+    ],
+    "name": "A single-cell atlas identifies oncogenic transcriptional programs and immune escape mechanisms in CTCL",
+    "published_at": "2026-09-08T20:28:23+00:00",
+    "publisher_metadata": null,
+    "revised_at": null,
+    "revising_in": null,
+    "revision_of": null,
+    "visibility": "PUBLIC"
+  }
+]

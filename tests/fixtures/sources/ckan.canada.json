@@ -1,0 +1,462 @@
+{
+  "help": "https://open.canada.ca/data/api/3/action/help_show?name=package_search",
+  "success": true,
+  "result": {
+    "count": 2543,
+    "facets": {},
+    "facet_ranges": {
+      "portal_release_date": {
+        "counts": [
+          "1926-10-06T00:00:00Z",
+          1420
+        ],
+        "gap": "+100YEARS",
+        "start": "1926-10-06T00:00:00Z",
+        "end": "2126-10-06T00:00:00Z"
+      }
+    },
+    "facet_queries": {},
+    "results": [
+      {
+        "association_type": [],
+        "audience": [],
+        "author": null,
+        "author_email": "contact@example.org",
+        "collection": "geogratis",
+        "contributor": {},
+        "creator_user_id": "aa584ab4-544c-4c5c-81da-d1cff9bd96fa",
+        "data_series_issue_identification": {
+          "fr": "030",
+          "en": "030"
+        },
+        "data_series_name": {
+          "fr": "Atlas du Canada, 3e édition",
+          "en": "Atlas of Canada, 3rd Edition"
+        },
+        "date_published": "1957-01-01 00:00:00",
+        "digital_object_identifier": "",
+        "display_flags": [],
+        "frequency": "as_needed",
+        "geographic_region": [],
+        "id": "09ffaeb5-ec8f-5bb5-bdcb-3436ccf26f58",
+        "imso_approval": "true",
+        "isopen": false,
+        "jurisdiction": "federal",
+        "keywords": {
+          "fr": [
+            "climat",
+            "données météorologiques",
+            "météorologie",
+            "temps - météorologie"
+          ],
+          "en": [
+            "climate",
+            "meteorological data",
+            "meteorology",
+            "weather"
+          ]
+        },
+        "license_id": "ca-ogl-lgo",
+        "license_title": "Open Government Licence - Canada",
+        "license_url": "https://open.canada.ca/en/open-government-licence-canada",
+        "maintainer": null,
+        "maintainer_contact_form": {},
+        "maintainer_email": "contact@example.org",
+        "metadata_contact": {},
+        "metadata_created": "2016-09-24T01:31:00.885817",
+        "metadata_modified": "2022-03-14T19:51:11.728358",
+        "name": "09ffaeb5-ec8f-5bb5-bdcb-3436ccf26f58",
+        "notes": "Contained within 3rd Edition (1957) of the Atlas of Canada is a map that shows the division of Canada into climatic regions according to the classification of the climates of the world developed by W. Koppen. Koppen first divided the world into five major divisions to which he assigned the letters A, B, C, D, and E.",
+        "notes_translated": {
+          "fr": "La 3e édition de l’Atlas du Canada (1957) contient une carte montrant la division du Canada en régions climatiques, conformément à la classification des climats du monde établie par W. Köppen. Il a tout d’abord divisé le monde en cinq divisions principales auxquelles il a donné les lettres A, B, C, D et E. Les lettres représentent l’aire de distribution géographique des divisions allant du climat tropical (A) au climat polaire (E). Il n’y a pas de climat de type A au Canada. Les descriptions des quatre autres principales divisions se trouvent dans la légende de la carte. Puis, Köppen a divisé les grandes divisions en plusieurs catégories de climats d’après les différences et les variations de température dans le volume et la distribution des précipitations, représentés par d’autres lettres juxtaposées aux lettres désignant les cinq grandes divisions. Les définitions de ces nouvelles lettres qui s’appliquent au Canada sont également fournies lorsqu’elles apparaissent pour la première fois dans la légende. Ainsi, on définit « b » dans « Csb », et c’est pourquoi l’explication n’est pas reprise aux classes « Cfb », « Dfb » ou « Dsb ». Pour cette carte, les normes relatives aux températures et aux précipitations établies par Köppen ont été appliquées aux relevés effectués au Canada pendant une période type de trente ans (de 1921 à 1950 inclusivement).",
+          "en": "Contained within 3rd Edition (1957) of the Atlas of Canada is a map that shows the division of Canada into climatic regions according to the classification of the climates of the world developed by W. Koppen. Koppen first divided the world into five major divisions to which he assigned the letters A, B, C, D, and E. The letters represent the range of divisions from tropical climate (A) to polar climate (E). There are no A climates in Canada. The descriptions of the four remaining major divisions are given in the map legend. Koppen then divided the large divisions into a number of climatic types in accordance with temperature differences and variations in the amounts and distribution of precipitation, on the basis of which he added certain letters to the initial letter denoting the major division. The definitions of the additional letters which apply in Canada are also given when they first appear in the map legend. Thus b is defined under Csb and the definition is, therefore, not repeated under Cfb, Dfb or Dsb. For this map, the temperature and precipitation criteria established by Koppen have been applied to Canadian data for a standard thirty year period (1921 to 1950 inclusive)."
+        },
+        "num_resources": 4,
+        "num_tags": 0,
+        "org_section": {},
+        "org_title_at_publication": {
+          "fr": "Ressources naturelles Canada",
+          "en": "Natural Resources Canada"
+        },
+        "organization": {
+          "id": "9391E0A2-9717-4755-B548-4499C21F917B",
+          "name": "nrcan-rncan",
+          "title": "Natural Resources Canada | Ressources naturelles Canada",
+          "type": "organization",
+          "description": "",
+          "image_url": "",
+          "created": "2016-09-23T17:25:46.737130",
+          "is_organization": true,
+          "approval_status": "approved",
+          "state": "active"
+        },
+        "owner_org": "9391E0A2-9717-4755-B548-4499C21F917B",
+        "place_of_publication": [],
+        "portal_release_date": "2017-01-18",
+        "position_name": {},
+        "presentation_form": "map_hardcopy",
+        "private": false,
+        "program_page_url": {},
+        "ready_to_publish": "true",
+        "restrictions": "unrestricted",
+        "spatial": "{\"type\": \"Polygon\", \"coordinates\": [[[-175.0, 85.0], [-175.0, 40.0], [-10.0, 40.0], [-10.0, 85.0], [-175.0, 85.0]]]}",
+        "spatial_representation_type": [],
+        "state": "active",
+        "subject": [
+          "nature_and_environment",
+          "science_and_technology"
+        ],
+        "title": "Climatic Regions",
+        "title_translated": {
+          "fr": "Régions climatiques",
+          "en": "Climatic Regions"
+        },
+        "topic_category": [
+          "climatology_meterology_atmosphere"
+        ],
+        "type": "dataset",
+        "url": "{u'fr': u'http://geogratis.gc.ca/api/fr/nrcan-rncan/ess-sst/09ffaeb5-ec8f-5bb5-bdcb-3436ccf26f58', u'en': u'http://geogratis.gc.ca/api/en/nrcan-rncan/ess-sst/09ffaeb5-ec8f-5bb5-bdcb-3436ccf26f58'}",
+        "version": null,
+        "resources": [
+          {
+            "cache_last_updated": null,
+            "cache_url": null,
+            "created": "2017-01-26T11:25:44.012952",
+            "data_quality": [],
+            "datastore_active": false,
+            "description": "",
+            "format": "JPG",
+            "hash": "",
+            "id": "4ec05161-60d1-4fc9-9e7c-487798c19b82",
+            "language": [
+              "en",
+              "fr"
+            ],
+            "last_modified": null,
+            "metadata_modified": "2017-01-26T11:25:44.012952",
+            "mimetype": null,
+            "mimetype_inner": null,
+            "name": "Download the English JPG through HTTP",
+            "name_translated": {
+              "fr": "Télécharger le fichier en format JPG Anglais via HTTP",
+              "en": "Download the English JPG through HTTP"
+            },
+            "package_id": "09ffaeb5-ec8f-5bb5-bdcb-3436ccf26f58",
+            "position": 0,
+            "resource_type": "dataset",
+            "size": 1134541,
+            "state": "active",
+            "url": "https://ftp.geogratis.gc.ca/pub/nrcan_rncan/raster/atlas_3_ed/eng/environment/climate/030.jpg",
+            "url_type": null
+          }
+        ],
+        "tags": [],
+        "groups": [],
+        "relationships_as_subject": [],
+        "relationships_as_object": []
+      },
+      {
+        "association_type": [],
+        "audience": [],
+        "author": null,
+        "author_email": null,
+        "collection": "primary",
+        "contributor": {
+          "fr": "",
+          "en": ""
+        },
+        "creator": "David Paré",
+        "creator_user_id": "2dc5a12f-2a6f-4822-8514-165ea6bb05d9",
+        "data_series_issue_identification": {
+          "fr": "",
+          "en": ""
+        },
+        "data_series_name": {
+          "fr": "",
+          "en": ""
+        },
+        "date_published": "2022-10-11 00:00:00",
+        "digital_object_identifier": "https://doi.org/10.23687/c1891184-b6dc-4dc7-95b3-ecf108b02a8d",
+        "display_flags": [],
+        "frequency": "not_planned",
+        "geographic_region": [
+          "2"
+        ],
+        "id": "c1891184-b6dc-4dc7-95b3-ecf108b02a8d",
+        "imso_approval": "true",
+        "isopen": false,
+        "jurisdiction": "federal",
+        "keywords": {
+          "fr": [
+            "Écologie"
+          ],
+          "en": [
+            "Ecology"
+          ]
+        },
+        "license_id": "ca-ogl-lgo",
+        "license_title": "Open Government Licence - Canada",
+        "license_url": "https://open.canada.ca/en/open-government-licence-canada",
+        "maintainer": null,
+        "maintainer_contact_form": {},
+        "metadata_contact": {},
+        "metadata_created": "2022-10-11T18:56:49.548364",
+        "metadata_modified": "2024-11-21T01:58:28.062690",
+        "name": "c1891184-b6dc-4dc7-95b3-ecf108b02a8d",
+        "notes": "Four to six years measurements of carbon and nutrient fluxes at 21 sites located along a 4oC climatic gradient, half of which were in balsam fir stands and the other half in black spruce stands. Litter fall is measured as well as respiration in situ using an IRGA device.",
+        "notes_translated": {
+          "fr": "De quatre à six années de mesure du flux de carbone et de nutriments sur 21 sites localisés le long d'un gradient climatique de 4oC dont la moitié sur dans des peuplements de sapins baumiers et l'autre dans des peuplements d'épinettes noires. La chute de litière est mesurée ainsi que la respiration in situ à l'aide d'un appareil IRGA. ",
+          "en": "Four to six years measurements of carbon and nutrient fluxes at 21 sites located along a 4oC climatic gradient, half of which were in balsam fir stands and the other half in black spruce stands. Litter fall is measured as well as respiration in situ using an IRGA device."
+        },
+        "num_resources": 1,
+        "num_tags": 0,
+        "org_section": {
+          "fr": "Service canadien des forêts",
+          "en": "Canadian Forest Service "
+        },
+        "org_title_at_publication": {
+          "fr": "Ressources naturelles Canada ",
+          "en": "Natural Resources Canada"
+        },
+        "organization": {
+          "id": "9391E0A2-9717-4755-B548-4499C21F917B",
+          "name": "nrcan-rncan",
+          "title": "Natural Resources Canada | Ressources naturelles Canada",
+          "type": "organization",
+          "description": "",
+          "image_url": "",
+          "created": "2016-09-23T17:25:46.737130",
+          "is_organization": true,
+          "approval_status": "approved",
+          "state": "active"
+        },
+        "owner_org": "9391E0A2-9717-4755-B548-4499C21F917B",
+        "place_of_publication": [
+          "0"
+        ],
+        "portal_release_date": "2022-10-11",
+        "position_name": {},
+        "private": false,
+        "program_page_url": {
+          "fr": "",
+          "en": ""
+        },
+        "ready_to_publish": "true",
+        "restrictions": "unrestricted",
+        "spatial": "",
+        "spatial_representation_type": [],
+        "state": "active",
+        "subject": [
+          "science_and_technology"
+        ],
+        "time_period_coverage_end": "2010-10-30 00:00:00",
+        "time_period_coverage_start": "2001-06-03 00:00:00",
+        "title": "Litterfall rate and soil respiration along a climatic gradient",
+        "title_translated": {
+          "fr": "Taux de chute de litière et respiration du sol le long d'un gradient climatique",
+          "en": "Litterfall rate and soil respiration along a climatic gradient"
+        },
+        "topic_category": [],
+        "type": "dataset",
+        "url": null,
+        "version": null,
+        "resources": [
+          {
+            "cache_last_updated": null,
+            "cache_url": null,
+            "character_set": "",
+            "created": "2022-10-11T18:56:49.680248",
+            "data_quality": [],
+            "datastore_active": false,
+            "datastore_contains_all_records_of_source_file": false,
+            "date_published": "",
+            "description": null,
+            "format": "ZIP",
+            "hash": "",
+            "id": "f99c9f81-2669-4962-a8a2-83d13451f855",
+            "language": [
+              "en",
+              "fr"
+            ],
+            "last_modified": "2022-10-06T15:04:27.735845",
+            "metadata_modified": "2024-11-21T01:58:28.076632",
+            "mimetype": null,
+            "mimetype_inner": null,
+            "name": "\tLitterfall rate and soil respiration along a climatic gradient",
+            "name_translated": {
+              "fr": "Taux de chute de litière et respiration du sol le long d'un gradient climatique",
+              "en": "\tLitterfall rate and soil respiration along a climatic gradient"
+            },
+            "package_id": "c1891184-b6dc-4dc7-95b3-ecf108b02a8d",
+            "position": 0,
+            "related_relationship": null,
+            "related_type": null,
+            "resource_type": "dataset",
+            "size": 273122,
+            "state": "active",
+            "unique_identifier": "",
+            "url": "https://open.canada.ca/data/dataset/c1891184-b6dc-4dc7-95b3-ecf108b02a8d/resource/f99c9f81-2669-4962-a8a2-83d13451f855/download/data-davidpare.zip",
+            "url_type": "upload",
+            "validation_status": "",
+            "validation_timestamp": ""
+          }
+        ],
+        "tags": [],
+        "groups": [],
+        "relationships_as_subject": [],
+        "relationships_as_object": []
+      },
+      {
+        "association_type": [],
+        "audience": [
+          "scientists"
+        ],
+        "author": null,
+        "author_email": null,
+        "collection": "primary",
+        "contributor": {
+          "fr": "Kneeshaw, D.; Boucher, D.; Marchand, M.; Périgon, S.; Girardin, M.; Pureswaran, D.",
+          "en": "Kneeshaw, D.; Boucher, D.; Marchand, M.; Périgon, S.; Girardin, M.; Pureswaran, D."
+        },
+        "creator": "De Grandpré, L.",
+        "creator_user_id": "4cfa9a9c-1d95-40eb-86f9-bc0c8ec45d1f",
+        "data_series_issue_identification": {
+          "fr": "",
+          "en": ""
+        },
+        "data_series_name": {
+          "fr": "",
+          "en": ""
+        },
+        "date_published": "2018-05-14 00:00:00",
+        "digital_object_identifier": "10.23687/72e3304f-4103-4060-9bf0-fdd1325b6851",
+        "display_flags": [],
+        "frequency": "as_needed",
+        "geographic_region": [
+          "0"
+        ],
+        "id": "72e3304f-4103-4060-9bf0-fdd1325b6851",
+        "imso_approval": "true",
+        "isopen": false,
+        "jurisdiction": "federal",
+        "keywords": {
+          "fr": [
+            "Écosystème boréal"
+          ],
+          "en": [
+            "Boreal ecosystems"
+          ]
+        },
+        "license_id": "ca-ogl-lgo",
+        "license_title": "Open Government Licence - Canada",
+        "license_url": "https://open.canada.ca/en/open-government-licence-canada",
+        "maintainer": null,
+        "maintainer_email": "contact@example.org",
+        "metadata_contact": {},
+        "metadata_created": "2018-05-16T18:00:13.417963",
+        "metadata_modified": "2018-05-17T19:40:41.581150",
+        "name": "72e3304f-4103-4060-9bf0-fdd1325b6851",
+        "notes": "This project aims at linking biotic and climatic stresses and tree mortality in the boreal forest.",
+        "notes_translated": {
+          "fr": "Ce projet vise à faire un lien entre les stress biotiques et climatiques et la mortalité des arbres en forêt boréale.",
+          "en": "This project aims at linking biotic and climatic stresses and tree mortality in the boreal forest."
+        },
+        "num_resources": 3,
+        "num_tags": 0,
+        "org_section": {
+          "fr": "Service canadien des forêts",
+          "en": "Canadian Forest Service"
+        },
+        "org_title_at_publication": {
+          "fr": "Ressources naturelles Canada",
+          "en": "Natural Resources Canada"
+        },
+        "organization": {
+          "id": "9391E0A2-9717-4755-B548-4499C21F917B",
+          "name": "nrcan-rncan",
+          "title": "Natural Resources Canada | Ressources naturelles Canada",
+          "type": "organization",
+          "description": "",
+          "image_url": "",
+          "created": "2016-09-23T17:25:46.737130",
+          "is_organization": true,
+          "approval_status": "approved",
+          "state": "active"
+        },
+        "owner_org": "9391E0A2-9717-4755-B548-4499C21F917B",
+        "place_of_publication": [
+          "0",
+          "2"
+        ],
+        "portal_release_date": "2018-05-16",
+        "position_name": {},
+        "private": false,
+        "program_page_url": {
+          "fr": "",
+          "en": ""
+        },
+        "ready_to_publish": "true",
+        "restrictions": "unrestricted",
+        "spatial": "",
+        "spatial_representation_type": [],
+        "state": "active",
+        "subject": [
+          "nature_and_environment"
+        ],
+        "time_period_coverage_end": "2005-03-04 00:00:00",
+        "time_period_coverage_start": "1850-03-01 00:00:00",
+        "title": "Adverse climatic periods precede and amplify defoliator-induced tree mortality in eastern boreal North America",
+        "title_translated": {
+          "fr": "De mauvaises périodes climatiques précèdent et amplifient la mortalité des arbres causée par un insecte défoliateur dans le nord-est de la forêt boréale",
+          "en": "Adverse climatic periods precede and amplify defoliator-induced tree mortality in eastern boreal North America"
+        },
+        "topic_category": [],
+        "type": "dataset",
+        "url": "",
+        "version": null,
+        "resources": [
+          {
+            "cache_last_updated": null,
+            "cache_url": null,
+            "character_set": "",
+            "created": "2018-05-16T18:00:15.637846",
+            "data_quality": [],
+            "datastore_active": false,
+            "date_published": "",
+            "description": "",
+            "format": "ZIP",
+            "hash": "",
+            "id": "f880d3d4-06d3-4ea5-aae9-a796ff7f5f99",
+            "language": [
+              "en"
+            ],
+            "last_modified": null,
+            "metadata_modified": "2018-05-16T18:00:15.637846",
+            "mimetype": null,
+            "mimetype_inner": null,
+            "name": "Adverse climatic periods precede and amplify defoliator-induced tree mortality in eastern boreal North America - Data",
+            "name_translated": {
+              "fr": "De mauvaises périodes climatiques précèdent et amplifient la mortalité des arbres causée par un insecte défoliateur dans le nord-est de la forêt boréale - Données",
+              "en": "Adverse climatic periods precede and amplify defoliator-induced tree mortality in eastern boreal North America - Data"
+            },
+            "package_id": "72e3304f-4103-4060-9bf0-fdd1325b6851",
+            "position": 0,
+            "related_relationship": null,
+            "related_type": null,
+            "resource_type": "dataset",
+            "state": "active",
+            "unique_identifier": "",
+            "url": "https://apps-scf-cfs.nrcan.gc.ca/opendata/ClimaticPeriodsDefoliatorTreeMortalityEasternBorealNA/ClimaticPeriodsDefoliatorTreeMortalityEasternBorealNAData.zip",
+            "url_type": null
+          }
+        ],
+        "tags": [],
+        "groups": [],
+        "relationships_as_subject": [],
+        "relationships_as_object": []
+      }
+    ],
+    "sort": "score desc, metadata_modified desc",
+    "search_facets": {}
+  }
+}

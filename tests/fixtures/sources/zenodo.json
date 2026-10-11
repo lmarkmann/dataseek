@@ -1,0 +1,605 @@
+{
+  "hits": {
+    "hits": [
+      {
+        "created": "2026-10-01T07:34:37.349326+00:00",
+        "modified": "2026-10-01T07:34:37.597454+00:00",
+        "id": 23077368,
+        "conceptrecid": "23077367",
+        "doi": "10.5281/zenodo.23077368",
+        "conceptdoi": "10.5281/zenodo.23077367",
+        "doi_url": "https://doi.org/10.5281/zenodo.23077368",
+        "metadata": {
+          "title": "Monthly water storage levels, Victoria",
+          "doi": "10.5281/zenodo.23077368",
+          "publication_date": "2025-10-31",
+          "description": "<p>The volume held in each of about 65 Victorian reservoirs at the end of every month since January 2010, in megalitres, one row per reservoir and month. Updated monthly.</p>",
+          "access_right": "open",
+          "creators": [
+            {
+              "name": "Department of Energy, Environment and Climate Action",
+              "affiliation": null
+            }
+          ],
+          "contributors": [
+            {
+              "name": "National Digital",
+              "affiliation": null,
+              "type": "DataCurator"
+            }
+          ],
+          "keywords": [
+            "Australia",
+            "government open data",
+            "publicdata.au"
+          ],
+          "related_identifiers": [
+            {
+              "identifier": "https://publicdata.au/d/vic-water-storage-levels/v/2025-10-31/",
+              "relation": "isIdenticalTo",
+              "resource_type": "dataset",
+              "scheme": "url"
+            },
+            {
+              "identifier": "https://publicdata.au/d/vic-water-storage-levels/",
+              "relation": "isVersionOf",
+              "resource_type": "dataset",
+              "scheme": "url"
+            },
+            {
+              "identifier": "https://discover.data.vic.gov.au/dataset/regional-melbourne-and-all-victoria-monthly-water-storage-levels",
+              "relation": "isDerivedFrom",
+              "resource_type": "dataset",
+              "scheme": "url"
+            }
+          ],
+          "version": "2025-10-31",
+          "language": "eng",
+          "resource_type": {
+            "title": "Dataset",
+            "type": "dataset"
+          },
+          "license": {
+            "id": "cc-by-4.0"
+          },
+          "relations": {
+            "version": [
+              {
+                "index": 0,
+                "is_last": true,
+                "parent": {
+                  "pid_type": "recid",
+                  "pid_value": "23077367"
+                }
+              }
+            ]
+          },
+          "notes": "Cite as: Department of Energy, Environment and Climate Action, Victorian Government, Regional, Melbourne and all Victoria monthly water storage levels, sourced 1 October 2026, https://discover.data.vic.gov.au/dataset/regional-melbourne-and-all-victoria-monthly-water-storage-levels, licensed under CC BY 4.0. Serialised and versioned by National Digital at publicdata.au, https://publicdata.au/d/vic-water-storage-levels/v/2025-10-31/"
+        },
+        "title": "Monthly water storage levels, Victoria",
+        "links": {
+          "self": "https://zenodo.org/api/records/23077368",
+          "self_html": "https://zenodo.org/records/23077368",
+          "preview_html": "https://zenodo.org/records/23077368?preview=1",
+          "doi": "https://doi.org/10.5281/zenodo.23077368",
+          "self_doi": "https://doi.org/10.5281/zenodo.23077368",
+          "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.23077368",
+          "reserve_doi": "https://zenodo.org/api/records/23077368/draft/pids/doi",
+          "parent": "https://zenodo.org/api/records/23077367",
+          "parent_html": "https://zenodo.org/records/23077367",
+          "parent_doi": "https://doi.org/10.5281/zenodo.23077367",
+          "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.23077367",
+          "self_iiif_manifest": "https://zenodo.org/api/iiif/record:23077368/manifest",
+          "self_iiif_sequence": "https://zenodo.org/api/iiif/record:23077368/sequence/default",
+          "files": "https://zenodo.org/api/records/23077368/files",
+          "media_files": "https://zenodo.org/api/records/23077368/media-files",
+          "archive": "https://zenodo.org/api/records/23077368/files-archive",
+          "archive_media": "https://zenodo.org/api/records/23077368/media-files-archive",
+          "latest": "https://zenodo.org/api/records/23077368/versions/latest",
+          "latest_html": "https://zenodo.org/records/23077368/latest",
+          "versions": "https://zenodo.org/api/records/23077368/versions",
+          "draft": "https://zenodo.org/api/records/23077368/draft",
+          "access_links": "https://zenodo.org/api/records/23077368/access/links",
+          "access_grants": "https://zenodo.org/api/records/23077368/access/grants",
+          "access_users": "https://zenodo.org/api/records/23077368/access/users",
+          "access_request": "https://zenodo.org/api/records/23077368/access/request",
+          "access": "https://zenodo.org/api/records/23077368/access",
+          "communities": "https://zenodo.org/api/records/23077368/communities",
+          "communities-suggestions": "https://zenodo.org/api/records/23077368/communities-suggestions",
+          "request_deletion": "https://zenodo.org/api/records/23077368/request-deletion",
+          "file_modification": "https://zenodo.org/api/records/23077368/file-modification",
+          "quota_increase": "https://zenodo.org/api/records/23077368/quota-increase",
+          "requests": "https://zenodo.org/api/records/23077368/requests"
+        },
+        "updated": "2026-10-01T07:34:37.597454+00:00",
+        "recid": "23077368",
+        "revision": 4,
+        "files": [
+          {
+            "id": "eae7b583-e4af-415c-a62d-4a9b74d7fbb3",
+            "key": "schema.json",
+            "size": 585,
+            "checksum": "md5:be1e66ec14221437c5ae821babac74d7",
+            "links": {
+              "self": "https://zenodo.org/api/records/23077368/files/schema.json/content"
+            }
+          },
+          {
+            "id": "2dfb2366-ba4d-4301-8c74-e2005338a0a2",
+            "key": "data.json",
+            "size": 939174,
+            "checksum": "md5:5ea299e49cc695252879ffda1c4a8498",
+            "links": {
+              "self": "https://zenodo.org/api/records/23077368/files/data.json/content"
+            }
+          },
+          {
+            "id": "d1a63145-3dfc-46ec-ab47-a39ba2548ea5",
+            "key": "data.xlsx",
+            "size": 242821,
+            "checksum": "md5:b62f96c0e034783605cc3748775d8738",
+            "links": {
+              "self": "https://zenodo.org/api/records/23077368/files/data.xlsx/content"
+            }
+          }
+        ],
+        "swh": null,
+        "owners": [
+          {
+            "id": "1913688"
+          }
+        ],
+        "status": "published",
+        "stats": {
+          "downloads": 3,
+          "unique_downloads": 3,
+          "views": 6,
+          "unique_views": 6,
+          "version_downloads": 3,
+          "version_unique_downloads": 3,
+          "version_unique_views": 6,
+          "version_views": 6
+        },
+        "state": "done",
+        "submitted": true
+      },
+      {
+        "created": "2026-10-03T06:25:22.227871+00:00",
+        "modified": "2026-10-03T06:25:22.525550+00:00",
+        "id": 23116351,
+        "conceptrecid": "23116350",
+        "doi": "10.5281/zenodo.23116351",
+        "conceptdoi": "10.5281/zenodo.23116350",
+        "doi_url": "https://doi.org/10.5281/zenodo.23116351",
+        "metadata": {
+          "title": "Monthly restrictions on diversions from unregulated streams, Victoria",
+          "doi": "10.5281/zenodo.23116351",
+          "publication_date": "2025-10-30",
+          "description": "<p>The restriction status on diversions from about 250 unregulated Victorian streams at the end of each month since January 2010, from no restriction through rostered stages to a ban.</p>",
+          "access_right": "open",
+          "creators": [
+            {
+              "name": "Department of Energy, Environment and Climate Action",
+              "affiliation": null
+            }
+          ],
+          "contributors": [
+            {
+              "name": "National Digital",
+              "affiliation": null,
+              "type": "DataCurator"
+            }
+          ],
+          "keywords": [
+            "Australia",
+            "government open data",
+            "publicdata.au"
+          ],
+          "related_identifiers": [
+            {
+              "identifier": "https://publicdata.au/d/vic-stream-restrictions/v/2025-10-30/",
+              "relation": "isIdenticalTo",
+              "resource_type": "dataset",
+              "scheme": "url"
+            },
+            {
+              "identifier": "https://publicdata.au/d/vic-stream-restrictions/",
+              "relation": "isVersionOf",
+              "resource_type": "dataset",
+              "scheme": "url"
+            },
+            {
+              "identifier": "https://discover.data.vic.gov.au/dataset/stream-restrictions",
+              "relation": "isDerivedFrom",
+              "resource_type": "dataset",
+              "scheme": "url"
+            }
+          ],
+          "version": "2025-10-30",
+          "language": "eng",
+          "resource_type": {
+            "title": "Dataset",
+            "type": "dataset"
+          },
+          "license": {
+            "id": "cc-by-4.0"
+          },
+          "relations": {
+            "version": [
+              {
+                "index": 0,
+                "is_last": true,
+                "parent": {
+                  "pid_type": "recid",
+                  "pid_value": "23116350"
+                }
+              }
+            ]
+          },
+          "notes": "Cite as: Department of Energy, Environment and Climate Action, Victorian Government, Stream restrictions, sourced 3 October 2026, https://discover.data.vic.gov.au/dataset/stream-restrictions, licensed under CC BY 4.0. Serialised and versioned by National Digital at publicdata.au, https://publicdata.au/d/vic-stream-restrictions/v/2025-10-30/"
+        },
+        "title": "Monthly restrictions on diversions from unregulated streams, Victoria",
+        "links": {
+          "self": "https://zenodo.org/api/records/23116351",
+          "self_html": "https://zenodo.org/records/23116351",
+          "preview_html": "https://zenodo.org/records/23116351?preview=1",
+          "doi": "https://doi.org/10.5281/zenodo.23116351",
+          "self_doi": "https://doi.org/10.5281/zenodo.23116351",
+          "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.23116351",
+          "reserve_doi": "https://zenodo.org/api/records/23116351/draft/pids/doi",
+          "parent": "https://zenodo.org/api/records/23116350",
+          "parent_html": "https://zenodo.org/records/23116350",
+          "parent_doi": "https://doi.org/10.5281/zenodo.23116350",
+          "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.23116350",
+          "self_iiif_manifest": "https://zenodo.org/api/iiif/record:23116351/manifest",
+          "self_iiif_sequence": "https://zenodo.org/api/iiif/record:23116351/sequence/default",
+          "files": "https://zenodo.org/api/records/23116351/files",
+          "media_files": "https://zenodo.org/api/records/23116351/media-files",
+          "archive": "https://zenodo.org/api/records/23116351/files-archive",
+          "archive_media": "https://zenodo.org/api/records/23116351/media-files-archive",
+          "latest": "https://zenodo.org/api/records/23116351/versions/latest",
+          "latest_html": "https://zenodo.org/records/23116351/latest",
+          "versions": "https://zenodo.org/api/records/23116351/versions",
+          "draft": "https://zenodo.org/api/records/23116351/draft",
+          "access_links": "https://zenodo.org/api/records/23116351/access/links",
+          "access_grants": "https://zenodo.org/api/records/23116351/access/grants",
+          "access_users": "https://zenodo.org/api/records/23116351/access/users",
+          "access_request": "https://zenodo.org/api/records/23116351/access/request",
+          "access": "https://zenodo.org/api/records/23116351/access",
+          "communities": "https://zenodo.org/api/records/23116351/communities",
+          "communities-suggestions": "https://zenodo.org/api/records/23116351/communities-suggestions",
+          "request_deletion": "https://zenodo.org/api/records/23116351/request-deletion",
+          "file_modification": "https://zenodo.org/api/records/23116351/file-modification",
+          "quota_increase": "https://zenodo.org/api/records/23116351/quota-increase",
+          "requests": "https://zenodo.org/api/records/23116351/requests"
+        },
+        "updated": "2026-10-03T06:25:22.525550+00:00",
+        "recid": "23116351",
+        "revision": 4,
+        "files": [
+          {
+            "id": "7f6160d7-924f-4ded-a044-81a754226625",
+            "key": "data.json",
+            "size": 3981059,
+            "checksum": "md5:6b0e16dc075b2bb7abc39fcff87b52ad",
+            "links": {
+              "self": "https://zenodo.org/api/records/23116351/files/data.json/content"
+            }
+          },
+          {
+            "id": "e211b97f-2dc5-40f0-a9e3-308375fd8191",
+            "key": "data.csv",
+            "size": 2330242,
+            "checksum": "md5:9c85e7e0166103a9ba1b349595d1d2b5",
+            "links": {
+              "self": "https://zenodo.org/api/records/23116351/files/data.csv/content"
+            }
+          },
+          {
+            "id": "e0938b99-d547-4080-ae85-25a6a5124641",
+            "key": "data.xlsx",
+            "size": 1031509,
+            "checksum": "md5:34e9d30ebc49e0517472358fe9b761ff",
+            "links": {
+              "self": "https://zenodo.org/api/records/23116351/files/data.xlsx/content"
+            }
+          }
+        ],
+        "swh": null,
+        "owners": [
+          {
+            "id": "1913688"
+          }
+        ],
+        "status": "published",
+        "stats": {
+          "downloads": 0,
+          "unique_downloads": 0,
+          "views": 0,
+          "unique_views": 0,
+          "version_downloads": 0,
+          "version_unique_downloads": 0,
+          "version_unique_views": 0,
+          "version_views": 0
+        },
+        "state": "done",
+        "submitted": true
+      },
+      {
+        "created": "2026-10-01T07:34:54.729055+00:00",
+        "modified": "2026-10-01T07:34:55.116462+00:00",
+        "id": 23077384,
+        "conceptrecid": "23077383",
+        "doi": "10.5281/zenodo.23077384",
+        "conceptdoi": "10.5281/zenodo.23077383",
+        "doi_url": "https://doi.org/10.5281/zenodo.23077384",
+        "metadata": {
+          "title": "Water storages and their capacity, Victoria",
+          "doi": "10.5281/zenodo.23077384",
+          "publication_date": "2025-10-31",
+          "description": "<p>The reservoirs in Victoria&#x27;s monthly storage report with their supply system, total capacity in megalitres and the water corporation&#x27;s page. About 65 storages, updated with the monthly report.</p>",
+          "access_right": "open",
+          "creators": [
+            {
+              "name": "Department of Energy, Environment and Climate Action",
+              "affiliation": null
+            }
+          ],
+          "contributors": [
+            {
+              "name": "National Digital",
+              "affiliation": null,
+              "type": "DataCurator"
+            }
+          ],
+          "keywords": [
+            "Australia",
+            "government open data",
+            "publicdata.au"
+          ],
+          "related_identifiers": [
+            {
+              "identifier": "https://publicdata.au/d/vic-water-storages/v/2025-10-31/",
+              "relation": "isIdenticalTo",
+              "resource_type": "dataset",
+              "scheme": "url"
+            },
+            {
+              "identifier": "https://publicdata.au/d/vic-water-storages/",
+              "relation": "isVersionOf",
+              "resource_type": "dataset",
+              "scheme": "url"
+            },
+            {
+              "identifier": "https://discover.data.vic.gov.au/dataset/regional-melbourne-and-all-victoria-monthly-water-storage-levels",
+              "relation": "isDerivedFrom",
+              "resource_type": "dataset",
+              "scheme": "url"
+            }
+          ],
+          "version": "2025-10-31",
+          "language": "eng",
+          "resource_type": {
+            "title": "Dataset",
+            "type": "dataset"
+          },
+          "license": {
+            "id": "cc-by-4.0"
+          },
+          "relations": {
+            "version": [
+              {
+                "index": 0,
+                "is_last": true,
+                "parent": {
+                  "pid_type": "recid",
+                  "pid_value": "23077383"
+                }
+              }
+            ]
+          },
+          "notes": "Cite as: Department of Energy, Environment and Climate Action, Victorian Government, Regional, Melbourne and all Victoria monthly water storage levels, sourced 1 October 2026, https://discover.data.vic.gov.au/dataset/regional-melbourne-and-all-victoria-monthly-water-storage-levels, licensed under CC BY 4.0. Serialised and versioned by National Digital at publicdata.au, https://publicdata.au/d/vic-water-storages/v/2025-10-31/"
+        },
+        "title": "Water storages and their capacity, Victoria",
+        "links": {
+          "self": "https://zenodo.org/api/records/23077384",
+          "self_html": "https://zenodo.org/records/23077384",
+          "preview_html": "https://zenodo.org/records/23077384?preview=1",
+          "doi": "https://doi.org/10.5281/zenodo.23077384",
+          "self_doi": "https://doi.org/10.5281/zenodo.23077384",
+          "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.23077384",
+          "reserve_doi": "https://zenodo.org/api/records/23077384/draft/pids/doi",
+          "parent": "https://zenodo.org/api/records/23077383",
+          "parent_html": "https://zenodo.org/records/23077383",
+          "parent_doi": "https://doi.org/10.5281/zenodo.23077383",
+          "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.23077383",
+          "self_iiif_manifest": "https://zenodo.org/api/iiif/record:23077384/manifest",
+          "self_iiif_sequence": "https://zenodo.org/api/iiif/record:23077384/sequence/default",
+          "files": "https://zenodo.org/api/records/23077384/files",
+          "media_files": "https://zenodo.org/api/records/23077384/media-files",
+          "archive": "https://zenodo.org/api/records/23077384/files-archive",
+          "archive_media": "https://zenodo.org/api/records/23077384/media-files-archive",
+          "latest": "https://zenodo.org/api/records/23077384/versions/latest",
+          "latest_html": "https://zenodo.org/records/23077384/latest",
+          "versions": "https://zenodo.org/api/records/23077384/versions",
+          "draft": "https://zenodo.org/api/records/23077384/draft",
+          "access_links": "https://zenodo.org/api/records/23077384/access/links",
+          "access_grants": "https://zenodo.org/api/records/23077384/access/grants",
+          "access_users": "https://zenodo.org/api/records/23077384/access/users",
+          "access_request": "https://zenodo.org/api/records/23077384/access/request",
+          "access": "https://zenodo.org/api/records/23077384/access",
+          "communities": "https://zenodo.org/api/records/23077384/communities",
+          "communities-suggestions": "https://zenodo.org/api/records/23077384/communities-suggestions",
+          "request_deletion": "https://zenodo.org/api/records/23077384/request-deletion",
+          "file_modification": "https://zenodo.org/api/records/23077384/file-modification",
+          "quota_increase": "https://zenodo.org/api/records/23077384/quota-increase",
+          "requests": "https://zenodo.org/api/records/23077384/requests"
+        },
+        "updated": "2026-10-01T07:34:55.116462+00:00",
+        "recid": "23077384",
+        "revision": 4,
+        "files": [
+          {
+            "id": "99b7d21e-f76b-41b0-80b7-948a85477239",
+            "key": "data.json",
+            "size": 14570,
+            "checksum": "md5:51086123720cc78fc142fe498d42a2d4",
+            "links": {
+              "self": "https://zenodo.org/api/records/23077384/files/data.json/content"
+            }
+          },
+          {
+            "id": "7d37e613-8220-443a-9087-2b741f8df2c7",
+            "key": "data.csv",
+            "size": 7932,
+            "checksum": "md5:369fc7f1720de3a71294d13138fe31af",
+            "links": {
+              "self": "https://zenodo.org/api/records/23077384/files/data.csv/content"
+            }
+          },
+          {
+            "id": "3b42e3d7-14a0-4793-96d7-7bb1266490ca",
+            "key": "data.xlsx",
+            "size": 10920,
+            "checksum": "md5:f9250a863f7fff22e1713365eba04d4f",
+            "links": {
+              "self": "https://zenodo.org/api/records/23077384/files/data.xlsx/content"
+            }
+          }
+        ],
+        "swh": null,
+        "owners": [
+          {
+            "id": "1913688"
+          }
+        ],
+        "status": "published",
+        "stats": {
+          "downloads": 2,
+          "unique_downloads": 2,
+          "views": 2,
+          "unique_views": 2,
+          "version_downloads": 2,
+          "version_unique_downloads": 2,
+          "version_unique_views": 2,
+          "version_views": 2
+        },
+        "state": "done",
+        "submitted": true
+      }
+    ],
+    "total": 25857
+  },
+  "aggregations": {
+    "publication_date": {
+      "buckets": [
+        {
+          "key": "2000",
+          "doc_count": 1,
+          "label": "2000",
+          "is_selected": false
+        },
+        {
+          "key": "2001",
+          "doc_count": 1,
+          "label": "2001",
+          "is_selected": false
+        },
+        {
+          "key": "2002",
+          "doc_count": 1,
+          "label": "2002",
+          "is_selected": false
+        }
+      ],
+      "label": "Publication date"
+    },
+    "access_status": {
+      "buckets": [
+        {
+          "key": "open",
+          "doc_count": 24694,
+          "label": "Open",
+          "is_selected": false
+        },
+        {
+          "key": "restricted",
+          "doc_count": 939,
+          "label": "Restricted",
+          "is_selected": false
+        },
+        {
+          "key": "embargoed",
+          "doc_count": 224,
+          "label": "Embargoed",
+          "is_selected": false
+        }
+      ],
+      "label": "Access status"
+    },
+    "resource_type": {
+      "buckets": [
+        {
+          "key": "dataset",
+          "doc_count": 25857,
+          "label": "Dataset",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        }
+      ],
+      "label": "Resource types"
+    },
+    "subject": {
+      "buckets": [
+        {
+          "key": "Climate",
+          "doc_count": 1078,
+          "label": "Climate",
+          "is_selected": false
+        },
+        {
+          "key": "JOIDES Resolution",
+          "doc_count": 1003,
+          "label": "JOIDES Resolution",
+          "is_selected": false
+        },
+        {
+          "key": "International Ocean Discovery Program",
+          "doc_count": 963,
+          "label": "International Ocean Discovery Program",
+          "is_selected": false
+        }
+      ],
+      "label": "Subjects"
+    },
+    "file_type": {
+      "buckets": [
+        {
+          "key": "zip",
+          "doc_count": 8478,
+          "label": "ZIP",
+          "is_selected": false
+        },
+        {
+          "key": "csv",
+          "doc_count": 5331,
+          "label": "CSV",
+          "is_selected": false
+        },
+        {
+          "key": "xlsx",
+          "doc_count": 4958,
+          "label": "XLSX",
+          "is_selected": false
+        }
+      ],
+      "label": "File type"
+    }
+  },
+  "links": {
+    "self": "https://zenodo.org/api/records?page=1&q=climate&size=4&sort=bestmatch&type=dataset",
+    "next": "https://zenodo.org/api/records?page=2&q=climate&size=4&sort=bestmatch&type=dataset"
+  }
+}

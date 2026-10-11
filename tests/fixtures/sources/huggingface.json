@@ -1,0 +1,72 @@
+[
+  {
+    "_id": "64355b4cae81e0b346763b35",
+    "id": "climatebert/climate_detection",
+    "author": "climatebert",
+    "lastModified": "2023-04-18T14:39:49.000Z",
+    "description": "\n\t\n\t\t\n\t\tDataset Card for climate_detection\n\t\n\n\n\t\n\t\t\n\t\tDataset Summary\n\t\n\nWe introduce an expert-annotated dataset for detecting climate-related paragraphs in corporate disclosures.\n\n\t\n\t\t\n\t\tSupported Tasks and Leaderboards\n\t\n\nThe dataset supports a binary classification task of whether a given paragraph is climate-related or not.\n\n\t\n\t\t\n\t\tLanguages\n\t\n\nThe text in the dataset is in English.\n\n\t\n\t\t\n\t\tDataset Structure\n\t\n\n\n\t\n\t\t\n\t\tData Instances\n\t\n\n{\n  'text': '\u2212 Scope 3: Optional scope that includes\u2026 See the full description on the dataset page: https://huggingface.co/datasets/climatebert/climate_detection.",
+    "downloads": 254,
+    "mainSize": 498654,
+    "tags": [
+      "task_categories:text-classification",
+      "annotations_creators:expert-generated",
+      "language_creators:found",
+      "multilinguality:monolingual",
+      "source_datasets:original",
+      "language:en",
+      "license:cc-by-nc-sa-4.0",
+      "size_categories:1K<n<10K",
+      "format:parquet",
+      "modality:text",
+      "library:datasets",
+      "library:pandas",
+      "library:mlcroissant",
+      "library:polars",
+      "region:us"
+    ]
+  },
+  {
+    "_id": "6a0c8aa4fde9561bb71a2a04",
+    "id": "JavierSanzCruza/ClimateFund",
+    "author": "JavierSanzCruza",
+    "lastModified": "2026-06-05T16:14:18.000Z",
+    "description": "\n\t\n\t\t\n\t\n\t\n\t\tClimateFund: An Annotated Dataset of Climate Mitigation Projects for Supporting Question Answering \n\t\n\nThis repository contains a dataset based on funding proposals of 21 climate mitigation projects, submitted to the Green Climate Fund (GCF).",
+    "downloads": 141,
+    "mainSize": 48430179,
+    "tags": [
+      "task_categories:question-answering",
+      "task_categories:summarization",
+      "language:en",
+      "license:mpl-2.0",
+      "size_categories:n<1K",
+      "format:json",
+      "modality:document",
+      "modality:text",
+      "library:datasets",
+      "library:pandas",
+      "library:polars",
+      "library:mlcroissant",
+      "doi:10.57967/hf/9046",
+      "region:us",
+      "climate"
+    ]
+  },
+  {
+    "_id": "665edd4804c59e1152943491",
+    "id": "Simonlob/Climate_data",
+    "author": "Simonlob",
+    "lastModified": "2024-06-04T11:33:20.000Z",
+    "downloads": 101,
+    "mainSize": 1880773270,
+    "tags": [
+      "size_categories:1K<n<10K",
+      "format:parquet",
+      "modality:text",
+      "library:datasets",
+      "library:dask",
+      "library:mlcroissant",
+      "library:polars",
+      "region:us"
+    ]
+  }
+]

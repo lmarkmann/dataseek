@@ -1,0 +1,33 @@
+{
+  "results": [
+    {
+      "URI": "doi:10.1594/PANGAEA.880357",
+      "score": 64.33395,
+      "html": "<li><div class=\"citation\"><a href=\"https://doi.pangaea.de/10.1594/PANGAEA.880357\" target=\"_self\" class=\"dataset-link\"><strong>Krumpen, T (2017):</strong> Sea ice thickness and sea ice area transport in the Laptev Sea</a></div><table class=\"result\" summary=\"Dataset abstract and size\" cellspacing=\"0\" cellpadding=\"0\"><tr><td class=\"title\">Abstract:</td><td class=\"content\">Recent studies based on satellite observations have shown that there is a high statistical connection between the late winter (Feb-May) sea ice export out the Laptev Sea, and the ice coverage in the following summer.</td></tr><tr><td class=\"title\">Size:</td><td class=\"content\">5 datasets</td></tr></table><div class=\"datasetid\"><a href=\"https://doi.pangaea.de/10.1594/PANGAEA.880357\" target=\"_self\" class=\"dataset-link doi-link\">https://doi.org/10.1594/PANGAEA.880357</a> – <span title=\"The score is a measurement of relevancy (see TF-IDF algorithm). The value is not absolute and only suitable to compare hits from the same result set.\">Score: 64.33</span></div></li>"
+    },
+    {
+      "URI": "doi:10.1594/PANGAEA.755858",
+      "score": 63.902454,
+      "html": "<li><div class=\"citation\"><a href=\"https://doi.pangaea.de/10.1594/PANGAEA.755858\" target=\"_self\" class=\"dataset-link\"><strong>Schwarz, HJ (1981):</strong> Sea ice physics from the southern Weddell Sea</a></div><table class=\"result\" summary=\"Dataset abstract and size\" cellspacing=\"0\" cellpadding=\"0\"><tr><td class=\"title\">Abstract:</td><td class=\"content\">During the German Antarctic Expedition 1979/80, the sea ice conditions in the Weddell Sea were studied along the ice shelf between Cape Fiske (root of the Antarctlc Peninsula) and Atka Bay.</td></tr><tr><td class=\"title\">Size:</td><td class=\"content\">3 datasets</td></tr></table><div class=\"datasetid\"><a href=\"https://doi.pangaea.de/10.1594/PANGAEA.755858\" target=\"_self\" class=\"dataset-link doi-link\">https://doi.org/10.1594/PANGAEA.755858</a> – <span title=\"The score is a measurement of relevancy (see TF-IDF algorithm). The value is not absolute and only suitable to compare hits from the same result set.\">Score: 63.9</span></div></li>"
+    },
+    {
+      "URI": "doi:10.1594/PANGAEA.786639",
+      "score": 60.562996,
+      "html": "<li><div class=\"citation\"><a href=\"https://doi.pangaea.de/10.1594/PANGAEA.786639\" target=\"_self\" class=\"dataset-link\"><strong>Gradinger, R; Bluhm, BA; Iken, K (2010):</strong> Properties and faunal abundances of level sea ice and sea-ice ridges in the Chukchi/Beaufort Seas and Canada Basin</a></div><table class=\"result\" summary=\"Dataset abstract and size\" cellspacing=\"0\" cellpadding=\"0\"><tr><td class=\"title\">Abstract:</td><td class=\"content\">The abundances and distribution of metazoan within-ice meiofauna (13 stations) and under-ice fauna (12 stations) were investigated in level sea ice and sea-ice ridges in the Chukchi/Beaufort Seas and Canada Basin in June/July 2005 using a combination of ice coring and SCUBA diving.</td></tr><tr><td class=\"title\">Size:</td><td class=\"content\">3 datasets</td></tr></table><div class=\"datasetid\"><a href=\"https://doi.pangaea.de/10.1594/PANGAEA.786639\" target=\"_self\" class=\"dataset-link doi-link\">https://doi.org/10.1594/PANGAEA.786639</a> – <span title=\"The score is a measurement of relevancy (see TF-IDF algorithm). The value is not absolute and only suitable to compare hits from the same result set.\">Score: 60.56</span></div></li>"
+    },
+    {
+      "URI": "doi:10.1594/PANGAEA.841786",
+      "score": 56.783054,
+      "html": "<li><div class=\"citation\"><a href=\"https://doi.pangaea.de/10.1594/PANGAEA.841786\" target=\"_self\" class=\"dataset-link\"><strong>Weissling, BP; Lewis, MJ; Ackley, SF (2011):</strong> Sea ice characteristics at Ice Station Belgica sites Brussels, Patria and Fabra in october 2007, Bellinghausen Sea</a></div><table class=\"result\" summary=\"Dataset abstract and size\" cellspacing=\"0\" cellpadding=\"0\"><tr><td class=\"title\">Abstract:</td><td class=\"content\">Ice Station Belgica was commenced in late winter 2007 in the Bellingshausen Sea as part of Sea Ice Mass Balance in Antarctica (SIMBA), an IPY 2007 cruise on the research vessel N.B. Palmer.</td></tr><tr><td class=\"title\">Size:</td><td class=\"content\">2 datasets</td></tr></table><div class=\"datasetid\"><a href=\"https://doi.pangaea.de/10.1594/PANGAEA.841786\" target=\"_self\" class=\"dataset-link doi-link\">https://doi.org/10.1594/PANGAEA.841786</a> – <span title=\"The score is a measurement of relevancy (see TF-IDF algorithm). The value is not absolute and only suitable to compare hits from the same result set.\">Score: 56.78</span></div></li>"
+    }
+  ],
+  "facets": null,
+  "maxScore": 64.33395,
+  "offset": 0,
+  "queryIdentifier": "9bb609e4-248f-30f1-90a5-14e261d0d1d1",
+  "session": "s7oi3ic3oophs7r69p4kj1u5dc",
+  "timeInDatabase": 1331,
+  "totalCount": 33671,
+  "htmlSummary": "<strong>33671 datasets</strong> found on search for <strong title=\"Query: &raquo;sea ice&laquo;\">&raquo;sea ice&laquo;</strong>",
+  "htmlSnippetRSS": "<link rel=\"alternate\" title=\"PANGAEA latest datasets about &quot;sea ice&quot;\" type=\"application/rss+xml\" href=\"/tools/latest-datasets.rss?q=sea+ice&amp;count=10\">"
+}

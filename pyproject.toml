@@ -1,0 +1,21 @@
+# The PyPI package: the Rust binaries in a wheel, no Python API
+# (docs/reference/release.md). The version comes from Cargo.toml.
+[build-system]
+requires = ["maturin>=1.15,<2"]
+build-backend = "maturin"
+
+[project]
+name = "dataseek"
+description = "Search for datasets from the terminal"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+license-files = ["LICENSE-MIT", "LICENSE-APACHE"]
+keywords = ["dataset", "search", "open-data", "research", "cli"]
+dynamic = ["version"]
+
+[project.urls]
+Repository = "https://github.com/lmarkmann/dataseek"
+Changelog = "https://github.com/lmarkmann/dataseek/blob/main/docs/CHANGELOG.md"
+
+[tool.maturin]
+bindings = "bin"

@@ -1,0 +1,545 @@
+{
+  "data": [
+    {
+      "id": "10.15468/dl.ucxzta",
+      "type": "dois",
+      "attributes": {
+        "doi": "10.15468/dl.ucxzta",
+        "identifiers": [
+          {
+            "identifier": "0000657-260225131425191",
+            "identifierType": "GBIF"
+          }
+        ],
+        "creators": [
+          {
+            "nameType": "Organizational",
+            "affiliation": [],
+            "name": "GBIF.org User",
+            "nameIdentifiers": []
+          }
+        ],
+        "titles": [
+          {
+            "title": "Occurrence Download"
+          }
+        ],
+        "publisher": "The Global Biodiversity Information Facility",
+        "container": {},
+        "publicationYear": 2026,
+        "subjects": [
+          {
+            "subject": "GBIF",
+            "lang": "eng"
+          },
+          {
+            "subject": "biodiversity",
+            "lang": "eng"
+          },
+          {
+            "subject": "species occurrences",
+            "lang": "eng"
+          }
+        ],
+        "contributors": [],
+        "dates": [
+          {
+            "date": "2026-02-25",
+            "dateType": "Created"
+          },
+          {
+            "date": "2026-02-25",
+            "dateType": "Updated"
+          },
+          {
+            "date": "2026",
+            "dateType": "Issued"
+          }
+        ],
+        "language": null,
+        "types": {
+          "schemaOrg": "Dataset",
+          "resourceTypeGeneral": "Dataset",
+          "citeproc": "dataset",
+          "bibtex": "misc",
+          "ris": "DATA"
+        },
+        "relatedIdentifiers": [
+          {
+            "relationType": "IsDerivedFrom",
+            "relatedIdentifier": "10.15468/aomfnb",
+            "relatedIdentifierType": "DOI"
+          },
+          {
+            "relationType": "IsDerivedFrom",
+            "relatedIdentifier": "10.15468/ab3s5x",
+            "relatedIdentifierType": "DOI"
+          },
+          {
+            "relationType": "IsDerivedFrom",
+            "relatedIdentifier": "10.15468/5nilie",
+            "relatedIdentifierType": "DOI"
+          },
+          {
+            "relationType": "IsDerivedFrom",
+            "relatedIdentifier": "10.15468/kllkyl",
+            "relatedIdentifierType": "DOI"
+          }
+        ],
+        "relatedItems": [],
+        "sizes": [
+          "59982640"
+        ],
+        "formats": [
+          "text/tab-separated-values",
+          "application/zip"
+        ],
+        "version": null,
+        "rightsList": [
+          {
+            "rightsIdentifierScheme": "SPDX",
+            "rightsUri": "https://creativecommons.org/licenses/by-nc/4.0/legalcode",
+            "schemeUri": "https://spdx.org/licenses/",
+            "rights": "Creative Commons Attribution Non Commercial 4.0 International",
+            "rightsIdentifier": "cc-by-nc-4.0"
+          }
+        ],
+        "descriptions": [
+          {
+            "descriptionType": "Abstract",
+            "description": "A dataset listing the 726381 species recorded in GBIF matching the query:\n{\n \"and\" : [\n \"BasisOfRecord is Human Observation\",\n {\n \"or\" : [\n \"Year 1980-2026\",\n \"Year 2026-2026\"\n ]\n }\n ]\n}\n\n The dataset's 726381 records were derived from 40726 constituent datasets; see https://api.gbif.org/v1/occurrence/download/0000657-260225131425191/datasets/export for details.\n \nData from some individual dataset",
+            "lang": "eng"
+          }
+        ],
+        "geoLocations": [],
+        "fundingReferences": [],
+        "url": "https://www.gbif.org/occurrence/download/0000657-260225131425191",
+        "contentUrl": null,
+        "metadataVersion": 0,
+        "schemaVersion": "http://datacite.org/schema/kernel-4",
+        "source": "api",
+        "isActive": true,
+        "state": "findable",
+        "reason": null,
+        "viewCount": 0,
+        "downloadCount": 0,
+        "referenceCount": 0,
+        "citationCount": 0,
+        "partCount": 0,
+        "partOfCount": 0,
+        "versionCount": 0,
+        "versionOfCount": 0,
+        "created": "2026-02-25T19:15:24Z",
+        "registered": "2026-02-25T19:15:27Z",
+        "published": null,
+        "updated": "2026-02-25T19:15:27Z"
+      },
+      "relationships": {
+        "client": {
+          "data": {
+            "id": "gbif.gbif",
+            "type": "clients"
+          }
+        }
+      }
+    },
+    {
+      "id": "10.15468/dl.uftj2g",
+      "type": "dois",
+      "attributes": {
+        "doi": "10.15468/dl.uftj2g",
+        "identifiers": [
+          {
+            "identifier": "0032615-260226173443078",
+            "identifierType": "GBIF"
+          }
+        ],
+        "creators": [
+          {
+            "nameType": "Organizational",
+            "affiliation": [],
+            "name": "GBIF.org User",
+            "nameIdentifiers": []
+          }
+        ],
+        "titles": [
+          {
+            "title": "Occurrence Download"
+          }
+        ],
+        "publisher": "The Global Biodiversity Information Facility",
+        "container": {},
+        "publicationYear": 2026,
+        "subjects": [
+          {
+            "subject": "GBIF",
+            "lang": "eng"
+          },
+          {
+            "subject": "biodiversity",
+            "lang": "eng"
+          },
+          {
+            "subject": "species occurrences",
+            "lang": "eng"
+          }
+        ],
+        "contributors": [],
+        "dates": [
+          {
+            "date": "2026-03-12",
+            "dateType": "Created"
+          },
+          {
+            "date": "2026-03-12",
+            "dateType": "Updated"
+          },
+          {
+            "date": "2026",
+            "dateType": "Issued"
+          }
+        ],
+        "language": null,
+        "types": {
+          "schemaOrg": "Dataset",
+          "resourceTypeGeneral": "Dataset",
+          "citeproc": "dataset",
+          "bibtex": "misc",
+          "ris": "DATA"
+        },
+        "relatedIdentifiers": [
+          {
+            "relationType": "IsDerivedFrom",
+            "relatedIdentifier": "10.15468/aomfnb",
+            "relatedIdentifierType": "DOI"
+          },
+          {
+            "relationType": "IsDerivedFrom",
+            "relatedIdentifier": "10.15468/5nilie",
+            "relatedIdentifierType": "DOI"
+          },
+          {
+            "relationType": "IsDerivedFrom",
+            "relatedIdentifier": "10.15468/ab3s5x",
+            "relatedIdentifierType": "DOI"
+          },
+          {
+            "relationType": "IsDerivedFrom",
+            "relatedIdentifier": "10.15468/uc1apo",
+            "relatedIdentifierType": "DOI"
+          }
+        ],
+        "relatedItems": [],
+        "sizes": [
+          "104541"
+        ],
+        "formats": [
+          "text/tab-separated-values",
+          "application/zip"
+        ],
+        "version": null,
+        "rightsList": [
+          {
+            "rightsIdentifierScheme": "SPDX",
+            "rightsUri": "https://creativecommons.org/licenses/by-nc/4.0/legalcode",
+            "schemeUri": "https://spdx.org/licenses/",
+            "rights": "Creative Commons Attribution Non Commercial 4.0 International",
+            "rightsIdentifier": "cc-by-nc-4.0"
+          }
+        ],
+        "descriptions": [
+          {
+            "descriptionType": "Abstract",
+            "description": "A dataset containing 2026 species occurrences available in GBIF matching the query:\n{\n \"and\" : [\n \"Country is India\",\n \"TaxonKey is Saxicola macrorhynchus\",\n \"Year 2001-2026\"\n ]\n}\n\n The dataset includes 2026 records from 6 constituent datasets; see https://api.gbif.org/v1/occurrence/download/0032615-260226173443078/datasets/export for details.\n \nData from some individual datasets included in this ",
+            "lang": "eng"
+          }
+        ],
+        "geoLocations": [],
+        "fundingReferences": [],
+        "url": "https://www.gbif.org/occurrence/download/0032615-260226173443078",
+        "contentUrl": null,
+        "metadataVersion": 0,
+        "schemaVersion": "http://datacite.org/schema/kernel-4",
+        "source": "api",
+        "isActive": true,
+        "state": "findable",
+        "reason": null,
+        "viewCount": 0,
+        "downloadCount": 0,
+        "referenceCount": 0,
+        "citationCount": 0,
+        "partCount": 0,
+        "partOfCount": 0,
+        "versionCount": 0,
+        "versionOfCount": 0,
+        "created": "2026-03-12T15:47:04Z",
+        "registered": "2026-03-12T15:47:04Z",
+        "published": null,
+        "updated": "2026-03-12T15:47:04Z"
+      },
+      "relationships": {
+        "client": {
+          "data": {
+            "id": "gbif.gbif",
+            "type": "clients"
+          }
+        }
+      }
+    },
+    {
+      "id": "10.15468/dd.ube4vd",
+      "type": "dois",
+      "attributes": {
+        "doi": "10.15468/dd.ube4vd",
+        "identifiers": [],
+        "creators": [
+          {
+            "affiliation": [],
+            "name": "ianpsheasmith",
+            "nameIdentifiers": []
+          }
+        ],
+        "titles": [
+          {
+            "title": "Vector arthropod occurrence records in Georgia (Country)"
+          }
+        ],
+        "publisher": "The Global Biodiversity Information Facility",
+        "container": {},
+        "publicationYear": 2026,
+        "subjects": [],
+        "contributors": [],
+        "dates": [
+          {
+            "date": "2026",
+            "dateType": "Issued"
+          }
+        ],
+        "language": null,
+        "types": {
+          "schemaOrg": "Dataset",
+          "resourceTypeGeneral": "Dataset",
+          "citeproc": "dataset",
+          "bibtex": "misc",
+          "ris": "DATA"
+        },
+        "relatedIdentifiers": [
+          {
+            "relationType": "IsDerivedFrom",
+            "relatedIdentifier": "10.15468/f3k8r9",
+            "relatedIdentifierType": "DOI"
+          },
+          {
+            "relationType": "IsDerivedFrom",
+            "relatedIdentifier": "10.15468/uc1apo",
+            "relatedIdentifierType": "DOI"
+          },
+          {
+            "relationType": "IsDerivedFrom",
+            "relatedIdentifier": "10.15468/bgmqmr",
+            "relatedIdentifierType": "DOI"
+          },
+          {
+            "relationType": "IsDerivedFrom",
+            "relatedIdentifier": "10.15468/sbmztx",
+            "relatedIdentifierType": "DOI"
+          }
+        ],
+        "relatedItems": [],
+        "sizes": [],
+        "formats": [],
+        "version": null,
+        "rightsList": [],
+        "descriptions": [
+          {
+            "descriptionType": "Abstract",
+            "description": "Derived dataset of mosquito and tick occurrence records from Georgia, filtered from GBIF download doi:10.15468/dl.csfwn3, 2026-03-04"
+          }
+        ],
+        "geoLocations": [],
+        "fundingReferences": [],
+        "url": "https://www.gbif.org/derivedDataset/10.15468/dd.ube4vd",
+        "contentUrl": null,
+        "metadataVersion": 0,
+        "schemaVersion": "http://datacite.org/schema/kernel-4",
+        "source": "api",
+        "isActive": true,
+        "state": "findable",
+        "reason": null,
+        "viewCount": 0,
+        "downloadCount": 0,
+        "referenceCount": 0,
+        "citationCount": 0,
+        "partCount": 0,
+        "partOfCount": 0,
+        "versionCount": 0,
+        "versionOfCount": 0,
+        "created": "2026-03-04T19:10:47Z",
+        "registered": "2026-03-04T19:10:47Z",
+        "published": null,
+        "updated": "2026-03-04T19:10:47Z"
+      },
+      "relationships": {
+        "client": {
+          "data": {
+            "id": "gbif.gbif",
+            "type": "clients"
+          }
+        }
+      }
+    },
+    {
+      "id": "10.15468/dl.3x385x",
+      "type": "dois",
+      "attributes": {
+        "doi": "10.15468/dl.3x385x",
+        "identifiers": [
+          {
+            "identifier": "0048487-250827131500795",
+            "identifierType": "GBIF"
+          }
+        ],
+        "creators": [
+          {
+            "nameType": "Organizational",
+            "affiliation": [],
+            "name": "GBIF.org User",
+            "nameIdentifiers": []
+          }
+        ],
+        "titles": [
+          {
+            "title": "Occurrence Download"
+          }
+        ],
+        "publisher": "The Global Biodiversity Information Facility",
+        "container": {},
+        "publicationYear": 2025,
+        "subjects": [
+          {
+            "subject": "GBIF",
+            "lang": "eng"
+          },
+          {
+            "subject": "biodiversity",
+            "lang": "eng"
+          },
+          {
+            "subject": "species occurrences",
+            "lang": "eng"
+          }
+        ],
+        "contributors": [],
+        "dates": [
+          {
+            "date": "2025-09-10",
+            "dateType": "Created"
+          },
+          {
+            "date": "2025-09-10",
+            "dateType": "Updated"
+          },
+          {
+            "date": "2025",
+            "dateType": "Issued"
+          }
+        ],
+        "language": null,
+        "types": {
+          "schemaOrg": "Dataset",
+          "resourceTypeGeneral": "Dataset",
+          "citeproc": "dataset",
+          "bibtex": "misc",
+          "ris": "DATA"
+        },
+        "relatedIdentifiers": [
+          {
+            "relationType": "IsDerivedFrom",
+            "relatedIdentifier": "10.15468/hnhrg3",
+            "relatedIdentifierType": "DOI"
+          },
+          {
+            "relationType": "IsDerivedFrom",
+            "relatedIdentifier": "10.15468/hja69f",
+            "relatedIdentifierType": "DOI"
+          },
+          {
+            "relationType": "IsDerivedFrom",
+            "relatedIdentifier": "10.15468/rxbp4w",
+            "relatedIdentifierType": "DOI"
+          },
+          {
+            "relationType": "IsDerivedFrom",
+            "relatedIdentifier": "10.15468/vtfbe3",
+            "relatedIdentifierType": "DOI"
+          }
+        ],
+        "relatedItems": [],
+        "sizes": [
+          "3382479"
+        ],
+        "formats": [
+          "Darwin Core Archive",
+          "text/tab-separated-values",
+          "application/zip"
+        ],
+        "version": null,
+        "rightsList": [
+          {
+            "rightsIdentifierScheme": "SPDX",
+            "rightsUri": "https://creativecommons.org/licenses/by-nc/4.0/legalcode",
+            "schemeUri": "https://spdx.org/licenses/",
+            "rights": "Creative Commons Attribution Non Commercial 4.0 International",
+            "rightsIdentifier": "cc-by-nc-4.0"
+          }
+        ],
+        "descriptions": [
+          {
+            "descriptionType": "Abstract",
+            "description": "A dataset containing 2026 species occurrences available in GBIF matching the query:\n{\n \"TaxonKey\" : [\n \"is Dianthera laevilinguis\"\n ]\n}\n\n The dataset includes 2026 records from 165 constituent datasets; see https://api.gbif.org/v1/occurrence/download/0048487-250827131500795/datasets/export for details.\n \nData from some individual datasets included in this download may be licensed under less restri",
+            "lang": "eng"
+          }
+        ],
+        "geoLocations": [],
+        "fundingReferences": [],
+        "url": "https://www.gbif.org/occurrence/download/0048487-250827131500795",
+        "contentUrl": null,
+        "metadataVersion": 0,
+        "schemaVersion": "http://datacite.org/schema/kernel-4",
+        "source": "api",
+        "isActive": true,
+        "state": "findable",
+        "reason": null,
+        "viewCount": 0,
+        "downloadCount": 0,
+        "referenceCount": 0,
+        "citationCount": 0,
+        "partCount": 0,
+        "partOfCount": 0,
+        "versionCount": 0,
+        "versionOfCount": 0,
+        "created": "2025-09-10T07:02:45Z",
+        "registered": "2025-09-10T07:02:45Z",
+        "published": null,
+        "updated": "2025-09-10T07:02:45Z"
+      },
+      "relationships": {
+        "client": {
+          "data": {
+            "id": "gbif.gbif",
+            "type": "clients"
+          }
+        }
+      }
+    }
+  ],
+  "meta": {
+    "total": 49242,
+    "totalPages": 500,
+    "page": 1
+  },
+  "links": {
+    "self": "https://api.datacite.org/dois?query=gbif+download+2026&resource-type-id=dataset&page%5Bsize%5D=20&affiliation=false&sort=relevance&mailto=user%40dataseek.dev",
+    "next": "https://api.datacite.org/dois?affiliation=false&page%5Bnumber%5D=2&page%5Bsize%5D=20&query=gbif+download+2026&resource-type-id=dataset"
+  }
+}

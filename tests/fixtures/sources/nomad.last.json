@@ -1,0 +1,32 @@
+{
+  "pagination": {
+    "page_size": 1000,
+    "order": "asc",
+    "page_after_value": "1999",
+    "page": 3,
+    "total": 2121,
+    "page_url": "https://nomad-lab.eu/prod/v1/api/v1/datasets/?page_size=1000&page_after_value=1999",
+    "prev_page_url": "https://nomad-lab.eu/prod/v1/api/v1/datasets/?page_size=1000&page=2",
+    "first_page_url": "https://nomad-lab.eu/prod/v1/api/v1/datasets/?page_size=1000"
+  },
+  "data": [
+    {
+      "dataset_id": "ti2Cb_JwQUKia2ozz04aJg",
+      "dataset_name": "Delta_test_FHI-aims_2020",
+      "user_id": "19712a7a-2fa2-40df-a8e2-3f4da8320643",
+      "doi": "10.17172/nomad.1yfb-ttj3",
+      "dataset_create_time": "2026-05-29T09:46:49.060000",
+      "dataset_modified_time": "2026-05-29T09:46:49.060000",
+      "dataset_type": "owned"
+    },
+    {
+      "dataset_id": "EIkdAcj0R0yiggOQu5ALAA",
+      "dataset_name": "Mercury intrusion porosimetry as a quantitative tool for the shape estimation of supraparticles generated via spray-drying",
+      "user_id": "a29dde2d-7093-43b8-ad56-ec26eabd6183",
+      "doi": "10.17172/nomad.pnez-s893",
+      "dataset_create_time": "2026-06-04T08:58:45.763000",
+      "dataset_modified_time": "2026-06-04T08:58:45.763000",
+      "dataset_type": "owned"
+    }
+  ]
+}

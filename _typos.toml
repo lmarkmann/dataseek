@@ -1,0 +1,12 @@
+[files]
+# Recorded source responses: third-party text, kept as the source sent it.
+extend-exclude = ["tests/fixtures/"]
+
+[default]
+# Third-party spellings and identifiers quoted from the recorded responses.
+extend-ignore-re = [
+  "Dateset contains past",
+  "CC-BY-NC-ND-4\\.0",
+  "Burnt Area \\(BA\\)",
+  "census for BA 44/45",
+]

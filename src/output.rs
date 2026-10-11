@@ -1,0 +1,291 @@
+use std::io::{IsTerminal, Stderr, Stdout, Write};
+
+use anstream::AutoStream;
+use anstream::stream::RawStream;
+use serde::Serialize;
+
+use crate::cli::{Cli, ColorChoice};
+
+/// How chatty stderr should be. stdout data is never affected by this.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Verbosity {
+    Quiet,
+    Normal,
+    Verbose,
+}
+
+impl Verbosity {
+    fn from_counts(quiet: bool, verbose: u8) -> Self {
+        match (quiet, verbose) {
+            (true, _) => Self::Quiet,
+            (false, 0) => Self::Normal,
+            (false, _) => Self::Verbose,
+        }
+    }
+}
+
+/// Resolved output context: how loud, what format, whether to color.
+pub struct Out {
+    pub verbosity: Verbosity,
+    pub json: bool,
+    pub plain: bool,
+    pub progress: bool,
+    color: ColorChoice,
+}
+
+impl Out {
+    pub fn resolve(cli: &Cli) -> Self {
+        Self {
+            verbosity: Verbosity::from_counts(cli.quiet, cli.verbose),
+            json: cli.json,
+            plain: cli.plain,
+            progress: !cli.no_progress,
+            color: resolve_color(cli.color, cli.no_color, cli.plain),
+        }
+    }
+
+    /// stdout filtered per the resolved --color choice, so callers can style
+    /// unconditionally.
+    pub fn stdout(&self) -> AutoStream<Stdout> {
+        stream(std::io::stdout(), self.color)
+    }
+
+    pub fn stderr(&self) -> AutoStream<Stderr> {
+        stream(std::io::stderr(), self.color)
+    }
+
+    /// The one way a command prints `--json`: indented for a person at a
+    /// terminal, one line for a pipe.
+    pub fn json(&self, value: &impl Serialize) -> anyhow::Result<()> {
+        let mut w = self.stdout();
+        if std::io::stdout().is_terminal() {
+            writeln!(w, "{}", serde_json::to_string_pretty(value)?)?;
+        } else {
+            writeln!(w, "{}", serde_json::to_string(value)?)?;
+        }
+        Ok(())
+    }
+
+    /// A diagnostic for `-v` and above, on stderr. Unlike [`crate::ui`] it
+    /// still prints when stderr is redirected, which is the point of
+    /// `-v 2> log`. Under `--json` it is a `note` event, so stderr stays
+    /// NDJSON.
+    pub fn note(&self, msg: &str) {
+        if self.verbosity < Verbosity::Verbose {
+            return;
+        }
+        if self.json {
+            crate::ui::event_line(&serde_json::json!({
+                "schema": crate::ui::EVENTS_SCHEMA,
+                "event": "note",
+                "message": msg,
+            }));
+        } else {
+            let _ = writeln!(self.stderr(), "{msg}");
+        }
+    }
+
+    /// Would stdout carry color right now? For reporting only; the stream
+    /// strips escapes on its own.
+    pub fn color_on_stdout(&self) -> bool {
+        self.color_for(&std::io::stdout())
+    }
+
+    /// Asks anstream, the same authority the stream uses. A hand-rolled
+    /// `is_terminal() && NO_COLOR` misses CLICOLOR_FORCE, CLICOLOR, TERM and CI.
+    fn color_for(&self, stream: &impl RawStream) -> bool {
+        match self.color {
+            ColorChoice::Always => true,
+            ColorChoice::Never => false,
+            ColorChoice::Auto => {
+                AutoStream::choice(stream) != anstream::ColorChoice::Never
+            }
+        }
+    }
+
+    /// Asked separately from [`Self::color_on_stdout`]: a run can pipe its data
+    /// and still be watched by a human.
+    pub fn color_on_stderr(&self) -> bool {
+        self.color_for(&std::io::stderr())
+    }
+
+    /// `url` as an OSC 8 hyperlink on a color terminal, plain text anywhere
+    /// else, so a pipe never carries the escape.
+    pub fn link(&self, url: &str) -> String {
+        if std::io::stdout().is_terminal() && self.color_on_stdout() {
+            format!("\u{1b}]8;;{url}\u{1b}\\{url}\u{1b}]8;;\u{1b}\\")
+        } else {
+            url.to_owned()
+        }
+    }
+}
+
+/// `--plain` and `--no-color` are shorthands for `--color=never`. Auto is
+/// left to AutoStream, which reads the terminal and NO_COLOR.
+pub fn resolve_color(
+    color: ColorChoice,
+    no_color: bool,
+    plain: bool,
+) -> ColorChoice {
+    if plain || no_color { ColorChoice::Never } else { color }
+}
+
+/// Columns a human line may use, or `None` when stdout is not a terminal and
+/// lines should stay whole. `COLUMNS` wins over the measured width.
+pub fn width() -> Option<usize> {
+    if !std::io::stdout().is_terminal() {
+        return None;
+    }
+    std::env::var("COLUMNS").ok().and_then(|c| c.parse().ok()).or_else(|| {
+        terminal_size::terminal_size().map(|(w, _)| usize::from(w.0))
+    })
+}
+
+fn stream<S: RawStream>(raw: S, color: ColorChoice) -> AutoStream<S> {
+    match color {
+        ColorChoice::Always => AutoStream::always(raw),
+        ColorChoice::Never => AutoStream::never(raw),
+        ColorChoice::Auto => AutoStream::auto(raw),
+    }
+}
+
+/// The columns a description may use, given the room left on the line: held
+/// between 40 and 80, so a wide terminal still reads as prose and a narrow
+/// one still shows a sentence.
+pub fn prose_width(room: Option<usize>) -> Option<usize> {
+    room.map(|w| w.clamp(40, 80))
+}
+
+/// `text` cut to `width` columns with an ellipsis, counting chars. Wide
+/// glyphs make a line slightly long, never wrong.
+pub fn fit(text: &str, width: Option<usize>) -> String {
+    match width {
+        Some(w) if text.chars().count() > w => {
+            let kept: String =
+                text.chars().take(w.saturating_sub(1)).collect();
+            format!("{}\u{2026}", kept.trim_end())
+        }
+        _ => text.to_owned(),
+    }
+}
+
+/// `text` broken at spaces into lines of at most `width` columns, counting
+/// chars like [`fit`]; a word longer than a line gets one to itself. Without
+/// a width, which means stdout is not a terminal, it stays one line.
+pub fn wrap(text: &str, width: Option<usize>) -> Vec<String> {
+    let Some(width) = width else { return vec![text.to_owned()] };
+    let mut lines = Vec::new();
+    let mut line = String::new();
+    for word in text.split_whitespace() {
+        let longer = line
+            .chars()
+            .count()
+            .saturating_add(1)
+            .saturating_add(word.chars().count());
+        if !line.is_empty() && longer > width {
+            lines.push(std::mem::take(&mut line));
+        }
+        if !line.is_empty() {
+            line.push(' ');
+        }
+        line.push_str(word);
+    }
+    if !line.is_empty() || lines.is_empty() {
+        lines.push(line);
+    }
+    lines
+}
+
+/// The room a value has after a column of `indent`, on a terminal.
+pub fn room(indent: usize) -> Option<usize> {
+    width().map(|w| w.saturating_sub(indent).max(20))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn wrap_breaks_at_spaces_and_keeps_long_words_whole() {
+        let text = "seconds a host gets to accept the connection";
+        assert_eq!(
+            wrap(text, Some(16)),
+            ["seconds a host", "gets to accept", "the connection"]
+        );
+        assert_eq!(
+            wrap("https://example.org/a/long/path x", Some(8)),
+            ["https://example.org/a/long/path", "x"]
+        );
+        assert_eq!(wrap(text, None), [text]);
+        assert_eq!(wrap("", Some(10)), [""]);
+    }
+    use crate::cli::Command;
+
+    // Flag resolution is the pure logic; the rest of output needs a real
+    // process, which tests/cli.rs covers.
+    fn out(build: impl FnOnce(&mut Cli)) -> Out {
+        let mut cli = Cli {
+            quiet: false,
+            verbose: 0,
+            json: false,
+            color: ColorChoice::Auto,
+            no_color: false,
+            plain: false,
+            no_progress: false,
+            cache_dir: None,
+            connect_timeout: 10,
+            command: Some(Command::Doctor),
+        };
+        build(&mut cli);
+        Out::resolve(&cli)
+    }
+
+    #[test]
+    fn quiet_and_verbose_map_to_levels() {
+        assert_eq!(out(|_| {}).verbosity, Verbosity::Normal);
+        assert_eq!(out(|c| c.quiet = true).verbosity, Verbosity::Quiet);
+        assert_eq!(out(|c| c.verbose = 1).verbosity, Verbosity::Verbose);
+        // -vv is not a third level.
+        assert_eq!(out(|c| c.verbose = 3).verbosity, Verbosity::Verbose);
+    }
+
+    #[test]
+    fn plain_and_no_color_are_shorthands_for_never() {
+        // Always, because Auto is already false off a terminal.
+        assert!(
+            !out(|c| {
+                c.plain = true;
+                c.color = ColorChoice::Always;
+            })
+            .color_on_stdout()
+        );
+        assert!(
+            !out(|c| {
+                c.no_color = true;
+                c.color = ColorChoice::Always;
+            })
+            .color_on_stdout()
+        );
+    }
+
+    #[test]
+    fn color_always_survives_a_pipe() {
+        assert!(out(|c| c.color = ColorChoice::Always).color_on_stdout());
+        assert!(!out(|c| c.color = ColorChoice::Never).color_on_stdout());
+    }
+
+    #[test]
+    fn fit_cuts_long_lines_and_marks_the_cut() {
+        assert_eq!(fit("short", Some(10)), "short");
+        assert_eq!(fit("a long title here", Some(8)), "a long\u{2026}");
+        assert_eq!(fit("a long title here", None), "a long title here");
+    }
+
+    #[test]
+    fn descriptions_stay_between_forty_and_eighty_columns() {
+        assert_eq!(prose_width(Some(30)), Some(40));
+        assert_eq!(prose_width(Some(57)), Some(57));
+        assert_eq!(prose_width(Some(117)), Some(80));
+        assert_eq!(prose_width(None), None);
+    }
+}
