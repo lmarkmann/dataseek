@@ -79,7 +79,7 @@ just bench-startup --bless   # rewrite this machine class's baseline
 just relevance             # score the shipped ranking against the judgments; fails on a regression
 just relevance variants    # every ranking variant on the tuning and held-out halves
 just relevance pool        # worksheets for every unjudged result a ranking puts in its top 10
-just relevance absorb      # fold graded worksheets into judgments.tsv
+just relevance absorb      # fold graded worksheets into judgments.tsv, then delete them
 just relevance --bless     # accept the current scores as the baseline
 just relevance record      # re-record the snapshot from the live sources (network)
 just relevance record --source huggingface   # re-record one source's lists only

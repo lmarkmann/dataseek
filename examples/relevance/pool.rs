@@ -75,10 +75,14 @@ fn fnv(text: &str) -> u64 {
 }
 
 /// Every graded worksheet row folded into judgments.tsv, replacing any
-/// older label of the same dataset, and the file rewritten in order.
+/// older label of the same dataset, and the file rewritten in order. The
+/// worksheets are deleted after, so a later absorb cannot fold a stale grade
+/// over a correction made in judgments.tsv; `pool` writes the rows still
+/// ungraded again.
 pub fn absorb(queries: &[Query]) -> Result<()> {
     let mut labels = snapshot::labels()?;
     let mut added = 0_usize;
+    let mut read = Vec::new();
     for q in queries {
         let path = snapshot::worksheets().join(format!("{}.tsv", q.id));
         let Some(text) = snapshot::read_if_present(&path)? else {
@@ -86,8 +90,13 @@ pub fn absorb(queries: &[Query]) -> Result<()> {
         };
         let folded = fold(&mut labels, &q.id, &text, &path)?;
         added = added.saturating_add(folded);
+        read.push(path);
     }
     snapshot::write_labels(queries, &mut labels)?;
+    for path in read {
+        fs::remove_file(&path)
+            .with_context(|| format!("removing {}", path.display()))?;
+    }
     writeln!(
         io::stdout().lock(),
         "absorbed {added} labels; {} in total",

@@ -34,6 +34,6 @@ Run it with `just zizmor`.
 Workflows use the smallest permissions they can:
 
 - `ci.yml` sets `permissions: {}` at workflow level and grants the `linux` job `contents: read`.
-- `release-plz.yml` sets `permissions: {}` and grants each job `contents: read` only. Writes go through the release App's token, minted per job with Contents and Pull requests write and revoked when the job ends. Each job starts with `step-security/harden-runner` in audit mode, which logs its outbound connections.
+- `release-plz.yml` sets `permissions: {}` and grants each job `contents: read`, plus `id-token: write` on the `release` job, whose OIDC token crates.io trusted publishing exchanges for a short-lived publish token. Writes go through the release App's token, minted per job with Contents and Pull requests write and revoked when the job ends. Each job starts with `step-security/harden-runner` in audit mode, which logs its outbound connections.
 
 Every checkout sets `persist-credentials: false`, including the two in `release-plz.yml`.

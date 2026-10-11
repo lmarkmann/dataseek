@@ -59,7 +59,7 @@ pub fn search(entries: &[Dataset], query: &str, limit: usize) -> Vec<Dataset> {
         return Vec::new();
     }
     let needles = needles(&terms);
-    let phrase = terms.join(" ");
+    let phrase = format!(" {}", terms.join(" "));
     let (mut title, mut body) = (String::new(), String::new());
     let mut scored: Vec<(u32, &Dataset, usize)> = entries
         .iter()
@@ -182,6 +182,16 @@ mod tests {
         let hits = search(&entries, "rain", 10);
         assert_eq!(hits.len(), 1);
         assert_eq!(hits[0].title, "Rainfall");
+    }
+
+    #[test]
+    fn the_title_phrase_starts_at_a_word() {
+        let entries = [
+            entry("Terrain gauge network", "rain"),
+            entry("Gauge data for rain", ""),
+        ];
+        let hits = search(&entries, "rain gauge", 10);
+        assert_eq!(hits[0].title, "Gauge data for rain");
     }
 
     #[test]
