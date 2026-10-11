@@ -19,6 +19,8 @@ reviews:
     docstrings:
       mode: "off"
   path_filters:
+    - "!src/**"
+    - "!tests/fixtures/**"
     - "!proptest-regressions/**"
     - "!Cargo.lock"
     - "!docs/CHANGELOG.md"
