@@ -20,8 +20,6 @@ reviews:
       mode: "off"
   path_filters:
     - "!proptest-regressions/**"
-    - "!Cargo.lock"
-    - "!docs/CHANGELOG.md"
   path_instructions:
     - path: "src/**/*.rs"
       instructions: |
