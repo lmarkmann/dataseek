@@ -1,35 +1,29 @@
 ![dataseek: every dataset source it searches, set out as a periodic table](https://raw.githubusercontent.com/lmarkmann/dataseek/main/docs/assets/dataseek-banner.png)
 
-[![ci](https://github.com/lmarkmann/dataseek/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/lmarkmann/dataseek/actions/workflows/ci.yml) [![latest release](https://img.shields.io/github/v/release/lmarkmann/dataseek)](https://github.com/lmarkmann/dataseek/releases/latest)
+[![crates.io](https://img.shields.io/crates/v/dataseek?style=flat-square&label=crates.io&color=dea584&logo=rust&logoColor=black)](https://crates.io/crates/dataseek)[![PyPI](https://img.shields.io/pypi/v/dataseek?style=flat-square&label=PyPI&color=3775A9&logo=pypi&logoColor=white)](https://pypi.org/project/dataseek/)[![Homebrew](https://img.shields.io/badge/brew-lmarkmann%2Ftap-FBB040?style=flat-square&logo=homebrew&logoColor=black)](https://github.com/lmarkmann/dataseek)[![License](https://img.shields.io/crates/l/dataseek?style=flat-square&color=2DA44E)](https://github.com/lmarkmann/dataseek)
 
 <!-- repo-description -->
 Search for datasets from the terminal
 <!-- /repo-description -->
 
-Datasets are scattered across dozens of archives: Hugging Face and Kaggle, Zenodo and Dataverse, data.gov and data.europa.eu, the IMF and the ECB, NASA and Copernicus. Each has its own search box, its own idea of relevance, and often its own copy of the same dataset. dataseek covers 76 of them, asks them at once and prints one list: a dataset found in three places shows up once with all three named, and results that several sources agree on, and that match more of your query, rank first.
+Datasets sit in dozens of archives: Hugging Face and Kaggle, Zenodo and Dataverse, data.gov and data.europa.eu, the IMF and the ECB, NASA and Copernicus. Each has its own search box and its own idea of relevance, and many host the same dataset under different names. dataseek queries them all at once and returns one deduplicated, ranked list, naming every archive that holds each result. Datasets carried by more archives, and matching more of your query, rank higher.
 
 Most sources need no key and nothing to set up. Results come back in the terminal, as JSON for scripts, or to an AI client over MCP. Google Dataset Search and Mendeley Data are the exception: neither permits automated searches, so dataseek asks them only when you name them with `-s` ([ADR 0013](docs/adr/0013-opt-in-sources.md)). `dsk` is the same program under a shorter name.
 
 ## Install
-
 ```sh
-brew install lmarkmann/tap/dataseek   # dataseek and dsk, with completions and the man page
-cargo binstall dataseek                # the prebuilt binaries from the release
-cargo install --locked dataseek        # builds them from source
-uv tool install dataseek               # the binaries in a wheel
-```
+brew install lmarkmann/tap/dataseek
+cargo binstall dataseek              # prebuilt binaries, otherwise this also works:
 
-To run it once without installing:
+cargo install --locked dataseek
+uv tool install dataseek
 
-```sh
+# To run it once without installing:
 crgx --allow-build dataseek search sea surface temperature
 uvx dataseek search sea surface temperature
 ```
 
-To upgrade, run the install command again, or `brew upgrade dataseek` and `uv tool upgrade dataseek`. Building from source needs a recent stable Rust toolchain; from a clone, `cargo install --locked --path .` does the same.
-
 ## Usage
-
 ```sh
 dsk search sea surface temperature                 # every default source, merged and ranked
 dsk search mnist -s huggingface,kaggle             # only these sources
@@ -37,8 +31,6 @@ dsk search inflation -c economics,finance          # only these categories
 dsk search census --json | jq -r '.results[].url'  # one URL per line, for scripts
 dsk sources                                        # every source, its protocol, key and docs
 dsk inspect https://zenodo.org/records/13135140    # a page's metadata and the files it lists
-dsk bench                                          # latency and overlap of every source
-dsk cache warm                                     # download the catalogs searched locally
 ```
 
 `dsk search air quality -n 3` on a terminal:
@@ -63,15 +55,12 @@ dsk cache warm                                     # download the catalogs searc
   ✓ 3 of 359 results; 70 of 71 sources answered; -n 359 shows all
 ```
 
-The first result was listed by both the World Bank and IHSN and appears once. Results go to stdout and the lines around them to stderr, so `dsk search ... > results.txt` keeps only the results.
-
 `dsk` alone shows the commands, `dsk help environment` the variables it reads, `dsk help exit-codes` what it returns. `cargo install` cannot install a man page or completions: `dsk man > ~/.local/share/man/man1/dsk.1` puts the page where `man dsk` finds it, and `dsk completion fish` (or `bash`, `zsh`) says where its script goes.
 
-Most sources need no key. FRED, Roboflow and Data Commons are skipped without their own; keys for Hugging Face, Kaggle, Data.gov, GitHub and NCBI raise limits. See [`docs/reference/keys-and-cache.md`](docs/reference/keys-and-cache.md).
+While, most of the sources don't require an API-key FRED, Roboflow and Data Commons are skipped without one; keys for Hugging Face, Kaggle, Data.gov, GitHub and NCBI raise download limits. See: [`docs/reference/keys-and-cache.md`](docs/reference/keys-and-cache.md).
 
 ## MCP
-
-`dsk mcp` serves `search`, `sources` and `inspect` to MCP clients that have no shell. Register it in the client's MCP server configuration:
+Use it in the terminal, pipe its JSON into scripts, or use dataseek via MCP (`dsk mcp`), so Claude, Cursor or any other MCP client can search and inspect datasets for you. Most sources need no API key. Google Dataset Search and Mendeley Data don't permit automated searches, so dataseek only queries them when named with `-s` ([ADR 0013](docs/adr/0013-opt-in-sources.md)). Register it in the client's MCP server configuration:
 
 ```json
 {
@@ -81,9 +70,15 @@ Most sources need no key. FRED, Roboflow and Data Commons are skipped without th
 }
 ```
 
-Each tool returns what its command prints with `--json`; keys are read from the environment the client starts it in, or from `credentials.toml`. Google Dataset Search and Mendeley Data stay opt-in here too; the model asks for them by naming them in the search tool's `source` argument. [`docs/reference/contract.md`](docs/reference/contract.md#mcp-mode) has the details.
+Each tool returns what its command prints with `--json`; keys are read from the environment the client starts it in, or from `credentials.toml`. Google Dataset Search and Mendeley Data stay opt-in here too; the model asks for them by naming them in the search tool's `source` argument. See: [`docs/reference/contract.md`](docs/reference/contract.md#mcp-mode).
 
-## Development
+## Contributing & Development Docs
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) covers setup, the commit prefixes that decide each release, the test rules and how to add a source. Report vulnerabilities privately, as [`SECURITY.md`](docs/SECURITY.md) describes.
+- [`docs/CHANGELOG.md`](docs/CHANGELOG.md): what shipped, written by release-plz.
+- [`docs/reference/`](docs/reference/): setup, development, the CLI contract, keys and cache, the supply-chain gates, and the release loop.
+- [`docs/adr/`](docs/adr/): why it is built this way, including [the full source list](docs/adr/0004-every-source-is-searched.md), plus what is [parked](docs/adr/watchlist.md). Read it before proposing an addition.
+- [`docs/bench/`](docs/bench/): measured speed of the search stages and of startup, each with the machine it ran on.
+- [`docs/synthesis/`](docs/synthesis/): how the sources' search interfaces differ, and the bench that measures them.
 
 ```sh
 just check                            # fmt --check, clippy -D warnings, tests, doctests
@@ -92,30 +87,6 @@ just audit                            # cargo-deny, zizmor
 just run search climate temperature   # the CLI built from this checkout
 ```
 
-## Docs
-
-- [`docs/CHANGELOG.md`](docs/CHANGELOG.md): what shipped, written by release-plz.
-- [`docs/reference/`](docs/reference/): setup, development, the CLI contract, keys and cache, the supply-chain gates, and the release loop.
-- [`docs/adr/`](docs/adr/): why it is built this way, including [the full source list](docs/adr/0004-every-source-is-searched.md), plus what is [parked](docs/adr/watchlist.md). Read it before proposing an addition.
-
-### Project notes
-
-- [`docs/bench/`](docs/bench/): measured speed of the search stages and of startup, each with the machine it ran on.
-- [`docs/synthesis/`](docs/synthesis/): how the sources' search interfaces differ, and the bench that measures them.
-
-## Data sources
-
-dataseek prints each result's publisher and link. When you reuse a dataset, cite or acknowledge its source the way that source asks.
-
-- This product uses the FRED&reg; API but is not endorsed or certified by the Federal Reserve Bank of St. Louis. By using dataseek's `fred` source you agree to the [FRED&reg; API Terms of Use](https://fred.stlouisfed.org/docs/api/terms_of_use.html).
-- This product uses the Census Bureau Data API but is not endorsed or certified by the Census Bureau.
-- NCBI results come through the E-utilities; NCBI's [disclaimer and copyright notice](https://www.ncbi.nlm.nih.gov/About/disclaimer.html) applies.
-- WHO asks that its data be cited as "World Health Organization {YEAR} data.who.int, {ITEM_NAME} [{ITEM_TYPE}]. {URL} (Accessed on {ACCESS DATE})".
-
-## Contributing
-
-[`CONTRIBUTING.md`](CONTRIBUTING.md) covers setup, the commit prefixes that decide each release, the test rules and how to add a source. Report vulnerabilities privately, as [`SECURITY.md`](docs/SECURITY.md) describes.
-
 ## License
 
-Licensed under either of [Apache License, Version 2.0](LICENSE-APACHE) or [MIT license](LICENSE-MIT), at your option.
+Licensed under either [Apache License, Version 2.0](LICENSE-APACHE) or [MIT license](LICENSE-MIT); at your choice.
