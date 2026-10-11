@@ -2,6 +2,17 @@
 
 What shipped, newest first. release-plz writes each section from the conventional commits merged since the previous tag; see [`reference/release.md`](reference/release.md).
 
+## 0.9.1 - 2026-10-11
+
+### Fixed
+
+- A "<" with no closing ">" no longer cuts off the rest of a title or description
+- A catalog title earns the phrase bonus only where the phrase starts a word
+
+### Uncategorized
+
+- Revise README
+
 ## 0.9.0 - 2026-10-09
 
 ### Docs
