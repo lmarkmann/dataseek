@@ -150,9 +150,10 @@ fn catalog(entries: usize) -> Vec<Dataset> {
         .collect()
 }
 
-/// One source's ranked list. Every 25th record carries a DOI that every
-/// source shares at that rank, matching the bench's measured 4% of hits
-/// found by more than one source.
+/// One source's ranked list. A record whose source plus rank is a multiple
+/// of 25 carries a DOI shared by every source's record with the same sum,
+/// so about 4% of the input records at every list length carry a shared
+/// DOI.
 fn source_list(source: usize, records: usize) -> Vec<Dataset> {
     (0..records)
         .map(|rank| {
@@ -162,8 +163,9 @@ fn source_list(source: usize, records: usize) -> Vec<Dataset> {
             )
             .describe(Some(format!("{QUERY} {}", phrase(rank))));
             dataset.publisher = Some(format!("Publisher {source}"));
-            if rank % 25 == 0 {
-                dataset.doi = Some(format!("10.5281/zenodo.{rank}"));
+            let shared = source + rank;
+            if shared.is_multiple_of(25) {
+                dataset.doi = Some(format!("10.5281/zenodo.{shared}"));
             }
             dataset
         })
