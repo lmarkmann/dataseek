@@ -152,7 +152,7 @@ just audit   # both, the pair CI runs
 
 ## Code review
 
-[CodeRabbit](https://docs.coderabbit.ai) reviews pull requests through its GitHub App, configured in `.coderabbit.yaml`: the code rules above as path instructions, `development.md`, `contract.md` and the ADRs as guidelines, recorded fixtures and the lockfile left out. Release and Renovate PRs are skipped. Its review is advisory and never a required check. CodeRabbit reviews a public repository with fewer than 10 stars only on request, so `.github/workflows/review.yml` posts `@coderabbitai review` on every push to a non-draft PR; a PR from a fork, whose token cannot comment, needs that comment by hand. Delete the workflow once the repository passes 10 stars. `@coderabbitai review` in a PR comment reviews what changed since its last review, `@coderabbitai full review` starts over. The same review runs locally before a push with `coderabbit review --agent --base main`.
+[CodeRabbit](https://docs.coderabbit.ai) reviews pull requests through its GitHub App, configured in `.coderabbit.yaml`: the code rules above as path instructions, `development.md`, `contract.md` and the ADRs as guidelines, the lockfile and changelog left out. Release and Renovate PRs are skipped. Its review is advisory and never a required check. CodeRabbit reviews a public repository with fewer than 10 stars only when a person asks, and ignores the same request from a bot, so until dataseek passes 10 stars every PR needs a maintainer comment: `@coderabbitai review` reviews what changed since its last review, `@coderabbitai full review` starts over. Before a push, `coderabbit review --deep --base main` runs the same review policy locally.
 
 ## On demand
 

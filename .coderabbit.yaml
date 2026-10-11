@@ -4,7 +4,7 @@ tone_instructions: >-
   No praise, no emoji, no restating the diff.
 reviews:
   profile: chill
-  high_level_summary: false
+  high_level_summary: true
   high_level_summary_in_walkthrough: true
   in_progress_fortune: false
   suggested_reviewers: false
@@ -19,7 +19,6 @@ reviews:
     docstrings:
       mode: "off"
   path_filters:
-    - "!tests/fixtures/**"
     - "!proptest-regressions/**"
     - "!Cargo.lock"
     - "!docs/CHANGELOG.md"
