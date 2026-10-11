@@ -1,0 +1,124 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mes:Structure xmlns:mes="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message" xmlns:str="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure" xmlns:com="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xml="http://www.w3.org/XML/1998/namespace" xsi:schemaLocation="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message ../../schemas/SDMXMessage.xsd">
+  <mes:Header>
+    <mes:ID>IDREF4380</mes:ID>
+    <mes:Test>false</mes:Test>
+    <mes:Prepared>2026-10-06T20:46:04.551550457Z</mes:Prepared>
+    <mes:Sender id="IMF"/>
+  </mes:Header>
+  <mes:Structures>
+    <str:Dataflows>
+      <str:Dataflow urn="urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:EER(6.0.0)" agencyID="IMF.STA" id="EER" version="6.0.0" isFinal="true" isExternalReference="false">
+        <com:Annotations>
+          <com:Annotation id="@IMF">
+            <com:AnnotationTitle>H_EER_INDICATOR_HIERARCHY</com:AnnotationTitle>
+            <com:AnnotationType>DATAFLOW_PRESENTATION</com:AnnotationType>
+            <com:AnnotationText xml:lang="en">presentation_title=EER Key Indicators; presentation_description=This table contain skey indicators related to the Effective Exchange Rate (EER) dataset.</com:AnnotationText>
+          </com:Annotation>
+          <com:Annotation id="dataEngineSettings"/>
+          <com:Annotation id="origin"/>
+          <com:Annotation id="DataEngine">
+            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>
+          </com:Annotation>
+          <com:Annotation id="isFinal"/>
+          <com:Annotation id="lastUpdatedAt"/>
+        </com:Annotations>
+        <com:Name xml:lang="en">Effective Exchange Rate (EER)</com:Name>
+        <com:Description xml:lang="en">The Effective Exchange Rate (EER) dataset includes annual, quarterly and monthly nominal and real effective exchange rates by economy.</com:Description>
+        <str:Structure>
+          <Ref agencyID="IMF.STA" id="DSD_EER" version="6.0.0" package="datastructure" class="DataStructure"/>
+        </str:Structure>
+      </str:Dataflow>
+      <str:Dataflow urn="urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:EER_2026_MAY_VINTAGE(1.0.0)" agencyID="IMF.STA" id="EER_2026_MAY_VINTAGE" version="1.0.0" isFinal="true" isExternalReference="false">
+        <com:Annotations>
+          <com:Annotation id="@IMF">
+            <com:AnnotationTitle>H_EER_INDICATOR_HIERARCHY</com:AnnotationTitle>
+            <com:AnnotationType>DATAFLOW_PRESENTATION</com:AnnotationType>
+            <com:AnnotationText xml:lang="en">presentation_title=EER Key Indicators; presentation_description=This table contain skey indicators related to the Effective Exchange Rate (EER) dataset.</com:AnnotationText>
+          </com:Annotation>
+          <com:Annotation id="dataEngineSettings"/>
+          <com:Annotation id="ORIGIN">
+            <com:AnnotationTitle>IMF.STA:EER(6.0.0)</com:AnnotationTitle>
+            <com:AnnotationType>SYSTEM</com:AnnotationType>
+          </com:Annotation>
+          <com:Annotation id="VINTAGE">
+            <com:AnnotationTitle>Vintage for 2026-M05</com:AnnotationTitle>
+            <com:AnnotationType>SYSTEM</com:AnnotationType>
+          </com:Annotation>
+          <com:Annotation id="REF_PERIOD">
+            <com:AnnotationTitle>2026-M05</com:AnnotationTitle>
+            <com:AnnotationType>SYSTEM</com:AnnotationType>
+          </com:Annotation>
+          <com:Annotation id="origin"/>
+          <com:Annotation id="DataEngine">
+            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>
+          </com:Annotation>
+          <com:Annotation id="isFinal"/>
+          <com:Annotation id="lastUpdatedAt"/>
+        </com:Annotations>
+        <com:Name xml:lang="en">Effective Exchange Rates (ER) 2026 May</com:Name>
+        <com:Description xml:lang="en">Effective Exchange Rates (ER) 2026 May</com:Description>
+        <str:Structure>
+          <Ref agencyID="IMF.STA" id="DSD_EER_VINTAGE" version="7.0.0" package="datastructure" class="DataStructure"/>
+        </str:Structure>
+      </str:Dataflow>
+      <str:Dataflow urn="urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:NA_MAIN(1.0.0)" agencyID="IMF.STA" id="NA_MAIN" version="1.0.0" isFinal="true" isExternalReference="false">
+        <com:Annotations>
+          <com:Annotation id="dataEngineSettings"/>
+          <com:Annotation id="origin"/>
+          <com:Annotation id="DataEngine">
+            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>
+          </com:Annotation>
+          <com:Annotation id="isFinal"/>
+          <com:Annotation id="lastUpdatedAt"/>
+        </com:Annotations>
+        <com:Name xml:lang="en">National Accounts Main Aggregates (SDMX)</com:Name>
+        <com:Description xml:lang="en">This dataset is published in accordance with the SDMX Global Data Structure Definition (DSD) for National Accounts.</com:Description>
+        <str:Structure>
+          <Ref agencyID="ESTAT" id="NA_MAIN" version="2.1.0" package="datastructure" class="DataStructure"/>
+        </str:Structure>
+      </str:Dataflow>
+      <str:Dataflow urn="urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:SDG(2.0.1)" agencyID="IMF.STA" id="SDG" version="2.0.1" isFinal="true" isExternalReference="false">
+        <com:Annotations>
+          <com:Annotation id="dataEngineSettings"/>
+          <com:Annotation id="origin"/>
+          <com:Annotation id="DataEngine">
+            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>
+          </com:Annotation>
+          <com:Annotation id="isFinal"/>
+          <com:Annotation id="lastUpdatedAt"/>
+        </com:Annotations>
+        <com:Name xml:lang="en">IMF Reported SDG Data</com:Name>
+        <com:Description xml:lang="en">This dataset contains data from the International Monetary Fund (IMF) that is used to monitor progress on the Sustainable Development Goals (SDGs).</com:Description>
+        <str:Structure>
+          <Ref agencyID="IAEG-SDGs" id="SDG" version="2.0.0" package="datastructure" class="DataStructure"/>
+        </str:Structure>
+      </str:Dataflow>
+      <str:Dataflow urn="urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:CPI(5.0.0)" agencyID="IMF.STA" id="CPI" version="5.0.0" isFinal="true" isExternalReference="false">
+        <com:Annotations>
+          <com:Annotation id="@IMF">
+            <com:AnnotationTitle>H_CPI_BY_COMPONENT</com:AnnotationTitle>
+            <com:AnnotationType>DATAFLOW_PRESENTATION</com:AnnotationType>
+            <com:AnnotationText xml:lang="en">presentation_title=Consumer Price Index (CPI) by Component; presentation_description=The CPI is a measure of the average change in prices of goods and services consumed by households over a period of time. The data is presented in a table, with each country's CPI broken down by component. The components include food and beverages, housing, transportation, apparel, recreation, education and communication, medical care, and other goods and services.</com:AnnotationText>
+          </com:Annotation>
+          <com:Annotation id="@IMF">
+            <com:AnnotationTitle></com:AnnotationTitle>
+            <com:AnnotationType>DEFAULT_PRESENTATION </com:AnnotationType>
+          </com:Annotation>
+          <com:Annotation id="dataEngineSettings"/>
+          <com:Annotation id="origin"/>
+          <com:Annotation id="DataEngine">
+            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>
+          </com:Annotation>
+          <com:Annotation id="isFinal"/>
+          <com:Annotation id="lastUpdatedAt"/>
+        </com:Annotations>
+        <com:Name xml:lang="en">Consumer Price Index (CPI)</com:Name>
+        <com:Description xml:lang="en">The Consumer Price Index (CPI) dataset includes the national consumer price indexes by economy.</com:Description>
+        <str:Structure>
+          <Ref agencyID="IMF.STA" id="DSD_CPI" version="5.0.0" package="datastructure" class="DataStructure"/>
+        </str:Structure>
+      </str:Dataflow>
+    </str:Dataflows>
+  </mes:Structures>
+</mes:Structure>

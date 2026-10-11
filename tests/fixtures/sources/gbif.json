@@ -1,0 +1,112 @@
+{
+  "offset": 0,
+  "limit": 4,
+  "endOfRecords": false,
+  "count": 63,
+  "results": [
+    {
+      "key": "046bbc50-cae2-47ff-aa43-729fbf53f7c5",
+      "title": "International Plant Names Index",
+      "doi": "10.15468/uhllmw",
+      "description": "The International Plant Names Index (IPNI) is a database of the names and associated basic bibliographical details of seed plants, ferns and lycophytes. \n\t\t\t\tIts goal is to eliminate the need for repeated reference to primary sources for basic bibliographic information about plant names.",
+      "type": "CHECKLIST",
+      "subtype": "NOMENCLATOR_AUTHORITY",
+      "hostingOrganizationKey": "72da316f-62b4-451e-9238-cf72289e6372",
+      "hostingOrganizationTitle": "The International Plant Names Index Collaborators",
+      "hostingCountry": "ZZ",
+      "publishingCountry": "ZZ",
+      "publishingOrganizationKey": "72da316f-62b4-451e-9238-cf72289e6372",
+      "publishingOrganizationTitle": "The International Plant Names Index Collaborators",
+      "publicationDate": "2019-10-31T12:00:00.000+00:00",
+      "modified": "2019-11-11T09:52:35.418+00:00",
+      "endorsingNodeKey": "02c40d2a-1cba-4633-90b7-e36e5e97aba8",
+      "license": "unspecified",
+      "keywords": [
+        "clb:type=nomenclator",
+        "Nomenclator",
+        "Nomenclature",
+        "ICBN"
+      ],
+      "recordCount": 0,
+      "nameUsagesCount": 1786610
+    },
+    {
+      "key": "f382f0ce-323a-4091-bb9f-add557f3a9a2",
+      "title": "The World Checklist of Vascular Plants (WCVP)",
+      "doi": "10.15468/6h8ucr",
+      "description": "<p>The World Checklist of Vascular Plants (WCVP) is a global consensus view of all known vascular plant species (flowering plants, conifers, ferns, clubmosses and firmosses).",
+      "type": "CHECKLIST",
+      "subtype": "TAXONOMIC_AUTHORITY",
+      "hostingOrganizationKey": "061b4f20-f241-11da-a328-b8a03c50a862",
+      "hostingOrganizationTitle": "Royal Botanic Gardens, Kew",
+      "hostingCountry": "GB",
+      "publishingCountry": "GB",
+      "publishingOrganizationKey": "061b4f20-f241-11da-a328-b8a03c50a862",
+      "publishingOrganizationTitle": "Royal Botanic Gardens, Kew",
+      "publicationDate": "2026-06-04T12:00:00.000+00:00",
+      "modified": "2026-06-10T05:03:50.116+00:00",
+      "endorsingNodeKey": "d897a5b9-35ee-4232-94bd-b0bcaac003c2",
+      "license": "http://creativecommons.org/licenses/by/4.0/legalcode",
+      "keywords": [
+        "Taxonomy",
+        "Plants",
+        "Kew",
+        "World"
+      ],
+      "recordCount": 0,
+      "nameUsagesCount": 1449468
+    },
+    {
+      "key": "f7053f73-74fb-4c9f-ab63-de28c61140c2",
+      "title": "The World Checklist of Vascular Plants (WCVP): Fabaceae",
+      "doi": "10.15468/mvhaj3",
+      "description": "<p>The World Checklist of Vascular Plants (WCVP) is a global consensus view of all known vascular plant species (flowering plants, conifers, ferns, clubmosses and firmosses).",
+      "type": "CHECKLIST",
+      "subtype": "TAXONOMIC_AUTHORITY",
+      "hostingOrganizationKey": "061b4f20-f241-11da-a328-b8a03c50a862",
+      "hostingOrganizationTitle": "Royal Botanic Gardens, Kew",
+      "hostingCountry": "GB",
+      "publishingCountry": "GB",
+      "publishingOrganizationKey": "061b4f20-f241-11da-a328-b8a03c50a862",
+      "publishingOrganizationTitle": "Royal Botanic Gardens, Kew",
+      "publicationDate": "2026-05-19T12:00:00.000+00:00",
+      "modified": "2026-05-26T12:03:52.034+00:00",
+      "endorsingNodeKey": "d897a5b9-35ee-4232-94bd-b0bcaac003c2",
+      "license": "http://creativecommons.org/licenses/by/4.0/legalcode",
+      "keywords": [
+        "Taxonomy",
+        "Plants",
+        "Kew",
+        "World"
+      ],
+      "recordCount": 0,
+      "nameUsagesCount": 90066
+    },
+    {
+      "key": "5c02d9e3-7a69-4513-8f1a-bf976afbc40b",
+      "title": "Chaenomeles japonica (Maleae, Amygdaloideae, Rosaceae): validation of six Alberts Tīcs’ cultivar names and two new synonyms for the species",
+      "doi": "10.15468/mnp5rp",
+      "description": "<p>This dataset contains the digitized treatments in Plazi based on the original journal article Stalažs, Arturs, Sviķe, Silga, Veckalne, Aiga (2022): Chaenomeles japonica (Maleae, Amygdaloideae, Rosaceae): validation of six Alberts Tīcs’ cultivar names and two new synonyms for the species.",
+      "type": "CHECKLIST",
+      "hostingOrganizationKey": "7ce8aef0-9e92-11dc-8738-b8a03c50a862",
+      "hostingOrganizationTitle": "Plazi.org taxonomic treatments database",
+      "hostingCountry": "CH",
+      "publishingCountry": "CH",
+      "publishingOrganizationKey": "7ce8aef0-9e92-11dc-8738-b8a03c50a862",
+      "publishingOrganizationTitle": "Plazi.org taxonomic treatments database",
+      "publicationDate": "2022-05-12T12:00:00.000+00:00",
+      "modified": "2026-09-09T12:43:31.015+00:00",
+      "endorsingNodeKey": "ffb07bec-2d10-492d-9c37-361fe0b79427",
+      "license": "http://creativecommons.org/publicdomain/zero/1.0/legalcode",
+      "keywords": [
+        "Agra’",
+        "nomenclature",
+        "Arta’",
+        "Latvia"
+      ],
+      "recordCount": 0,
+      "nameUsagesCount": 12
+    }
+  ],
+  "facets": []
+}

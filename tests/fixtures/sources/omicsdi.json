@@ -1,0 +1,226 @@
+{
+  "count": 26242,
+  "datasets": [
+    {
+      "id": "MTBLS10232",
+      "source": "metabolights_dataset",
+      "title": "Distinct microbes, metabolites, and the host genome define the multi-omics profiles in right-sided and left-sided colon cancer",
+      "description": "<p><strong>BACKGROUND:</strong> Studies have reported clinical heterogeneity between right-sided colon cancer (RCC) and left-sided colon cancer (LCC). However, none of these studies used multi-omics analysis combining genetic regulation, microbiota and metabolites to explain the site-specific difference.",
+      "keywords": null,
+      "organisms": null,
+      "publicationDate": "20241216",
+      "score": null,
+      "omicsType": [
+        "Metabolomics"
+      ],
+      "citationsCount": 0,
+      "connectionsCount": 0,
+      "reanalysisCount": 0,
+      "viewsCount": 0,
+      "downloadCount": 0,
+      "citationsCountScaled": 0.0,
+      "connectionsCountScaled": 0.0,
+      "reanalysisCountScaled": 0.0,
+      "viewsCountScaled": 0.0,
+      "downloadCountScaled": 0.0,
+      "claimable": false
+    },
+    {
+      "id": "E-GEOD-73370",
+      "source": "biostudies-arrayexpress",
+      "title": "FOXM1 Cistrome Predicts Breast Cancer Metastatic Outcome Better Than FOXM1 Expression Levels or Tumor Proliferation Index [RNA-Seq]",
+      "description": "FOXM1 is a key transcription factor regulating cell cycle progression, DNA damage response, and a host of other hallmark cancer features, but the role of the FOXM1 cistrome in driving estrogen receptor-positive (ER+) vs. ER- breast cancer clinical outcomes remains undefined.",
+      "keywords": null,
+      "organisms": [
+        {
+          "acc": "",
+          "name": "Homo sapiens"
+        }
+      ],
+      "publicationDate": "20151026",
+      "score": null,
+      "omicsType": [
+        "Transcriptomics"
+      ],
+      "citationsCount": 0,
+      "connectionsCount": 0,
+      "reanalysisCount": 0,
+      "viewsCount": 0,
+      "downloadCount": 0,
+      "citationsCountScaled": 0.0,
+      "connectionsCountScaled": 0.0,
+      "reanalysisCountScaled": 0.0,
+      "viewsCountScaled": 0.0,
+      "downloadCountScaled": 0.0,
+      "claimable": false
+    },
+    {
+      "id": "E-GEOD-58135",
+      "source": "biostudies-arrayexpress",
+      "title": "Breast Cancer RNA-seq",
+      "description": "RNA-seq was performed on breast cancer cell lines and primary tumors RNA-seq was performed on 28 breast cancer cell lines, 42 Triple Negative Breast Cancer (TNBC) primary tumors, and 42 Estrogen Receptor Positive (ER+) and HER2 Negative Breast Cancer primary tumors, 30 uninovlved breast tissue samples that were adjacent to ER+ primary tumors, 5 breast tissue samples from reduction mammoplasty",
+      "keywords": null,
+      "organisms": [
+        {
+          "acc": "",
+          "name": "Homo sapiens"
+        }
+      ],
+      "publicationDate": "20140611",
+      "score": null,
+      "omicsType": [
+        "Transcriptomics"
+      ],
+      "citationsCount": 0,
+      "connectionsCount": 0,
+      "reanalysisCount": 0,
+      "viewsCount": 0,
+      "downloadCount": 0,
+      "citationsCountScaled": 0.0,
+      "connectionsCountScaled": 0.0,
+      "reanalysisCountScaled": 0.0,
+      "viewsCountScaled": 0.0,
+      "downloadCountScaled": 0.0,
+      "claimable": false
+    },
+    {
+      "id": "E-GEOD-41586",
+      "source": "biostudies-arrayexpress",
+      "title": "Expression data for HT29 cells treated with 5-aza-deoxy-cytidine [RNA-Seq]",
+      "description": "The RNA samples from HT-29 (ATCC) colon cancer cell line were reverse transcribed to build cDNA libraries and categorized into 3 groups with different concentrations of 5-aza-deoxy-cytidine (5-Aza); in each group three replicative 150 mm cultures were treated with: 1) dimethyl sulfoxide (vehicle alone, 0 μM 5-Aza); 2) 5μM 5-Aza and 3) 10 μM 5-Aza; for five days.",
+      "keywords": null,
+      "organisms": [
+        {
+          "acc": "",
+          "name": "Homo sapiens"
+        }
+      ],
+      "publicationDate": "20130917",
+      "score": null,
+      "omicsType": [
+        "Transcriptomics"
+      ],
+      "citationsCount": 0,
+      "connectionsCount": 0,
+      "reanalysisCount": 0,
+      "viewsCount": 0,
+      "downloadCount": 0,
+      "citationsCountScaled": 0.0,
+      "connectionsCountScaled": 0.0,
+      "reanalysisCountScaled": 0.0,
+      "viewsCountScaled": 0.0,
+      "downloadCountScaled": 0.0,
+      "claimable": false
+    }
+  ],
+  "facets": [
+    {
+      "id": "repository",
+      "label": "Repository",
+      "total": 19,
+      "facetValues": [
+        {
+          "label": "ExpressionAtlas",
+          "value": "ExpressionAtlas",
+          "count": "23"
+        },
+        {
+          "label": "BioModels",
+          "value": "BioModels",
+          "count": "2"
+        },
+        {
+          "label": "biostudies-arrayexpress",
+          "value": "biostudies-arrayexpress",
+          "count": "2752"
+        },
+        {
+          "label": "dbGaP",
+          "value": "dbGaP",
+          "count": "30"
+        }
+      ]
+    },
+    {
+      "id": "tissue",
+      "label": "Tissue",
+      "total": 154,
+      "facetValues": [
+        {
+          "label": "Uterine cervix",
+          "value": "uterine cervix",
+          "count": "2"
+        },
+        {
+          "label": "Breast",
+          "value": "breast",
+          "count": "14"
+        },
+        {
+          "label": "Esophagus",
+          "value": "esophagus",
+          "count": "3"
+        },
+        {
+          "label": "Stomach",
+          "value": "stomach",
+          "count": "6"
+        }
+      ]
+    },
+    {
+      "id": "disease",
+      "label": "Disease",
+      "total": 357,
+      "facetValues": [
+        {
+          "label": "Normal",
+          "value": "normal",
+          "count": "7"
+        },
+        {
+          "label": "Small cell lung carcinoma",
+          "value": "small cell lung carcinoma",
+          "count": "4"
+        },
+        {
+          "label": "Chondrosarcoma",
+          "value": "chondrosarcoma",
+          "count": "3"
+        },
+        {
+          "label": "Mesothelioma",
+          "value": "mesothelioma",
+          "count": "3"
+        }
+      ]
+    },
+    {
+      "id": "technology_type",
+      "label": "Technology Type",
+      "total": 70,
+      "facetValues": [
+        {
+          "label": "Illumina HiSeq 2000",
+          "value": "Illumina HiSeq 2000",
+          "count": "14"
+        },
+        {
+          "label": "Illumina HiSeq 2500, ILLUMINA",
+          "value": "Illumina HiSeq 2500, ILLUMINA",
+          "count": "5"
+        },
+        {
+          "label": "Illumina HiSeq 2000, ILLUMINA",
+          "value": "Illumina HiSeq 2000, ILLUMINA",
+          "count": "4"
+        },
+        {
+          "label": "ILLUMINA, NextSeq 500",
+          "value": "ILLUMINA, NextSeq 500",
+          "count": "3"
+        }
+      ]
+    }
+  ]
+}

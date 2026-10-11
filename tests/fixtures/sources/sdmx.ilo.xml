@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--NSI Web Service v8.19.6.0-->
+<message:Structure xmlns:message="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message" xmlns:structure="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure" xmlns:common="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common">
+  <message:Header>
+    <message:ID>IDREF14</message:ID>
+    <message:Test>false</message:Test>
+    <message:Prepared>2026-10-06T22:46:10.4341007+02:00</message:Prepared>
+    <message:Sender id="Unknown" />
+    <message:Receiver id="Unknown" />
+  </message:Header>
+  <message:Structures>
+    <structure:Dataflows>
+      <structure:Dataflow id="DF_SDG_GLH" agencyID="IAEG-SDGs" version="1.23" isFinal="true">
+        <common:Annotations>
+          <common:Annotation>
+            <common:AnnotationType>NonProductionDataflow</common:AnnotationType>
+            <common:AnnotationText xml:lang="en">true</common:AnnotationText>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="en">SDG Harmonized Global Dataflow</common:Name>
+        <common:Description xml:lang="en">Reporting and dissemination dataflow for harmonized global SDG indicators.</common:Description>
+        <structure:Structure>
+          <Ref id="SDG" version="1.23" agencyID="IAEG-SDGs" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_UNE_DEAP_SEX_AGE_RT" agencyID="ILO" version="1.0" isExternalReference="false" isFinal="true">
+        <common:Annotations>
+          <common:Annotation>
+            <common:AnnotationTitle>03/10/2026 07:10:53</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation>
+            <common:AnnotationTitle>AGE</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation>
+            <common:AnnotationTitle>REF_AREA,SEX,TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation>
+            <common:AnnotationTitle>FREQ=A,endPeriod=2027-12-31,AGE=AGE_YTHADULT_YGE15+AGE_YTHADULT_Y15-64+AGE_YTHADULT_Y15-24+AGE_YTHADULT_YGE25,SEX=SEX_T,LASTNOBSERVATIONS=1</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation>
+            <common:AnnotationTitle>366500</common:AnnotationTitle>
+            <common:AnnotationType>ORDER</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation>
+            <common:AnnotationTitle>633500</common:AnnotationTitle>
+            <common:AnnotationType>SEARCH_WEIGHT</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="en">Unemployment rate by sex and age</common:Name>
+        <common:Name xml:lang="es">Tasa de desocupación según sexo y edad</common:Name>
+        <common:Name xml:lang="fr">Taux de chômage par sexe et âge</common:Name>
+        <common:Description xml:lang="en">&lt;strong&gt;With the aim of promoting international comparability, statistics presented on ILOSTAT are based on standard international definitions wherever feasible and may differ from official national figures. &lt;/strong&gt;This series is based on the 13th ICLS definitions.</common:Description>
+        <common:Description xml:lang="es">&lt;strong&gt;Con el objetivo de promover la comparabilidad internacional, las estadísticas presentadas en ILOSTAT se basan en definiciones internacionales estándar siempre que sea posible y pueden diferir de las cifras nacionales oficiales. &lt;/strong&gt;Esta serie se basa en las definiciones de la 13.ª CIET.</common:Description>
+        <common:Description xml:lang="fr">&lt;strong&gt;Dans le but de promouvoir la comparabilité internationale, les statistiques présentées sur ILOSTAT sont basées sur des définitions internationales standard dans la mesure du possible et peuvent différer des chiffres nationaux officiels. &lt;/strong&gt;Cette série est basée sur les définitions de la 13e CIST.</common:Description>
+        <structure:Structure>
+          <Ref id="UNE_DEAP_SEX_AGE_RT" version="1.0" agencyID="ILO" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+    </structure:Dataflows>
+  </message:Structures>
+</message:Structure>

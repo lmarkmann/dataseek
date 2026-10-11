@@ -1,0 +1,94 @@
+# One Linux job with clippy cross-checks for Windows and macOS: docs/adr/0002-one-linux-ci-job.md.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  merge_group:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  CARGO_BUILD_WARNINGS: deny
+  CARGO_TERM_COLOR: always
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: toolchain
+        run: |
+          rustup update --no-self-update
+          rustup toolchain install
+      - name: cache
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - name: tools
+        uses: taiki-e/install-action@4cef1412cce204788f482e778a0b9187f9626a29 # v2.87.21
+        with:
+          tool: cargo-nextest,cargo-deny,cargo-shear,typos,zizmor,hyperfine,just,uv
+          fallback: none
+      # The CLI tests parse the fish completion script and render the man
+      # page, and fail on CI when either tool is missing.
+      - name: fish and mandoc
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends fish mandoc
+      - name: fmt
+        run: cargo fmt --all --check
+      - name: typos
+        run: typos
+      - name: clippy
+        run: cargo clippy --workspace --all-targets --all-features --locked
+      - name: cross-check
+        run: |
+          rustup target add x86_64-pc-windows-msvc aarch64-apple-darwin
+          cargo clippy --all-targets --all-features --locked --target x86_64-pc-windows-msvc
+          cargo clippy --all-targets --all-features --locked --target aarch64-apple-darwin
+      - name: test
+        run: |
+          cargo nextest run --workspace --all-features --locked
+          cargo test --doc --workspace --locked
+      # The merged ranking scored against the committed judgments, offline;
+      # fails on a regression past the baseline's tolerance.
+      - name: relevance
+        run: just relevance
+      # Startup latency against the budgets, doubled on a runner: a breach
+      # fails, a regression against the committed baseline only warns.
+      - name: startup bench
+        run: just bench-startup
+      - name: startup bench artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: startup-bench
+          path: docs/bench/startup.json
+          if-no-files-found: warn
+      - name: deny
+        run: cargo deny check advisories licenses bans sources
+      - name: shear
+        run: cargo shear
+      - name: workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          zizmor --format=github .
+          go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+      # Last: it installs a second toolchain.
+      - name: msrv
+        run: |
+          msrv=$(cargo metadata --no-deps --format-version 1 | jq -r '[.packages[].rust_version | select(.)] | sort_by(split(".") | map(tonumber)) | last')
+          rustup toolchain install "$msrv" --profile minimal
+          RUSTUP_TOOLCHAIN="$msrv" cargo check --workspace --all-targets --all-features --locked

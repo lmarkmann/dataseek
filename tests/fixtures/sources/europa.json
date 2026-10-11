@@ -1,0 +1,194 @@
+{
+  "result": {
+    "index": "dataset",
+    "count": 77680,
+    "results": [
+      {
+        "identifier": [
+          "https://doi.org/10.5281/zenodo.1631856"
+        ],
+        "catalog": {
+          "id": "zenodo",
+          "title": {
+            "en": "EU Open Research Repository",
+            "fr": "Répertoire ouvert de l’UE pour la recherche",
+            "de": "Open Research Repository der EU"
+          }
+        },
+        "description": {
+          "en": "This data set contains Arctic sea ice thicknesses derived from L-band passive microwave brightness temperatures."
+        },
+        "modified": "2024-08-01",
+        "publisher": {
+          "resource": "http://data.europa.eu/88u/.well-known/genid/ee32f96a2b72ba5de9f6d3e06b59bfbe",
+          "name": "Zenodo",
+          "type": "Agent"
+        },
+        "index": "dataset",
+        "id": "oai-zenodo-org-1631856",
+        "page": [
+          {
+            "resource": "https://doi.org/10.5281/zenodo.1631856"
+          }
+        ],
+        "title": {
+          "en": "Combined SMOS and SMAP sea ice thickness Arctic"
+        },
+        "issued": "2018-11-28",
+        "distributions": [
+          {
+            "license": {
+              "resource": "https://creativecommons.org/licenses/by/4.0/legalcode",
+              "id": "https://creativecommons.org/licenses/by/4.0/legalcode",
+              "label": "https://creativecommons.org/licenses/by/4.0/legalcode"
+            }
+          }
+        ]
+      },
+      {
+        "catalog": {
+          "id": "oppnadata",
+          "title": {
+            "en": "Sweden's data portal",
+            "fr": "Portail de données de la Suède",
+            "de": "Schwedens Datenportal"
+          }
+        },
+        "description": {
+          "de": "Daten, die während der schwedisch-kanadischen Expedition Arctic Ocean 2016 mit der Forschungskreuzfahrt Oden erhoben wurden.\n\nWeitere Informationen finden Sie auf der englischen Katalogseite: https://snd.gu.se/en/catalogue/study/ecds0237",
+          "fr": "Données recueillies lors de l'expédition canado-suédoise Arctic Ocean 2016, avec la croisière de recherche Oden.\n\nPour plus d'informations, voir la page du catalogue en anglais: https://snd.gu.se/en/catalogue/study/ecds0237",
+          "en": "This dataset contains data collected during the Canadian-Swedish expedition Arctic Ocean 2016. The research cruise took place August through September 2016, using the icebreaker Oden.\n\nFor ship data from the cruise, as well as graphics and files describing the route, see https://snd.gu."
+        },
+        "publisher": {
+          "resource": "https://ror.org/05xg72x27",
+          "name": "The Norwegian University of Science and Technology (NTNU)",
+          "type": "Agent",
+          "homepage": "http://www.ntnu.edu"
+        },
+        "modified": "2023-03-22T10:50:26.974532Z",
+        "index": "dataset",
+        "id": "https-admin-dataportal-se-store-818-resource-945854a112344f4755c13af47d669761",
+        "title": {
+          "de": "Arctic Ocean 2016 - Eisdicke und Kamerabilder",
+          "fr": "Océan Arctique 2016 - Épaisseur de glace et images de la caméra",
+          "en": "Arctic Ocean 2016 - Ice Thickness Camera Images"
+        },
+        "issued": "2023-03-22T10:50:26.974532Z"
+      },
+      {
+        "identifier": [
+          "None",
+          "doi:10.1594/WDCC/UNI_HH_MI_ACSYS2003/ACSYS%202003%20-%20Arctic%20Atmospheric%20Boundary%20Layer%20and%20Sea%20Ice%20Interaction%20Study%20north%20of%20Spitsbergen:%20meteorological%20measurements%20of%20the%20research%20aircraft%20Falcon,%2011%20autonomous%20ice%20buoys%20and%20radiosoundings%20at%20the%20research%20vessels%20Aranda%20and%20Polarstern"
+        ],
+        "catalog": {
+          "id": "gdi-de",
+          "title": {
+            "de": "GDI-DE",
+            "fr": "GDI-DE",
+            "en": "GDI-DE"
+          }
+        },
+        "description": {
+          "de": "From 26 March to 22 April 2003, Germany and Finland carried out a joint expedition (ABSIS - Arctic Atmospheric Boundary Layer and Sea Ice Interaction Study) to test and improve the description of the ocean-ice-atmosphere interaction processes.",
+          "fr": "From 26 March to 22 April 2003, Germany and Finland carried out a joint expedition (ABSIS - Arctic Atmospheric Boundary Layer and Sea Ice Interaction Study) to test and improve the description of the ocean-ice-atmosphere interaction processes.",
+          "en": "From 26 March to 22 April 2003, Germany and Finland carried out a joint expedition (ABSIS - Arctic Atmospheric Boundary Layer and Sea Ice Interaction Study) to test and improve the description of the ocean-ice-atmosphere interaction processes."
+        },
+        "landing_page": [
+          {
+            "resource": "http://doi.org/doi:10.1594/WDCC/UNI_HH_MI_ACSYS2003"
+          }
+        ],
+        "index": "dataset",
+        "id": "de-dkrz-wdcc-iso2250972",
+        "title": {
+          "de": "ACSYS 2003 - Arctic Atmospheric Boundary Layer and Sea Ice Interaction Study",
+          "fr": "ACSYS 2003 - Arctic Atmospheric Boundary Layer and Sea Ice Interaction Study",
+          "en": "ACSYS 2003 - Arctic Atmospheric Boundary Layer and Sea Ice Interaction Study"
+        }
+      },
+      {
+        "identifier": [
+          "https://doi.org/10.5281/zenodo.14975004"
+        ],
+        "catalog": {
+          "id": "zenodo",
+          "title": {
+            "en": "EU Open Research Repository",
+            "fr": "Répertoire ouvert de l’UE pour la recherche",
+            "de": "Open Research Repository der EU"
+          }
+        },
+        "description": {
+          "en": "The ASILaC datasets presents monthly files of correlation statistics calculated between Sea Ice Area (SIA) in eight Arctic basins and terrestrial parameters in the Arctic region North of 60°N. Data format: raster GeoTIFF The terrestrial parameters are: 1."
+        },
+        "modified": "2025-10-27",
+        "publisher": {
+          "name": "Zenodo",
+          "type": "Agent"
+        },
+        "index": "dataset",
+        "id": "oai-zenodo-org-14975004",
+        "page": [
+          {
+            "resource": "https://doi.org/10.5281/zenodo.14975004"
+          }
+        ],
+        "title": {
+          "en": "Arctic Sea Ice and Land Parameter Correlations (ASILaC)"
+        },
+        "issued": "2025",
+        "distributions": [
+          {
+            "license": {
+              "resource": "https://creativecommons.org/licenses/by-nc/4.0/legalcode",
+              "id": "https://creativecommons.org/licenses/by-nc/4.0/legalcode",
+              "label": "https://creativecommons.org/licenses/by-nc/4.0/legalcode"
+            }
+          }
+        ]
+      },
+      {
+        "identifier": [
+          "https://doi.org/10.5281/zenodo.3540757"
+        ],
+        "catalog": {
+          "id": "zenodo",
+          "title": {
+            "en": "EU Open Research Repository",
+            "fr": "Répertoire ouvert de l’UE pour la recherche",
+            "de": "Open Research Repository der EU"
+          }
+        },
+        "description": {
+          "en": "For additional information or any request, please email contact@example.org"
+        },
+        "publisher": {
+          "name": "Zenodo",
+          "type": "Agent"
+        },
+        "modified": "2020-01-24",
+        "index": "dataset",
+        "id": "oai-zenodo-org-3540757",
+        "page": [
+          {
+            "resource": "https://doi.org/10.5281/zenodo.3540757"
+          }
+        ],
+        "title": {
+          "en": "Impact of the ice thickness distribution discretization on the sea ice concentration variability in the NEMO3.6-LIM3 global ocean–sea ice model"
+        },
+        "issued": "2019",
+        "distributions": [
+          {
+            "license": {
+              "resource": "https://creativecommons.org/licenses/by/4.0/legalcode",
+              "id": "https://creativecommons.org/licenses/by/4.0/legalcode",
+              "label": "https://creativecommons.org/licenses/by/4.0/legalcode"
+            }
+          }
+        ]
+      }
+    ],
+    "facets": []
+  }
+}

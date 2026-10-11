@@ -1,0 +1,496 @@
+{
+  "help": "https://ckan.govdata.de/api/3/action/help_show?name=package_search",
+  "success": true,
+  "result": {
+    "count": 189,
+    "facets": {},
+    "results": [
+      {
+        "author": null,
+        "author_email": null,
+        "creator_user_id": "f512f73d-bed2-439d-8f6f-3fbc6048b24e",
+        "id": "428af5c5-d387-424c-b923-86e72e7b1789",
+        "isopen": false,
+        "license_id": "",
+        "license_title": "",
+        "maintainer": null,
+        "maintainer_email": null,
+        "metadata_created": "2026-09-09T11:35:47.325617",
+        "metadata_modified": "2026-09-09T11:35:47.325620",
+        "name": "ecomapper-dataset",
+        "notes": "The EcoMapper dataset comprises over 2.9 million satellite images accompanied by climate metadata. It includes both RGB imagery and selected multispectral channels (B6 – Red Edge 2, B8 – NIR, B11 – SWIR1) sourced from the Copernicus Sentinel satellite missions.",
+        "num_resources": 1,
+        "num_tags": 5,
+        "organization": {
+          "id": "af066138-48e4-429e-b08e-c5859eebc6e8",
+          "name": "open-data-bayern",
+          "title": "open.bydata",
+          "type": "organization",
+          "description": "",
+          "image_url": "",
+          "created": "2022-03-08T08:00:34.384771",
+          "is_organization": true,
+          "approval_status": "approved",
+          "state": "active"
+        },
+        "owner_org": "af066138-48e4-429e-b08e-c5859eebc6e8",
+        "private": false,
+        "state": "active",
+        "title": "Ecomapper Dataset",
+        "type": "dataset",
+        "url": null,
+        "version": null,
+        "extras": [
+          {
+            "key": "contact_email",
+            "value": "contact@example.org"
+          },
+          {
+            "key": "contact_name",
+            "value": "Universitätsbibliothek der Technischen Universität München"
+          },
+          {
+            "key": "contributorID",
+            "value": "[\"http://dcat-ap.de/def/contributors/openDataBayern\"]"
+          },
+          {
+            "key": "guid",
+            "value": "https://open.bydata.de/api/hub/repo/datasets/https-mediatum-ub-tum-de-1767651"
+          },
+          {
+            "key": "issued",
+            "value": "2025-06-13T00:00:00"
+          },
+          {
+            "key": "metadata_harvested_portal",
+            "value": "https://opendata.bayern.de"
+          },
+          {
+            "key": "publisher_name",
+            "value": "Universitätsbibliothek der Technischen Universität München"
+          },
+          {
+            "key": "publisher_type",
+            "value": "http://purl.org/adms/publishertype/RegionalAuthority"
+          },
+          {
+            "key": "publisher_uri",
+            "value": "https://www.ub.tum.de/impressum"
+          },
+          {
+            "key": "theme",
+            "value": "[\"http://publications.europa.eu/resource/authority/data-theme/TECH\"]"
+          },
+          {
+            "key": "uri",
+            "value": "https://open.bydata.de/api/hub/repo/datasets/https-mediatum-ub-tum-de-1767651"
+          },
+          {
+            "key": "harvest_object_id",
+            "value": "2988821b-95f8-48f8-b6ef-315df2a756b9"
+          },
+          {
+            "key": "harvest_source_id",
+            "value": "9c284260-4735-4ea5-9904-4bca5fb3fc86"
+          },
+          {
+            "key": "harvest_source_title",
+            "value": "Open Data Bayern Harvester"
+          }
+        ],
+        "groups": [
+          {
+            "description": "",
+            "display_name": "Wissenschaft und Technologie",
+            "id": "tech",
+            "image_display_url": "",
+            "name": "tech",
+            "title": "Wissenschaft und Technologie"
+          }
+        ],
+        "resources": [
+          {
+            "cache_last_updated": null,
+            "cache_url": null,
+            "created": "2026-09-09T11:35:47.328632",
+            "description": null,
+            "distribution_ref": "https://open.bydata.de/api/hub/repo/distributions/4026af31-3722-4bde-a059-d3066d4b659a",
+            "format": "",
+            "hash": "",
+            "id": "db37c7c9-3f3b-4bfc-898b-314756152322",
+            "last_modified": null,
+            "license": "http://dcat-ap.de/def/licenses/other-closed",
+            "metadata_modified": "2026-09-09T11:35:47.319178",
+            "mimetype": null,
+            "mimetype_inner": null,
+            "name": null,
+            "package_id": "428af5c5-d387-424c-b923-86e72e7b1789",
+            "position": 0,
+            "resource_type": null,
+            "size": null,
+            "state": "active",
+            "uri": "https://open.bydata.de/api/hub/repo/distributions/4026af31-3722-4bde-a059-d3066d4b659a",
+            "url": "",
+            "url_type": null
+          }
+        ],
+        "tags": [
+          {
+            "display_name": "climate",
+            "id": "f017c2b3-a5fe-49b3-94b2-a1b4492473e5",
+            "name": "climate",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "deep-learning",
+            "id": "42cf6107-1c7f-4cb9-8b02-209734595263",
+            "name": "deep-learning",
+            "state": "active",
+            "vocabulary_id": null
+          }
+        ],
+        "relationships_as_subject": [],
+        "relationships_as_object": []
+      },
+      {
+        "author": "Goktepe, Muhammed",
+        "author_email": null,
+        "creator_user_id": "f512f73d-bed2-439d-8f6f-3fbc6048b24e",
+        "id": "e35ce81f-8e3a-4ca9-87f7-c688c32ef58c",
+        "isopen": false,
+        "license_id": "",
+        "license_title": "",
+        "maintainer": null,
+        "maintainer_email": null,
+        "metadata_created": "2026-09-30T04:28:24.928102",
+        "metadata_modified": "2026-10-05T01:42:23.340124",
+        "name": "ecomapper-datasetd1689",
+        "notes": "The EcoMapper dataset comprises over 2.9 million satellite images accompanied by climate metadata. It includes both RGB imagery and selected multispectral channels (B6 – Red Edge 2, B8 – NIR, B11 – SWIR1) sourced from the Copernicus Sentinel satellite missions.",
+        "num_resources": 1,
+        "num_tags": 5,
+        "organization": {
+          "id": "af066138-48e4-429e-b08e-c5859eebc6e8",
+          "name": "open-data-bayern",
+          "title": "open.bydata",
+          "type": "organization",
+          "description": "",
+          "image_url": "",
+          "created": "2022-03-08T08:00:34.384771",
+          "is_organization": true,
+          "approval_status": "approved",
+          "state": "active"
+        },
+        "owner_org": "af066138-48e4-429e-b08e-c5859eebc6e8",
+        "private": false,
+        "state": "active",
+        "title": "Ecomapper Dataset",
+        "type": "dataset",
+        "url": null,
+        "version": null,
+        "extras": [
+          {
+            "key": "author_contacttype",
+            "value": "Organization"
+          },
+          {
+            "key": "contact_email",
+            "value": "contact@example.org"
+          },
+          {
+            "key": "contact_name",
+            "value": "Universitätsbibliothek der Technischen Universität München"
+          },
+          {
+            "key": "contributorID",
+            "value": "[\"http://dcat-ap.de/def/contributors/openDataBayern\"]"
+          },
+          {
+            "key": "creator_name",
+            "value": "Goktepe, Muhammed"
+          },
+          {
+            "key": "guid",
+            "value": "https://open.bydata.de/api/hub/repo/datasets/10-14459-2025mp1767651"
+          },
+          {
+            "key": "identifier",
+            "value": "10.14459/2025mp1767651"
+          },
+          {
+            "key": "issued",
+            "value": "2025-06-13T00:00:00"
+          },
+          {
+            "key": "metadata_harvested_portal",
+            "value": "https://opendata.bayern.de"
+          },
+          {
+            "key": "modified",
+            "value": "2025-06-13T00:00:00"
+          },
+          {
+            "key": "publisher_name",
+            "value": "Universitätsbibliothek der Technischen Universität München"
+          },
+          {
+            "key": "publisher_type",
+            "value": "http://purl.org/adms/publishertype/RegionalAuthority"
+          },
+          {
+            "key": "publisher_uri",
+            "value": "https://www.ub.tum.de/impressum"
+          },
+          {
+            "key": "theme",
+            "value": "[\"http://publications.europa.eu/resource/authority/data-theme/TECH\"]"
+          },
+          {
+            "key": "uri",
+            "value": "https://open.bydata.de/api/hub/repo/datasets/10-14459-2025mp1767651"
+          },
+          {
+            "key": "harvest_object_id",
+            "value": "e6af115f-2d6f-4c3e-8ea1-325352b5c413"
+          },
+          {
+            "key": "harvest_source_id",
+            "value": "9c284260-4735-4ea5-9904-4bca5fb3fc86"
+          },
+          {
+            "key": "harvest_source_title",
+            "value": "Open Data Bayern Harvester"
+          }
+        ],
+        "groups": [
+          {
+            "description": "",
+            "display_name": "Wissenschaft und Technologie",
+            "id": "tech",
+            "image_display_url": "",
+            "name": "tech",
+            "title": "Wissenschaft und Technologie"
+          }
+        ],
+        "resources": [
+          {
+            "access_url": "https://mediatum.ub.tum.de/1767651",
+            "cache_last_updated": null,
+            "cache_url": null,
+            "created": "2026-09-30T04:28:24.930084",
+            "description": null,
+            "distribution_ref": "https://open.bydata.de/api/hub/repo/distributions/60069977-2ecf-48cd-9932-346bbc0aa22f",
+            "format": "",
+            "hash": "",
+            "id": "7bfc5f7e-5710-47bb-b868-4e165fd437e2",
+            "issued": "2025-06-13T00:00:00",
+            "last_modified": null,
+            "license": "http://dcat-ap.de/def/licenses/cc-by",
+            "licenseAttributionByText": "Goktepe, Muhammed; Shamseddin, Amir; Uysal, Erencan; Muinelo, Javier; Toker, Aysim; Drees, Lukas; Asseng, Senthold; von Bloh, Malte",
+            "metadata_modified": "2026-09-30T04:28:24.917555",
+            "mimetype": null,
+            "mimetype_inner": null,
+            "modified": "2025-06-13T00:00:00",
+            "name": null,
+            "package_id": "e35ce81f-8e3a-4ca9-87f7-c688c32ef58c",
+            "position": 0,
+            "resource_type": null,
+            "size": null,
+            "state": "active",
+            "uri": "https://open.bydata.de/api/hub/repo/distributions/60069977-2ecf-48cd-9932-346bbc0aa22f",
+            "url": "https://mediatum.ub.tum.de/1767651",
+            "url_type": null
+          }
+        ],
+        "tags": [
+          {
+            "display_name": "climate",
+            "id": "f017c2b3-a5fe-49b3-94b2-a1b4492473e5",
+            "name": "climate",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "deep-learning",
+            "id": "42cf6107-1c7f-4cb9-8b02-209734595263",
+            "name": "deep-learning",
+            "state": "active",
+            "vocabulary_id": null
+          }
+        ],
+        "relationships_as_subject": [],
+        "relationships_as_object": []
+      },
+      {
+        "author": null,
+        "author_email": null,
+        "creator_user_id": "f512f73d-bed2-439d-8f6f-3fbc6048b24e",
+        "id": "691562b4-2e81-4969-9ffc-c3808f4f7f9f",
+        "isopen": false,
+        "license_id": "",
+        "license_title": "",
+        "maintainer": null,
+        "maintainer_email": null,
+        "metadata_created": "2026-01-30T07:40:03.538497",
+        "metadata_modified": "2026-01-30T07:40:03.538504",
+        "name": "resilience-to-climate-change-in-an-octocoral-involves-the-transcriptional-decoupling-of-the-cal",
+        "notes": "Up to one-third of all described marine species occur in coral reefs, but the future of these hyperdiverse ecosystems is insecure due to local and global threads, such as overfishing, eutrophication, ocean warming and acidification.",
+        "num_resources": 1,
+        "num_tags": 7,
+        "organization": {
+          "id": "af066138-48e4-429e-b08e-c5859eebc6e8",
+          "name": "open-data-bayern",
+          "title": "open.bydata",
+          "type": "organization",
+          "description": "",
+          "image_url": "",
+          "created": "2022-03-08T08:00:34.384771",
+          "is_organization": true,
+          "approval_status": "approved",
+          "state": "active"
+        },
+        "owner_org": "af066138-48e4-429e-b08e-c5859eebc6e8",
+        "private": false,
+        "state": "active",
+        "title": "Resilience to climate change in an octocoral involves the transcriptional decoupling of the calcification and stress response toolkits",
+        "type": "dataset",
+        "url": null,
+        "version": null,
+        "extras": [
+          {
+            "key": "alternate_identifier",
+            "value": "[\"189\"]"
+          },
+          {
+            "key": "contact_name",
+            "value": "Vargas, Sergio"
+          },
+          {
+            "key": "contact_uri",
+            "value": "http://orcid.org/0000-0002-1125-8643"
+          },
+          {
+            "key": "contact_url",
+            "value": "http://orcid.org/0000-0002-1125-8643"
+          },
+          {
+            "key": "contributorID",
+            "value": "[\"http://dcat-ap.de/def/contributors/openDataBayern\"]"
+          },
+          {
+            "key": "guid",
+            "value": "https://open.bydata.de/api/hub/repo/datasets/https-doi-org-10-5282-ubm-data-189"
+          },
+          {
+            "key": "identifier",
+            "value": "https://doi.org/10.5282/ubm/data.189"
+          },
+          {
+            "key": "issued",
+            "value": "2020-05-19T09:36:44"
+          },
+          {
+            "key": "metadata_harvested_portal",
+            "value": "https://opendata.bayern.de"
+          },
+          {
+            "key": "modified",
+            "value": "2021-02-08T16:28:39"
+          },
+          {
+            "key": "publisher_name",
+            "value": "Universitätsbibliothek der Ludwig-Maximilians-Universität München"
+          },
+          {
+            "key": "publisher_type",
+            "value": "http://purl.org/adms/publishertype/Academia-ScientificOrganisation"
+          },
+          {
+            "key": "publisher_uri",
+            "value": "https://sigel.staatsbibliothek-berlin.de/suche?isil=DE-19"
+          },
+          {
+            "key": "theme",
+            "value": "[\"http://publications.europa.eu/resource/authority/data-theme/TECH\"]"
+          },
+          {
+            "key": "uri",
+            "value": "https://open.bydata.de/api/hub/repo/datasets/https-doi-org-10-5282-ubm-data-189"
+          },
+          {
+            "key": "harvest_object_id",
+            "value": "d7eedd54-038d-4485-a15a-0920401132f6"
+          },
+          {
+            "key": "harvest_source_id",
+            "value": "9c284260-4735-4ea5-9904-4bca5fb3fc86"
+          },
+          {
+            "key": "harvest_source_title",
+            "value": "Open Data Bayern Harvester"
+          }
+        ],
+        "groups": [
+          {
+            "description": "",
+            "display_name": "Wissenschaft und Technologie",
+            "id": "tech",
+            "image_display_url": "",
+            "name": "tech",
+            "title": "Wissenschaft und Technologie"
+          }
+        ],
+        "resources": [
+          {
+            "access_url": "https://data.ub.uni-muenchen.de/189",
+            "cache_last_updated": null,
+            "cache_url": null,
+            "created": "2026-01-30T07:40:03.540470",
+            "description": "Up to one-third of all described marine species occur in coral reefs, but the future of these hyperdiverse ecosystems is insecure due to local and global threads, such as overfishing, eutrophication, ocean warming and acidification. Although these impacts are expected to have a net detrimental effect on reefs, some organisms, like soft corals, may remain unaffected or benefit from anthropogenically induced environmental change, replacing stony corals in future reefs. Here, we show that the response to simulated climate change of the skeletogenic and stress-response toolkits of a common Indo-Pacific gorgonian is decoupled. This transcriptional decoupling provides a mechanistic explanation for the resilience to anthropogenically-driven environmental change observed in soft corals.",
+            "distribution_ref": "https://open.bydata.de/api/hub/repo/distributions/8cf135d0-c0ce-4120-9882-8fcc4d63a87d",
+            "format": "http://publications.europa.eu/resource/authority/file-type/ZIP",
+            "hash": "",
+            "id": "afe55009-d798-4a33-820c-e070dc1e5e48",
+            "issued": "2020-05-19T09:36:44",
+            "last_modified": null,
+            "license": "http://dcat-ap.de/def/licenses/cc-by/4.0",
+            "licenseAttributionByText": "Vargas, Sergio; Zimmer, Thorsten; Conci, Nicola; Lehmann, Martin; Wörheide, Gert",
+            "metadata_modified": "2026-01-30T07:40:03.523766",
+            "mimetype": null,
+            "mimetype_inner": null,
+            "modified": "2021-02-08T16:28:39",
+            "name": "Resilience to climate change in an octocoral involves the transcriptional decoupling of the calcification and stress response toolkits",
+            "package_id": "691562b4-2e81-4969-9ffc-c3808f4f7f9f",
+            "position": 0,
+            "resource_type": null,
+            "size": null,
+            "state": "active",
+            "uri": "https://open.bydata.de/api/hub/repo/distributions/8cf135d0-c0ce-4120-9882-8fcc4d63a87d",
+            "url": "https://data.ub.uni-muenchen.de/189",
+            "url_type": null
+          }
+        ],
+        "tags": [
+          {
+            "display_name": "500-natural-sciences-and-mathematics",
+            "id": "23f81c6f-b0bd-4b06-8f0b-ccf62c9b3659",
+            "name": "500-natural-sciences-and-mathematics",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "570-life-sciences",
+            "id": "99a2bfd0-9e83-4cca-9da1-7c24564ea39e",
+            "name": "570-life-sciences",
+            "state": "active",
+            "vocabulary_id": null
+          }
+        ],
+        "relationships_as_subject": [],
+        "relationships_as_object": []
+      }
+    ],
+    "sort": "score desc, metadata_modified desc",
+    "search_facets": {}
+  }
+}

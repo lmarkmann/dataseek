@@ -1,0 +1,74 @@
+{
+  "@context": "http://schema.org",
+  "@type": "Dataset",
+  "@id": "https://doi.org/10.7910/DVN/A4DIA5",
+  "identifier": "https://doi.org/10.7910/DVN/A4DIA5",
+  "name": "Station Rainfall Data for Hawaii (Wet and Dry)",
+  "creator": [
+    {
+      "name": "Sanfilippo, Kristen",
+      "affiliation": "University of Hawaii Manoa"
+    }
+  ],
+  "author": [
+    {
+      "name": "Sanfilippo, Kristen",
+      "affiliation": "University of Hawaii Manoa"
+    }
+  ],
+  "datePublished": "2021-01-07",
+  "dateModified": "2021-01-07",
+  "version": "1",
+  "description": [
+    "These datasets contain observation station data for rainfall in Hawaii. Wet and dry season data are in separate files. This data is used in statistical downscaling and can be used to replicate the procedure in the project entitled Predictor Selection and Model Evaluation for Future Rainfall Projection in Hawaiʻi"
+  ],
+  "keywords": [
+    "Earth and Environmental Sciences",
+    "Other",
+    "Rainfall",
+    "Hawai'i",
+    "statistical downscaling"
+  ],
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "text": "Sanfilippo, K. et al. Predictor Selection and Model Evaluation for Future Rainfall Projection in Hawaiʻi, unpublished."
+    }
+  ],
+  "license": {
+    "@type": "Dataset",
+    "text": "CC0",
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  "includedInDataCatalog": {
+    "@type": "DataCatalog",
+    "name": "Harvard Dataverse",
+    "url": "https://dataverse.harvard.edu"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Harvard Dataverse"
+  },
+  "provider": {
+    "@type": "Organization",
+    "name": "Harvard Dataverse"
+  },
+  "distribution": [
+    {
+      "@type": "DataDownload",
+      "name": "RF_dry_transposed.tab",
+      "fileFormat": "text/tab-separated-values",
+      "contentSize": 748311,
+      "description": "rainfall data for dry season",
+      "contentUrl": "https://dataverse.harvard.edu/api/access/datafile/4288346"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "RF_wet_transposed.xlsx.tab",
+      "fileFormat": "text/tab-separated-values",
+      "contentSize": 922421,
+      "description": "rainfall data for wet season",
+      "contentUrl": "https://dataverse.harvard.edu/api/access/datafile/4288345"
+    }
+  ]
+}

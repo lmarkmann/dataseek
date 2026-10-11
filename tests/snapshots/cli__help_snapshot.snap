@@ -1,0 +1,77 @@
+---
+source: tests/cli.rs
+expression: "String::from_utf8_lossy(&out.stdout)"
+---
+Search for datasets from the terminal.
+
+dsk is the same program under a shorter name.
+
+Usage: dataseek [OPTIONS] [COMMAND]
+
+Commands:
+  search      Search every source at once, merged, deduplicated and ranked [alias: s]
+  sources     List every source: what it covers, its protocol, its key, its docs
+  inspect     Read a dataset page's metadata and the files it lists
+  mcp         Serve search, sources and inspect to MCP clients over stdio
+  bench       Time every source on real queries and measure their overlap
+  cache       Show, warm or clear the cache
+  doctor      Check the environment, keys and cache, and report readiness
+  completion  Print a shell completion script; on a terminal, say where to save it
+  help        Explain a command or a topic: environment, exit-codes
+
+Options:
+  -q, --quiet
+          Errors only on stderr; stdout data is unaffected
+
+  -v, --verbose...
+          Explain what is happening on stderr
+
+      --json
+          Emit JSON to stdout instead of text
+
+      --color <WHEN>
+          Colorize output (auto, always, or never)
+          
+          Possible values:
+          - auto:   Color when stdout is a terminal and NO_COLOR is unset
+          - always: Always color, even through a pipe (for `| less -R`)
+          - never:  Never color
+          
+          [default: auto]
+
+      --no-color
+          Disable ANSI colors; shorthand for --color=never (or set NO_COLOR)
+
+      --plain
+          ASCII-only output; implies --color=never
+
+      --no-progress
+          No progress bars or spinners; status lines print plain, as in a pipe
+
+      --cache-dir <DIR>
+          Keep the cache here instead of the platform cache directory
+          
+          [env: DATASEEK_CACHE_DIR=]
+
+      --connect-timeout <SECS>
+          Seconds a host gets to accept the connection; each request's own deadline (15 s, 90 s for
+          catalogs) still caps it. A host that misses a limit you set is not marked as down
+          
+          [env: DATASEEK_CONNECT_TIMEOUT=]
+          [default: 10]
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+  -V, --version
+          Print version
+
+Examples:
+  dsk search sea surface temperature              every source, ranked
+  dsk s mnist -s huggingface,kaggle               only these sources
+  dsk s census --json | jq -r '.results[].url'    one field per line
+
+Exit status: 0 success, 1 failure, 2 usage error, 130 interrupted.
+`dataseek help exit-codes` and `dataseek help environment` say more.
+
+Report bugs at https://github.com/lmarkmann/dataseek/issues

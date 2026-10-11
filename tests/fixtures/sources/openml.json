@@ -1,0 +1,233 @@
+{
+  "data": {
+    "dataset": [
+      {
+        "did": 2,
+        "name": "anneal",
+        "version": 1,
+        "status": "active",
+        "format": "ARFF",
+        "md5_checksum": "",
+        "file_id": 1666876,
+        "quality": [
+          {
+            "name": "MajorityClassSize",
+            "value": "684.0"
+          },
+          {
+            "name": "MaxNominalAttDistinctValues",
+            "value": "7.0"
+          },
+          {
+            "name": "MinorityClassSize",
+            "value": "8.0"
+          },
+          {
+            "name": "NumberOfClasses",
+            "value": "5.0"
+          },
+          {
+            "name": "NumberOfFeatures",
+            "value": "39.0"
+          },
+          {
+            "name": "NumberOfInstances",
+            "value": "898.0"
+          },
+          {
+            "name": "NumberOfInstancesWithMissingValues",
+            "value": "898.0"
+          },
+          {
+            "name": "NumberOfMissingValues",
+            "value": "22175.0"
+          },
+          {
+            "name": "NumberOfNumericFeatures",
+            "value": "6.0"
+          },
+          {
+            "name": "NumberOfSymbolicFeatures",
+            "value": "33.0"
+          }
+        ]
+      },
+      {
+        "did": 3,
+        "name": "kr-vs-kp",
+        "version": 1,
+        "status": "active",
+        "format": "ARFF",
+        "md5_checksum": "",
+        "file_id": 3,
+        "quality": [
+          {
+            "name": "MajorityClassSize",
+            "value": "1669.0"
+          },
+          {
+            "name": "MaxNominalAttDistinctValues",
+            "value": "3.0"
+          },
+          {
+            "name": "MinorityClassSize",
+            "value": "1527.0"
+          },
+          {
+            "name": "NumberOfClasses",
+            "value": "2.0"
+          },
+          {
+            "name": "NumberOfFeatures",
+            "value": "37.0"
+          },
+          {
+            "name": "NumberOfInstances",
+            "value": "3196.0"
+          },
+          {
+            "name": "NumberOfInstancesWithMissingValues",
+            "value": "0.0"
+          },
+          {
+            "name": "NumberOfMissingValues",
+            "value": "0.0"
+          },
+          {
+            "name": "NumberOfNumericFeatures",
+            "value": "0.0"
+          },
+          {
+            "name": "NumberOfSymbolicFeatures",
+            "value": "37.0"
+          }
+        ]
+      },
+      {
+        "did": 4,
+        "name": "labor",
+        "version": 1,
+        "status": "active",
+        "format": "ARFF",
+        "md5_checksum": "",
+        "file_id": 4,
+        "quality": [
+          {
+            "name": "MajorityClassSize",
+            "value": "37.0"
+          },
+          {
+            "name": "MaxNominalAttDistinctValues",
+            "value": "3.0"
+          },
+          {
+            "name": "MinorityClassSize",
+            "value": "20.0"
+          },
+          {
+            "name": "NumberOfClasses",
+            "value": "2.0"
+          },
+          {
+            "name": "NumberOfFeatures",
+            "value": "17.0"
+          },
+          {
+            "name": "NumberOfInstances",
+            "value": "57.0"
+          },
+          {
+            "name": "NumberOfInstancesWithMissingValues",
+            "value": "56.0"
+          },
+          {
+            "name": "NumberOfMissingValues",
+            "value": "326.0"
+          },
+          {
+            "name": "NumberOfNumericFeatures",
+            "value": "8.0"
+          },
+          {
+            "name": "NumberOfSymbolicFeatures",
+            "value": "9.0"
+          }
+        ]
+      },
+      {
+        "did": 43219,
+        "name": "18ProductivityPrediction",
+        "version": 1,
+        "status": "active",
+        "format": "ARFF",
+        "md5_checksum": "",
+        "file_id": 22101905,
+        "quality": [
+          {
+            "name": "NumberOfFeatures",
+            "value": "15.0"
+          },
+          {
+            "name": "NumberOfInstances",
+            "value": "1197.0"
+          },
+          {
+            "name": "NumberOfInstancesWithMissingValues",
+            "value": "506.0"
+          },
+          {
+            "name": "NumberOfMissingValues",
+            "value": "506.0"
+          },
+          {
+            "name": "NumberOfNumericFeatures",
+            "value": "11.0"
+          },
+          {
+            "name": "NumberOfSymbolicFeatures",
+            "value": "4.0"
+          }
+        ]
+      },
+      {
+        "did": 43250,
+        "name": "18ProductivityPrediction",
+        "version": 2,
+        "status": "active",
+        "format": "ARFF",
+        "md5_checksum": "",
+        "file_id": 22101938,
+        "quality": [
+          {
+            "name": "NumberOfClasses",
+            "value": "0.0"
+          },
+          {
+            "name": "NumberOfFeatures",
+            "value": "15.0"
+          },
+          {
+            "name": "NumberOfInstances",
+            "value": "1197.0"
+          },
+          {
+            "name": "NumberOfInstancesWithMissingValues",
+            "value": "506.0"
+          },
+          {
+            "name": "NumberOfMissingValues",
+            "value": "506.0"
+          },
+          {
+            "name": "NumberOfNumericFeatures",
+            "value": "11.0"
+          },
+          {
+            "name": "NumberOfSymbolicFeatures",
+            "value": "4.0"
+          }
+        ]
+      }
+    ]
+  }
+}

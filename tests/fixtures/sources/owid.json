@@ -1,0 +1,96 @@
+{
+  "query": "life expectancy",
+  "results": [
+    {
+      "title": "Sex gap in life expectancy",
+      "slug": "difference-in-female-and-male-life-expectancy-at-birth",
+      "subtitle": "Difference between female and male life expectancy at birth. Positive values indicate higher female life expectancy; negative values indicate higher male life expectancy.",
+      "variantName": "",
+      "type": "chart",
+      "availableEntities": [
+        "Bosnia and Herzegovina",
+        "Czechia",
+        "Democratic Republic of Congo"
+      ],
+      "availableTabs": [
+        "Table",
+        "WorldMap",
+        "LineChart",
+        "DiscreteBar"
+      ],
+      "publishedAt": "2018-08-03T10:24:52.000Z",
+      "updatedAt": "2025-10-22T22:29:04.000Z",
+      "url": "https://ourworldindata.org/grapher/difference-in-female-and-male-life-expectancy-at-birth"
+    },
+    {
+      "title": "Life expectancy",
+      "slug": "life-expectancy-hmd-unwpp",
+      "subtitle": "The period life expectancy at birth, in a given year.",
+      "variantName": "HMD, UN WPP",
+      "type": "chart",
+      "availableEntities": [
+        "Bosnia and Herzegovina",
+        "Czechia",
+        "Democratic Republic of Congo"
+      ],
+      "availableTabs": [
+        "Table",
+        "WorldMap",
+        "LineChart",
+        "DiscreteBar"
+      ],
+      "publishedAt": "2023-10-18T16:11:39.000Z",
+      "updatedAt": "2026-07-11T15:30:53.000Z",
+      "url": "https://ourworldindata.org/grapher/life-expectancy-hmd-unwpp"
+    },
+    {
+      "title": "Life expectancy at birth",
+      "containerTitle": "Population & Demography",
+      "slug": "population-and-demography",
+      "subtitle": "Period life expectancy at birth.",
+      "variantName": "Life expectancy at birth",
+      "type": "explorerView",
+      "queryParams": "?indicator=Life+expectancy&Sex=Both+sexes&Age=At+birth&Projection+scenario=None",
+      "availableEntities": [
+        "Bosnia and Herzegovina",
+        "Czechia",
+        "Democratic Republic of Congo"
+      ],
+      "availableTabs": [
+        "Table",
+        "WorldMap",
+        "LineChart",
+        "DiscreteBar"
+      ],
+      "publishedAt": "2023-06-01T19:11:31.000Z",
+      "updatedAt": "2026-09-10T18:58:59.000Z",
+      "url": "https://ourworldindata.org/explorers/population-and-demography?indicator=Life+expectancy&Sex=Both+sexes&Age=At+birth&Projection+scenario=None"
+    },
+    {
+      "title": "School life expectancy in primary education",
+      "containerTitle": "Years of schooling",
+      "slug": "years-of-schooling",
+      "subtitle": "For each year, this shows how many years a child starting school then can expect to spend in primary education if current enrollment patterns stay the same. It includes repeated grades.",
+      "type": "multiDimView",
+      "queryParams": "?level=primary&metric_type=expected_years_schooling&sex=both",
+      "availableEntities": [
+        "Afghanistan",
+        "Albania",
+        "Algeria"
+      ],
+      "availableTabs": [
+        "Table",
+        "WorldMap",
+        "LineChart",
+        "DiscreteBar"
+      ],
+      "publishedAt": "2026-10-05T19:14:42.259Z",
+      "updatedAt": "2026-10-05T19:14:42.259Z",
+      "url": "https://ourworldindata.org/grapher/years-of-schooling?level=primary&metric_type=expected_years_schooling&sex=both"
+    }
+  ],
+  "nbHits": 120,
+  "page": 0,
+  "nbPages": 2,
+  "hitsPerPage": 100
+}

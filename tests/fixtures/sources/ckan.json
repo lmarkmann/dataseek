@@ -1,0 +1,557 @@
+{
+  "help": "https://ckan.publishing.service.gov.uk/api/3/action/help_show?name=package_search",
+  "success": true,
+  "result": {
+    "count": 3124,
+    "facets": {},
+    "results": [
+      {
+        "creator_user_id": "60e687bf-a6d8-43e2-a50e-efab84b27952",
+        "id": "9023a2a3-bf51-48f6-bb93-6c1d4acaa424",
+        "isopen": false,
+        "license_id": null,
+        "license_title": null,
+        "metadata_created": "2026-09-25T12:07:29.749994",
+        "metadata_modified": "2026-09-25T12:07:29.749997",
+        "name": "climate-resilience-documents",
+        "notes": "<dp-prose>\n  <p>This dataset includes links to policies, strategies and documents relevant to climate resilience on a wide range of geographic scales. The project was undertaken with the guidance of Leeds City Council and Leeds Climate Commission and contains a large amount of Leeds specific policies and data.</p>\n</dp-prose>",
+        "num_resources": 6,
+        "num_tags": 0,
+        "organization": {
+          "id": "82a7ad5f-0354-489b-882a-560f969ad08c",
+          "name": "data-mill-north",
+          "title": "Data Mill North",
+          "type": "organization",
+          "description": "",
+          "image_url": "",
+          "created": "2026-09-25T11:34:27.422507",
+          "is_organization": true,
+          "approval_status": "approved",
+          "state": "active"
+        },
+        "owner_org": "82a7ad5f-0354-489b-882a-560f969ad08c",
+        "private": false,
+        "state": "active",
+        "title": "Climate resilience documents",
+        "type": "dataset",
+        "url": "https://datamillnorth.org/dataset/climate-resilience-documents-vdwno",
+        "version": null,
+        "extras": [
+          {
+            "key": "dcat_issued",
+            "value": "2017-12-18T09:12:07.000Z"
+          },
+          {
+            "key": "dcat_modified",
+            "value": "2018-10-17T14:26:15.669Z"
+          },
+          {
+            "key": "dcat_publisher_name",
+            "value": "Leeds Open Data Team"
+          },
+          {
+            "key": "guid",
+            "value": "vdwno"
+          }
+        ],
+        "resources": [
+          {
+            "cache_last_updated": null,
+            "cache_url": null,
+            "created": "2026-09-25T12:07:29.763716",
+            "description": null,
+            "format": "CSV",
+            "hash": "",
+            "id": "eb7bdda5-63eb-418b-8974-9039049dbc6c",
+            "last_modified": null,
+            "metadata_modified": "2026-09-25T12:07:29.747969",
+            "mimetype": null,
+            "mimetype_inner": null,
+            "name": " Links to documents updated October 2018",
+            "package_id": "9023a2a3-bf51-48f6-bb93-6c1d4acaa424",
+            "position": 0,
+            "resource_type": null,
+            "size": 18759,
+            "state": "active",
+            "url": "https://datamillnorth.org/download/vdwno/ec3bd6d0-88ea-4d04-9c02-36875377cd65/Climate%20change%20documents%20Oct%202018%20.csv",
+            "url_type": null
+          },
+          {
+            "cache_last_updated": null,
+            "cache_url": null,
+            "created": "2026-09-25T12:07:29.763717",
+            "description": null,
+            "format": "XLSX",
+            "hash": "",
+            "id": "49d78034-37c5-4921-8051-3b00f835e2c3",
+            "last_modified": null,
+            "metadata_modified": "2026-09-25T12:07:29.748046",
+            "mimetype": null,
+            "mimetype_inner": null,
+            "name": "Links to documents updated October 2018",
+            "package_id": "9023a2a3-bf51-48f6-bb93-6c1d4acaa424",
+            "position": 1,
+            "resource_type": null,
+            "size": 22892,
+            "state": "active",
+            "url": "https://datamillnorth.org/download/vdwno/654d5527-8bc1-4d74-a560-bc19e1ff7d48/Climate%20change%20documents%20Oct%202018%20.xlsx",
+            "url_type": null
+          },
+          {
+            "cache_last_updated": null,
+            "cache_url": null,
+            "created": "2026-09-25T12:07:29.763718",
+            "description": "Climate resilience documents",
+            "format": "XLSX",
+            "hash": "",
+            "id": "f6760d56-b0b4-4154-97b1-906fc4ca636e",
+            "last_modified": null,
+            "metadata_modified": "2026-09-25T12:07:29.748097",
+            "mimetype": null,
+            "mimetype_inner": null,
+            "name": "Links to documents December 2017",
+            "package_id": "9023a2a3-bf51-48f6-bb93-6c1d4acaa424",
+            "position": 2,
+            "resource_type": null,
+            "size": 24498,
+            "state": "active",
+            "url": "https://datamillnorth.org/download/vdwno/13218ccc-322b-413c-971b-8de8305405a4/Leeds%20Climate%20Commission%20DocumentsLF.xlsx",
+            "url_type": null
+          },
+          {
+            "cache_last_updated": null,
+            "cache_url": null,
+            "created": "2026-09-25T12:07:29.763719",
+            "description": "Climate resilience documents",
+            "format": "CSV",
+            "hash": "",
+            "id": "3225e953-05ed-47af-a520-a1dcf6d8325e",
+            "last_modified": null,
+            "metadata_modified": "2026-09-25T12:07:29.748158",
+            "mimetype": null,
+            "mimetype_inner": null,
+            "name": "Links to documents December 2017",
+            "package_id": "9023a2a3-bf51-48f6-bb93-6c1d4acaa424",
+            "position": 3,
+            "resource_type": null,
+            "size": 24412,
+            "state": "active",
+            "url": "https://datamillnorth.org/download/vdwno/541294a4-41e9-488a-9519-eb9b386605cc/Leeds%20Climate%20Commission%20DocumentsLF.csv",
+            "url_type": null
+          }
+        ],
+        "tags": [],
+        "groups": [],
+        "relationships_as_subject": [],
+        "relationships_as_object": []
+      },
+      {
+        "contact-email": "DSPcustomerforum@environment-agency.gov.uk",
+        "creator_user_id": "431b5956-7b87-41ba-8fc5-a4a8b681b797",
+        "id": "cd0b93c4-f785-482e-85a1-6a652f4b1864",
+        "isopen": false,
+        "license_id": null,
+        "license_title": null,
+        "metadata_created": "2016-06-27T15:06:47.481967",
+        "metadata_modified": "2026-09-18T14:38:13.985736",
+        "name": "climate-change-agreements",
+        "notes": "Details of current or terminated Climate Change Agreements (CCA) for the UK under the Climate Change Agreements (Administration Facilities) Regulations 2012. The Climate Change Agreement scheme has 51 sectors of various business types.",
+        "num_resources": 1,
+        "num_tags": 9,
+        "organization": {
+          "id": "11c51f05-a8bf-4f58-9b95-7ab55f9546d7",
+          "name": "environment-agency",
+          "title": "Environment Agency",
+          "type": "organization",
+          "description": "The Environment Agency (EA) protects and improves the environment and promotes sustainable development. It plays a central role in implementing the government's environmental strategy in England. The Environment Agency plays a lead role in managing flood risk and works to minimise the impact of flooding.\r\n\r\nEA is an executive non-departmental public body of the Department for Environment, Food & Rural Affairs\r\n\r\nhttps://www.gov.uk/government/organisations/environment-agency\r\n",
+          "image_url": "",
+          "created": "2012-06-27T14:51:35.391725",
+          "is_organization": true,
+          "approval_status": "pending",
+          "state": "active"
+        },
+        "owner_org": "11c51f05-a8bf-4f58-9b95-7ab55f9546d7",
+        "private": false,
+        "state": "active",
+        "temporal_coverage-from": [
+          "2012-03-01"
+        ],
+        "temporal_coverage-to": [
+          "2025-03-31"
+        ],
+        "title": "Climate Change Agreements",
+        "type": "dataset",
+        "url": null,
+        "version": null,
+        "extras": [
+          {
+            "key": "UKLP",
+            "value": "True"
+          },
+          {
+            "key": "access_constraints",
+            "value": "[\"There are no public access constraints to this data. Use of this data is subject to the licence identified.\", \"There are no public access constraints to this data. Use of this data is subject to the licence identified.\"]"
+          },
+          {
+            "key": "bbox-east-long",
+            "value": "1.7"
+          },
+          {
+            "key": "bbox-north-lat",
+            "value": "60.9"
+          }
+        ],
+        "resources": [
+          {
+            "cache_last_updated": null,
+            "cache_url": null,
+            "created": "2026-09-18T14:38:14.048397",
+            "description": "Climate_Change_Agreements.xlsx download on Defra Data Services Platform",
+            "format": "XLSX",
+            "hash": "",
+            "id": "679ceeae-a77f-4222-a551-0e774ef54fee",
+            "last_modified": null,
+            "metadata_modified": "2026-09-18T14:38:13.994041",
+            "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "mimetype_inner": null,
+            "name": "Climate_Change_Agreements.xlsx",
+            "package_id": "cd0b93c4-f785-482e-85a1-6a652f4b1864",
+            "position": 0,
+            "resource_locator_function": "",
+            "resource_locator_protocol": "http",
+            "resource_type": null,
+            "size": null,
+            "state": "active",
+            "url": "https://environment.data.gov.uk/api/file/download?fileDataSetId=e3525ee0-4725-4626-a21e-1687872602fc&fileName=Climate_Change_Agreements.xlsx",
+            "url_type": null
+          }
+        ],
+        "tags": [
+          {
+            "display_name": "carbon dioxide",
+            "id": "bd43df9f-5c36-4bbe-af3c-ca351f4b2add",
+            "name": "carbon dioxide",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "carbon dioxide tax",
+            "id": "8b49e7d1-ce46-4ffd-a027-f1a90c81d3cb",
+            "name": "carbon dioxide tax",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "ccl",
+            "id": "d817fed0-e9b8-4035-8ed3-df0fbd6d19f6",
+            "name": "ccl",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "climate change",
+            "id": "97cd5ff2-9d28-49a7-ab3b-8b293ed80ba0",
+            "name": "climate change",
+            "state": "active",
+            "vocabulary_id": null
+          }
+        ],
+        "groups": [],
+        "relationships_as_subject": [],
+        "relationships_as_object": []
+      },
+      {
+        "creator_user_id": "60e687bf-a6d8-43e2-a50e-efab84b27952",
+        "id": "69e99592-37a8-4953-9a08-141d6ed9005e",
+        "isopen": false,
+        "license_id": null,
+        "license_title": null,
+        "metadata_created": "2026-06-24T21:09:56.041101",
+        "metadata_modified": "2026-09-25T11:37:07.950405",
+        "name": "climate-just-data1",
+        "notes": "<dp-prose>\n  <p>The &apos;<a href=\"http://www.climatejust.org.uk\">Climate Just&apos;</a> Map Tool shows the geography of England&rsquo;s vulnerability to climate change at a neighbourhood scale.</p>\n</dp-prose>",
+        "num_resources": 5,
+        "num_tags": 0,
+        "organization": {
+          "id": "4fc67187-8f81-4eaa-8820-b18d0cbf1ff6",
+          "name": "greater-london-authority",
+          "title": "Greater London Authority",
+          "type": "organization",
+          "description": "",
+          "image_url": "",
+          "created": "2012-06-27T14:49:02.054509",
+          "is_organization": true,
+          "approval_status": "pending",
+          "state": "active"
+        },
+        "owner_org": "4fc67187-8f81-4eaa-8820-b18d0cbf1ff6",
+        "private": false,
+        "state": "active",
+        "title": "'Climate Just' data",
+        "type": "dataset",
+        "url": "https://data.london.gov.uk/dataset/climate-just-data-2w1d4",
+        "version": null,
+        "extras": [
+          {
+            "key": "dcat_issued",
+            "value": "2015-08-27T14:36:27.000Z"
+          },
+          {
+            "key": "dcat_modified",
+            "value": "2015-08-27T14:58:41.000Z"
+          },
+          {
+            "key": "dcat_publisher_name",
+            "value": "Opinion Research and General Statistics (GLA)"
+          },
+          {
+            "key": "guid",
+            "value": "2w1d4"
+          }
+        ],
+        "resources": [
+          {
+            "cache_last_updated": null,
+            "cache_url": null,
+            "created": "2026-09-25T11:37:07.994518",
+            "description": null,
+            "format": "XLSX",
+            "hash": "",
+            "id": "38d82582-4785-4be0-8414-6ea0a252db23",
+            "last_modified": null,
+            "metadata_modified": "2026-09-25T11:37:07.956015",
+            "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "mimetype_inner": null,
+            "name": "Climate Just-Flood disadvantage_2011_Dec2014",
+            "package_id": "69e99592-37a8-4953-9a08-141d6ed9005e",
+            "position": 0,
+            "resource_type": null,
+            "size": 600887,
+            "state": "active",
+            "url": "https://data.london.gov.uk/download/2w1d4/401ff2f8-7845-409e-ae29-66d97b0fa592/Climate%20Just-Flood%20disadvantage_2011_Dec2014.xlsx",
+            "url_type": null
+          },
+          {
+            "cache_last_updated": null,
+            "cache_url": null,
+            "created": "2026-09-25T11:37:07.994520",
+            "description": null,
+            "format": "XLSX",
+            "hash": "",
+            "id": "49d47ec1-c1b3-472f-8fcb-3843383f4243",
+            "last_modified": null,
+            "metadata_modified": "2026-09-25T11:37:07.956095",
+            "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "mimetype_inner": null,
+            "name": "Climate Just-Flood_hazard_exposure_2011_Dec2014",
+            "package_id": "69e99592-37a8-4953-9a08-141d6ed9005e",
+            "position": 1,
+            "resource_type": null,
+            "size": 924496,
+            "state": "active",
+            "url": "https://data.london.gov.uk/download/2w1d4/dbba79ba-8d7d-47ac-88c7-3ef532e94584/Climate%20Just-Flood_hazard_exposure_2011_Dec2014.xlsx",
+            "url_type": null
+          },
+          {
+            "cache_last_updated": null,
+            "cache_url": null,
+            "created": "2026-09-25T11:37:07.994521",
+            "description": null,
+            "format": "XLSX",
+            "hash": "",
+            "id": "77dbdbd5-ec7b-4519-9b50-a1af02eb6d71",
+            "last_modified": null,
+            "metadata_modified": "2026-09-25T11:37:07.956158",
+            "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "mimetype_inner": null,
+            "name": "Climate Just-SSVI_indices_2011_Dec2014",
+            "package_id": "69e99592-37a8-4953-9a08-141d6ed9005e",
+            "position": 2,
+            "resource_type": null,
+            "size": 969904,
+            "state": "active",
+            "url": "https://data.london.gov.uk/download/2w1d4/fa3ac62a-7c77-454c-876d-ad59889537aa/Climate%20Just-SSVI_indices_2011_Dec2014.xlsx",
+            "url_type": null
+          },
+          {
+            "cache_last_updated": null,
+            "cache_url": null,
+            "created": "2026-09-25T11:37:07.994522",
+            "description": null,
+            "format": "XLSX",
+            "hash": "",
+            "id": "d86fe7ed-e850-48b8-a89e-43ec6056c42c",
+            "last_modified": null,
+            "metadata_modified": "2026-09-25T11:37:07.956206",
+            "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "mimetype_inner": null,
+            "name": "Climate Just-SSVI_indicators_2011_Dec2014",
+            "package_id": "69e99592-37a8-4953-9a08-141d6ed9005e",
+            "position": 3,
+            "resource_type": null,
+            "size": 9040431,
+            "state": "active",
+            "url": "https://data.london.gov.uk/download/2w1d4/bcd499eb-e850-4398-aaa7-bfb71a3704e7/Climate%20Just-SSVI_indicators_2011_Dec2014.xlsx",
+            "url_type": null
+          }
+        ],
+        "tags": [],
+        "groups": [],
+        "relationships_as_subject": [],
+        "relationships_as_object": []
+      },
+      {
+        "contact-email": "",
+        "contact-name": "",
+        "contact-phone": "",
+        "creator_user_id": "ab19a913-1fd8-4ec6-9595-cb579a9fd0b2",
+        "foi-email": "",
+        "foi-name": "",
+        "foi-phone": "",
+        "foi-web": "",
+        "id": "70750a38-4a45-41dc-bd5f-718ab5dadbaa",
+        "isopen": true,
+        "license_id": "uk-ogl",
+        "license_title": "UK Open Government Licence (OGL)",
+        "license_url": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+        "metadata_created": "2011-12-11T12:25:52.725581",
+        "metadata_modified": "2026-06-18T08:31:11.918260",
+        "name": "climate_change_levy_bulletin",
+        "notes": "Monthly statistics on Climate Change Levy receipts and liabilities for the UK. Due to the introduction of the Carbon Price Floor (April 2013) this publication has been replaced with the publication 'Climate Change Levy and Carbon Price Floor Bulletin'.",
+        "num_resources": 23,
+        "num_tags": 0,
+        "organization": {
+          "id": "83cbb68a-814b-4fb5-a7dd-c9ec6c5fe455",
+          "name": "hm-revenue-and-customs",
+          "title": "HM Revenue and Customs",
+          "type": "organization",
+          "description": "What we do\r\n\r\nWe are the UK\u2019s tax authority. We are responsible for making sure that the money is available to fund the UK\u2019s public services and for helping families and individuals with targeted financial support.\r\n\r\nHMRC is a non-ministerial department, supported by 2 agencies and public bodies.\r\n\r\nhttps://www.gov.uk/government/organisations/hm-revenue-customs\r\n",
+          "image_url": "",
+          "created": "2012-06-27T14:48:42.354852",
+          "is_organization": true,
+          "approval_status": "pending",
+          "state": "active"
+        },
+        "owner_org": "83cbb68a-814b-4fb5-a7dd-c9ec6c5fe455",
+        "private": false,
+        "state": "active",
+        "theme-primary": "environment",
+        "title": "Climate Change Levy Bulletin",
+        "type": "dataset",
+        "url": null,
+        "version": null,
+        "extras": [
+          {
+            "key": "categories",
+            "value": "Economy"
+          },
+          {
+            "key": "external_reference",
+            "value": "ONSHUB"
+          },
+          {
+            "key": "import_source",
+            "value": "ONS-ons_data_1_days_to_2014-08-27"
+          },
+          {
+            "key": "national_statistic",
+            "value": "yes"
+          }
+        ],
+        "resources": [
+          {
+            "cache_last_updated": null,
+            "cache_url": null,
+            "created": "2012-09-12T12:33:24.792131",
+            "datafile-date": "",
+            "description": null,
+            "format": "ASPX",
+            "id": "eac249d0-d214-490f-8b87-3ed3bdebb790",
+            "last_modified": null,
+            "metadata_modified": "2026-06-18T07:35:07.962532",
+            "mimetype": null,
+            "mimetype_inner": null,
+            "name": "Archived data",
+            "package_id": "70750a38-4a45-41dc-bd5f-718ab5dadbaa",
+            "position": 0,
+            "resource-type": "data-link",
+            "resource_type": null,
+            "size": null,
+            "state": "active",
+            "url": "https://webarchive.nationalarchives.gov.uk/ukgwa/20200820094140/https://www.uktradeinfo.com/Statistics/Pages/TaxAndDutybulletins.aspx",
+            "url_type": null
+          },
+          {
+            "cache_last_updated": null,
+            "cache_url": null,
+            "datafile-date": "",
+            "description": null,
+            "format": "XLS",
+            "id": "921e62df-0611-4a54-8aa3-de5837cfa06b",
+            "last_modified": null,
+            "metadata_modified": "2026-06-18T07:35:38.153898",
+            "mimetype": "application/vnd.ms-excel",
+            "mimetype_inner": null,
+            "name": "May 2011",
+            "package_id": "70750a38-4a45-41dc-bd5f-718ab5dadbaa",
+            "position": 1,
+            "resource-type": "data-link",
+            "resource_type": null,
+            "size": null,
+            "state": "active",
+            "url": "https://webarchive.nationalarchives.gov.uk/ukgwa/20200701141431/https://www.uktradeinfo.com/Statistics/Tax%20and%20Duty%20Bulletins/CClev0511.xls",
+            "url_type": null
+          },
+          {
+            "cache_last_updated": null,
+            "cache_url": null,
+            "datafile-date": "",
+            "description": null,
+            "format": "XLS",
+            "id": "fb9f9cb8-73e6-484b-bfb4-e9750cb963db",
+            "last_modified": null,
+            "metadata_modified": "2026-06-18T07:36:08.376200",
+            "mimetype": "application/vnd.ms-excel",
+            "mimetype_inner": null,
+            "name": "June 2011",
+            "package_id": "70750a38-4a45-41dc-bd5f-718ab5dadbaa",
+            "position": 2,
+            "resource-type": "data-link",
+            "resource_type": null,
+            "size": null,
+            "state": "active",
+            "url": "https://webarchive.nationalarchives.gov.uk/ukgwa/20200701142545/https://www.uktradeinfo.com/Statistics/Tax%20and%20Duty%20Bulletins/CClev0611.xls",
+            "url_type": null
+          },
+          {
+            "cache_last_updated": null,
+            "cache_url": null,
+            "datafile-date": "",
+            "description": null,
+            "format": "XLS",
+            "id": "fbcbcea1-130b-406f-8ebf-d087966f57b8",
+            "last_modified": null,
+            "metadata_modified": "2026-06-18T07:36:40.256794",
+            "mimetype": "application/vnd.ms-excel",
+            "mimetype_inner": null,
+            "name": "July 2011",
+            "package_id": "70750a38-4a45-41dc-bd5f-718ab5dadbaa",
+            "position": 3,
+            "resource-type": "data-link",
+            "resource_type": null,
+            "size": null,
+            "state": "active",
+            "url": "https://webarchive.nationalarchives.gov.uk/ukgwa/20200701141430/https://www.uktradeinfo.com/Statistics/Tax%20and%20Duty%20Bulletins/Cclev0711.xls",
+            "url_type": null
+          }
+        ],
+        "tags": [],
+        "groups": [],
+        "relationships_as_subject": [],
+        "relationships_as_object": []
+      }
+    ],
+    "sort": "score desc, metadata_modified desc",
+    "search_facets": {}
+  }
+}
