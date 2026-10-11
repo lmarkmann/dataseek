@@ -110,11 +110,7 @@ fn strip_tags(text: &str, mut push: impl FnMut(char)) {
     let mut chars = without_controls(text).peekable();
     while let Some(c) = chars.next() {
         match c {
-            '<' if !in_tag
-                && chars.peek().is_some_and(|n| {
-                    n.is_alphabetic() || matches!(n, '/' | '!')
-                }) =>
-            {
+            '<' if !in_tag && chars.peek().is_some_and(|&n| opens_tag(n)) => {
                 in_tag = true;
             }
             '>' if in_tag => {
@@ -125,6 +121,31 @@ fn strip_tags(text: &str, mut push: impl FnMut(char)) {
             _ => {}
         }
     }
+    if in_tag {
+        without_controls(unclosed_tag(text))
+            .filter(|&c| !invisible(c))
+            .for_each(push);
+    }
+}
+
+fn opens_tag(next: char) -> bool {
+    next.is_alphabetic() || matches!(next, '/' | '!')
+}
+
+/// The text from a `<` that opened a tag no `>` closed, as in "A<B and C".
+/// Any `>` would have closed it, so it is the first such `<` after the
+/// last `>`.
+fn unclosed_tag(text: &str) -> &str {
+    let tail = text
+        .rfind('>')
+        .and_then(|i| text.get(i.saturating_add(1)..))
+        .unwrap_or(text);
+    tail.match_indices('<')
+        .find_map(|(i, _)| {
+            let rest = tail.get(i..)?;
+            rest.chars().nth(1).is_some_and(opens_tag).then_some(rest)
+        })
+        .unwrap_or("")
 }
 
 /// Text built with every run of whitespace as one space and none at either
@@ -619,6 +640,8 @@ mod tests {
         assert_eq!(clean("Children aged <5 years"), "Children aged <5 years");
         assert_eq!(clean("PM2.5 < 10 and > 2"), "PM2.5 < 10 and > 2");
         assert_eq!(clean("a<b>bold</b> c<!-- x -->d"), "a bold c d");
+        assert_eq!(clean("Ratio of A<B and C"), "Ratio of A<B and C");
+        assert_eq!(clean("1 > 0, <b>A</b><B and C"), "1 > 0, A <B and C");
     }
 
     #[test]
