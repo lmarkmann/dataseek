@@ -150,6 +150,10 @@ just audit   # both, the pair CI runs
 
 `cargo-audit` is deliberately absent: `cargo deny check advisories` reads the same RustSec database, and running both means two database clones for one signal.
 
+## Code review
+
+[CodeRabbit](https://docs.coderabbit.ai) reviews pull requests through its GitHub App, configured in `.coderabbit.yaml`: the code rules above as path instructions, `development.md`, `contract.md` and the ADRs as guidelines, recorded fixtures and the lockfile left out. Release and Renovate PRs are skipped. Its review is advisory and never a required check. `@coderabbitai review` in a PR comment reviews what changed since its last review, `@coderabbitai full review` starts over. The same review runs locally before a push with `coderabbit review --agent --base main`.
+
 ## On demand
 
 Not gates, and not run by `just ci`. Reach for them when the question comes up.
