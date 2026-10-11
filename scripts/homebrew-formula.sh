@@ -12,9 +12,22 @@ tag=$1
 sums=$2
 releases="https://github.com/lmarkmann/dataseek/releases/download/$tag"
 
+# A failure inside the here-document below would not stop the script, so
+# every hash is read and checked first.
 sha() {
-	cut -d' ' -f1 "$sums/dataseek-$1.tar.gz.sha256"
+	hash=$(cut -d' ' -f1 "$sums/dataseek-$1.tar.gz.sha256")
+	case $hash in
+	*[!0-9a-f]* | "") ;;
+	*) [ ${#hash} -eq 64 ] && echo "$hash" && return ;;
+	esac
+	echo "no valid sha256 for $1 in $sums" >&2
+	return 1
 }
+
+mac_arm=$(sha aarch64-apple-darwin)
+mac_intel=$(sha x86_64-apple-darwin)
+linux_arm=$(sha aarch64-unknown-linux-gnu)
+linux_intel=$(sha x86_64-unknown-linux-gnu)
 
 cat <<EOF
 class Dataseek < Formula
@@ -26,22 +39,22 @@ class Dataseek < Formula
   on_macos do
     on_arm do
       url "$releases/dataseek-aarch64-apple-darwin.tar.gz"
-      sha256 "$(sha aarch64-apple-darwin)"
+      sha256 "$mac_arm"
     end
     on_intel do
       url "$releases/dataseek-x86_64-apple-darwin.tar.gz"
-      sha256 "$(sha x86_64-apple-darwin)"
+      sha256 "$mac_intel"
     end
   end
 
   on_linux do
     on_arm do
       url "$releases/dataseek-aarch64-unknown-linux-gnu.tar.gz"
-      sha256 "$(sha aarch64-unknown-linux-gnu)"
+      sha256 "$linux_arm"
     end
     on_intel do
       url "$releases/dataseek-x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "$(sha x86_64-unknown-linux-gnu)"
+      sha256 "$linux_intel"
     end
   end
 
