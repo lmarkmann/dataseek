@@ -11,7 +11,7 @@ edition = "2024"
 rust-version = "1.99"
 # What `cargo install` needs to build; tests, fixtures, benches and docs stay
 # in the repository.
-include = ["/src", "/build.rs", "/README.md", "/LICENSE-MIT", "/LICENSE-APACHE"]
+include = ["/src", "/README.md", "/LICENSE-MIT", "/LICENSE-APACHE"]
 
 [lints.rust]
 unsafe_code = "forbid"
