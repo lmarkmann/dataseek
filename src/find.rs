@@ -83,6 +83,7 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         query: query.clone(),
         sources: select(
             &selection.only,
+            &selection.include,
             &selection.exclude,
             &selection.categories,
         ),

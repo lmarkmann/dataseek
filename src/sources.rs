@@ -292,17 +292,20 @@ impl Source {
 }
 
 /// The registry rows to ask: the named ones (or all but the opt-in ones),
-/// narrowed to the given categories, minus exclusions, in registry order. An
-/// opt-in source is asked only when named. Ids were validated by clap.
+/// narrowed to the given categories, minus exclusions, in registry order. A
+/// source is named by `-s` or by `--include`, and an opt-in source is asked
+/// only when named. Ids were validated by clap.
 pub fn select(
     only: &[String],
+    include: &[String],
     exclude: &[String],
     categories: &[Category],
 ) -> Vec<&'static Source> {
     SOURCES
         .iter()
         .filter(|s| {
-            let named = only.iter().any(|id| id == s.id);
+            let named = only.iter().any(|id| id == s.id)
+                || include.iter().any(|id| id == s.id);
             named || (only.is_empty() && s.opt_in.is_none())
         })
         .filter(|s| categories.is_empty() || categories.contains(&s.category))
@@ -1191,14 +1194,37 @@ mod tests {
 
     #[test]
     fn an_opt_in_source_is_asked_only_when_named() {
-        let everyone = select(&[], &[], &[]);
+        let everyone = select(&[], &[], &[], &[]);
         assert!(everyone.iter().all(|s| s.opt_in.is_none()));
         for id in ["google", "mendeley"] {
             assert!(everyone.iter().all(|s| s.id != id), "{id}");
-            assert_eq!(select(&[id.to_owned()], &[], &[]).len(), 1, "{id}");
+            assert_eq!(
+                select(&[id.to_owned()], &[], &[], &[]).len(),
+                1,
+                "{id}"
+            );
+            let included = select(&[], &[id.to_owned()], &[], &[]);
+            assert_eq!(included.len(), everyone.len() + 1, "{id}");
+            assert!(included.iter().any(|s| s.id == id), "{id}");
         }
-        let aggregators = select(&[], &[], &[Category::Aggregator]);
+        let aggregators = select(&[], &[], &[], &[Category::Aggregator]);
         assert!(aggregators.iter().all(|s| s.id != "google"));
+    }
+
+    /// `--include` adds to whatever the selection says, and the filters the
+    /// rest of the command applies still narrow it.
+    #[test]
+    fn an_included_source_joins_the_selection() {
+        let with_zenodo =
+            select(&["zenodo".to_owned()], &["google".to_owned()], &[], &[]);
+        let ids: Vec<&str> = with_zenodo.iter().map(|s| s.id).collect();
+        assert_eq!(ids, ["google", "zenodo"]);
+        let excluded =
+            select(&[], &["google".to_owned()], &["google".to_owned()], &[]);
+        assert!(excluded.iter().all(|s| s.id != "google"));
+        let research =
+            select(&[], &["google".to_owned()], &[], &[Category::Research]);
+        assert!(research.iter().all(|s| s.id != "google"));
     }
 
     fn catalog(list: Listing) -> Source {

@@ -8,7 +8,7 @@ Search for datasets from the terminal
 
 Datasets sit in dozens of archives: Hugging Face and Kaggle, Zenodo and Dataverse, data.gov and data.europa.eu, the IMF and the ECB, NASA and Copernicus. Each has its own search box and its own idea of relevance, and many host the same dataset under different names. dataseek queries them all at once and returns one deduplicated, ranked list, naming every archive that holds each result. Datasets carried by more archives, and matching more of your query, rank higher.
 
-Most sources need no key and nothing to set up. Results come back in the terminal, as JSON for scripts, or to an AI client over MCP. Google Dataset Search and Mendeley Data are the exception: neither permits automated searches, so dataseek asks them only when you name them with `-s` ([ADR 0013](docs/adr/0013-opt-in-sources.md)). `dsk` is the same program under a shorter name.
+Most sources need no key and nothing to set up. Results come back in the terminal, as JSON for scripts, or to an AI client over MCP. Google Dataset Search and Mendeley Data are the exception: neither permits automated searches, so dataseek asks them only when you name them, `-s google,mendeley` for those alone or `--include google,mendeley` beside the rest ([ADR 0013](docs/adr/0013-opt-in-sources.md)). `dsk` is the same program under a shorter name.
 
 ## Install
 ```sh
@@ -60,7 +60,7 @@ dsk inspect https://zenodo.org/records/13135140    # a page's metadata and the f
 While, most of the sources don't require an API-key FRED, Roboflow and Data Commons are skipped without one; keys for Hugging Face, Kaggle, Data.gov, GitHub and NCBI raise download limits. See: [`docs/reference/keys-and-cache.md`](docs/reference/keys-and-cache.md).
 
 ## MCP
-Use it in the terminal, pipe its JSON into scripts, or use dataseek via MCP (`dsk mcp`), so Claude, Cursor or any other MCP client can search and inspect datasets for you. Most sources need no API key. Google Dataset Search and Mendeley Data don't permit automated searches, so dataseek only queries them when named with `-s` ([ADR 0013](docs/adr/0013-opt-in-sources.md)). Register it in the client's MCP server configuration:
+Use it in the terminal, pipe its JSON into scripts, or use dataseek via MCP (`dsk mcp`), so Claude, Cursor or any other MCP client can search and inspect datasets for you. Most sources need no API key. Google Dataset Search and Mendeley Data don't permit automated searches, so dataseek only queries them when named, `-s` for those alone or `--include` beside the rest ([ADR 0013](docs/adr/0013-opt-in-sources.md)). Register it in the client's MCP server configuration:
 
 ```json
 {
@@ -70,7 +70,7 @@ Use it in the terminal, pipe its JSON into scripts, or use dataseek via MCP (`ds
 }
 ```
 
-Each tool returns what its command prints with `--json`; keys are read from the environment the client starts it in, or from `credentials.toml`. Google Dataset Search and Mendeley Data stay opt-in here too; the model asks for them by naming them in the search tool's `source` argument. See: [`docs/reference/contract.md`](docs/reference/contract.md#mcp-mode).
+Each tool returns what its command prints with `--json`; keys are read from the environment the client starts it in, or from `credentials.toml`. Google Dataset Search and Mendeley Data stay opt-in here too: the model asks for them by naming them in the search tool's `source` argument, and a client can ask for them on every search with `"args": ["mcp", "--include", "google,mendeley"]`. See: [`docs/reference/contract.md`](docs/reference/contract.md#mcp-mode).
 
 ## Contributing & Development Docs
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) covers setup, the commit prefixes that decide each release, the test rules and how to add a source. Report vulnerabilities privately, as [`SECURITY.md`](docs/SECURITY.md) describes.

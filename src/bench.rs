@@ -55,8 +55,12 @@ pub fn run(
     out: &Out,
 ) -> Result<()> {
     let services = Arc::new(Services::load()?);
-    let sources =
-        select(&selection.only, &selection.exclude, &selection.categories);
+    let sources = select(
+        &selection.only,
+        &selection.include,
+        &selection.exclude,
+        &selection.categories,
+    );
     let queries: Vec<String> = if queries.is_empty() {
         DEFAULT_QUERIES.iter().map(|q| (*q).to_owned()).collect()
     } else {

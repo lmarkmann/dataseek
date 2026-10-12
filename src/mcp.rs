@@ -111,7 +111,7 @@ impl Server<'_> {
             if stdin.read_until(b'\n', &mut line)? == 0 {
                 return Ok(());
             }
-            match handle(&line) {
+            match handle(&line, &self.globals.include) {
                 Reply::Now(response) => self.send(&response)?,
                 Reply::Call { id, argv } => match self.start(&id, &argv) {
                     Ok(serial) => {
@@ -242,7 +242,7 @@ fn end(mut call: Call) {
 
 /// Decide what one line asks for. Pure, so every protocol rule is a unit
 /// test.
-fn handle(line: &[u8]) -> Reply {
+fn handle(line: &[u8], include: &[String]) -> Reply {
     if line.trim_ascii().is_empty() {
         return Reply::Nothing;
     }
@@ -297,11 +297,16 @@ fn handle(line: &[u8]) -> Reply {
             None,
         ));
     }
-    respond(id, method, params)
+    respond(id, method, params, include)
 }
 
 /// Answer a well-formed request.
-fn respond(id: &Value, method: &str, params: &Map<String, Value>) -> Reply {
+fn respond(
+    id: &Value,
+    method: &str,
+    params: &Map<String, Value>,
+    include: &[String],
+) -> Reply {
     if let Some(refusal) = check_meta(id, params) {
         return Reply::Now(refusal);
     }
@@ -320,7 +325,7 @@ fn respond(id: &Value, method: &str, params: &Map<String, Value>) -> Reply {
             ),
             Err(e) => error(id, INTERNAL_ERROR, &e.to_string(), None),
         }),
-        "tools/call" => call(id, params),
+        "tools/call" => call(id, params, include),
         other => Reply::Now(error(
             id,
             METHOD_NOT_FOUND,
@@ -357,7 +362,7 @@ fn check_meta(id: &Value, params: &Map<String, Value>) -> Option<Value> {
     None
 }
 
-fn call(id: &Value, params: &Map<String, Value>) -> Reply {
+fn call(id: &Value, params: &Map<String, Value>, include: &[String]) -> Reply {
     let Some(name) = params.get("name").and_then(Value::as_str) else {
         return Reply::Now(error(
             id,
@@ -387,10 +392,29 @@ fn call(id: &Value, params: &Map<String, Value>) -> Reply {
             ));
         }
     };
-    match tools::argv(tool, arguments) {
+    let arguments = defaults(tool, arguments, include);
+    match tools::argv(tool, &arguments) {
         Ok(argv) => Reply::Call { id: id.clone(), argv },
         Err(e) => Reply::Now(complete(id, tools::failed(&Failure::of(&e)))),
     }
+}
+
+/// A search that names no sources of its own gets the `--include` sources
+/// the server was started with, so a client can register an opt-in one once.
+fn defaults(
+    tool: &str,
+    arguments: &Map<String, Value>,
+    include: &[String],
+) -> Map<String, Value> {
+    let mut arguments = arguments.clone();
+    if tool == "search"
+        && !include.is_empty()
+        && !arguments.contains_key("source")
+        && !arguments.contains_key("include")
+    {
+        arguments.insert("include".into(), json!(include));
+    }
+    arguments
 }
 
 fn supported() -> Vec<&'static str> {
@@ -463,7 +487,7 @@ mod tests {
     use super::*;
 
     fn now(line: &str) -> Value {
-        match handle(line.as_bytes()) {
+        match handle(line.as_bytes(), &[]) {
             Reply::Now(response) => response,
             other => panic!("expected an answer, got {other:?}"),
         }
@@ -488,6 +512,7 @@ mod tests {
             verbose: 0,
             cache_dir: None,
             connect_timeout: 1,
+            include: Vec::new(),
         };
         let server = Server {
             stdout: Mutex::new(AutoStream::never(io::stdout())),
@@ -513,7 +538,10 @@ mod tests {
     fn malformed_messages_get_the_json_rpc_codes() {
         assert_eq!(now("{not json")["error"]["code"], PARSE_ERROR);
         assert!(matches!(
-            handle(b"{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"\xff\"}"),
+            handle(
+                b"{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"\xff\"}",
+                &[],
+            ),
             Reply::Now(response) if response["error"]["code"] == PARSE_ERROR
         ));
         for nameless in [
@@ -552,12 +580,13 @@ mod tests {
         ];
         for line in silent {
             assert!(
-                matches!(handle(line.as_bytes()), Reply::Nothing),
+                matches!(handle(line.as_bytes(), &[]), Reply::Nothing),
                 "{line}"
             );
         }
         let cancel = handle(
             br#"{"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":"a"}}"#,
+            &[],
         );
         assert!(matches!(cancel, Reply::Cancel(id) if id == "a"));
     }
@@ -641,8 +670,40 @@ mod tests {
         let text = refused["result"]["content"][0]["text"].as_str().unwrap();
         assert!(text.contains("always has a deadline"), "{text}");
         assert!(matches!(
-            handle(request("tools/call", &json!({"name": "sources"})).as_bytes()),
+            handle(
+                request("tools/call", &json!({"name": "sources"})).as_bytes(),
+                &[]
+            ),
             Reply::Call { argv, .. } if argv == ["sources", "--json"]
         ));
+    }
+
+    #[test]
+    fn a_search_that_names_no_sources_gets_the_servers_include() {
+        let include = ["google".to_owned(), "mendeley".to_owned()];
+        let call = |arguments: Value| {
+            let params = json!({"name": "search", "arguments": arguments});
+            match handle(request("tools/call", &params).as_bytes(), &include) {
+                Reply::Call { argv, .. } => argv,
+                other => panic!("expected a call, got {other:?}"),
+            }
+        };
+        let default = call(json!({"query": "rainfall"}));
+        assert!(
+            default.contains(&"--include=google".to_owned()),
+            "{default:?}"
+        );
+        assert!(
+            default.contains(&"--include=mendeley".to_owned()),
+            "{default:?}"
+        );
+        let chosen = call(json!({"query": "rainfall", "source": ["zenodo"]}));
+        assert!(
+            chosen.iter().all(|word| !word.starts_with("--include")),
+            "{chosen:?}"
+        );
+        let own = call(json!({"query": "rainfall", "include": ["kaggle"]}));
+        assert!(own.contains(&"--include=kaggle".to_owned()), "{own:?}");
+        assert!(own.iter().all(|word| word != "--include=google"), "{own:?}");
     }
 }

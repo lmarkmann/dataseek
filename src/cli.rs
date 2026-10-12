@@ -129,8 +129,7 @@ pub struct Cli {
 /// Which sources to ask, shared by `search` and `bench`.
 #[derive(Args, Clone, Debug, Default)]
 pub struct Selection {
-    /// Only these sources, comma-separated (see `dataseek sources`). Naming
-    /// a source is the only way to ask an opt-in one.
+    /// Only these sources, comma-separated (see `dataseek sources`).
     #[arg(
         short = 's',
         long = "source",
@@ -140,6 +139,16 @@ pub struct Selection {
         hide_possible_values = true
     )]
     pub only: Vec<String>,
+
+    /// Also ask these sources, comma-separated, opt-in ones included.
+    #[arg(
+        long,
+        value_name = "IDS",
+        value_delimiter = ',',
+        value_parser = source_ids(),
+        hide_possible_values = true
+    )]
+    pub include: Vec<String>,
 
     /// Leave these sources out, comma-separated.
     #[arg(
@@ -319,7 +328,17 @@ pub enum Command {
             --json prints. stdout carries protocol messages only; narration \
             goes to stderr."
     )]
-    Mcp,
+    Mcp {
+        /// Also ask these sources, opt-in ones included, in every search
+        /// that names no sources of its own.
+        #[arg(
+            long,
+            value_name = "IDS",
+            value_delimiter = ',',
+            value_parser = source_ids()
+        )]
+        include: Vec<String>,
+    },
 
     /// Time every source on real queries and measure their overlap.
     #[command(

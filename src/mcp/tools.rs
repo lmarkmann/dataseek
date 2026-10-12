@@ -42,6 +42,8 @@ pub struct Globals {
     pub verbose: u8,
     pub cache_dir: Option<PathBuf>,
     pub connect_timeout: u64,
+    /// `--include`: what a search that names no sources of its own gets.
+    pub include: Vec<String>,
 }
 
 #[derive(Debug, thiserror::Error)]

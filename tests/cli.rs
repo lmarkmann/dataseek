@@ -126,6 +126,16 @@ fn result_titles(stdout: &[u8]) -> Vec<String> {
         .collect()
 }
 
+/// The sources a `search --json` report says it asked, in order.
+fn source_ids(report: &Value) -> Vec<&str> {
+    report["sources"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|s| s["id"].as_str().unwrap())
+        .collect()
+}
+
 #[test]
 fn version_matches_manifest() {
     bin()
@@ -590,6 +600,43 @@ fn opt_in_sources_are_marked_in_the_listing_and_doctor() {
     let doctor = stdout_text(&["doctor", "--plain"]);
     assert!(doctor.contains("opt-in google"), "{doctor}");
     assert!(doctor.contains("opt-in mendeley"), "{doctor}");
+}
+
+// `--include` asks an opt-in source beside the rest; without it, ADR 0013
+// keeps the source out of the run.
+#[test]
+fn include_asks_an_opt_in_source_beside_the_others() {
+    let mut with = bin();
+    seed_rainfall(&with.cache());
+    let out = with
+        .args([
+            "search",
+            "rainfall",
+            "--offline",
+            "--json",
+            "--include",
+            "google,mendeley",
+        ])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    let ids = source_ids(&report);
+    assert!(ids.contains(&"google"), "{ids:?}");
+    assert!(ids.contains(&"mendeley"), "{ids:?}");
+
+    let mut without = bin();
+    seed_rainfall(&without.cache());
+    let out = without
+        .args(["search", "rainfall", "--offline", "--json"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    let ids = source_ids(&report);
+    assert!(!ids.contains(&"google"), "{ids:?}");
+    assert!(!ids.contains(&"mendeley"), "{ids:?}");
+    assert!(ids.contains(&"openml"), "{ids:?}");
 }
 
 #[test]
@@ -1617,11 +1664,22 @@ struct Mcp {
 impl Mcp {
     /// Every request the server or its children send goes to `proxy`.
     fn start(dir: &Path, proxy: &str) -> Self {
-        Self::start_as(Path::new(env!("CARGO_BIN_EXE_dataseek")), dir, proxy)
+        Self::start_as(
+            Path::new(env!("CARGO_BIN_EXE_dataseek")),
+            dir,
+            proxy,
+            &[],
+        )
     }
 
-    /// The server as `program`, a copy of the binary under test.
-    fn start_as(program: &Path, dir: &Path, proxy: &str) -> Self {
+    /// The server as `program`, a copy of the binary under test, started
+    /// with `args` after `mcp`.
+    fn start_as(
+        program: &Path,
+        dir: &Path,
+        proxy: &str,
+        args: &[&str],
+    ) -> Self {
         use std::io::BufRead;
         use std::process::Stdio;
 
@@ -1629,6 +1687,7 @@ impl Mcp {
             .env("HTTPS_PROXY", proxy)
             .env("HTTP_PROXY", proxy)
             .arg("mcp")
+            .args(args)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
@@ -1867,6 +1926,37 @@ fn an_mcp_client_drives_a_whole_session_over_stdio() {
     assert!(stderr.contains("searching 1 source"), "{stderr}");
 }
 
+// A server started with `--include` asks those sources in every search a
+// call leaves to the defaults, and leaves a call that names its own alone.
+#[test]
+fn a_server_wide_include_reaches_searches_that_do_not_choose() {
+    let dir = tempfile::tempdir().unwrap();
+    seed_rainfall(&dir.path().join("cache").join("dataseek"));
+    let mut mcp = Mcp::start_as(
+        Path::new(env!("CARGO_BIN_EXE_dataseek")),
+        dir.path(),
+        "http://127.0.0.1:9",
+        &["--include", "google,mendeley"],
+    );
+
+    let search =
+        mcp.call(1, "search", json!({ "query": "rainfall", "offline": true }));
+    assert_eq!(search["isError"], false, "{search}");
+    let ids = source_ids(&search["structuredContent"]);
+    assert!(ids.contains(&"google"), "{ids:?}");
+    assert!(ids.contains(&"mendeley"), "{ids:?}");
+
+    let chosen = mcp.call(
+        2,
+        "search",
+        json!({ "query": "rainfall", "source": ["openml"], "offline": true }),
+    );
+    assert_eq!(chosen["isError"], false, "{chosen}");
+    assert_eq!(source_ids(&chosen["structuredContent"]), ["openml"]);
+
+    mcp.close();
+}
+
 // The stateless revision: no handshake, every request names its version.
 #[test]
 fn an_mcp_client_on_the_current_revision_needs_no_handshake() {
@@ -1985,7 +2075,8 @@ fn an_mcp_server_keeps_working_after_its_binary_is_replaced() {
     let dir = tempfile::tempdir().unwrap();
     let program = dir.path().join("dataseek");
     std::fs::copy(env!("CARGO_BIN_EXE_dataseek"), &program).unwrap();
-    let mut mcp = Mcp::start_as(&program, dir.path(), "http://127.0.0.1:9");
+    let mut mcp =
+        Mcp::start_as(&program, dir.path(), "http://127.0.0.1:9", &[]);
     assert_eq!(
         mcp.ask(1, "ping", json!({}))["result"]["resultType"],
         "complete"

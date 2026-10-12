@@ -37,9 +37,10 @@ pub fn run(queries: &[Query], args: &[String]) -> Result<()> {
     // Sources whose terms bar storing their results are never written down.
     let sources: Vec<_> = match spliced {
         Some(source) => vec![source],
-        None => {
-            select(&[], &[], &[]).into_iter().filter(|s| s.persist).collect()
-        }
+        None => select(&[], &[], &[], &[])
+            .into_iter()
+            .filter(|s| s.persist)
+            .collect(),
     };
     let mut err = std::io::stderr().lock();
     let mut kept = Vec::new();
