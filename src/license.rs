@@ -236,23 +236,29 @@ fn creative_commons(words: &[&str]) -> Option<String> {
     {
         return Some("CC0-1.0".to_owned());
     }
-    let nc =
+    let noncommercial =
         has("nc") || has("noncommercial") || (has("non") && has("commercial"));
-    let nd = has("nd")
+    let no_derivatives = has("nd")
         || has("noderivatives")
         || has("noderivs")
         || (has("no") && has("derivatives"));
-    let sa = has("sa") || has("sharealike") || (has("share") && has("alike"));
-    if !(has("by") || has("attribution") || nc || nd || sa) {
+    let share_alike =
+        has("sa") || has("sharealike") || (has("share") && has("alike"));
+    if !(has("by")
+        || has("attribution")
+        || noncommercial
+        || no_derivatives
+        || share_alike)
+    {
         return None;
     }
     let mut id = String::from("CC-BY");
-    if nc {
+    if noncommercial {
         id.push_str("-NC");
     }
-    if nd {
+    if no_derivatives {
         id.push_str("-ND");
-    } else if sa {
+    } else if share_alike {
         id.push_str("-SA");
     }
     if let Some(version) = words.iter().find_map(|w| cc_version(w)) {

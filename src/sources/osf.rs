@@ -3,7 +3,7 @@
 //! An owner can mark a record's `resourceNature` as Dataset, but 4,135 of
 //! more than 10,000 records do, and 2 of the 45 hits for "sea ice", too few
 //! to filter on. `page[size]` is capped at 101, so one request serves any
-//! limit; hits come by relevance, words are ANDed, and no query syntax draws
+//! limit; hits come by relevance, every word must match, and no query syntax draws
 //! an error (trove source and probe, October 2026). trove throttles per
 //! client without saying how: 17 requests in about three minutes drew HTTP
 //! 429 with no `Retry-After`, and every `/trove/` path then answered 429 for
