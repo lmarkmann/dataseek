@@ -43,6 +43,7 @@ Variants, each for one failure:
 - **The client cannot find `dsk`.** A desktop app often starts without the shell's `PATH`. Put the absolute path from `command -v dsk` in `command`.
 - **No install, only `uv`.** `"command": "uvx", "args": ["dataseek", "mcp"]`.
 - **A cache directory or connect timeout.** Global flags go after `mcp` and reach every call: `"args": ["mcp", "--cache-dir", "/path/to/cache", "--connect-timeout", "5"]`. `-q` and `-v` work the same way.
+- **An extra source on every search.** `"args": ["mcp", "--include", "google"]` adds Google Dataset Search to every search that sets neither `source` nor `include`. Only on the user's request: Google and Mendeley are opt-in because neither permits automated searches.
 
 The server speaks JSON-RPC on stdin and stdout and writes its own status line, `serving search, sources, inspect over MCP on stdio`, plus each call's narration on stderr, which clients usually show in their MCP logs. It serves protocol revisions 2025-06-18 and 2025-11-25 through `initialize`, and 2026-07-28 statelessly.
 

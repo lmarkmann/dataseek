@@ -22,7 +22,7 @@ Verified against `docs/reference/contract.md`, `dsk help --json`, `dsk help envi
 | `dsk cache info` | cache path, size and budget | none |
 | `dsk cache warm [-s ids] [--dry-run]` | download the catalogs now, with no deadline | the catalog cache |
 | `dsk cache clear [--dry-run]` | delete every cached answer and catalog | deletes the cache; show `--dry-run` and ask first |
-| `dsk mcp` | the MCP server on stdio | none |
+| `dsk mcp [--include ids]` | the MCP server on stdio; `--include` adds those sources to every search that names none | none |
 | `dsk bench [queries]` | time every source; sends queries x sources requests, uncached | none, but heavy on the sources; only when asked by name |
 | `dsk help [command \| environment \| exit-codes]` | help; `--json` describes the whole surface | none |
 | `dsk completion <shell>`, `dsk man` | a completion script, the man page | none |
@@ -31,7 +31,7 @@ Verified against `docs/reference/contract.md`, `dsk help --json`, `dsk help envi
 
 Global flags, valid with every command: `--json`, `-q`/`--quiet` (errors only on stderr), `-v`/`--verbose` (repeatable), `--color auto|always|never`, `--no-color`, `--plain` (ASCII, no color), `--no-progress`, `--cache-dir DIR`, `--connect-timeout SECS`.
 
-`search` flags: `-s/--source`, `-x/--exclude`, `-c/--category` (comma-separated), `-n/--limit` (20), `--per-source` (10, at most 100), `--sort relevance|newest`, `--refresh`, `--offline`, `--timeout SECS` (20; 0 waits for every source). Their meaning is the MCP argument table in `references/search.md`.
+`search` flags: `-s/--source`, `--include`, `-x/--exclude`, `-c/--category` (comma-separated), `-n/--limit` (20), `--per-source` (10, at most 100), `--sort relevance|newest`, `--refresh`, `--offline`, `--timeout SECS` (20; 0 waits for every source). Their meaning is the MCP argument table in `references/search.md`.
 
 A flag beats its variable, which beats the default:
 
@@ -49,7 +49,7 @@ A script that must not inherit a user's `DATASEEK_TIMEOUT=0` or `DATASEEK_EXCLUD
 ## Streams and schemas
 
 - **stdout is data.** With `--json`, one object, indented on a terminal and one line in a pipe, tagged with `schema`: `dataseek-search/1`, `dataseek-sources/1`, `dataseek-inspect/1`, `dataseek-doctor/1`, `dataseek-cache-info/1`, `dataseek-cache-warm/1`, `dataseek-surface/1` (from `help --json`). A new key may appear without notice; a changed or removed one bumps the number, so a script can assert the tag.
-- **stderr is status.** With `--json`, each line is an event `{"schema": "dataseek-events/1", "event": ..., "message": ...}`: `stage` (what it is doing), `warning` (a source that failed, a stale catalog), `ok` (the summary, including the total match count), and `error` (with `causes` and `try`). `-q` leaves only the error.
+- **stderr is status.** With `--json`, each line is an event `{"schema": "dataseek-events/1", "event": ..., "message": ...}`: `stage` (what it is doing), `warning` (a source that failed, a stale catalog), `ok` (the summary line), and `error` (with `causes` and `try`). `-q` leaves only the error.
 - **A failed run prints nothing on stdout.** `jq` exits 0 on empty input, so run pipelines under `set -o pipefail` in bash and zsh, or check `$pipestatus[1]` in fish.
 - **An empty search is success** (exit 0, `results: []`) when any source answered. Exit codes: `references/troubleshoot.md`.
 
@@ -60,6 +60,9 @@ set -o pipefail
 
 # one URL per line
 dsk search census --json | jq -r '.results[].url'
+
+# how many matched, against how many are shown
+dsk search census --json | jq -r '"\(.results | length) of \(.total)"'
 
 # title, URL and holding sources as TSV
 dsk search census --json | jq -r '.results[] | [.title, .url, (.sources | join(","))] | @tsv'

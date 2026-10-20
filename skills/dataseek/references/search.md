@@ -20,7 +20,8 @@ The MCP tool's input schema is generated from the CLI's flags, so the names matc
 | MCP argument | CLI | Default | Set it when |
 |---|---|---|---|
 | `query` (string) | the words after `search` | required | always; several words form one query |
-| `source` (array of ids) | `-s a,b` | every default source | the user names an archive; also the only way to ask an opt-in source |
+| `source` (array of ids) | `-s a,b` | every default source | the user wants those archives alone |
+| `include` (array of ids) | `--include a,b` | none | the user wants an archive asked beside the default set; also the way to add an opt-in source |
 | `exclude` (array of ids) | `-x a,b` | none | one source floods the list with near-duplicates |
 | `category` (array of names) | `-c a,b` | every category | the domain is unmistakable (economics, life-sciences) |
 | `limit` (integer) | `-n N` | 20 | the user wants more or fewer merged results |
@@ -30,9 +31,9 @@ The MCP tool's input schema is generated from the CLI's flags, so the names matc
 | `offline` (boolean) | `--offline` | false | no network, or a repeat over the cache only |
 | `timeout` (1 to 300 seconds) | `--timeout N` | 20 | a slow source matters; the CLI also takes 0, wait for all, which MCP refuses |
 
-Over MCP, `source`, `exclude` and `category` are JSON arrays, `["zenodo", "figshare"]`, even though their descriptions say comma-separated: that wording is the CLI's. A string where an array belongs is refused with `` `source` takes a list of strings ``.
+Over MCP, `source`, `include`, `exclude` and `category` are JSON arrays, `["zenodo", "figshare"]`; the CLI takes the same ids comma-separated. A string where an array belongs is refused with `` `source` takes a list of strings ``.
 
-`source` replaces the default set rather than adding to it. A search with `source: ["kaggle"]` asks Kaggle alone, and a named source gets the whole `timeout` and is asked even if it had an outage in the last ten minutes.
+`source` replaces the default set; `include` adds to it. A search with `source: ["kaggle"]` asks Kaggle alone, one with `include: ["kaggle"]` asks Kaggle and every default source. `category` and `exclude` still narrow an included source: `include: ["google"]` with `category: ["research"]` leaves Google out, because Google is an `aggregator`. A source named in `source` gets the whole `timeout` and is asked even if it had an outage in the last ten minutes.
 
 ## Source ids and categories
 
@@ -80,6 +81,7 @@ Measured 2026-10-20 over the default sources: "sea surface temperature" merged 3
 |---|---|
 | `query` | the query as searched |
 | `complete` | false when the search stopped waiting for a source or a catalog was still downloading, so results from those are missing |
+| `total` | how many merged datasets matched; `results` holds the first `limit` of them |
 | `results` | the merged datasets, best first, at most `limit` |
 | `sources` | one entry per source asked: `id`, `status`, `answered`, `results` (how many it returned), `ms` |
 
@@ -117,11 +119,13 @@ A missing source matters only when the topic belongs to it: a missing `fred` mat
 
 ## Opt-in sources
 
-`google` (Google Dataset Search) and `mendeley` (Mendeley Data) are never asked by default, by a category or by an empty `source`; only naming them in `source` asks them. Google has no API, so dataseek reads its results page, one request per query; Mendeley's terms bar automated access without written permission. Ask either only when the user names it, and tell the user Mendeley's terms first. Because `source` replaces the default set, run the opt-in source as its own search beside the default one, then merge the two lists in the answer by URL and DOI.
+`google` (Google Dataset Search) and `mendeley` (Mendeley Data) are never asked by default, by a category or by an empty `source`; only naming them in `source` or `include` asks them. Google has no API, so dataseek reads its results page, one request per query; Mendeley's terms bar automated access without written permission. Ask either only when the user names it, and tell the user Mendeley's terms first. `include: ["google"]` asks Google beside every default source in one search, merged and ranked with the rest; `source: ["google"]` asks Google alone.
+
+A server started with `dsk mcp --include google` adds Google to every search that sets neither `source` nor `include` (`references/setup.md`). Results then carry `google` in `sources` without the call naming it; that is the user's configuration, not a breach of rule 3.
 
 ## More, newer, fresher
 
-- **More results:** a full `results` list (as long as `limit`) usually means more exist; raise `limit`. The CLI's last stderr line gives the total ("3 of 317 results"); the JSON does not.
+- **More results:** `total` above the length of `results` means more exist; raise `limit` up to `total`.
 - **Deeper in one archive:** `source` set to it plus a higher `per-source`.
 - **Newest:** `sort: "newest"` orders by `updated`; undated results go last, so say how many lacked a date.
 - **Fresh answers:** `refresh: true` skips the 6-hour query cache; the default is right for nearly every call.
@@ -136,7 +140,7 @@ Datasets
    datagov, ncei | NOAA National Centers for Environmental Information | updated 2015-05-26 | CC0 1.0 | doi:10.7289/v5kd1vvf
 2. ...
 
-Coverage: 70 of 71 sources answered; complete: false, data-gov-uk not waited for after 2 s.
+Coverage: 10 of 328 matches shown; 70 of 71 sources answered; complete: false, data-gov-uk not waited for after 2 s.
 
 Queries
 dsk search sea surface temperature -n 10

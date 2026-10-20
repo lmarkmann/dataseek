@@ -19,7 +19,11 @@ compatibility: needs the dataseek binary (dsk) and network access
 
 dataseek sends one query to every dataset source it knows, merges the records that are one dataset (a shared DOI, landing URL, or title and publisher) and ranks them by how many sources agree and how much of the query each covers. It runs as an MCP server (`dsk mcp`, three tools) and as a CLI (`dsk`, also installed as `dataseek`). They are one program: a tool returns, byte for byte, the object `dsk <command> --json` prints, so every reference here holds for both.
 
-**Pick the surface once per task.** If the tool list holds the dataseek server's `search`, `sources` and `inspect` tools, call them. Otherwise, with a shell, run `dsk <command> --json`. With neither, go to the Setup lane. Clients name the tools differently (`search`, `dataseek.search`, `mcp__dataseek__search`); the server is `dataseek`.
+**MCP first; the CLI is the fallback.** dataseek is built to be called as an MCP server, so every procedure here is written in tool arguments.
+
+1. The tool list holds the dataseek server's `search`, `sources` and `inspect` tools: call them. Clients name them differently (`search`, `dataseek.search`, `mcp__dataseek__search`); the server is `dataseek`.
+2. No dataseek tools, but a shell with `dsk`: finish this task with `dsk <command> --json`, using the CLI column of `references/search.md`, and tell the user once that registering the server (Setup lane) turns this into tool calls.
+3. Neither: go to the Setup lane first.
 
 ## Output contract
 
@@ -30,7 +34,7 @@ Leaves behind: the final message, in three parts in this order
 Sections: Datasets, Coverage, Queries
 
 - **Datasets**: numbered, best first. Each carries the title, the URL and the sources that hold it, then license, last update, DOI and size when the result has them. Every value comes from the result object; a field the result lacks is left out, never guessed.
-- **Coverage**: one line from the result: how many sources answered, whether `complete` was true, and each relevant source that failed, was skipped or was not waited for, with its `status` as dataseek wrote it.
+- **Coverage**: one line from the result: how many of `total` matches are shown, how many sources answered, whether `complete` was true, and each relevant source that failed, was skipped or was not waited for, with its `status` as dataseek wrote it.
 - **Queries**: every query run, as the `dsk search ...` command that reproduces it.
 
 Inspect lane:
@@ -46,7 +50,7 @@ Leaves behind: the final message, quoting the error or status verbatim
 Sections: Diagnosis, Fix, Result
 
 Forbidden: [A-Z_]*(TOKEN|API_KEY)=[^\s$"'{]
-Forbidden: (-s |--source[ =]|"source"\s*:\s*\[)[^\]\n]*\b(google|mendeley)\b
+Forbidden: (-s |--source[ =]|--include[ =]|"(source|include)"\s*:\s*\[)[^\]\n]*\b(google|mendeley)\b
 Forbidden: \bdsk (s|search|sources|inspect)\b(?:(?!--json)[^|\n])*\|
 
 The exemptions are under Iron rules.
@@ -66,8 +70,8 @@ Default when ambiguous: **Search**. A search the user will choose from runs Sear
 ## Search (default)
 
 1. **Write one to three short queries**, two to four content words each, before calling anything. Most sources match every word, so a sentence finds fewer datasets than its keywords: "sea surface temperature" merged 328 results where "global monthly sea surface temperature dataset since 1980" merged 136 (2026-10-20). Years, regions and formats are filters to apply to the results, not query words. The rules and the evidence: `references/search.md`, Writing queries.
-2. **Narrow only on the user's words.** A named archive becomes `source`; a clear domain becomes `category`; a source flooding the list becomes `exclude`. The ids and the fourteen categories: `references/search.md`, Arguments.
-3. **Call `search`** and read `results`, then `complete` and `sources[].status`. An empty `results` list from sources that answered is an answer, not a failure.
+2. **Narrow only on the user's words.** "Only on Kaggle" becomes `source` (those alone); "also check Kaggle" becomes `include` (beside every default source); a clear domain becomes `category`; a source flooding the list becomes `exclude`. The ids and the fourteen categories: `references/search.md`, Arguments.
+3. **Call `search`** and read `results`, then `total`, `complete` and `sources[].status`. A `results` list as long as `limit` with a larger `total` means more exist. An empty `results` list from sources that answered is an answer, not a failure.
 4. **Reformulate when fewer than about five results fit**: a synonym, the field's own term or acronym, one word dropped. Stop after three rounds and say what was tried.
 5. **Answer in the Search shape above.** Ranks and `score` order one search only; never compare scores across searches.
 
@@ -109,7 +113,7 @@ When dataseek behaves differently from this skill, dataseek wins: read the live 
 
 ## Iron rules
 
-1. **One surface per task**, MCP tools when listed, `dsk ... --json` otherwise. Never parse the text output; it wraps and truncates for a terminal.
+1. **MCP tools when listed, `dsk ... --json` only when they are not**, and one surface for the whole task. Never parse the CLI's text output; it wraps and truncates for a terminal.
 2. **Every URL, DOI, license, size and date in an answer appears in a tool result.** dataseek returns records, not judgments about them; a field it did not return is "not stated".
 3. **Google Dataset Search (`google`) and Mendeley Data (`mendeley`) only when the user names them.** Neither permits automated searches. Before a Mendeley search, tell the user its terms bar automated access without written permission.
 4. **Keys never travel in an argument, a command line or a project file.** No tool takes one. They live in the environment the server starts in or in `credentials.toml` with mode 600.
@@ -120,5 +124,5 @@ When dataseek behaves differently from this skill, dataseek wins: read the live 
 | Boundary | Forbidden token | Exemption |
 |---|---|---|
 | Rule 4, keys | a literal assignment such as `HF_TOKEN=hf_x` in a command | `export HF_TOKEN="$(<secret manager read>)"`, which carries no literal |
-| Rule 3, opt-in sources | `google` or `mendeley` in `source` or `-s` | the user named Google Dataset Search or Mendeley Data in this task |
+| Rule 3, opt-in sources | `google` or `mendeley` in `source`, `include`, `-s` or `--include` | the user named Google Dataset Search or Mendeley Data in this task |
 | Rule 1, text output | `dsk search ...` piped without `--json` | a human reading through a pager, `dsk search ... \| less -R` |
