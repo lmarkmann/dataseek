@@ -76,6 +76,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use crate::cache::{CATALOG_TTL, Cache, Freshness, Kind};
 use crate::credentials::{Credentials, Key};
 use crate::http::{Http, SourceError};
+use crate::license;
 use crate::record::Dataset;
 
 pub type Live = fn(&Ctx<'_>, &str, usize) -> Result<Vec<Dataset>, SourceError>;
@@ -206,7 +207,23 @@ impl Source {
         }
     }
 
+    /// The source's answer, each record's license as [`license::normalized`]
+    /// gives it, so every source spells one license alike.
     pub fn search(
+        &self,
+        ctx: &Ctx<'_>,
+        query: &str,
+        limit: usize,
+    ) -> Result<Answer, SourceError> {
+        let mut answer = self.ask(ctx, query, limit)?;
+        for dataset in &mut answer.datasets {
+            dataset.license =
+                dataset.license.as_deref().and_then(license::normalized);
+        }
+        Ok(answer)
+    }
+
+    fn ask(
         &self,
         ctx: &Ctx<'_>,
         query: &str,

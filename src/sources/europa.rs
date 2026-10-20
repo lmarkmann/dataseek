@@ -34,6 +34,7 @@ use serde_json::Value;
 
 use super::Ctx;
 use crate::http::SourceError;
+use crate::license::spdx;
 use crate::record::{Dataset, day, doi, items, localized, number, text};
 
 const INCLUDES: &str = "id,title,description,publisher,catalog.id,\
@@ -140,37 +141,6 @@ fn license(distribution: &Value) -> Option<String> {
         .or(id)
 }
 
-/// The SPDX id a license URI names: the id of an spdx.org URI, or the
-/// license and version of an unported Creative Commons deed or legal code.
-/// A national port such as `by/3.0/at` has no SPDX id of this form.
-fn spdx(uri: &str) -> Option<String> {
-    let path = uri.split_once("://")?.1;
-    let path = path.strip_prefix("www.").unwrap_or(path);
-    if let Some(id) = path.strip_prefix("spdx.org/licenses/") {
-        let id = id.trim_end_matches('/').trim_end_matches(".html");
-        return (!id.is_empty()).then(|| id.to_owned());
-    }
-    let mut parts = path.strip_prefix("creativecommons.org/")?.split('/');
-    let (kind, code, version) = (parts.next()?, parts.next()?, parts.next()?);
-    let rest = parts.next().unwrap_or_default();
-    let unported = rest.is_empty()
-        || rest.starts_with("legalcode")
-        || rest.starts_with("deed");
-    let numbered = version.starts_with(|c: char| c.is_ascii_digit())
-        && version.chars().all(|c| c.is_ascii_digit() || c == '.');
-    if !unported || !numbered {
-        return None;
-    }
-    match (kind, code) {
-        ("publicdomain", "zero") => Some(format!("CC0-{version}")),
-        (
-            "licenses",
-            "by" | "by-sa" | "by-nd" | "by-nc" | "by-nc-sa" | "by-nc-nd",
-        ) => Some(format!("CC-{}-{version}", code.to_ascii_uppercase())),
-        _ => None,
-    }
-}
-
 fn doi_of(row: &Value) -> Option<String> {
     let links = ["/landing_page", "/page"]
         .into_iter()
@@ -246,7 +216,7 @@ mod tests {
                 .map(|h| h.license)
                 .collect::<Vec<_>>()
         };
-        let ogl = "http://reference.data.gov.uk/id/open-government-licence";
+        let ogl = "OGL-UK-3.0";
         let swiss = "http://dcat-ap.ch/vocabulary/licenses/terms_open";
         assert_eq!(
             licenses("europa.json"),
@@ -271,20 +241,6 @@ mod tests {
             ],
             "INSPIRE's conditionsUnknown is no license"
         );
-    }
-
-    #[test]
-    fn a_national_creative_commons_port_keeps_its_uri() {
-        assert_eq!(
-            spdx("http://creativecommons.org/licenses/by/4.0/deed.nl")
-                .as_deref(),
-            Some("CC-BY-4.0")
-        );
-        assert_eq!(
-            spdx("https://creativecommons.org/licenses/by/3.0/at/deed.de"),
-            None
-        );
-        assert_eq!(spdx("http://dcat-ap.de/def/licenses/dl-by-de/2.0"), None);
     }
 
     #[test]

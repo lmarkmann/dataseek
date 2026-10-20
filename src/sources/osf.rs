@@ -68,42 +68,10 @@ fn record(card: &Value) -> Option<Dataset> {
                     .find(|id| id.contains("doi.org/")),
             );
     dataset.publisher = text(card, "/publisher/0/name/0/@value");
-    dataset.license =
-        text(card, "/rights/0/name/0/@value").and_then(|name| spdx(&name));
+    dataset.license = text(card, "/rights/0/name/0/@value");
     dataset.updated = day(text(card, "/dateModified/0/@value"));
     dataset.size_bytes = number(card, "/storageByteCount/0/@value");
     dataset.valid()
-}
-
-fn spdx(name: &str) -> Option<String> {
-    let id = match name.to_ascii_lowercase().as_str() {
-        "cc0 1.0 universal" => "CC0-1.0",
-        "cc-by attribution 4.0 international" => "CC-BY-4.0",
-        "cc-by attribution-no derivatives 4.0 international" => "CC-BY-ND-4.0",
-        "cc-by attribution-noncommercial 4.0 international" => "CC-BY-NC-4.0",
-        "cc-by attribution-noncommercial-noderivatives 4.0 international" => {
-            "CC-BY-NC-ND-4.0"
-        }
-        "cc-by attribution-noncommercial-sharealike 4.0 international" => {
-            "CC-BY-NC-SA-4.0"
-        }
-        "cc-by attribution-sharealike 4.0 international" => "CC-BY-SA-4.0",
-        "academic free license (afl) 3.0" => "AFL-3.0",
-        "apache license 2.0" => "Apache-2.0",
-        "artistic license 2.0" => "Artistic-2.0",
-        "bsd 2-clause \"simplified\" license" => "BSD-2-Clause",
-        "bsd 3-clause \"new\"/\"revised\" license" => "BSD-3-Clause",
-        "eclipse public license 1.0" => "EPL-1.0",
-        "gnu general public license (gpl) 2.0" => "GPL-2.0-only",
-        "gnu general public license (gpl) 3.0" => "GPL-3.0-only",
-        "gnu lesser general public license (lgpl) 2.1" => "LGPL-2.1-only",
-        "gnu lesser general public license (lgpl) 3.0" => "LGPL-3.0-only",
-        "mit license" => "MIT",
-        "mozilla public license 2.0" => "MPL-2.0",
-        "no license" | "other" => return None,
-        _ => name,
-    };
-    Some(id.to_owned())
 }
 
 #[cfg(test)]
@@ -126,7 +94,7 @@ mod tests {
                 description: None,
                 publisher: Some("OSF".into()),
                 doi: None,
-                license: Some("CC-BY-4.0".into()),
+                license: Some("CC-By Attribution 4.0 International".into()),
                 updated: Some("2026-06-23".into()),
                 size_bytes: Some(142_773),
                 popularity: None,
@@ -157,25 +125,5 @@ mod tests {
         let hits = parse(&fixture::json("osf.json"), 2).unwrap();
         let urls: Vec<_> = hits.iter().map(|h| h.url.as_str()).collect();
         assert_eq!(urls, ["https://osf.io/kzt9d", "https://osf.io/zh3w9"]);
-    }
-
-    #[test]
-    fn license_names_become_spdx_ids_and_placeholders_vanish() {
-        assert_eq!(
-            spdx("CC-By Attribution-NonCommercial-NoDerivatives 4.0 International")
-                .as_deref(),
-            Some("CC-BY-NC-ND-4.0")
-        );
-        assert_eq!(
-            spdx("BSD 2-Clause \"Simplified\" License").as_deref(),
-            Some("BSD-2-Clause")
-        );
-        assert_eq!(
-            spdx("GNU General Public License (GPL) 3.0").as_deref(),
-            Some("GPL-3.0-only")
-        );
-        assert_eq!(spdx("No license"), None);
-        assert_eq!(spdx("Other"), None);
-        assert_eq!(spdx("A new one").as_deref(), Some("A new one"));
     }
 }

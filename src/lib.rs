@@ -32,6 +32,7 @@ mod fs;
 mod help;
 mod http;
 mod inspect;
+mod license;
 mod listing;
 mod mcp;
 mod output;
