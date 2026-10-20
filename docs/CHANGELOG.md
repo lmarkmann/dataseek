@@ -2,6 +2,46 @@
 
 What shipped, newest first. release-plz writes each section from the conventional commits merged since the previous tag; see [`reference/release.md`](reference/release.md).
 
+## 0.10.0 - 2026-10-20
+
+### Added
+
+- Search --updated-since asks CKAN portals, NASA CMR and ArcGIS Hub for recent records only, so more of what they return passes the filter
+- Results carry their file formats from CKAN portals, data.europa.eu, ArcGIS Hub, NASA CMR and data.gov, and search --format filters by them
+- Search --license, --updated-since and --min-sources filter the merged list, and ask each source for 30 when they do
+- Every source's licenses read as SPDX ids, CC-BY-4.0 however the source spelled it
+- Inspect reads a Dataverse dataset through its schema.org export, so Harvard's bot wall no longer stops it
+- Data.europa.eu results carry SPDX license ids, file sizes and Zenodo concept DOIs
+- OpenML results carry their description, licence, update date and run count
+- HDX and the other CKAN portals report dataset sizes, B2FIND its licenses and publishers
+- NASA CMR results link the dataset's landing page and carry its license link and collection size
+- Figshare hits carry their unversioned DOI, so versions of one dataset merge
+- Search --json reports total, every merged match beyond -n
+- --include asks a source beside the rest, opt-in ones included
+
+### Docs
+
+- ADR 0020 on search filters, the contract and agent skill for --license, --updated-since, --format and --min-sources, and inspect on Dataverse and DOI links
+- OpenML is read from its Elasticsearch index, and re-recorded fixtures keep the arrays a record sums over
+- Add a dataseek agent skill for searching, inspecting and setting up over MCP or the CLI
+
+### Fixed
+
+- A media type with parameters, such as text/csv; charset=utf-8, reads as its file format
+- Search --updated-since refuses a day the calendar lacks, such as 2024-02-30
+- Inspect keeps a Dataverse page's version, and reads the page itself when the export cannot serve it
+- Search refuses a --license or --format value that names nothing, such as unknown, instead of running unfiltered
+- Rustls 0.23.46, so a resumed TLS connection keeps its post-quantum key exchange (RUSTSEC-2026-0346 to 0349)
+- Punctuation after markup stays on its word, "rain, snow" rather than "rain , snow"
+- A page behind an AWS bot wall reads as blocked, not as a page without dataset markup
+- Show ArcGIS Hub's custom license text, and drop the item size of registered services and the literal null description
+- OSF licenses are SPDX ids, and "No license" no longer shows as one
+- MCP tool arguments describe JSON arrays and the timeout bounds instead of the command line's wording
+
+### Other
+
+- Drop the build script; the git SHA it baked in was never read
+
 ## 0.9.1 - 2026-10-11
 
 ### Fixed
