@@ -100,6 +100,7 @@ mod tests {
                 updated: Some("2025-10-22".into()),
                 size_bytes: None,
                 popularity: None,
+                formats: vec![],
                 aliases: vec![],
             }
         );

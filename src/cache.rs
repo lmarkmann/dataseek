@@ -405,10 +405,19 @@ fn trim_files(
 
 /// A short, stable file name for a query. FNV-1a, not for security: it only
 /// has to be the same on every run and spread keys over the alphabet.
-pub fn query_key(source: &str, query: &str, limit: usize) -> String {
+/// `since` is part of the key because some sources filter by it.
+pub fn query_key(
+    source: &str,
+    query: &str,
+    limit: usize,
+    since: Option<&str>,
+) -> String {
     let normalized = query.split_whitespace().collect::<Vec<_>>().join(" ");
-    let material =
+    let mut material =
         format!("{source}\u{1f}{}\u{1f}{limit}", normalized.to_lowercase());
+    if let Some(since) = since {
+        material = format!("{material}\u{1f}{since}");
+    }
     let mut hash: u64 = 0xcbf2_9ce4_8422_2325;
     for byte in material.bytes() {
         hash ^= u64::from(byte);
@@ -478,6 +487,7 @@ mod tests {
             updated: Some("2026-01-02".into()),
             size_bytes: Some(7),
             popularity: Some(3),
+            formats: vec![],
             aliases: vec!["10.5067/concept".into()],
         };
         let bare = Dataset::new("Bare", "https://x.org/bare");
@@ -602,18 +612,22 @@ mod tests {
     }
 
     #[test]
-    fn query_keys_ignore_case_and_spacing_but_not_limit() {
+    fn query_keys_ignore_case_and_spacing_but_not_limit_or_date() {
         assert_eq!(
-            query_key("hf", "Climate  Data", 10),
-            query_key("hf", "climate data", 10)
+            query_key("hf", "Climate  Data", 10, None),
+            query_key("hf", "climate data", 10, None)
         );
         assert_ne!(
-            query_key("hf", "climate", 10),
-            query_key("hf", "climate", 20)
+            query_key("hf", "climate", 10, None),
+            query_key("hf", "climate", 20, None)
         );
         assert_ne!(
-            query_key("hf", "climate", 10),
-            query_key("kg", "climate", 10)
+            query_key("hf", "climate", 10, None),
+            query_key("kg", "climate", 10, None)
+        );
+        assert_ne!(
+            query_key("hf", "climate", 10, None),
+            query_key("hf", "climate", 10, Some("2024-01-01"))
         );
     }
 }

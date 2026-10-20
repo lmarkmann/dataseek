@@ -7,6 +7,11 @@ extend-exclude = ["tests/fixtures/"]
 extend-ignore-re = [
   "Dateset contains past",
   "CC-BY-NC-ND-4\\.0",
+  # The Creative Commons NoDerivatives element, in license ids and names.
+  "(?i)\\bby(-nc)?-nd\\b",
+  "(?i)\\bcc by nc nd\\b",
+  "\"-ND\"",
+  "has\\(\"nd\"\\)",
   "Burnt Area \\(BA\\)",
   "census for BA 44/45",
 ]

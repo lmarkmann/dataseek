@@ -1,0 +1,390 @@
+{
+  "result": {
+    "index": "dataset",
+    "count": 32340,
+    "results": [
+      {
+        "identifier": [
+          "r_marche_1_1703248088"
+        ],
+        "catalog": {
+          "id": "dati-gov-it",
+          "title": {
+            "en": "data.gov.it"
+          }
+        },
+        "description": {
+          "en": "Air quality website."
+        },
+        "modified": "2023-01-12T00:00:00",
+        "landing_page": [
+          {
+            "resource": "https://dati.regione.marche.it/dataset/qualita-dell-aria#"
+          }
+        ],
+        "publisher": {
+          "type": "Agent",
+          "name": "ARPAM"
+        },
+        "index": "dataset",
+        "id": "r_marche_1_1703248088",
+        "title": {
+          "en": "Air quality"
+        },
+        "issued": "2023-01-12T00:00:00",
+        "distributions": [
+          {
+            "license": {
+              "id": "CC_BY_4_0",
+              "label": "Creative Commons Attribution 4.0 International",
+              "description": "Creative Commons Attribution 4.0 International",
+              "resource": "http://spdx.org/licenses/CC-BY-4.0"
+            },
+            "byte_size": 1024
+          },
+          {
+            "byte_size": 1024,
+            "license": {
+              "id": "CC_BY_4_0",
+              "label": "Creative Commons Attribution 4.0 International",
+              "description": "Creative Commons Attribution 4.0 International",
+              "resource": "http://spdx.org/licenses/CC-BY-4.0"
+            }
+          },
+          {
+            "byte_size": 1024,
+            "license": {
+              "id": "CC_BY_4_0",
+              "label": "Creative Commons Attribution 4.0 International",
+              "description": "Creative Commons Attribution 4.0 International",
+              "resource": "http://spdx.org/licenses/CC-BY-4.0"
+            }
+          }
+        ]
+      },
+      {
+        "identifier": [
+          "https://geodati.gov.it/resource/id/r_lazio:696ae46c-5cc7-11ec-9eaf-0242"
+        ],
+        "description": {
+          "en": "Zoning of the regional territory for the purposes of assessing ambient air quality in Lazio (Articles 3 and 4 of Legislative Decree No 155/2010, as amended) and updating the classification of areas an"
+        },
+        "index": "dataset",
+        "id": "r_lazio-696ae46c-5cc7-11ec-9eaf-0242",
+        "title": {
+          "en": "Air quality"
+        },
+        "catalog": {
+          "id": "rndt",
+          "title": {
+            "en": "Italian Catalogue of metadata for Spatial Data"
+          }
+        }
+      },
+      {
+        "identifier": [
+          "r_piemon:9ce253c5-1dd5-4254-8c80-8b55cdc78e74"
+        ],
+        "catalog": {
+          "id": "rndt",
+          "title": {
+            "en": "Italian Catalogue of metadata for Spatial Data"
+          }
+        },
+        "description": {
+          "en": "The Air Quality Database contains:- all data collected for the individual polluted by stations of public and private networks (managed by ARPA or by private individuals themselves) present in the terr"
+        },
+        "index": "dataset",
+        "id": "r_piemon-9ce253c5-1dd5-4254-8c80-8b55cdc78e74",
+        "title": {
+          "en": "Air Quality — Regional Air Quality Assessment System"
+        },
+        "distributions": [
+          {
+            "license": {
+              "resource": "http://inspire.ec.europa.eu/metadata-codelist/ConditionsApplyingToAccessAndUse/conditionsUnknown",
+              "id": "http://inspire.ec.europa.eu/metadata-codelist/ConditionsApplyingToAccessAndUse/conditionsUnknown",
+              "label": "http://inspire.ec.europa.eu/metadata-codelist/ConditionsApplyingToAccessAndUse/conditionsUnknown"
+            }
+          }
+        ]
+      },
+      {
+        "identifier": [
+          "arpa_09:03649-DATA"
+        ],
+        "catalog": {
+          "id": "rndt",
+          "title": {
+            "en": "Italian Catalogue of metadata for Spatial Data"
+          }
+        },
+        "description": {
+          "en": "The regional air quality monitoring network, which has been operating since the 1990s, is a cognitive tool designed to provide information on the general state of air quality throughout the region and not exclusively aimed at verifying compliance with regulatory limits."
+        },
+        "modified": "2025-06-13",
+        "index": "dataset",
+        "id": "arpa_09-03649-meta-20180206-090000",
+        "title": {
+          "en": "ARPA monitoring: Air quality"
+        },
+        "issued": "2018-02-06"
+      },
+      {
+        "identifier": [
+          "p_TN:ispat_939"
+        ],
+        "catalog": {
+          "id": "dati-gov-it",
+          "title": {
+            "en": "data.gov.it"
+          }
+        },
+        "description": {
+          "en": "**Sector:** State of the environment\n\n**Algorithm:** Percentage of valid measurements above the WHO health reference value of average annual PM2.5 concentrations\n\n**Fenomenon:** Stock\n\n**Territorial comparisons:** Trentino."
+        },
+        "modified": "2026-06-22T00:00:00",
+        "landing_page": [
+          {
+            "resource": "https://dati.trentino.it/dataset/qualita-dellaria-pm-2-51#"
+          }
+        ],
+        "publisher": {
+          "type": "Agent",
+          "name": "ISPAT Istituto di statistica della provincia di Trento"
+        },
+        "index": "dataset",
+        "id": "p_tn-ispat_939",
+        "title": {
+          "en": "Air quality - PM 2.5"
+        },
+        "issued": "2026-06-25T00:00:00",
+        "distributions": [
+          {
+            "byte_size": 1024,
+            "license": {
+              "id": "CC_BY_4_0",
+              "label": "Creative Commons Attribution 4.0 International",
+              "description": "Creative Commons Attribution 4.0 International",
+              "resource": "http://spdx.org/licenses/CC-BY-4.0"
+            }
+          },
+          {
+            "license": {
+              "id": "CC_BY_4_0",
+              "label": "Creative Commons Attribution 4.0 International",
+              "description": "Creative Commons Attribution 4.0 International",
+              "resource": "http://spdx.org/licenses/CC-BY-4.0"
+            },
+            "byte_size": 1024
+          }
+        ]
+      },
+      {
+        "identifier": [
+          "Monitoraggiomensilequalitàdell'aria"
+        ],
+        "catalog": {
+          "id": "dati-gov-it",
+          "title": {
+            "en": "data.gov.it"
+          }
+        },
+        "description": {
+          "en": "Dataset with monthly air quality surveys."
+        },
+        "publisher": {
+          "type": "Agent",
+          "name": "DO"
+        },
+        "modified": "2020-01-16T00:00:00",
+        "landing_page": [
+          {
+            "resource": "http://dati.comune.lecce.it/dataset/monitoraggio-mensile-qualita-dell-aria#"
+          }
+        ],
+        "index": "dataset",
+        "id": "monitoraggiomensilequalita-dell-aria",
+        "title": {
+          "en": "Monthly air quality monitoring"
+        },
+        "issued": "2020-01-16T00:00:00",
+        "distributions": [
+          {
+            "byte_size": 1024,
+            "license": {
+              "id": "CC_BY_4_0",
+              "label": "Creative Commons Attribution 4.0 International",
+              "description": "Creative Commons Attribution 4.0 International",
+              "resource": "http://spdx.org/licenses/CC-BY-4.0"
+            }
+          },
+          {
+            "license": {
+              "id": "CC_BY_4_0",
+              "label": "Creative Commons Attribution 4.0 International",
+              "description": "Creative Commons Attribution 4.0 International",
+              "resource": "http://spdx.org/licenses/CC-BY-4.0"
+            },
+            "byte_size": 1024
+          },
+          {
+            "license": {
+              "id": "CC_BY_4_0",
+              "label": "Creative Commons Attribution 4.0 International",
+              "description": "Creative Commons Attribution 4.0 International",
+              "resource": "http://spdx.org/licenses/CC-BY-4.0"
+            },
+            "byte_size": 1024
+          },
+          {
+            "byte_size": 1024,
+            "license": {
+              "id": "CC_BY_4_0",
+              "label": "Creative Commons Attribution 4.0 International",
+              "description": "Creative Commons Attribution 4.0 International",
+              "resource": "http://spdx.org/licenses/CC-BY-4.0"
+            }
+          }
+        ]
+      },
+      {
+        "identifier": [
+          "monitaraggio-mensile-qualita-dell-aria"
+        ],
+        "catalog": {
+          "id": "dati-gov-it",
+          "title": {
+            "en": "data.gov.it"
+          }
+        },
+        "description": {
+          "en": "Dataset with monthly air quality surveys."
+        },
+        "publisher": {
+          "type": "Agent",
+          "name": "Redazione OD"
+        },
+        "modified": "2018-08-05T00:00:00",
+        "landing_page": [
+          {
+            "resource": "http://dati.comune.lecce.it/dataset/monitaraggio-mensile-qualita-dell-aria#"
+          }
+        ],
+        "index": "dataset",
+        "id": "monitaraggio-mensile-qualita-dell-aria",
+        "title": {
+          "en": "Monthly air quality monitoring"
+        },
+        "issued": "2014-08-01T19:43:44.667293",
+        "distributions": [
+          {
+            "license": {
+              "id": "CC_BY_4_0",
+              "label": "Creative Commons Attribution 4.0 International",
+              "description": "Creative Commons Attribution 4.0 International",
+              "resource": "http://spdx.org/licenses/CC-BY-4.0"
+            },
+            "byte_size": 1024
+          },
+          {
+            "byte_size": 1024,
+            "license": {
+              "id": "CC_BY_4_0",
+              "label": "Creative Commons Attribution 4.0 International",
+              "description": "Creative Commons Attribution 4.0 International",
+              "resource": "http://spdx.org/licenses/CC-BY-4.0"
+            }
+          },
+          {
+            "byte_size": 1024,
+            "license": {
+              "id": "CC_BY_4_0",
+              "label": "Creative Commons Attribution 4.0 International",
+              "description": "Creative Commons Attribution 4.0 International",
+              "resource": "http://spdx.org/licenses/CC-BY-4.0"
+            }
+          },
+          {
+            "byte_size": 1024,
+            "license": {
+              "id": "CC_BY_4_0",
+              "label": "Creative Commons Attribution 4.0 International",
+              "description": "Creative Commons Attribution 4.0 International",
+              "resource": "http://spdx.org/licenses/CC-BY-4.0"
+            }
+          }
+        ]
+      },
+      {
+        "identifier": [
+          "Datiqualitdellaria2019Salerno"
+        ],
+        "catalog": {
+          "id": "dati-gov-it",
+          "title": {
+            "en": "data.gov.it"
+          }
+        },
+        "description": {
+          "en": "The values of the air quality parameters are reported."
+        },
+        "landing_page": [
+          {
+            "resource": "https://dati.regione.campania.it/catalogo/datasetdetail/dati-qualita-dell-aria-2019-salerno#"
+          }
+        ],
+        "publisher": {
+          "type": "Agent",
+          "name": "Regione Campania"
+        },
+        "modified": "2019-09-30T00:00:00",
+        "index": "dataset",
+        "id": "datiqualitdellaria2019salerno",
+        "title": {
+          "en": "Air quality data 2019 Salerno"
+        },
+        "issued": "2019-09-30T00:00:00",
+        "distributions": [
+          {
+            "byte_size": 1024,
+            "license": {
+              "id": "CC0",
+              "label": "Creative Commons CC0 1.0 Universal",
+              "description": "Creative Commons CC0 1.0 Universal",
+              "resource": "https://creativecommons.org/publicdomain/zero/1.0/"
+            }
+          },
+          {
+            "byte_size": 1024,
+            "license": {
+              "id": "CC0",
+              "label": "Creative Commons CC0 1.0 Universal",
+              "description": "Creative Commons CC0 1.0 Universal",
+              "resource": "https://creativecommons.org/publicdomain/zero/1.0/"
+            }
+          },
+          {
+            "byte_size": 1024,
+            "license": {
+              "id": "CC0",
+              "label": "Creative Commons CC0 1.0 Universal",
+              "description": "Creative Commons CC0 1.0 Universal",
+              "resource": "https://creativecommons.org/publicdomain/zero/1.0/"
+            }
+          },
+          {
+            "license": {
+              "id": "CC0",
+              "label": "Creative Commons CC0 1.0 Universal",
+              "description": "Creative Commons CC0 1.0 Universal",
+              "resource": "https://creativecommons.org/publicdomain/zero/1.0/"
+            },
+            "byte_size": 1024
+          }
+        ]
+      }
+    ],
+    "facets": []
+  }
+}

@@ -1,0 +1,655 @@
+{
+  "help": "http://131.175.206.246/api/3/action/help_show?name=package_search",
+  "success": true,
+  "result": {
+    "count": 26391,
+    "facets": {},
+    "results": [
+      {
+        "author": "Taha, Josef",
+        "author_email": null,
+        "creator_user_id": "1dc1b4c8-ff82-46f0-a122-5d4f29ff0883",
+        "id": "8fee46dc-9a42-4a00-92f9-cf6533536251",
+        "isopen": false,
+        "license_id": null,
+        "license_title": null,
+        "maintainer": null,
+        "maintainer_email": null,
+        "metadata_created": "2025-06-20T04:30:08.800725",
+        "metadata_modified": "2025-06-20T04:30:08.800730",
+        "name": "9721faf6-3c40-55ea-beeb-9dda97b4b6dc",
+        "notes": "This digital record contains historical air pollution and air quality data from approximately 20 air monitoring stations in Vienna, spanning the years from 1980 to 2021. The data was provided by the Umweltbundesamt and is stored in its original form in this record.",
+        "num_resources": 0,
+        "num_tags": 0,
+        "organization": {
+          "id": "4b13efcb-7a1b-46e3-ad53-6c1c6522cba9",
+          "name": "tuw",
+          "title": "TU Wien",
+          "type": "organization",
+          "description": "[TU Wien](https://researchdata.tuwien.ac.at/ \"TU Wien\") Research Data is an institutional repository of TU Wien to enable storing, sharing and publishing of digital objects, in particular research data.",
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/TU_Wien-Logo.svg/2000px-TU_Wien-Logo.svg.png",
+          "created": "2025-06-19T08:49:26.697634",
+          "is_organization": true,
+          "approval_status": "approved",
+          "state": "active"
+        },
+        "owner_org": "4b13efcb-7a1b-46e3-ad53-6c1c6522cba9",
+        "private": false,
+        "state": "active",
+        "title": "Historical Air Quality Data Austria Umweltbundesamt",
+        "type": "dataset",
+        "url": null,
+        "version": "56b7da3dd2a2aad003bd31558799664a4256ba8d7d3599a0f88e42070bc00f31",
+        "extras": [
+          {
+            "key": "Contact",
+            "value": "tudata(at)tuwien.ac.at"
+          },
+          {
+            "key": "DOI",
+            "value": "https://doi.org/10.48436/mtha8-w2406"
+          },
+          {
+            "key": "Discipline",
+            "value": "Other"
+          },
+          {
+            "key": "Language",
+            "value": "German"
+          },
+          {
+            "key": "MetaDataAccess",
+            "value": "https://researchdata.tuwien.ac.at/oai2d?verb=GetRecord&metadataPrefix=oai_datacite&identifier=oai:researchdata.tuwien.ac.at:mtha8-w2406"
+          },
+          {
+            "key": "OpenAccess",
+            "value": "true"
+          },
+          {
+            "key": "PublicationYear",
+            "value": "2023"
+          },
+          {
+            "key": "Publisher",
+            "value": "TU Wien"
+          },
+          {
+            "key": "RelatedIdentifier",
+            "value": "https://doi.org/10.48436/gc1n8-14v35|DOI|IsVersionOf"
+          },
+          {
+            "key": "ResourceType",
+            "value": "Dataset"
+          },
+          {
+            "key": "Rights",
+            "value": "Creative Commons Attribution 4.0 International; https://creativecommons.org/licenses/by/4.0/legalcode"
+          },
+          {
+            "key": "TempCoverage",
+            "value": "[2023-05-15 TO *]"
+          },
+          {
+            "key": "TemporalCoverage:BeginDate",
+            "value": "2023-05-15T00:00:00Z"
+          },
+          {
+            "key": "Version",
+            "value": "1.0.0"
+          },
+          {
+            "key": "fulltext",
+            "value": "oairesearchdatatuwienacatmtha8w240620240625T131259Zopenairedata43TUWTUDATA1048436mtha8w2406oairesearchdatatuwienacatmtha8w2406Taha JosefJosefTahaTU WienHistorical Air Quality Data Austria UmweltbundesamtTU Wien20232023051520240625deu1048436gc1n814v35100Creative Commons Attribution 40 InternationalTh"
+          },
+          {
+            "key": "repositoryID",
+            "value": "re3data:r3d100013557"
+          },
+          {
+            "key": "repositoryName",
+            "value": "TU Wien Research Data"
+          }
+        ],
+        "resources": [],
+        "tags": [],
+        "groups": [],
+        "relationships_as_subject": [],
+        "relationships_as_object": []
+      },
+      {
+        "author": "J R Hodgson; S Elliott; C Hudson",
+        "author_email": null,
+        "creator_user_id": "1dc1b4c8-ff82-46f0-a122-5d4f29ff0883",
+        "id": "79d8c8f9-34cc-42a4-876a-45dba19ea83b",
+        "isopen": false,
+        "license_id": null,
+        "license_title": null,
+        "maintainer": null,
+        "maintainer_email": null,
+        "metadata_created": "2025-06-20T01:45:00.891306",
+        "metadata_modified": "2025-06-20T01:45:00.891310",
+        "name": "518aba59-a818-586e-891a-dac267266c2e",
+        "notes": "<p>Despite increased awareness of climate change and urban air pollution, little research has been performed to examine the influence of meteorology and air quality on athletic performance of the general public and recreational exercisers.",
+        "num_resources": 0,
+        "num_tags": 1,
+        "organization": {
+          "id": "35bf721e-a4b3-4c90-b503-a0aa51f46b9e",
+          "name": "ds_physical_technical",
+          "title": "DANS Data Station Physical and Technical Sciences",
+          "type": "organization",
+          "description": "The [DANS Data Station Physical and Technical Sciences](https://dans.knaw.nl/en/physical-and-technical-sciences/ \"DANS Data Station Physical and Technical Sciences\") is a domain-specific repository for data from the physical and technical sciences, primarily aimed at the Netherlands, but not exclusi",
+          "image_url": "https://b2find.eudat.eu/images/communities/danseasy_logo.png",
+          "created": "2025-06-19T08:49:22.344980",
+          "is_organization": true,
+          "approval_status": "approved",
+          "state": "active"
+        },
+        "owner_org": "35bf721e-a4b3-4c90-b503-a0aa51f46b9e",
+        "private": false,
+        "state": "active",
+        "title": "The influence of meteorology and air quality on parkrun athletic performance Meteorology, air quality and parkrun",
+        "type": "dataset",
+        "url": null,
+        "version": "8286050f89a944b4a236d3f7d1a20f4d04848efd3269c2c5785e11970ea193f1",
+        "extras": [
+          {
+            "key": "Contact",
+            "value": "J. R.  Hodgson (University of Birmingham)"
+          },
+          {
+            "key": "Contributor",
+            "value": "J. R.  Hodgson; L Chapman (University of Birmingham); F. D. Pope (University of Birmingham)"
+          },
+          {
+            "key": "DOI",
+            "value": "https://doi.org/10.17026/dans-27m-9mkm"
+          },
+          {
+            "key": "Discipline",
+            "value": "Earth and Environmental Science; Environmental Research; Geosciences; Natural Sciences"
+          },
+          {
+            "key": "Format",
+            "value": "text/plain; charset=US-ASCII; type/x-r-syntax; text/csv; application/zip"
+          },
+          {
+            "key": "MetaDataAccess",
+            "value": "https://phys-techsciences.datastations.nl/oai?verb=GetRecord&metadataPrefix=oai_datacite&identifier=doi:10.17026/dans-27m-9mkm"
+          },
+          {
+            "key": "OpenAccess",
+            "value": "true"
+          },
+          {
+            "key": "PublicationYear",
+            "value": "2019"
+          },
+          {
+            "key": "Publisher",
+            "value": "DANS Data Station Phys-Tech Sciences"
+          },
+          {
+            "key": "ResourceType",
+            "value": "Dataset"
+          },
+          {
+            "key": "Rights",
+            "value": "CC0 1.0; info:eu-repo/semantics/openAccess; http://creativecommons.org/publicdomain/zero/1.0"
+          },
+          {
+            "key": "Size",
+            "value": "6828; 6803; 6813; 6799; 6824; 6817; 6833; 6823; 6821; 6829; 6830; 6827; 6810; 5062; 36694; 1148641; 4391; 3774; 29598; 31009; 40959504; 140276743; 8782; 186574; 170780; 2155"
+          },
+          {
+            "key": "TempCoverage",
+            "value": "[2019-12-17 TO *]"
+          },
+          {
+            "key": "TemporalCoverage:BeginDate",
+            "value": "2019-12-17T00:00:00Z"
+          },
+          {
+            "key": "Version",
+            "value": "2.0"
+          },
+          {
+            "key": "fulltext",
+            "value": "doi1017026dans27m9mkm20231113T152142Z1017026dans27m9mkmJ R HodgsonUniversity of BirminghamS ElliottUniversity of BirminghamC HudsonAdvanced Wellbeing Research Centre 2 Old Hall Road Sheffield S9 3TU United KingdomThe influence of meteorology and air quality on parkrun athletic performance Meteorolog"
+          }
+        ],
+        "groups": [
+          {
+            "description": "[DANS](https://dans.knaw.nl/en/ \"DANS\") is the Dutch national centre of expertise and repository for research data. We help researchers make their data available for reuse. This allows researchers to use the data for new research and makes published research verifiable and reproducible.",
+            "display_name": "DANS",
+            "id": "ae21a39b-13a9-45f6-b816-98b6d7a327aa",
+            "image_display_url": "https://b2find.eudat.eu/images/communities/danseasy_logo.png",
+            "name": "dans",
+            "title": "DANS"
+          }
+        ],
+        "tags": [
+          {
+            "display_name": "Earth and Environmental Sciences",
+            "id": "3c2e5608-0bd3-4dcd-bea0-622373133c8e",
+            "name": "Earth and Environmental Sciences",
+            "state": "active",
+            "vocabulary_id": null
+          }
+        ],
+        "resources": [],
+        "relationships_as_subject": [],
+        "relationships_as_object": []
+      },
+      {
+        "author": "Scorgie, Yvonne; Kirkwood, John",
+        "author_email": null,
+        "creator_user_id": "1dc1b4c8-ff82-46f0-a122-5d4f29ff0883",
+        "id": "6e633830-0978-45af-85f8-5f6bb8b8adc4",
+        "isopen": false,
+        "license_id": null,
+        "license_title": null,
+        "maintainer": null,
+        "maintainer_email": null,
+        "metadata_created": "2025-06-19T18:19:16.263348",
+        "metadata_modified": "2025-06-19T18:19:16.263355",
+        "name": "78c74cd7-3bfc-5ead-8581-71b7025bc4c4",
+        "notes": null,
+        "num_resources": 0,
+        "num_tags": 21,
+        "organization": {
+          "id": "12ea7746-bf2c-422f-95d9-2ba938738189",
+          "name": "pangaea",
+          "title": "PANGAEA",
+          "type": "organization",
+          "description": "The information system [PANGAEA](https://www.pangaea.de/ \"PANGAEA\") is operated as an Open Access library aimed at archiving, publishing and distributing georeferenced data from earth system research.",
+          "image_url": "https://b2find.eudat.eu/images/communities/pangaea_logo.png",
+          "created": "2025-06-19T08:49:25.622567",
+          "is_organization": true,
+          "approval_status": "approved",
+          "state": "active"
+        },
+        "owner_org": "12ea7746-bf2c-422f-95d9-2ba938738189",
+        "private": false,
+        "state": "active",
+        "title": "Three months of air quality measurements from Wollongong OEH air quality monitoring site, 2012-12-01 to 2013-02-28",
+        "type": "dataset",
+        "url": null,
+        "version": "bf28649bce1eb74ad9d0d7dd8c012e209c15743ecc03e4e63d835b0bbcec48db",
+        "extras": [
+          {
+            "key": "DOI",
+            "value": "https://doi.org/10.1594/PANGAEA.872005"
+          },
+          {
+            "key": "Discipline",
+            "value": "Earth System Research"
+          },
+          {
+            "key": "Format",
+            "value": "text/tab-separated-values"
+          },
+          {
+            "key": "MetaDataAccess",
+            "value": "https://ws.pangaea.de/oai/provider?verb=GetRecord&metadataPrefix=datacite4&identifier=oai:pangaea.de:doi:10.1594/PANGAEA.872005"
+          },
+          {
+            "key": "OpenAccess",
+            "value": "true"
+          },
+          {
+            "key": "PID",
+            "value": "https://hdl.handle.net/10013/epic.50378.d035"
+          },
+          {
+            "key": "PublicationYear",
+            "value": "2017"
+          },
+          {
+            "key": "Publisher",
+            "value": "PANGAEA"
+          },
+          {
+            "key": "RelatedIdentifier",
+            "value": "https://doi.org/10.1594/PANGAEA.871982|DOI|IsPartOf; https://doi.org/10.5194/essd-9-349-2017|DOI|References"
+          },
+          {
+            "key": "ResourceType",
+            "value": "Dataset"
+          },
+          {
+            "key": "Rights",
+            "value": "Creative Commons Attribution 3.0 Unported; https://creativecommons.org/licenses/by/3.0/"
+          },
+          {
+            "key": "Size",
+            "value": "28254 data points"
+          },
+          {
+            "key": "SpatialCoverage",
+            "value": "(150.887 LON, -34.417 LAT); Australia"
+          },
+          {
+            "key": "TempCoverage",
+            "value": "[2012-12-01 TO 2013-02-28]"
+          },
+          {
+            "key": "TemporalCoverage:BeginDate",
+            "value": "2012-12-01T00:00:00Z"
+          },
+          {
+            "key": "TemporalCoverage:EndDate",
+            "value": "2013-02-28T23:00:00Z"
+          },
+          {
+            "key": "bbox",
+            "value": "ENVELOPE(150.8873, 150.8873, -34.4171, -34.4171)"
+          },
+          {
+            "key": "fulltext",
+            "value": "oaipangaeadedoi101594PANGAEA87200520250312T084245ZcitabletopicAtmospheretopicChemistrytopicLithosphere101594PANGAEA872005Scorgie YvonneYvonneScorgieKirkwood JohnJohnKirkwoodThree months of air quality measurements from Wollongong OEH air quality monitoring site 20121201 to 20130228PANGAEA2017DATETIM"
+          },
+          {
+            "key": "geom",
+            "value": "POINT (150.8873000000000104 -34.4170999999999978)"
+          },
+          {
+            "key": "repositoryID",
+            "value": "re3data:r3d100010134"
+          },
+          {
+            "key": "repositoryName",
+            "value": "PANGAEA"
+          },
+          {
+            "key": "spatial",
+            "value": "POINT (150.8873000000000104 -34.4170999999999978)"
+          }
+        ],
+        "tags": [
+          {
+            "display_name": "10 µm",
+            "id": "13401fe1-2005-42ae-8c0c-dd7d60e80be9",
+            "name": "10 µm",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "2 5 µm",
+            "id": "79db8681-4169-408e-8c44-b242111c3ce9",
+            "name": "2 5 µm",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "Aerosol scattering at 525 nm",
+            "id": "7af1a173-d6a0-4a9d-ad39-a13b84cf803d",
+            "name": "Aerosol scattering at 525 nm",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "Carbon monoxide",
+            "id": "b2de4416-b258-4794-91d6-21bb90f0d882",
+            "name": "Carbon monoxide",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "DATE TIME",
+            "id": "ee672df1-c7b7-4273-b9a0-683c9c889885",
+            "name": "DATE TIME",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "HEIGHT above ground",
+            "id": "72a36d65-8ee3-41ca-a4f9-453bac588281",
+            "name": "HEIGHT above ground",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "Humidity",
+            "id": "6c6c0e2c-9b81-4ca8-ad2b-e07b1b083e0d",
+            "name": "Humidity",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "Monitoring station",
+            "id": "5b1397a2-97c4-4f3c-b70c-8df40b16023d",
+            "name": "Monitoring station",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "Nitric oxide",
+            "id": "199e0c35-9bc9-4f7e-a4fb-7748ae28a85a",
+            "name": "Nitric oxide",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "Nitrogen dioxide",
+            "id": "f05c1c53-02a8-4ce5-bfbe-208b121547e5",
+            "name": "Nitrogen dioxide",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "Nitrogen oxide",
+            "id": "2856273f-71e0-45fb-8c39-e07af14b426e",
+            "name": "Nitrogen oxide",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "Ozone",
+            "id": "b0387e56-005b-40bd-b00e-330bab0bd620",
+            "name": "Ozone",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "Particulate matter",
+            "id": "b4a518b0-cb5f-401d-a293-551ebf9f6c88",
+            "name": "Particulate matter",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "Sulfur dioxide",
+            "id": "f9441898-edba-44cb-ae28-e15e3c987dba",
+            "name": "Sulfur dioxide",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "Temperature",
+            "id": "7169714a-42b1-4bab-ac08-b6d20e0d35b6",
+            "name": "Temperature",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "Wind direction",
+            "id": "54dca72e-421d-404a-9fde-cc0c0029d4f1",
+            "name": "Wind direction",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "Wind speed",
+            "id": "8bd7c342-58b0-4466-9278-d2f56f32583c",
+            "name": "Wind speed",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "air",
+            "id": "19dc084d-1846-4452-8a74-37317a5af0a7",
+            "name": "air",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "relative",
+            "id": "8b586b1e-02ce-4e45-a5ae-941f34b391cc",
+            "name": "relative",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "see further details",
+            "id": "c0fe5785-8065-4d2b-9f10-1b89d357e546",
+            "name": "see further details",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "standard deviation",
+            "id": "19d0d844-e35c-4b93-9d4f-a6c2e50469a4",
+            "name": "standard deviation",
+            "state": "active",
+            "vocabulary_id": null
+          }
+        ],
+        "resources": [],
+        "groups": [],
+        "relationships_as_subject": [],
+        "relationships_as_object": []
+      },
+      {
+        "author": "Schultz, Martin G.",
+        "author_email": null,
+        "creator_user_id": "1dc1b4c8-ff82-46f0-a122-5d4f29ff0883",
+        "id": "2495bba7-4694-48f6-a845-524a08bba1b6",
+        "isopen": false,
+        "license_id": null,
+        "license_title": null,
+        "maintainer": null,
+        "maintainer_email": null,
+        "metadata_created": "2025-06-19T19:42:47.087622",
+        "metadata_modified": "2025-06-19T19:42:47.087626",
+        "name": "b3b0256e-4819-5c15-859a-56909c66085f",
+        "notes": "This file has been obtained from the Tropospheric Ozone Assessment Report database described by Schultz, M.G. et al., Elementa Sci. Anthrop., 2017, doi:http://doi.org/10.1525/elementa.244.",
+        "num_resources": 0,
+        "num_tags": 4,
+        "organization": {
+          "id": "cf5aeae0-f83a-42d4-8574-192b965575ef",
+          "name": "eudat",
+          "title": "EUDAT",
+          "type": "organization",
+          "description": "[EUDAT](https://www.eudat.eu/eudat-cdi \"EUDAT\")’s vision is Data is shared and preserved across borders and disciplines. A",
+          "image_url": "https://b2find.eudat.eu/images/communities/eudat_logo.png",
+          "created": "2025-06-19T08:49:23.520151",
+          "is_organization": true,
+          "approval_status": "approved",
+          "state": "active"
+        },
+        "owner_org": "cf5aeae0-f83a-42d4-8574-192b965575ef",
+        "private": false,
+        "state": "active",
+        "title": "Sample data file with TOAR air quality data for machine learning excercise",
+        "type": "dataset",
+        "url": "https://b2share.fz-juelich.de/records/be5cde68c6ba4ab08b6687b17adbb3b6",
+        "version": "8f9ff51e372ca8cb5964c3204b3efd05d1080f315e7dd5c4df562dd15ecc369f",
+        "extras": [
+          {
+            "key": "Contact",
+            "value": "contact@example.org"
+          },
+          {
+            "key": "Discipline",
+            "value": "3.2.4 → Chemistry → Atmospheric chemistry"
+          },
+          {
+            "key": "Format",
+            "value": "csv"
+          },
+          {
+            "key": "MetaDataAccess",
+            "value": "https://b2share.fz-juelich.de/api/oai2d?verb=GetRecord&metadataPrefix=eudatcore&identifier=oai:b2share.fz-juelich.de:b2rec/be5cde68c6ba4ab08b6687b17adbb3b6"
+          },
+          {
+            "key": "OpenAccess",
+            "value": "true"
+          },
+          {
+            "key": "PublicationYear",
+            "value": "2019"
+          },
+          {
+            "key": "Publisher",
+            "value": "EUDAT B2SHARE"
+          },
+          {
+            "key": "Rights",
+            "value": "Creative Commons Attribution (CC-BY); info:eu-repo/semantics/openAccess"
+          },
+          {
+            "key": "Size",
+            "value": "215.9 kB; 1 file"
+          },
+          {
+            "key": "fulltext",
+            "value": "oaib2sharefzjuelichdeb2recbe5cde68c6ba4ab08b6687b17adbb3b620190224T200856Ze9b9792e79fb4b07b6b4b9c2bd06d095Sample data file with TOAR air quality data for machine learning excerciseEUDAThttpsb2sharefzjuelichderecordsbe5cde68c6ba4ab08b6687b17adbb3b6EUDAT B2SHARE2019Schultz Martin GThis file has been o"
+          },
+          {
+            "key": "repositoryID",
+            "value": "re3data:r3d100013118"
+          },
+          {
+            "key": "repositoryName",
+            "value": "B2SHARE Server Forschungszentrum Jülich"
+          }
+        ],
+        "groups": [
+          {
+            "description": "[B2SHARE](https://b2share.eudat.eu/ \"B2SHARE\") is a user-friendly, reliable and trustworthy way for researchers, scientific communities and citizen scientists to store, publish and share research data in a FAIR way.",
+            "display_name": "B2SHARE",
+            "id": "fd4b8c32-94e0-4035-bc5d-6132d7902fce",
+            "image_display_url": "https://b2find.eudat.eu/images/communities/b2share_logo.png",
+            "name": "b2share",
+            "title": "B2SHARE"
+          }
+        ],
+        "tags": [
+          {
+            "display_name": "NO2",
+            "id": "f63e55da-76b6-4f73-9460-4c8c39df2205",
+            "name": "NO2",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "TOAR",
+            "id": "66d31403-4167-4f83-9dc1-248330e42670",
+            "name": "TOAR",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "air pollution",
+            "id": "9e99d757-9bc2-4193-8ec0-85a70c96570b",
+            "name": "air pollution",
+            "state": "active",
+            "vocabulary_id": null
+          },
+          {
+            "display_name": "machine learning",
+            "id": "e69a1bd8-052a-4faf-ad99-4087c1135fed",
+            "name": "machine learning",
+            "state": "active",
+            "vocabulary_id": null
+          }
+        ],
+        "resources": [],
+        "relationships_as_subject": [],
+        "relationships_as_object": []
+      }
+    ],
+    "sort": "score desc, metadata_modified desc",
+    "search_facets": {}
+  }
+}

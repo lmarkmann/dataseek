@@ -174,6 +174,7 @@ mod tests {
                 ),
                 publisher: Some("NCBI GEO".into()),
                 updated: Some("2015-05-16".into()),
+                formats: vec![],
                 aliases: vec![
                     "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE68918"
                         .into()

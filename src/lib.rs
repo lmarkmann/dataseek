@@ -27,11 +27,13 @@ mod cli;
 mod credentials;
 mod dedup;
 mod doctor;
+mod filter;
 mod find;
 mod fs;
 mod help;
 mod http;
 mod inspect;
+mod license;
 mod listing;
 mod mcp;
 mod output;
@@ -113,7 +115,7 @@ pub fn main() -> ExitCode {
         Err(err) => return usage(&err, &early),
     };
 
-    if matches!(cli.command, Some(Command::Mcp)) {
+    if matches!(cli.command, Some(Command::Mcp { .. })) {
         sigpipe_kills.store(false, Ordering::Relaxed);
     }
     let out = Out::resolve(&cli);
@@ -236,6 +238,7 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
         Command::Search {
             query,
             selection,
+            filters,
             limit,
             sort,
             refresh,
@@ -248,6 +251,7 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
             let request = find::Request {
                 words: &query,
                 selection: &selection,
+                filters: &filters,
                 limit,
                 sort,
                 refresh,
@@ -266,12 +270,13 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
             }
             inspect::run(&url, out)?;
         }
-        Command::Mcp => mcp::run(
+        Command::Mcp { include } => mcp::run(
             &mcp::Globals {
                 quiet: cli.quiet,
                 verbose: cli.verbose,
                 cache_dir: cli.cache_dir,
                 connect_timeout: cli.connect_timeout,
+                include,
             },
             out,
         )?,

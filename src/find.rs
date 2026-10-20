@@ -18,8 +18,11 @@ use clap::builder::styling::Style;
 use serde::Serialize;
 
 use crate::cache::Cache;
-use crate::cli::{Selection, Sort};
+use crate::cli::{
+    Filters, PER_SOURCE_DEFAULT, PER_SOURCE_FILTERED, Selection, Sort,
+};
 use crate::dedup::{Hit, merge, weigh};
+use crate::filter::Wanted;
 use crate::http::SourceError;
 use crate::output::{self, Out, fit};
 use crate::search::{Outcome, Plan, Status, run};
@@ -66,6 +69,7 @@ pub enum Error {
 pub struct Request<'a> {
     pub words: &'a [String],
     pub selection: &'a Selection,
+    pub filters: &'a Filters,
     pub limit: usize,
     pub sort: Sort,
     pub refresh: bool,
@@ -75,19 +79,36 @@ pub struct Request<'a> {
 }
 
 pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
-    let Request { words, selection, limit, sort, refresh, offline, timeout } =
-        *request;
+    let Request {
+        words,
+        selection,
+        filters,
+        limit,
+        sort,
+        refresh,
+        offline,
+        timeout,
+    } = *request;
+    let wanted = Wanted::new(filters);
     let services = Arc::new(Services::load()?);
     let query = words.join(" ");
     let plan = Arc::new(Plan {
         query: query.clone(),
         sources: select(
             &selection.only,
+            &selection.include,
             &selection.exclude,
             &selection.categories,
         ),
-        per_source: usize::from(selection.per_source),
+        per_source: usize::from(selection.per_source.unwrap_or(
+            if wanted.any() {
+                PER_SOURCE_FILTERED
+            } else {
+                PER_SOURCE_DEFAULT
+            },
+        )),
         forced: offline || !selection.only.is_empty(),
+        since: wanted.since.clone(),
     });
     if plan.sources.is_empty() {
         return Err(Error::NoneSelected.into());
@@ -150,12 +171,35 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
     let complete = !outcomes
         .iter()
         .any(|o| matches!(o.status, Status::Running(_) | Status::Downloading));
-    let mut hits = ranked(&mut outcomes, &query, sort);
-    let found = hits.len();
-    hits.truncate(limit);
-    print(out, &query, &hits, sources, complete)?;
-    summarize(&query, hits.len(), found, &outcomes, renewing, &services.cache);
+    let (hits, found) =
+        filtered(ranked(&mut outcomes, &query, sort), &wanted, limit);
+    print(out, &query, &hits, &found, sources, complete)?;
+    summarize(
+        &query,
+        hits.len(),
+        &found,
+        &outcomes,
+        renewing,
+        &services.cache,
+    );
     Ok(())
+}
+
+/// The hits that pass the filters, cut to `limit`, and how many passed and
+/// failed them.
+fn filtered(
+    mut hits: Vec<Hit>,
+    wanted: &Wanted,
+    limit: usize,
+) -> (Vec<Hit>, Found) {
+    let matched = hits.len();
+    hits.retain(|hit| wanted.admits(hit));
+    let found = Found {
+        total: hits.len(),
+        filtered_out: matched.saturating_sub(hits.len()),
+    };
+    hits.truncate(limit);
+    (hits, found)
 }
 
 /// Download again, in the background, the catalogs this search searched
@@ -331,12 +375,18 @@ fn named(ids: &[&str]) -> String {
 
 const NAMED: usize = 3;
 
+/// How many merged datasets passed the filters, and how many did not.
+struct Found {
+    total: usize,
+    filtered_out: usize,
+}
+
 /// The closing lines on stderr, after the results: what failed, then one
 /// line on how it went and how to see more.
 fn summarize(
     query: &str,
     shown: usize,
-    found: usize,
+    found: &Found,
     outcomes: &[Outcome],
     renewing: bool,
     cache: &Cache,
@@ -354,15 +404,25 @@ fn summarize(
         "{answered} of {} answered{still}",
         ui::count(attempted, "source")
     );
-    if found == 0 {
+    let Found { total, filtered_out } = *found;
+    let filtered = if filtered_out > 0 {
+        format!(", {filtered_out} more without the filters")
+    } else {
+        String::new()
+    };
+    if total == 0 && filtered_out > 0 {
+        ui::warn(format!(
+            "no datasets matched \"{query}\" and the filters; {filtered_out} matched without them; {sources}"
+        ));
+    } else if total == 0 {
         ui::warn(format!("no datasets matched \"{query}\"; {sources}"));
-    } else if shown < found {
+    } else if shown < total {
         ui::ok(format!(
-            "{shown} of {}; {sources}; -n {found} shows all",
-            ui::count(found, "result")
+            "{shown} of {}{filtered}; {sources}; -n {total} shows all",
+            ui::count(total, "result")
         ));
     } else {
-        ui::ok(format!("{}; {sources}", ui::count(found, "result")));
+        ui::ok(format!("{}{filtered}; {sources}", ui::count(total, "result")));
     }
 }
 
@@ -376,6 +436,10 @@ struct Report<'a> {
     /// False when the search stopped waiting for a source or a catalog was
     /// still downloading, so the results may lack what those would add.
     complete: bool,
+    /// How many merged datasets matched; `results` holds the first `limit`.
+    total: usize,
+    /// How many more matched but failed a filter.
+    filtered_out: usize,
     results: &'a [Hit],
     sources: Vec<SourceReport>,
 }
@@ -407,6 +471,7 @@ fn print(
     out: &Out,
     query: &str,
     hits: &[Hit],
+    found: &Found,
     sources: Vec<SourceReport>,
     complete: bool,
 ) -> Result<()> {
@@ -415,6 +480,8 @@ fn print(
             schema: SCHEMA,
             query,
             complete,
+            total: found.total,
+            filtered_out: found.filtered_out,
             results: hits,
             sources,
         });
@@ -460,17 +527,29 @@ fn print(
 }
 
 /// The one-line provenance under a title: sources, publisher, date, size,
-/// license, whichever are known.
+/// formats, license, whichever are known. Past [`FORMATS_SHOWN`] formats,
+/// the rest are counted.
 fn facts(hit: &Hit) -> String {
     let d = &hit.dataset;
     let mut parts = vec![hit.sources.join(", ")];
     parts.extend(d.publisher.clone());
     parts.extend(d.updated.clone());
     parts.extend(d.size_bytes.map(human_bytes));
+    if !d.formats.is_empty() {
+        let shown = d.formats.iter().take(FORMATS_SHOWN);
+        let mut formats = shown.cloned().collect::<Vec<_>>().join(", ");
+        let more = d.formats.len().saturating_sub(FORMATS_SHOWN);
+        if more > 0 {
+            formats = format!("{formats} +{more}");
+        }
+        parts.push(formats);
+    }
     parts.extend(d.license.clone());
     parts.extend(d.doi.as_ref().map(|doi| format!("doi:{doi}")));
     parts.join(" | ")
 }
+
+const FORMATS_SHOWN: usize = 3;
 
 #[expect(
     clippy::cast_precision_loss,
@@ -579,7 +658,7 @@ mod tests {
     /// What ranking [`answered`] allocates: keys, the owner map, hits, the
     /// text weighing reads and the term sets rarity weighting builds. One
     /// publisher copied on top of it reaches the bound.
-    const RANKING_BYTES: usize = 430_068;
+    const RANKING_BYTES: usize = 460_404;
 
     fn rain(url: &str, publisher: bool) -> Dataset {
         let mut d = Dataset::new("Rain", url);

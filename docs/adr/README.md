@@ -41,3 +41,4 @@ A decision that constrains future work lives here, once, and is cited from where
 | [0017](0017-release-builds-on-a-platform-matrix.md) | Release builds run on a per-platform matrix | accepted |
 | [0018](0018-a-search-never-waits-for-a-catalog-download.md) | A search never waits for a catalog download it can do without | accepted |
 | [0019](0019-stop-waiting-past-a-quorum.md) | Past 90% of the sources, the rest get one second | accepted |
+| [0020](0020-filters-run-on-the-merged-list.md) | Filters run on the merged list; a source filters only where it is never stricter | accepted |

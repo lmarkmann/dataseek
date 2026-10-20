@@ -1,0 +1,507 @@
+{
+  "result": {
+    "index": "dataset",
+    "count": 98233,
+    "results": [
+      {
+        "catalog": {
+          "id": "data-gov-uk",
+          "title": {
+            "nl": "data.gov.uk",
+            "mt": "data.gov.uk",
+            "da": "data.gov.uk",
+            "lv": "data.gov.uk",
+            "es": "data.gov.uk",
+            "pl": "data.gov.uk",
+            "et": "data.gov.uk",
+            "hu": "data.gov.uk",
+            "cs": "data.gov.uk",
+            "it": "data.gov.uk",
+            "ga": "data.gov.uk",
+            "ro": "data.gov.uk",
+            "el": "data.gov.uk",
+            "hr": "data.gov.uk",
+            "fi": "data.gov.uk",
+            "pt": "data.gov.uk",
+            "sk": "data.gov.uk",
+            "bg": "данни.gov.uk",
+            "sl": "data.gov.uk",
+            "sv": "data.gov.uk",
+            "fr": "data.gov.uk",
+            "en": "data.gov.uk",
+            "de": "data.gov.uk",
+            "uk": "data.gov.uk",
+            "lt": "data.gov.uk"
+          }
+        },
+        "description": {
+          "pl": "Jakość powietrza jest stale monitorowana w kilku miejscach w mieście i wokół niego za pomocą ciągłych analizatorów. Dane w czasie rzeczywistym z naszej sieci monitorowania jakości powietrza oraz z zak",
+          "sl": "Kakovost zraka se stalno spremlja na več lokacijah v mestu in okoli njega s stalnimi analizatorji. Podatki v realnem času iz naše mreže za spremljanje kakovosti zraka in iz lokacij v Bristolu, ki so d",
+          "hu": "A levegő minőségét folyamatosan ellenőrzik a város több pontján és környékén, folyamatos analizátorokkal. Valós idejű adatok a levegőminőség-figyelő hálózatunkból és a bristoli telephelyekről, amelyek",
+          "lt": "Oro kokybė nuolat stebima keliose miesto ir aplink jį esančiose vietose, naudojant nuolatinius analizatorius. Realaus laiko duomenys iš mūsų oro kokybės stebėjimo tinklo ir iš Bristolio vietų, kurios ",
+          "uk": "Якість повітря постійно контролюється на кількох об'єктах у місті та навколо нього за допомогою безперервних аналізаторів. Дані в режимі реального часу з нашої мережі моніторингу якості повітря та з с",
+          "fi": "Ilmanlaatua seurataan jatkuvasti useissa kohteissa kaupungissa ja sen ympäristössä jatkuvatoimisilla analysaattoreilla. Reaaliaikaiset tiedot ilmanlaadun seurantaverkostostamme ja Bristolissa sijaitse",
+          "pt": "A qualidade do ar é monitorizada continuamente em vários locais dentro e à volta da cidade com analisadores contínuos. Dados em tempo real da nossa rede de monitorização da qualidade do ar e de locais",
+          "el": "Η ποιότητα του αέρα παρακολουθείται συνεχώς σε διάφορες τοποθεσίες μέσα και γύρω από την πόλη με συνεχείς αναλυτές. Δεδομένα σε πραγματικό χρόνο από το δίκτυο παρακολούθησης της ποιότητας του αέρα και",
+          "bg": "Качеството на въздуха се следи непрекъснато на няколко места в и около града с непрекъснати анализатори. Данни в реално време от нашата мрежа за мониторинг на качеството на въздуха и от обекти в Брист",
+          "de": "An mehreren Standorten in und um die Stadt wird die Luftqualität kontinuierlich mit kontinuierlichen Analysatoren überwacht. Echtzeitdaten aus unserem Netzwerk zur Überwachung der Luftqualität und von",
+          "da": "Luftkvaliteten overvåges løbende flere steder i og omkring byen med kontinuerlige analysatorer. Data i realtid fra vores luftkvalitetsovervågningsnetværk og fra steder i Bristol, der er en del af det ",
+          "lv": "Gaisa kvalitāte tiek pastāvīgi uzraudzīta vairākās vietās pilsētā un tās apkārtnē, izmantojot nepārtrauktus analizatorus. Reālā laika dati no mūsu gaisa kvalitātes monitoringa tīkla un no objektiem Br",
+          "hr": "Kvaliteta zraka kontinuirano se prati na nekoliko lokacija u gradu i oko njega s pomoću kontinuiranih analizatora. Podaci u stvarnom vremenu iz naše mreže za praćenje kvalitete zraka i s lokacija u Br",
+          "mt": "Il-kwalità tal-arja tiġi mmonitorjata kontinwament f’diversi siti fil-belt u madwarha b’analizzaturi kontinwi. Data f’ħin reali min-network tagħna ta’ monitoraġġ tal-kwalità tal-arja, u minn siti fi B",
+          "ga": "Déantar monatóireacht leanúnach ar cháilíocht an aeir ag roinnt suíomhanna sa chathair agus timpeall uirthi le hanailíseoirí leanúnacha. Sonraí fíor-ama ónár líonra monatóireachta ar cháilíocht an aei",
+          "fr": "La qualité de l'air est surveillée en permanence sur plusieurs sites dans et autour de la ville à l'aide d'analyseurs en continu. Données en temps réel de notre réseau de surveillance de la qualité de",
+          "en": "Air quality is monitored continuously at several sites in and around the city with continuous analysers. Real time data from our air quality monitoring network, and from sites in Bristol that are part",
+          "et": "Õhukvaliteeti jälgitakse pidevalt mitmes kohas linnas ja selle ümbruses pidevate analüsaatoritega. Reaalajas andmed meie õhukvaliteedi seire võrgustikust ja Bristolis asuvatest kohtadest, mis on osa r",
+          "ro": "Calitatea aerului este monitorizată continuu în mai multe locații din oraș și din împrejurimi cu analizoare continue. Date în timp real de la rețeaua noastră de monitorizare a calității aerului și de ",
+          "sk": "Kvalita ovzdušia sa nepretržite monitoruje na viacerých miestach v meste a v jeho okolí pomocou kontinuálnych analyzátorov. Údaje v reálnom čase z našej siete na monitorovanie kvality ovzdušia a z lok",
+          "nl": "De luchtkwaliteit wordt continu bewaakt op verschillende locaties in en rond de stad met continue analysers. Realtime gegevens van ons monitoringnetwerk voor luchtkwaliteit en van locaties in Bristol ",
+          "it": "La qualità dell'aria viene monitorata continuamente in diversi siti all'interno e nei dintorni della città con analizzatori continui. Dati in tempo reale dalla nostra rete di monitoraggio della qualit",
+          "es": "La calidad del aire es monitoreada continuamente en varios sitios dentro y alrededor de la ciudad con analizadores continuos. Datos en tiempo real de nuestra red de monitoreo de calidad del aire y de ",
+          "cs": "Kvalita ovzduší je kontinuálně sledována na několika místech ve městě a jeho okolí pomocí kontinuálních analyzátorů. Údaje v reálném čase z naší sítě pro monitorování kvality ovzduší a z lokalit v Bri",
+          "sv": "Luftkvaliteten övervakas kontinuerligt på flera platser i och runt staden med kontinuerliga analysatorer. Realtidsdata från vårt nätverk för övervakning av luftkvaliteten och från anläggningar i Brist"
+        },
+        "publisher": {
+          "type": "Agent",
+          "name": "Bristol City Council"
+        },
+        "index": "dataset",
+        "id": "bristol-air-quality",
+        "title": {
+          "cs": "Bristol Kvalita ovzduší",
+          "en": "Bristol Air quality",
+          "bg": "Бристол Качество на въздуха",
+          "sk": "Bristol Kvalita ovzdušia",
+          "fr": "Bristol Qualité de l'air",
+          "hr": "Bristol Kvaliteta zraka",
+          "pl": "Bristol Jakość powietrza",
+          "uk": "Брістоль Якість повітря",
+          "it": "Bristol Qualità dell'aria",
+          "pt": "Bristol Qualidade do ar",
+          "lt": "Bristolis Oro kokybė",
+          "lv": "Bristole Gaisa kvalitāte",
+          "de": "Bristol Luftqualität",
+          "ro": "Bristol Calitatea aerului",
+          "da": "Bristol Luftkvalitet",
+          "es": "Bristol Calidad del aire",
+          "hu": "Bristol Levegőminőség",
+          "fi": "Bristol Ilmanlaatu",
+          "mt": "Bristol Kwalità tal-arja",
+          "ga": "Bristol Air quality",
+          "et": "Bristol Õhukvaliteet",
+          "el": "Bristol Ποιότητα του αέρα",
+          "nl": "Bristol Luchtkwaliteit",
+          "sv": "Bristol Luftkvalitet",
+          "sl": "Bristol Kakovost zraka"
+        },
+        "distributions": [
+          {
+            "format": {
+              "id": "CSV",
+              "label": "CSV",
+              "resource": "http://publications.europa.eu/resource/authority/file-type/CSV",
+              "format_types": [
+                {
+                  "id": "tabular",
+                  "label": {
+                    "en": "Tabular"
+                  }
+                },
+                {
+                  "id": "textual",
+                  "label": {
+                    "en": "Textual"
+                  }
+                }
+              ]
+            },
+            "license": {
+              "resource": "http://reference.data.gov.uk/id/open-government-licence",
+              "id": "http://reference.data.gov.uk/id/open-government-licence",
+              "label": "http://reference.data.gov.uk/id/open-government-licence"
+            }
+          },
+          {
+            "format": {
+              "id": "CSV",
+              "label": "CSV",
+              "resource": "http://publications.europa.eu/resource/authority/file-type/CSV",
+              "format_types": [
+                {
+                  "id": "tabular",
+                  "label": {
+                    "en": "Tabular"
+                  }
+                },
+                {
+                  "id": "textual",
+                  "label": {
+                    "en": "Textual"
+                  }
+                }
+              ]
+            },
+            "license": {
+              "resource": "http://reference.data.gov.uk/id/open-government-licence",
+              "id": "http://reference.data.gov.uk/id/open-government-licence",
+              "label": "http://reference.data.gov.uk/id/open-government-licence"
+            }
+          },
+          {
+            "format": {
+              "id": "CSV",
+              "label": "CSV",
+              "resource": "http://publications.europa.eu/resource/authority/file-type/CSV",
+              "format_types": [
+                {
+                  "id": "tabular",
+                  "label": {
+                    "en": "Tabular"
+                  }
+                },
+                {
+                  "id": "textual",
+                  "label": {
+                    "en": "Textual"
+                  }
+                }
+              ]
+            },
+            "license": {
+              "resource": "http://reference.data.gov.uk/id/open-government-licence",
+              "id": "http://reference.data.gov.uk/id/open-government-licence",
+              "label": "http://reference.data.gov.uk/id/open-government-licence"
+            }
+          },
+          {
+            "format": {
+              "id": "CSV",
+              "label": "CSV",
+              "resource": "http://publications.europa.eu/resource/authority/file-type/CSV",
+              "format_types": [
+                {
+                  "id": "tabular",
+                  "label": {
+                    "en": "Tabular"
+                  }
+                },
+                {
+                  "id": "textual",
+                  "label": {
+                    "en": "Textual"
+                  }
+                }
+              ]
+            },
+            "license": {
+              "resource": "http://reference.data.gov.uk/id/open-government-licence",
+              "id": "http://reference.data.gov.uk/id/open-government-licence",
+              "label": "http://reference.data.gov.uk/id/open-government-licence"
+            }
+          }
+        ]
+      },
+      {
+        "identifier": [
+          "https://data.laregion.fr/explore/dataset/pln-air-donnees-2021/"
+        ],
+        "catalog": {
+          "id": "plateforme-ouverte-des-donnees-publiques-francaises",
+          "title": {
+            "da": "Åben platform af franske offentlige data",
+            "sv": "Öppen plattform för franska offentliga data",
+            "mt": "Pjattaforma miftuħa tad-data pubblika Franċiża",
+            "sk": "Otvorená platforma francúzskych verejných údajov",
+            "it": "Piattaforma aperta di dati pubblici francesi",
+            "fi": "Ranskan julkisen datan avoin alusta",
+            "bg": "Отворена платформа за френски публични данни",
+            "fr": "Plateforme ouverte des données publiques françaises",
+            "nl": "Open platform van Franse publieke data",
+            "hr": "Otvorena platforma francuskih javnih podataka",
+            "pl": "Otwarta platforma francuskich danych publicznych",
+            "cs": "Otevřená platforma francouzských veřejných dat",
+            "ro": "Platforma deschisă de date publice franceze",
+            "ga": "Ardán oscailte sonraí poiblí na Fraince",
+            "es": "Plataforma abierta de datos públicos franceses",
+            "lv": "Francijas publisko datu atvērtā platforma",
+            "uk": "Відкрита платформа французьких публічних даних",
+            "en": "Open platform of French public data",
+            "hu": "A francia nyilvános adatok nyílt platformja",
+            "lt": "Atvira Prancūzijos viešųjų duomenų platforma",
+            "sl": "Odprta platforma francoskih javnih podatkov",
+            "de": "Offene Plattform für öffentliche Daten in Frankreich",
+            "el": "Ανοικτή πλατφόρμα γαλλικών δημόσιων δεδομένων",
+            "pt": "Plataforma aberta de dados públicos franceses",
+            "et": "Prantsusmaa avalike andmete avatud platvorm"
+          }
+        },
+        "description": {
+          "de": "Sonde Station Schwimmbecken und Sonde Station Kapitänschaft Kontinuierliche Überwachung durch Ministationen \n\nAnalysen Stickstoffdioxid NO 2\n\nAnalysen Schwefeldioxid SO 2\n\nAnlayses Partikel PM 10",
+          "fi": "Uima-allasasemaluotain ja kapteenin asemaluotain Ministeriöiden jatkuva seuranta \n\nAnalyysit Typpidioksidi NO 2\n\nAnalyysit Rikkidioksidi SO 2\n\nAnlayses Hiukkaset PM 10",
+          "pt": "Sonda da estação da piscina e sonda da estação do capitão Monitoramento contínuo por miniestações \n\nAnálises de dióxido de azoto NO 2\n\nAnálises Dióxido de enxofre SO 2\n\nPartículas de Anlayses PM 10",
+          "bg": "Сонда за плувен басейн и сонда за капитанска станция Непрекъснато наблюдение от страна на министерствата \n\nАнализи Азотен диоксид NO 2\n\nАнализи Серен диоксид SO 2\n\nАнлази Частици PM 10",
+          "lt": "Baseinų stoties zondas ir kapitono stoties zondas Nuolatinis stebėjimas kasant \n\nAnalizuoja azoto dioksidą NO 2\n\nAnalizės Sieros dioksidas SO 2\n\nAnlayses dalelių PM 10",
+          "hr": "Sonda za bazensku stanicu i sonda za kapetansku stanicu Kontinuirano praćenje pomoću ministanica \n\nAnalize dušikovog dioksida NO 2\n\nAnalize sumpornog dioksida SO 2\n\nAnlayses Čestice PM 10",
+          "lv": "Peldbaseina stacijas zonde un kapteiņa stacijas zonde Nepārtraukta uzraudzība ar ministacijām \n\nAnalizē slāpekļa dioksīdu NO 2\n\nAnalizē sēra dioksīdu SO 2\n\nAnlayses Daļiņas PM 10",
+          "fr": "Sonde Station Piscine et sonde station capitainerie Surveillance continue par ministations \n\nAnalyses Dioxyde d'azote NO 2\n\nAnalyses Dioxyde de soufre SO 2\n\nAnlayses Particules PM 10",
+          "hu": "Úszómedence-állomás szonda és kapitány-állomás szonda Folyamatos megfigyelés miniállomásokkal \n\nElemzi a nitrogén-dioxidot NO 2\n\nElemzések Kén-dioxid SO 2\n\nAnlayses Részecskék PM 10",
+          "uk": "Зонд станції басейну та зонд станції капітана Безперервний моніторинг міністанціями \n\nАналізи Діоксид азоту NO 2\n\nАналізи діоксиду сірки SO 2\n\nАнлейси Частинки PM 10",
+          "sk": "Sonda bazénovej stanice a sonda kapitánskej stanice Nepretržité monitorovanie ministáciami \n\nAnalýza oxidu dusičitého NO 2\n\nAnalýza oxidu siričitého SO 2\n\nAnlayses Častice PM 10",
+          "sl": "Sonda za bazensko postajo in sonda za kapitanovo postajo Neprekinjeno spremljanje z mini postajami \n\nAnalize dušikovega dioksida NO 2\n\nAnaliza žveplovega dioksida SO 2\n\nAnlayses Delci PM 10",
+          "ga": "Snámha probe stáisiún linn snámha agus probe stáisiún captaen Monatóireacht leanúnach ag ministations \n\nAnailísí Dé-ocsaíd nítrigine NÍL 2\n\nAnailísí Dé-ocsaíd sulfair SO 2\n\nAnlayses Cáithníní PM 10",
+          "sv": "Simbassängsstationssond och kaptensstationssond Kontinuerlig övervakning av ministationer \n\nAnalyserar kvävedioxid NO 2\n\nAnalyser av svaveldioxid SO 2\n\nAnlag Partiklar PM 10",
+          "el": "Έλεγχος σταθμού πισίνας και έλεγχος σταθμού καπετάνιου Συνεχής παρακολούθηση από υπουργεία \n\nΑναλύσεις Διοξείδιο του αζώτου NO 2\n\nΑναλύσεις Διοξείδιο του θείου SO 2\n\nΑναλώσεις Σωματίδια PM 10",
+          "mt": "Sonda tal-istazzjon tal-pixxina u sonda tal-istazzjon tal-kaptan Monitoraġġ kontinwu permezz ta' ministations \n\nAnaliżi tad-diossidu tan-nitroġenu NO 2\n\nAnaliżi tad-diossidu tal-kubrit SO 2\n\nAnlayses ",
+          "en": "Swimming pool station probe and captain's station probe Continuous monitoring by ministations \n\nAnalyses Nitrogen dioxide NO 2\n\nAnalyses Sulphur dioxide SO 2\n\nAnlayses Particles PM 10",
+          "it": "Sonda della stazione della piscina e sonda della stazione del capitano Monitoraggio continuo dalle ministazioni \n\nAnalizza il biossido di azoto NO 2\n\nAnalizza il biossido di zolfo SO 2\n\nParticelle di ",
+          "es": "Sonda de la estación de la piscina y sonda de la estación del capitán Monitoreo continuo por miniestaciones \n\nAnálisis de dióxido de nitrógeno NO 2\n\nAnálisis del dióxido de azufre SO 2\n\nAnlayses Partí",
+          "et": "Ujumisbasseini jaama sond ja kapteni jaama sond Pidev seire ministations \n\nAnalüüsid Lämmastikdioksiid NO 2\n\nAnalüüsib vääveldioksiidi SO 2\n\nAnlayses Osakesed PM 10",
+          "cs": "Sonda pro bazénovou stanici a kapitánská sonda Kontinuální monitorování ministanicemi \n\nAnalýzy oxidu dusičitého NO 2\n\nAnalýzy oxidu siřičitého SO 2\n\nAnlayses Částice PM 10",
+          "pl": "Sonda do stacji basenowej i sonda do stacji kapitana Ciągłe monitorowanie przez ministacje \n\nAnalizy dwutlenku azotu NO 2\n\nAnalizy dwutlenku siarki SO 2\n\nAnlayses Cząstki PM 10",
+          "ro": "Sonda stației de înot și sonda stației căpitanului Monitorizare continuă prin ministații \n\nAnalizează dioxidul de azot NO 2\n\nAnalizează dioxidul de sulf SO 2\n\nAnlayses Particule PM 10",
+          "da": "Swimmingpool station sonde og kaptajnens station sonde Kontinuerlig overvågning af ministationer \n\nAnalyser Nitrogendioxid NO 2\n\nAnalyser svovldioxid SO 2\n\nAnlæg Partikler PM 10",
+          "nl": "De sonde van het zwembadpost en de sonde van het kapiteinspost Ononderbroken controle door ministations \n\nAnalyses Stikstofdioxide NO 2\n\nAnalyses Zwaveldioxide SO 2\n\nAnlayses Deeltjes PM 10"
+        },
+        "landing_page": [
+          {
+            "resource": "https://data.laregion.fr/explore/dataset/pln-air-donnees-2021/"
+          }
+        ],
+        "publisher": {
+          "resource": "https://www.data.gouv.fr/organizations/5a153f5688ee3829e2fbf39f",
+          "name": "Région Occitanie / Pyrénées Méditerranée",
+          "type": "Organization",
+          "homepage": "https://www.laregion.fr/"
+        },
+        "modified": "2024-05-07T13:14:38",
+        "index": "dataset",
+        "id": "https-data-laregion-fr-explore-dataset-pln-air-donnees-2021-",
+        "title": {
+          "de": "PLN 2021 AIR-Qualität",
+          "fi": "PLN 2021 Laatu Vuotuinen täytäntöönpanokertomus",
+          "pt": "RAE de qualidade de 2021 em PLN",
+          "bg": "PLN 2021 Качествен ГДИ",
+          "lt": "2021 m. PLN kokybės MĮA",
+          "lv": "PLN 2021. gada kvalitātes GĪZ",
+          "hr": "Godišnje izvješće o kvaliteti za 2021. za PLN",
+          "fr": "PLN 2021 Qualité AIR",
+          "hu": "PLN 2021 Minőségi ÉVJ",
+          "uk": "PLN 2021 Quality AIR",
+          "sk": "ZVZ kvality za rok 2021 v PLN",
+          "sl": "Kvalitetno letno poročilo o izvajanju za leto 2021 v PLN",
+          "ga": "PLN 2021 Cáilíocht AIR",
+          "sv": "PLN 2021 Luftfart av hög kvalitet",
+          "el": "PLN 2021 Ποιοτικός αέρας",
+          "mt": "PLN 2021 AIR tal-Kwalità",
+          "en": "PLN 2021 Quality AIR",
+          "it": "PLN 2021 ARIA di qualità",
+          "es": "PLN 2021 AIR de calidad",
+          "et": "2021. aasta kvaliteediaruanne Poola zlottides",
+          "cs": "PLN 2021 Quality AIR",
+          "pl": "PLN 2021 Jakość AIR",
+          "ro": "PLN 2021 AIR Calitate",
+          "da": "PLN 2021 kvalitet AIR",
+          "nl": "PLN 2021 Kwaliteit AIR"
+        },
+        "issued": "2024-05-07T13:14:38",
+        "distributions": [
+          {
+            "license": {
+              "resource": "https://www.etalab.gouv.fr/licence-ouverte-open-licence",
+              "id": "https://www.etalab.gouv.fr/licence-ouverte-open-licence",
+              "label": "https://www.etalab.gouv.fr/licence-ouverte-open-licence"
+            },
+            "format": {
+              "format_types": [
+                {
+                  "id": "tabular",
+                  "label": {
+                    "en": "Tabular"
+                  }
+                },
+                {
+                  "id": "textual",
+                  "label": {
+                    "en": "Textual"
+                  }
+                }
+              ],
+              "resource": "http://publications.europa.eu/resource/authority/file-type/CSV",
+              "id": "CSV",
+              "label": "CSV"
+            }
+          },
+          {
+            "license": {
+              "resource": "https://www.etalab.gouv.fr/licence-ouverte-open-licence",
+              "id": "https://www.etalab.gouv.fr/licence-ouverte-open-licence",
+              "label": "https://www.etalab.gouv.fr/licence-ouverte-open-licence"
+            },
+            "format": {
+              "format_types": [
+                {
+                  "id": "structured",
+                  "label": {
+                    "en": "Structured"
+                  }
+                }
+              ],
+              "resource": "http://publications.europa.eu/resource/authority/file-type/JSON",
+              "id": "JSON",
+              "label": "JSON"
+            }
+          }
+        ]
+      },
+      {
+        "catalog": {
+          "id": "data-gov-uk",
+          "title": {
+            "nl": "data.gov.uk",
+            "mt": "data.gov.uk",
+            "da": "data.gov.uk",
+            "lv": "data.gov.uk",
+            "es": "data.gov.uk",
+            "pl": "data.gov.uk",
+            "et": "data.gov.uk",
+            "hu": "data.gov.uk",
+            "cs": "data.gov.uk",
+            "it": "data.gov.uk",
+            "ga": "data.gov.uk",
+            "ro": "data.gov.uk",
+            "el": "data.gov.uk",
+            "hr": "data.gov.uk",
+            "fi": "data.gov.uk",
+            "pt": "data.gov.uk",
+            "sk": "data.gov.uk",
+            "bg": "данни.gov.uk",
+            "sl": "data.gov.uk",
+            "sv": "data.gov.uk",
+            "fr": "data.gov.uk",
+            "en": "data.gov.uk",
+            "de": "data.gov.uk",
+            "uk": "data.gov.uk",
+            "lt": "data.gov.uk"
+          }
+        },
+        "description": {
+          "hu": "Az 1995-ös környezetvédelmi törvény (Environment Act 1995) értelmében törvényes kötelességünk Sheffield helyi levegőminőségének kezelése. Van egy levegőminőségi cselekvési tervünk arra vonatkozóan, ho",
+          "fi": "Meillä on lakisääteinen velvollisuus hallita paikallista ilmanlaatua Sheffieldissä vuoden 1995 ympäristölain nojalla. Meillä on ilmanlaatua koskeva toimintasuunnitelma siitä, miten puutumme ilmanlaatu",
+          "ro": "Avem o datorie statutară de a gestiona calitatea aerului local în Sheffield în conformitate cu Legea mediului 1995. Avem un plan de acțiune privind calitatea aerului pentru modul în care vom aborda pr",
+          "lt": "Mes turime įstatyminę pareigą valdyti vietinę oro kokybę Šefilde pagal 1995 m. Turime oro kokybės veiksmų planą, kaip spręsime Šefildo oro kokybės problemas. Veiksmų planas susijęs su mūsų oro kokybės",
+          "sl": "Imamo zakonsko dolžnost, da upravljamo lokalno kakovost zraka v Sheffieldu v skladu z zakonom o okolju iz leta 1995. Imamo akcijski načrt za kakovost zraka za reševanje težav s kakovostjo zraka v Shef",
+          "de": "Wir sind gesetzlich verpflichtet, die lokale Luftqualität in Sheffield gemäß dem Environment Act 1995 zu verwalten. Wir haben einen Aktionsplan für Luftqualität, wie wir Probleme mit der Luftqualität ",
+          "nl": "We hebben een wettelijke plicht om de lokale luchtkwaliteit in Sheffield te beheren op grond van de Environment Act 1995. We hebben een luchtkwaliteitsactieplan voor hoe we problemen met de luchtkwali",
+          "hr": "Imamo zakonsku dužnost upravljati lokalnom kvalitetom zraka u Sheffieldu prema Zakonu o okolišu iz 1995. godine. Imamo akcijski plan za kvalitetu zraka kako ćemo riješiti probleme s kvalitetom zraka u",
+          "sk": "Máme zákonnú povinnosť riadiť kvalitu miestneho ovzdušia v Sheffielde podľa zákona o životnom prostredí z roku 1995. Máme akčný plán kvality ovzdušia, ako budeme riešiť problémy s kvalitou ovzdušia v ",
+          "cs": "Máme zákonnou povinnost řídit místní kvalitu ovzduší v Sheffieldu podle zákona o životním prostředí z roku 1995. Máme akční plán kvality ovzduší, jak budeme řešit problémy s kvalitou ovzduší v Sheffie",
+          "mt": "Għandna d-dmir statutorju li nimmaniġġjaw il-kwalità tal-arja lokali f’Sheffield skont l-Att dwar l-Ambjent tal-1995. Għandna Pjan ta’ Azzjoni dwar il-Kwalità tal-Arja għal kif se nindirizzaw il-probl",
+          "fr": "Nous avons l'obligation légale de gérer la qualité de l'air à Sheffield en vertu de l'Environment Act 1995. Nous avons un plan d'action sur la qualité de l'air pour résoudre les problèmes de qualité d",
+          "sv": "Vi har en lagstadgad skyldighet att hantera den lokala luftkvaliteten i Sheffield enligt miljölagen 1995. Vi har en handlingsplan för luftkvalitet för hur vi ska ta itu med problemen med luftkvalitete",
+          "pl": "Mamy ustawowy obowiązek zarządzania lokalną jakością powietrza w Sheffield na mocy ustawy o środowisku z 1995 r. Mamy plan działania na rzecz jakości powietrza określający, w jaki sposób będziemy rozw",
+          "da": "Vi har en lovbestemt pligt til at styre den lokale luftkvalitet i Sheffield i henhold til miljøloven 1995. Vi har en luftkvalitetshandlingsplan for, hvordan vi vil tackle problemer med luftkvaliteten ",
+          "ga": "Tá dualgas reachtúil orainn cáilíocht an aeir áitiúil a bhainistiú i Sheffield faoin Acht Comhshaoil 1995. Tá Plean Gníomhaíochta um Cháilíocht an Aeir againn maidir leis an gcaoi a rachaimid i ngleic",
+          "es": "Tenemos el deber legal de gestionar la calidad del aire local en Sheffield bajo la Ley de Medio Ambiente de 1995. Tenemos un Plan de Acción de Calidad del Aire sobre cómo abordaremos los problemas con",
+          "et": "Meil on seadusjärgne kohustus juhtida kohalikku õhukvaliteeti Sheffieldis vastavalt 1995. aasta keskkonnaseadusele. Meil on õhukvaliteedi tegevuskava selle kohta, kuidas me Sheffieldis õhukvaliteediga",
+          "en": "We have a statutory duty to manage local air quality in Sheffield under the Environment Act 1995. We have an Air Quality Action Plan for how we will tackle problems with air quality in Sheffield. The ",
+          "pt": "Temos o dever estatutário de gerir a qualidade do ar local em Sheffield sob o Environment Act 1995. Temos um Plano de Ação para a Qualidade do Ar para resolver os problemas com a qualidade do ar em Sh",
+          "bg": "Ние имаме законово задължение да управляваме качеството на местния въздух в Шефилд съгласно Закона за околната среда от 1995 г. Имаме план за действие за качеството на въздуха за това как ще се справи",
+          "el": "Έχουμε εκ του νόμου καθήκον να διαχειριστούμε την τοπική ποιότητα του αέρα στο Σέφιλντ βάσει του νόμου για το περιβάλλον του 1995. Έχουμε ένα σχέδιο δράσης για την ποιότητα του αέρα για το πώς θα αντι",
+          "lv": "Mums ir likumā noteikts pienākums pārvaldīt vietējo gaisa kvalitāti Šefīldā saskaņā ar 1995. gada Vides likumu. Mums ir gaisa kvalitātes rīcības plāns par to, kā mēs risināsim gaisa kvalitātes problēm",
+          "uk": "Ми маємо статутний обов'язок керувати місцевою якістю повітря в Шеффілді відповідно до Закону про навколишнє середовище 1995 року. У нас є План дій щодо якості повітря, як ми будемо вирішувати проблем",
+          "it": "Abbiamo il dovere statutario di gestire la qualità dell'aria locale a Sheffield ai sensi dell'Environment Act 1995. Abbiamo un piano d'azione per la qualità dell'aria per come affronteremo i problemi "
+        },
+        "publisher": {
+          "type": "Agent",
+          "name": "Sheffield City Council"
+        },
+        "index": "dataset",
+        "id": "sheffield-air-quality-management-area",
+        "title": {
+          "hr": "Područje upravljanja kvalitetom zraka Sheffield",
+          "sl": "Sheffield Air Quality Management Area",
+          "sk": "Sheffieldská oblasť riadenia kvality ovzdušia",
+          "bg": "Област за управление на качеството на въздуха в Шефилд",
+          "sv": "Sheffields luftvårdsområde",
+          "fi": "Sheffieldin ilmanlaadun hallinta-alue",
+          "ro": "Zona de management al calității aerului Sheffield",
+          "pt": "Zona de Gestão da Qualidade do Ar de Sheffield",
+          "lt": "Šefildo oro kokybės valdymo zona",
+          "en": "Sheffield Air Quality Management Area",
+          "da": "Sheffield Air Quality Management Area",
+          "ga": "Limistéar Bainistíochta Cáilíochta Aeir Sheffield",
+          "fr": "Zone de gestion de la qualité de l'air de Sheffield",
+          "cs": "Oblast řízení kvality ovzduší v Sheffieldu",
+          "it": "Area di gestione della qualità dell'aria di Sheffield",
+          "pl": "Sheffield Obszar Zarządzania Jakością Powietrza",
+          "el": "Περιοχή διαχείρισης της ποιότητας του αέρα του Σέφιλντ",
+          "uk": "Шеффілдський район управління якістю повітря",
+          "lv": "Šefīldas gaisa kvalitātes pārvaldības zona",
+          "de": "Sheffield Air Quality Management Area",
+          "nl": "Sheffield Air Quality Management Area",
+          "es": "Área de Gestión de la Calidad del Aire de Sheffield",
+          "mt": "Żona ta’ Ġestjoni tal-Kwalità tal-Arja ta’ Sheffield",
+          "et": "Sheffieldi õhukvaliteedi juhtimise piirkond",
+          "hu": "Sheffield levegőminőség-kezelési terület"
+        },
+        "distributions": [
+          {
+            "format": {
+              "id": "WMS_SRVC",
+              "label": "WMS",
+              "resource": "http://publications.europa.eu/resource/authority/file-type/WMS_SRVC",
+              "format_types": [
+                {
+                  "id": "structured",
+                  "label": {
+                    "en": "Structured"
+                  }
+                },
+                {
+                  "id": "geographical",
+                  "label": {
+                    "en": "Geographical"
+                  }
+                },
+                {
+                  "id": "textual",
+                  "label": {
+                    "en": "Textual"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "format": {
+              "id": "GEOJSON",
+              "label": "GeoJSON",
+              "resource": "http://publications.europa.eu/resource/authority/file-type/GEOJSON",
+              "format_types": [
+                {
+                  "id": "structured",
+                  "label": {
+                    "en": "Structured"
+                  }
+                },
+                {
+                  "id": "geographical",
+                  "label": {
+                    "en": "Geographical"
+                  }
+                },
+                {
+                  "id": "textual",
+                  "label": {
+                    "en": "Textual"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "facets": []
+  }
+}

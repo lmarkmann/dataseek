@@ -76,7 +76,8 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use crate::cache::{CATALOG_TTL, Cache, Freshness, Kind};
 use crate::credentials::{Credentials, Key};
 use crate::http::{Http, SourceError};
-use crate::record::Dataset;
+use crate::license;
+use crate::record::{Dataset, file_formats};
 
 pub type Live = fn(&Ctx<'_>, &str, usize) -> Result<Vec<Dataset>, SourceError>;
 pub type Listing = fn(&Ctx<'_>) -> Result<Vec<Dataset>, SourceError>;
@@ -95,6 +96,11 @@ pub struct Ctx<'a> {
     pub creds: &'a Credentials,
     pub cache: &'a Cache,
     pub refresh: bool,
+    /// The day `--updated-since` asks for. An adapter passes it on only where
+    /// the source filters on a date never earlier than the one dataseek
+    /// reads, so the source drops nothing the filter on the merged list
+    /// would keep (ADR 0020).
+    pub since: Option<&'a str>,
     stop: &'a AtomicBool,
 }
 
@@ -206,7 +212,25 @@ impl Source {
         }
     }
 
+    /// The source's answer, each record's license as [`license::normalized`]
+    /// gives it and its formats as [`file_formats`] does, so every source
+    /// spells them alike.
     pub fn search(
+        &self,
+        ctx: &Ctx<'_>,
+        query: &str,
+        limit: usize,
+    ) -> Result<Answer, SourceError> {
+        let mut answer = self.ask(ctx, query, limit)?;
+        for dataset in &mut answer.datasets {
+            dataset.license =
+                dataset.license.as_deref().and_then(license::normalized);
+            dataset.formats = file_formats(&dataset.formats);
+        }
+        Ok(answer)
+    }
+
+    fn ask(
         &self,
         ctx: &Ctx<'_>,
         query: &str,
@@ -292,17 +316,20 @@ impl Source {
 }
 
 /// The registry rows to ask: the named ones (or all but the opt-in ones),
-/// narrowed to the given categories, minus exclusions, in registry order. An
-/// opt-in source is asked only when named. Ids were validated by clap.
+/// narrowed to the given categories, minus exclusions, in registry order. A
+/// source is named by `-s` or by `--include`, and an opt-in source is asked
+/// only when named. Ids were validated by clap.
 pub fn select(
     only: &[String],
+    include: &[String],
     exclude: &[String],
     categories: &[Category],
 ) -> Vec<&'static Source> {
     SOURCES
         .iter()
         .filter(|s| {
-            let named = only.iter().any(|id| id == s.id);
+            let named = only.iter().any(|id| id == s.id)
+                || include.iter().any(|id| id == s.id);
             named || (only.is_empty() && s.opt_in.is_none())
         })
         .filter(|s| categories.is_empty() || categories.contains(&s.category))
@@ -349,6 +376,7 @@ impl Services {
             creds: &self.creds,
             cache: &self.cache,
             refresh,
+            since: None,
             stop: &self.stop,
         }
     }
@@ -519,7 +547,7 @@ pub static SOURCES: &[Source] = &[
         "openml",
         "OpenML",
         MachineLearning,
-        "OpenML REST, listed",
+        "OpenML Elasticsearch, listed",
         "https://docs.openml.org/ecosystem/Rest/",
         openml::list,
     ),
@@ -1191,14 +1219,37 @@ mod tests {
 
     #[test]
     fn an_opt_in_source_is_asked_only_when_named() {
-        let everyone = select(&[], &[], &[]);
+        let everyone = select(&[], &[], &[], &[]);
         assert!(everyone.iter().all(|s| s.opt_in.is_none()));
         for id in ["google", "mendeley"] {
             assert!(everyone.iter().all(|s| s.id != id), "{id}");
-            assert_eq!(select(&[id.to_owned()], &[], &[]).len(), 1, "{id}");
+            assert_eq!(
+                select(&[id.to_owned()], &[], &[], &[]).len(),
+                1,
+                "{id}"
+            );
+            let included = select(&[], &[id.to_owned()], &[], &[]);
+            assert_eq!(included.len(), everyone.len() + 1, "{id}");
+            assert!(included.iter().any(|s| s.id == id), "{id}");
         }
-        let aggregators = select(&[], &[], &[Category::Aggregator]);
+        let aggregators = select(&[], &[], &[], &[Category::Aggregator]);
         assert!(aggregators.iter().all(|s| s.id != "google"));
+    }
+
+    /// `--include` adds to whatever the selection says, and the filters the
+    /// rest of the command applies still narrow it.
+    #[test]
+    fn an_included_source_joins_the_selection() {
+        let with_zenodo =
+            select(&["zenodo".to_owned()], &["google".to_owned()], &[], &[]);
+        let ids: Vec<&str> = with_zenodo.iter().map(|s| s.id).collect();
+        assert_eq!(ids, ["google", "zenodo"]);
+        let excluded =
+            select(&[], &["google".to_owned()], &["google".to_owned()], &[]);
+        assert!(excluded.iter().all(|s| s.id != "google"));
+        let research =
+            select(&[], &["google".to_owned()], &[], &[Category::Research]);
+        assert!(research.iter().all(|s| s.id != "google"));
     }
 
     fn catalog(list: Listing) -> Source {

@@ -188,7 +188,8 @@ fn fusion(rank: usize) -> f64 {
     1.0 / (K + rank as f64 + 1.0)
 }
 
-/// Keep the first source's fields; take only what it lacked from later ones.
+/// Keep the first source's fields; take only what it lacked from later ones,
+/// and every format any of them offers.
 fn fill(target: &mut Dataset, other: Dataset) {
     if target.description.is_none() {
         target.description = other.description;
@@ -207,6 +208,11 @@ fn fill(target: &mut Dataset, other: Dataset) {
     }
     if target.size_bytes.is_none() {
         target.size_bytes = other.size_bytes;
+    }
+    for format in other.formats {
+        if !target.formats.contains(&format) {
+            target.formats.push(format);
+        }
     }
 }
 

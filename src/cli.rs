@@ -129,8 +129,7 @@ pub struct Cli {
 /// Which sources to ask, shared by `search` and `bench`.
 #[derive(Args, Clone, Debug, Default)]
 pub struct Selection {
-    /// Only these sources, comma-separated (see `dataseek sources`). Naming
-    /// a source is the only way to ask an opt-in one.
+    /// Only these sources, comma-separated (see `dataseek sources`).
     #[arg(
         short = 's',
         long = "source",
@@ -140,6 +139,16 @@ pub struct Selection {
         hide_possible_values = true
     )]
     pub only: Vec<String>,
+
+    /// Also ask these sources, comma-separated, opt-in ones included.
+    #[arg(
+        long,
+        value_name = "IDS",
+        value_delimiter = ',',
+        value_parser = source_ids(),
+        hide_possible_values = true
+    )]
+    pub include: Vec<String>,
 
     /// Leave these sources out, comma-separated.
     #[arg(
@@ -163,15 +172,60 @@ pub struct Selection {
     )]
     pub categories: Vec<crate::sources::Category>,
 
-    /// How many results to ask each source for (1-100).
+    /// How many results to ask each source for (1-100; 10, or 30 when
+    /// search filters).
     #[arg(
         long,
         value_name = "N",
-        default_value_t = 10,
         value_parser = clap::value_parser!(u16).range(PER_SOURCE),
         env = "DATASEEK_PER_SOURCE"
     )]
-    pub per_source: u16,
+    pub per_source: Option<u16>,
+}
+
+/// How many results each source is asked for when nothing says otherwise.
+pub const PER_SOURCE_DEFAULT: u16 = 10;
+/// The same when `search` filters, so the filters have more to keep.
+pub const PER_SOURCE_FILTERED: u16 = 30;
+/// The values `--min-sources` accepts.
+pub const MIN_SOURCES: RangeFrom<i64> = 1..;
+
+/// What `search` keeps of the merged list. A dataset that does not state a
+/// field never passes a filter on that field.
+#[derive(Args, Clone, Debug, Default)]
+pub struct Filters {
+    /// Only datasets under these licenses, comma-separated: SPDX ids such
+    /// as CC-BY-4.0, or a family such as cc-by for every version of it.
+    #[arg(
+        long,
+        value_name = "IDS",
+        value_delimiter = ',',
+        value_parser = crate::filter::license
+    )]
+    pub license: Vec<String>,
+
+    /// Only datasets updated on or after this day (YYYY, YYYY-MM or
+    /// YYYY-MM-DD).
+    #[arg(long, value_name = "DATE", value_parser = crate::filter::day)]
+    pub updated_since: Option<String>,
+
+    /// Only datasets offered in one of these file formats, comma-separated:
+    /// csv, json, parquet, netcdf, geotiff, ...
+    #[arg(
+        long,
+        value_name = "NAMES",
+        value_delimiter = ',',
+        value_parser = crate::filter::format
+    )]
+    pub format: Vec<String>,
+
+    /// Only datasets that at least this many sources found.
+    #[arg(
+        long,
+        value_name = "N",
+        value_parser = clap::value_parser!(u16).range(MIN_SOURCES)
+    )]
+    pub min_sources: Option<u16>,
 }
 
 fn source_ids() -> PossibleValuesParser {
@@ -250,6 +304,9 @@ pub enum Command {
         #[command(flatten)]
         selection: Selection,
 
+        #[command(flatten)]
+        filters: Filters,
+
         /// How many merged results to print.
         #[arg(
             short = 'n',
@@ -295,7 +352,9 @@ pub enum Command {
             Croissant for Hugging Face. The file list comes from the same \
             metadata: each file's name, format, size, checksum and link, \
             whichever the page gives, and for a Croissant file set the \
-            pattern its files match; nothing is downloaded. Under --json \
+            pattern its files match; nothing is downloaded. A doi.org \
+            link is read as the page its DOI names, and a Dataverse page \
+            through its installation's schema.org export. Under --json \
             the list is .files, beside the page's own .dataset.",
         after_help = "Examples:
   dsk inspect https://zenodo.org/records/13135140
@@ -319,7 +378,17 @@ pub enum Command {
             --json prints. stdout carries protocol messages only; narration \
             goes to stderr."
     )]
-    Mcp,
+    Mcp {
+        /// Also ask these sources, opt-in ones included, in every search
+        /// that names no sources of its own.
+        #[arg(
+            long,
+            value_name = "IDS",
+            value_delimiter = ',',
+            value_parser = source_ids()
+        )]
+        include: Vec<String>,
+    },
 
     /// Time every source on real queries and measure their overlap.
     #[command(

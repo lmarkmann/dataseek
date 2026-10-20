@@ -1,16 +1,26 @@
 //! Figshare's public article search, item type 3 (dataset). Covers
 //! figshare.com and the institutional portals on the same platform; each hit
-//! links to the portal that holds it. The hits carry no description, license
-//! or size; the full record has them, but one request per hit would break the
-//! guideline of at most one request per second (Figshare, October 2026).
-//! Results come newest first, because `order` defaults to `created_date`
-//! descending and has no relevance value, and an article matches only when
-//! every term appears somewhere in it (Figshare, October 2026). `updated` is
-//! `modified_date`: `published_date` moves with each new version (Figshare,
-//! October 2026). A page holds up to 1,000 hits, so one request covers
-//! `--per-source` (Figshare, October 2026). A `search_for` shorter than 3
-//! characters is refused with HTTP 422 (Figshare, October 2026), so such a
-//! query gets no results instead of a failure.
+//! links to the portal that holds it. Results come newest first, because
+//! `order` defaults to `created_date` descending and has no relevance value,
+//! and an article matches only when every term appears somewhere in it
+//! (Figshare, October 2026). `updated` is `modified_date`: `published_date`
+//! moves with each new version (Figshare, October 2026). A page holds up to
+//! 1,000 hits, so one request covers `--per-source` (Figshare, October 2026).
+//! A `search_for` shorter than 3 characters is refused with HTTP 422
+//! (Figshare, October 2026), so such a query gets no results instead of a
+//! failure.
+//!
+//! The hits carry no description, license, size or counts. The full record
+//! (`/v2/articles/{id}`) has the first three and the stats service
+//! (`stats.figshare.com/total/article/{id}`) the counts, each one more
+//! request per hit, while Figshare asks clients to send at most one request
+//! per second (Figshare, October 2026): ten hits would take ten seconds and
+//! miss the search's grace period, so the hits stay as the search sends them.
+//! The DOI Figshare mints names a version (`.33059219.v2`); the same DOI
+//! without `.v2` is registered as well and resolves to the latest version
+//! (doi.org, October 2026), so it travels as an alias that folds versions of
+//! one article together. Metadata is CC0, which allows caching it (Figshare,
+//! October 2026).
 
 use serde_json::{Value, json};
 
@@ -56,7 +66,21 @@ fn record(row: &Value) -> Option<Dataset> {
             .doi_from(text(row, "/doi"));
     dataset.updated =
         day(first_text(row, &["/modified_date", "/published_date"]));
+    dataset.aliases = dataset
+        .doi
+        .as_deref()
+        .zip(text(row, "/id"))
+        .and_then(|(doi, id)| unversioned(doi, &id))
+        .into_iter()
+        .collect();
     dataset.valid()
+}
+
+fn unversioned(doi: &str, id: &str) -> Option<String> {
+    let (base, version) = doi.rsplit_once(".v")?;
+    let numbered =
+        !version.is_empty() && version.chars().all(|c| c.is_ascii_digit());
+    (numbered && base.ends_with(&format!(".{id}"))).then(|| base.to_owned())
 }
 
 #[cfg(test)]
@@ -87,7 +111,8 @@ mod tests {
                 updated: Some("2026-10-06".into()),
                 size_bytes: None,
                 popularity: None,
-                aliases: vec![],
+                formats: vec![],
+                aliases: vec!["10.6084/m9.figshare.33059219".into()],
             }
         );
         assert_eq!(
@@ -101,6 +126,8 @@ mod tests {
             hits[1].doi.as_deref(),
             Some("10.3389/fmars.2026.1835248.s001")
         );
+        assert_eq!(hits[1].aliases, Vec::<String>::new());
+        assert_eq!(hits[3].aliases, ["10.34474/data.jmsj.29191208"]);
     }
 
     #[test]

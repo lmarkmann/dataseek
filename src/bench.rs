@@ -15,7 +15,7 @@ use std::time::Duration;
 use anyhow::Result;
 use serde::Serialize;
 
-use crate::cli::Selection;
+use crate::cli::{PER_SOURCE_DEFAULT, Selection};
 use crate::dedup::merge;
 use crate::output::Out;
 use crate::search::{Plan, run as search};
@@ -55,8 +55,12 @@ pub fn run(
     out: &Out,
 ) -> Result<()> {
     let services = Arc::new(Services::load()?);
-    let sources =
-        select(&selection.only, &selection.exclude, &selection.categories);
+    let sources = select(
+        &selection.only,
+        &selection.include,
+        &selection.exclude,
+        &selection.categories,
+    );
     let queries: Vec<String> = if queries.is_empty() {
         DEFAULT_QUERIES.iter().map(|q| (*q).to_owned()).collect()
     } else {
@@ -82,8 +86,11 @@ pub fn run(
         let plan = Arc::new(Plan {
             query: query.clone(),
             sources: sources.clone(),
-            per_source: usize::from(selection.per_source),
+            per_source: usize::from(
+                selection.per_source.unwrap_or(PER_SOURCE_DEFAULT),
+            ),
             forced: true,
+            since: None,
         });
         let outcomes = search(&services, true, &plan, &progress, None);
         for o in &outcomes {

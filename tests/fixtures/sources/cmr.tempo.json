@@ -1,0 +1,1717 @@
+{
+  "hits": 183,
+  "took": 40,
+  "items": [
+    {
+      "meta": {
+        "revision-id": 26,
+        "deleted": false,
+        "format": "application/vnd.nasa.cmr.umm+json",
+        "provider-id": "LARC_CLOUD",
+        "has-combine": true,
+        "user-id": "crdowney",
+        "has-formats": false,
+        "associations": {
+          "variables": [
+            "V3730342406-LARC_CLOUD",
+            "V3730342049-LARC_CLOUD",
+            "V3730342366-LARC_CLOUD",
+            "V3730342893-LARC_CLOUD"
+          ],
+          "services": [
+            "S3616918926-LARC_CLOUD",
+            "S2874702816-XYZ_PROV",
+            "S2940253910-LARC_CLOUD"
+          ],
+          "visualizations": [
+            "VIS4086807728-ESDIS",
+            "VIS4086807726-ESDIS"
+          ],
+          "data-quality-summaries": [
+            "DQS3707684858-LARC_CLOUD"
+          ]
+        },
+        "s3-links": [
+          "s3://asdc-prod-protected/TEMPO/TEMPO_NO2_L2_V04"
+        ],
+        "has-spatial-subsetting": true,
+        "native-id": "TEMPO_NO2_L2_V04",
+        "has-transforms": true,
+        "association-details": {
+          "variables": [
+            {
+              "concept-id": "V3730342406-LARC_CLOUD"
+            },
+            {
+              "concept-id": "V3730342049-LARC_CLOUD"
+            },
+            {
+              "concept-id": "V3730342366-LARC_CLOUD"
+            },
+            {
+              "concept-id": "V3730342893-LARC_CLOUD"
+            }
+          ],
+          "services": [
+            {
+              "concept-id": "S3616918926-LARC_CLOUD"
+            },
+            {
+              "concept-id": "S2874702816-XYZ_PROV"
+            },
+            {
+              "concept-id": "S2940253910-LARC_CLOUD"
+            }
+          ],
+          "visualizations": [
+            {
+              "concept-id": "VIS4086807728-ESDIS"
+            },
+            {
+              "concept-id": "VIS4086807726-ESDIS"
+            }
+          ],
+          "data-quality-summaries": [
+            {
+              "concept-id": "DQS3707684858-LARC_CLOUD"
+            }
+          ]
+        },
+        "has-variables": true,
+        "concept-id": "C3685896872-LARC_CLOUD",
+        "revision-date": "2026-10-16T16:42:45.971Z",
+        "has-temporal-subsetting": true,
+        "concept-type": "collection"
+      },
+      "umm": {
+        "DataLanguage": "English",
+        "AncillaryKeywords": [
+          "vertical column troposphere",
+          "vertical column stratosphere"
+        ],
+        "CollectionCitations": [
+          {
+            "Creator": "Caroline R Nowlan, Gonzalo González Abad, Huiqun Wang, John C Houck, & Xiong Liu",
+            "Title": "TEMPO NO2 tropospheric and stratospheric columns V04 (PROVISIONAL)",
+            "Version": "V04",
+            "ReleaseDate": "2025-09-17T00:00:00.000Z"
+          }
+        ],
+        "AdditionalAttributes": [
+          {
+            "Name": "CUMULUS",
+            "Description": "Cumulus flag",
+            "DataType": "BOOLEAN"
+          }
+        ],
+        "SpatialExtent": {
+          "HorizontalSpatialDomain": {
+            "Geometry": {
+              "GPolygons": [
+                {
+                  "Boundary": {
+                    "Points": [
+                      {
+                        "Longitude": -170,
+                        "Latitude": 10
+                      },
+                      {
+                        "Longitude": -10,
+                        "Latitude": 10
+                      },
+                      {
+                        "Longitude": -10,
+                        "Latitude": 80
+                      },
+                      {
+                        "Longitude": -170,
+                        "Latitude": 80
+                      }
+                    ]
+                  }
+                }
+              ],
+              "CoordinateSystem": "CARTESIAN"
+            },
+            "ResolutionAndCoordinateSystem": {
+              "HorizontalDataResolution": {
+                "NonGriddedResolutions": [
+                  {
+                    "XDimension": 4.75,
+                    "YDimension": 2,
+                    "Unit": "Kilometers",
+                    "ViewingAngleType": "At Nadir"
+                  }
+                ]
+              }
+            }
+          },
+          "SpatialCoverageType": "HORIZONTAL",
+          "GranuleSpatialRepresentation": "CARTESIAN"
+        },
+        "CollectionProgress": "ACTIVE",
+        "StandardProduct": false,
+        "ScienceKeywords": [
+          {
+            "Category": "EARTH SCIENCE",
+            "Topic": "ATMOSPHERE",
+            "Term": "ATMOSPHERIC CHEMISTRY",
+            "VariableLevel1": "NITROGEN COMPOUNDS",
+            "VariableLevel2": "NITROGEN DIOXIDE"
+          },
+          {
+            "Category": "EARTH SCIENCE",
+            "Topic": "ATMOSPHERE",
+            "Term": "AIR QUALITY",
+            "VariableLevel1": "NITROGEN OXIDES"
+          }
+        ],
+        "TemporalExtents": [
+          {
+            "RangeDateTimes": [
+              {
+                "BeginningDateTime": "2023-08-02T00:00:00.000Z"
+              }
+            ],
+            "EndsAtPresentFlag": true,
+            "TemporalResolution": {
+              "Value": 6,
+              "Unit": "Minute"
+            }
+          }
+        ],
+        "ProcessingLevel": {
+          "Id": "2"
+        },
+        "DOI": {
+          "DOI": "10.5067/IS-40e/TEMPO/NO2_L2.004",
+          "Authority": "https://doi.org/"
+        },
+        "ShortName": "TEMPO_NO2_L2",
+        "EntryTitle": "TEMPO NO2 tropospheric and stratospheric columns V04 (PROVISIONAL)",
+        "DirectDistributionInformation": {
+          "S3BucketAndObjectPrefixNames": [
+            "s3://asdc-prod-protected/TEMPO/TEMPO_NO2_L2_V04"
+          ],
+          "Region": "us-west-2",
+          "S3CredentialsAPIEndpoint": "https://data.asdc.earthdata.nasa.gov/s3credentials",
+          "S3CredentialsAPIDocumentationURL": "https://data.asdc.earthdata.nasa.gov/s3credentialsREADME"
+        },
+        "AccessConstraints": {
+          "Value": 4,
+          "Description": "WORLD"
+        },
+        "MetadataLanguage": "English",
+        "RelatedUrls": [
+          {
+            "Description": "TEMPO project page",
+            "URLContentType": "CollectionURL",
+            "Type": "PROJECT HOME PAGE",
+            "URL": "https://tempo.si.edu"
+          },
+          {
+            "Description": "DOI data set landing page for TEMPO_NO2_L2_V04",
+            "URLContentType": "CollectionURL",
+            "Type": "DATA SET LANDING PAGE",
+            "URL": "https://doi.org/10.5067/IS-40e/TEMPO/NO2_L2.004"
+          },
+          {
+            "Description": "Mission Logo",
+            "URLContentType": "VisualizationURL",
+            "Type": "GET RELATED VISUALIZATION",
+            "Subtype": "WORLDVIEW",
+            "URL": "https://asdc.larc.nasa.gov/static/images/project_logos/tempo.png"
+          },
+          {
+            "Description": "How to cite ASDC data",
+            "URLContentType": "PublicationURL",
+            "Type": "VIEW RELATED INFORMATION",
+            "Subtype": "DATA CITATION GUIDELINES",
+            "URL": "https://asdc.larc.nasa.gov/citing-data"
+          }
+        ],
+        "DataDates": [
+          {
+            "Type": "CREATE",
+            "Date": "2025-07-08T00:00:00.000Z"
+          }
+        ],
+        "Abstract": "Nitrogen dioxide Level 2 (PROVISIONAL) files provide trace gas information at TEMPO’s native spatial resolution, ~10 km^2 at the center of the Field of Regard (FOR), for individual granules. Each granule covers the entire North-South TEMPO FOR but only a portion of the East-West FOR.",
+        "Purpose": "The Tropospheric Emissions: Monitoring of Pollution (TEMPO) V04 data products are processed using the TEMPO Science Data Processing Center (SDPC) software that is operational as of September 2025.",
+        "LocationKeywords": [
+          {
+            "Category": "CONTINENT",
+            "Type": "NORTH AMERICA"
+          }
+        ],
+        "MetadataDates": [
+          {
+            "Type": "CREATE",
+            "Date": "2025-07-08T00:00:00.000Z"
+          }
+        ],
+        "MetadataAssociations": [
+          {
+            "Type": "PARENT",
+            "EntryId": "TEMPO_NO2_L2",
+            "Description": "Preceding version",
+            "Version": "V03"
+          }
+        ],
+        "VersionDescription": "Review the User Guide for more information",
+        "Version": "V04",
+        "Projects": [
+          {
+            "ShortName": "TEMPO",
+            "LongName": "Tropospheric Emissions: Monitoring of Pollution"
+          }
+        ],
+        "UseConstraints": {
+          "LicenseURL": {
+            "Name": "Data Use Guidance",
+            "Linkage": "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance",
+            "Description": "The Earth Observing System Data and Information System (EOSDIS) data use guidance for NASA data."
+          },
+          "Description": "For more information, see the ESDIS Data Use Guidance: https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance",
+          "FreeAndOpenData": true
+        },
+        "ContactPersons": [
+          {
+            "Roles": [
+              "Technical Contact"
+            ],
+            "ContactInformation": {
+              "ContactMechanisms": [
+                {
+                  "Type": "Email",
+                  "Value": "contact@example.org"
+                }
+              ],
+              "Addresses": [
+                {
+                  "StreetAddresses": [
+                    "Smithsonian Astrophysical Observatory,",
+                    "60 Garden Street,",
+                    "MS-50"
+                  ],
+                  "Country": "United States",
+                  "City": "Cambridge",
+                  "PostalCode": "02138"
+                }
+              ]
+            },
+            "FirstName": "Caroline",
+            "LastName": "Nowlan"
+          },
+          {
+            "Roles": [
+              "Investigator"
+            ],
+            "ContactInformation": {
+              "ContactMechanisms": [
+                {
+                  "Type": "Email",
+                  "Value": "contact@example.org"
+                }
+              ],
+              "Addresses": [
+                {
+                  "StreetAddresses": [
+                    "Smithsonian Astrophysical Observatory",
+                    "60 Garden Street"
+                  ],
+                  "Country": "United States",
+                  "City": "Cambridge",
+                  "PostalCode": "02138"
+                }
+              ]
+            },
+            "FirstName": "Xiong",
+            "LastName": "Liu"
+          }
+        ],
+        "AssociatedDOIs": [
+          {
+            "DOI": "10.5067/IS-40e/TEMPO/NO2_L2.001",
+            "Type": "IsNewVersionOf"
+          },
+          {
+            "DOI": "10.5067/IS-40e/TEMPO/NO2_L2.003",
+            "Type": "IsNewVersionOf"
+          }
+        ],
+        "DataCenters": [
+          {
+            "Roles": [
+              "ARCHIVER"
+            ],
+            "ContactPersons": [
+              {
+                "Roles": [
+                  "Data Center Contact"
+                ],
+                "ContactInformation": {
+                  "RelatedUrls": [
+                    {
+                      "Description": "Data Center URL",
+                      "URLContentType": "DataContactURL",
+                      "Type": "HOME PAGE",
+                      "URL": "https://asdc.larc.nasa.gov/"
+                    }
+                  ],
+                  "ContactMechanisms": [
+                    {
+                      "Type": "Email",
+                      "Value": "support-asdc@earthdata.nasa.gov"
+                    }
+                  ],
+                  "Addresses": [
+                    {
+                      "StreetAddresses": [
+                        "NASA Langley Atmospheric Science Data Center",
+                        "User and Data Services",
+                        "NASA Langley Research Center"
+                      ],
+                      "Country": "United States",
+                      "City": "Hampton",
+                      "PostalCode": "23681-2199"
+                    }
+                  ]
+                },
+                "FirstName": "ASDC",
+                "LastName": "USER SERVICES"
+              }
+            ],
+            "ContactInformation": {
+              "RelatedUrls": [
+                {
+                  "Description": "Data Center URL",
+                  "URLContentType": "DataCenterURL",
+                  "Type": "HOME PAGE",
+                  "URL": "https://asdc.larc.nasa.gov/"
+                }
+              ]
+            },
+            "ShortName": "NASA/LARC/SD/ASDC",
+            "LongName": "Atmospheric Science Data Center, Science Directorate, Langley Research Center, NASA"
+          }
+        ],
+        "Platforms": [
+          {
+            "Type": "Earth Observation Satellites",
+            "ShortName": "IS-40e",
+            "LongName": "Intelsat 40e",
+            "Instruments": [
+              {
+                "ShortName": "TEMPO",
+                "LongName": "Tropospheric Emissions: Monitoring of Pollution"
+              }
+            ]
+          }
+        ],
+        "MetadataSpecification": {
+          "URL": "https://cdn.earthdata.nasa.gov/umm/collection/v1.18.6",
+          "Name": "UMM-C",
+          "Version": "1.18.6"
+        },
+        "ArchiveAndDistributionInformation": {
+          "FileArchiveInformation": [
+            {
+              "Format": "netCDF-4"
+            }
+          ],
+          "FileDistributionInformation": [
+            {
+              "Format": "netCDF-4",
+              "TotalCollectionFileSize": 15,
+              "TotalCollectionFileSizeUnit": "TB"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "meta": {
+        "revision-id": 24,
+        "deleted": false,
+        "format": "application/vnd.nasa.cmr.umm+json",
+        "provider-id": "LARC_CLOUD",
+        "has-combine": false,
+        "user-id": "crdowney",
+        "has-formats": true,
+        "associations": {
+          "variables": [
+            "V3730339117-LARC_CLOUD",
+            "V3730339228-LARC_CLOUD",
+            "V3730338747-LARC_CLOUD",
+            "V3730338673-LARC_CLOUD"
+          ],
+          "services": [
+            "S3616918458-LARC_CLOUD",
+            "S2164732315-XYZ_PROV",
+            "S2874702816-XYZ_PROV"
+          ],
+          "visualizations": [
+            "VIS4086808246-ESDIS",
+            "VIS4086808301-ESDIS"
+          ],
+          "data-quality-summaries": [
+            "DQS3707684858-LARC_CLOUD"
+          ]
+        },
+        "s3-links": [
+          "s3://asdc-prod-protected/TEMPO/TEMPO_NO2_L3_V04"
+        ],
+        "has-spatial-subsetting": true,
+        "native-id": "TEMPO_NO2_L3_V04",
+        "has-transforms": true,
+        "association-details": {
+          "variables": [
+            {
+              "concept-id": "V3730339117-LARC_CLOUD"
+            },
+            {
+              "concept-id": "V3730339228-LARC_CLOUD"
+            },
+            {
+              "concept-id": "V3730338747-LARC_CLOUD"
+            },
+            {
+              "concept-id": "V3730338673-LARC_CLOUD"
+            }
+          ],
+          "services": [
+            {
+              "concept-id": "S3616918458-LARC_CLOUD"
+            },
+            {
+              "concept-id": "S2164732315-XYZ_PROV"
+            },
+            {
+              "concept-id": "S2874702816-XYZ_PROV"
+            }
+          ],
+          "visualizations": [
+            {
+              "concept-id": "VIS4086808246-ESDIS"
+            },
+            {
+              "concept-id": "VIS4086808301-ESDIS"
+            }
+          ],
+          "data-quality-summaries": [
+            {
+              "concept-id": "DQS3707684858-LARC_CLOUD"
+            }
+          ]
+        },
+        "has-variables": true,
+        "concept-id": "C3685896708-LARC_CLOUD",
+        "revision-date": "2026-10-16T17:32:20.280Z",
+        "has-temporal-subsetting": true,
+        "concept-type": "collection"
+      },
+      "umm": {
+        "DataLanguage": "English",
+        "AncillaryKeywords": [
+          "vertical column troposphere",
+          "vertical column stratosphere"
+        ],
+        "CollectionCitations": [
+          {
+            "Version": "V04",
+            "Title": "TEMPO gridded NO2 tropospheric and stratospheric columns V04 (PROVISIONAL)",
+            "Creator": "Caroline R Nowlan, Gonzalo González Abad, Huiqun Wang, John C Houck, & Xiong Liu",
+            "ReleaseDate": "2025-09-17T00:00:00.000Z"
+          }
+        ],
+        "AdditionalAttributes": [
+          {
+            "Name": "CUMULUS",
+            "Description": "Cumulus flag",
+            "DataType": "BOOLEAN"
+          }
+        ],
+        "SpatialExtent": {
+          "HorizontalSpatialDomain": {
+            "Geometry": {
+              "GPolygons": [
+                {
+                  "Boundary": {
+                    "Points": [
+                      {
+                        "Longitude": -170,
+                        "Latitude": 10
+                      },
+                      {
+                        "Longitude": -10,
+                        "Latitude": 10
+                      },
+                      {
+                        "Longitude": -10,
+                        "Latitude": 80
+                      },
+                      {
+                        "Longitude": -170,
+                        "Latitude": 80
+                      }
+                    ]
+                  }
+                }
+              ],
+              "CoordinateSystem": "CARTESIAN"
+            },
+            "ResolutionAndCoordinateSystem": {
+              "HorizontalDataResolution": {
+                "GriddedResolutions": [
+                  {
+                    "XDimension": 0.02,
+                    "YDimension": 0.02,
+                    "Unit": "Decimal Degrees"
+                  }
+                ]
+              }
+            }
+          },
+          "SpatialCoverageType": "HORIZONTAL",
+          "GranuleSpatialRepresentation": "CARTESIAN"
+        },
+        "CollectionProgress": "ACTIVE",
+        "StandardProduct": false,
+        "ScienceKeywords": [
+          {
+            "Category": "EARTH SCIENCE",
+            "Topic": "ATMOSPHERE",
+            "Term": "ATMOSPHERIC CHEMISTRY",
+            "VariableLevel1": "NITROGEN COMPOUNDS",
+            "VariableLevel2": "NITROGEN DIOXIDE"
+          },
+          {
+            "Category": "EARTH SCIENCE",
+            "Topic": "ATMOSPHERE",
+            "Term": "AIR QUALITY",
+            "VariableLevel1": "NITROGEN OXIDES"
+          }
+        ],
+        "TemporalExtents": [
+          {
+            "RangeDateTimes": [
+              {
+                "BeginningDateTime": "2023-08-02T00:00:00.000Z"
+              }
+            ],
+            "EndsAtPresentFlag": true,
+            "TemporalResolution": {
+              "Unit": "Hour",
+              "Value": 1
+            }
+          }
+        ],
+        "ProcessingLevel": {
+          "Id": "3"
+        },
+        "DOI": {
+          "DOI": "10.5067/IS-40e/TEMPO/NO2_L3.004",
+          "Authority": "https://doi.org/"
+        },
+        "ShortName": "TEMPO_NO2_L3",
+        "EntryTitle": "TEMPO gridded NO2 tropospheric and stratospheric columns V04  (PROVISIONAL)",
+        "DirectDistributionInformation": {
+          "S3BucketAndObjectPrefixNames": [
+            "s3://asdc-prod-protected/TEMPO/TEMPO_NO2_L3_V04"
+          ],
+          "Region": "us-west-2",
+          "S3CredentialsAPIEndpoint": "https://data.asdc.earthdata.nasa.gov/s3credentials",
+          "S3CredentialsAPIDocumentationURL": "https://data.asdc.earthdata.nasa.gov/s3credentialsREADME"
+        },
+        "AccessConstraints": {
+          "Value": 4,
+          "Description": "WORLD"
+        },
+        "MetadataLanguage": "English",
+        "RelatedUrls": [
+          {
+            "Description": "TEMPO project page",
+            "URLContentType": "CollectionURL",
+            "Type": "PROJECT HOME PAGE",
+            "URL": "https://tempo.si.edu"
+          },
+          {
+            "Description": "DOI data set landing page for TEMPO_NO2_L3_V04  (PROVISIONAL)",
+            "URLContentType": "CollectionURL",
+            "Type": "DATA SET LANDING PAGE",
+            "URL": "https://doi.org/10.5067/IS-40e/TEMPO/NO2_L3.004"
+          },
+          {
+            "Description": "Mission Logo",
+            "URLContentType": "VisualizationURL",
+            "Type": "GET RELATED VISUALIZATION",
+            "Subtype": "WORLDVIEW",
+            "URL": "https://asdc.larc.nasa.gov/static/images/project_logos/tempo.png"
+          },
+          {
+            "Description": "How to cite ASDC data",
+            "URLContentType": "PublicationURL",
+            "Type": "VIEW RELATED INFORMATION",
+            "Subtype": "DATA CITATION GUIDELINES",
+            "URL": "https://asdc.larc.nasa.gov/citing-data"
+          }
+        ],
+        "DataDates": [
+          {
+            "Type": "CREATE",
+            "Date": "2025-07-08T00:00:00.000Z"
+          }
+        ],
+        "Abstract": "Nitrogen dioxide Level 3 (PROVISIONAL) files provide trace gas information on a regular grid covering the TEMPO field of regard for nominal TEMPO observations. Level 3 files are derived by combining information from all Level 2 files constituting a TEMPO East-West scan cycle.",
+        "Purpose": "The Tropospheric Emissions: Monitoring of Pollution (TEMPO) V04  (PROVISIONAL) data products are processed using the TEMPO Science Data Processing Center (SDPC) software that is operational as of September 2025.",
+        "LocationKeywords": [
+          {
+            "Category": "CONTINENT",
+            "Type": "NORTH AMERICA"
+          }
+        ],
+        "MetadataDates": [
+          {
+            "Type": "CREATE",
+            "Date": "2025-07-15T00:00:00.000Z"
+          }
+        ],
+        "MetadataAssociations": [
+          {
+            "Type": "PARENT",
+            "EntryId": "TEMPO_NO2_L3",
+            "Description": "Preceding version",
+            "Version": "V03"
+          }
+        ],
+        "VersionDescription": "Review the User Guide for more information",
+        "Version": "V04",
+        "Projects": [
+          {
+            "ShortName": "TEMPO",
+            "LongName": "Tropospheric Emissions: Monitoring of Pollution"
+          }
+        ],
+        "UseConstraints": {
+          "LicenseURL": {
+            "Name": "Data Use Guidance",
+            "Linkage": "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance",
+            "Description": "The Earth Observing System Data and Information System (EOSDIS) data use guidance for NASA data."
+          },
+          "Description": "For more information, see the ESDIS Data Use Guidance: https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance",
+          "FreeAndOpenData": true
+        },
+        "ContactPersons": [
+          {
+            "Roles": [
+              "Technical Contact"
+            ],
+            "ContactInformation": {
+              "ContactMechanisms": [
+                {
+                  "Type": "Email",
+                  "Value": "contact@example.org"
+                }
+              ],
+              "Addresses": [
+                {
+                  "StreetAddresses": [
+                    "Smithsonian Astrophysical Observatory,",
+                    "60 Garden Street,",
+                    "MS-50"
+                  ],
+                  "Country": "United States",
+                  "City": "Cambridge",
+                  "PostalCode": "02138"
+                }
+              ]
+            },
+            "FirstName": "Caroline",
+            "LastName": "Nowlan"
+          },
+          {
+            "Roles": [
+              "Investigator"
+            ],
+            "ContactInformation": {
+              "ContactMechanisms": [
+                {
+                  "Type": "Email",
+                  "Value": "contact@example.org"
+                }
+              ],
+              "Addresses": [
+                {
+                  "StreetAddresses": [
+                    "Smithsonian Astrophysical Observatory,",
+                    "60 Garden Street"
+                  ],
+                  "City": "Cambridge",
+                  "Country": "United States",
+                  "PostalCode": "02138"
+                }
+              ]
+            },
+            "FirstName": "Xiong",
+            "LastName": "Liu"
+          }
+        ],
+        "AssociatedDOIs": [
+          {
+            "DOI": "10.5067/IS-40e/TEMPO/NO2_L3.001",
+            "Type": "IsNewVersionOf"
+          },
+          {
+            "DOI": "10.5067/IS-40e/TEMPO/NO2_L3.003",
+            "Type": "IsNewVersionOf"
+          }
+        ],
+        "DataCenters": [
+          {
+            "Roles": [
+              "ARCHIVER"
+            ],
+            "ContactPersons": [
+              {
+                "Roles": [
+                  "Data Center Contact"
+                ],
+                "ContactInformation": {
+                  "RelatedUrls": [
+                    {
+                      "Description": "Data Center URL",
+                      "URLContentType": "DataContactURL",
+                      "Type": "HOME PAGE",
+                      "URL": "https://asdc.larc.nasa.gov/"
+                    }
+                  ],
+                  "ContactMechanisms": [
+                    {
+                      "Type": "Telephone",
+                      "Value": "757-864-8656"
+                    },
+                    {
+                      "Type": "Email",
+                      "Value": "support-asdc@earthdata.nasa.gov"
+                    }
+                  ],
+                  "Addresses": [
+                    {
+                      "StreetAddresses": [
+                        "NASA Langley Atmospheric Science Data Center",
+                        "User and Data Services",
+                        "NASA Langley Research Center"
+                      ],
+                      "Country": "United States",
+                      "City": "Hampton",
+                      "PostalCode": "23681-2199"
+                    }
+                  ]
+                },
+                "FirstName": "ASDC",
+                "LastName": "USER SERVICES"
+              }
+            ],
+            "ContactInformation": {
+              "RelatedUrls": [
+                {
+                  "Description": "Data Center URL",
+                  "URLContentType": "DataCenterURL",
+                  "Type": "HOME PAGE",
+                  "URL": "https://asdc.larc.nasa.gov/"
+                }
+              ],
+              "Addresses": [
+                {
+                  "Country": "United States"
+                }
+              ]
+            },
+            "ShortName": "NASA/LARC/SD/ASDC",
+            "LongName": "Atmospheric Science Data Center, Science Directorate, Langley Research Center, NASA"
+          }
+        ],
+        "Platforms": [
+          {
+            "Instruments": [
+              {
+                "ShortName": "TEMPO",
+                "LongName": "Tropospheric Emissions: Monitoring of Pollution"
+              }
+            ],
+            "Type": "Earth Observation Satellites",
+            "ShortName": "IS-40e",
+            "LongName": "Intelsat 40e"
+          }
+        ],
+        "MetadataSpecification": {
+          "URL": "https://cdn.earthdata.nasa.gov/umm/collection/v1.18.6",
+          "Name": "UMM-C",
+          "Version": "1.18.6"
+        },
+        "ArchiveAndDistributionInformation": {
+          "FileArchiveInformation": [
+            {
+              "Format": "netCDF-4"
+            }
+          ],
+          "FileDistributionInformation": [
+            {
+              "Format": "netCDF-4",
+              "TotalCollectionFileSize": 12,
+              "TotalCollectionFileSizeUnit": "TB"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "meta": {
+        "revision-id": 23,
+        "deleted": false,
+        "format": "application/vnd.nasa.cmr.umm+json",
+        "provider-id": "LARC_CLOUD",
+        "has-combine": true,
+        "user-id": "crdowney",
+        "has-formats": false,
+        "associations": {
+          "variables": [
+            "V3730377986-LARC_CLOUD",
+            "V3730378422-LARC_CLOUD",
+            "V3730363485-LARC_CLOUD",
+            "V3730377878-LARC_CLOUD"
+          ],
+          "services": [
+            "S3616918926-LARC_CLOUD",
+            "S2874702816-XYZ_PROV",
+            "S2940253910-LARC_CLOUD"
+          ],
+          "visualizations": [
+            "VIS4086808671-ESDIS",
+            "VIS4086808663-ESDIS"
+          ],
+          "data-quality-summaries": [
+            "DQS3707678175-LARC_CLOUD"
+          ]
+        },
+        "s3-links": [
+          "s3://asdc-prod-protected/TEMPO/TEMPO_NO2_L2_NRT_V02"
+        ],
+        "has-spatial-subsetting": true,
+        "native-id": "TEMPO_NO2_L2_NRT_V02",
+        "has-transforms": true,
+        "association-details": {
+          "variables": [
+            {
+              "concept-id": "V3730377986-LARC_CLOUD"
+            },
+            {
+              "concept-id": "V3730378422-LARC_CLOUD"
+            },
+            {
+              "concept-id": "V3730363485-LARC_CLOUD"
+            },
+            {
+              "concept-id": "V3730377878-LARC_CLOUD"
+            }
+          ],
+          "services": [
+            {
+              "concept-id": "S3616918926-LARC_CLOUD"
+            },
+            {
+              "concept-id": "S2874702816-XYZ_PROV"
+            },
+            {
+              "concept-id": "S2940253910-LARC_CLOUD"
+            }
+          ],
+          "visualizations": [
+            {
+              "concept-id": "VIS4086808671-ESDIS"
+            },
+            {
+              "concept-id": "VIS4086808663-ESDIS"
+            }
+          ],
+          "data-quality-summaries": [
+            {
+              "concept-id": "DQS3707678175-LARC_CLOUD"
+            }
+          ]
+        },
+        "has-variables": true,
+        "concept-id": "C3685668972-LARC_CLOUD",
+        "revision-date": "2026-10-16T16:37:51.571Z",
+        "has-temporal-subsetting": true,
+        "concept-type": "collection"
+      },
+      "umm": {
+        "DataLanguage": "English",
+        "CollectionCitations": [
+          {
+            "Creator": "Caroline R Nowlan, Gonzalo González Abad, Huiqun Wang, John Houck, & Xiong Liu",
+            "Version": "V02",
+            "Title": "TEMPO NO2 tropospheric and stratospheric columns V02 (NRT)  (PROVISIONAL)",
+            "ReleaseDate": "2025-09-17T00:00:00.000Z"
+          }
+        ],
+        "AdditionalAttributes": [
+          {
+            "Name": "CUMULUS",
+            "Description": "Cumulus flag",
+            "DataType": "BOOLEAN"
+          }
+        ],
+        "SpatialExtent": {
+          "HorizontalSpatialDomain": {
+            "Geometry": {
+              "GPolygons": [
+                {
+                  "Boundary": {
+                    "Points": [
+                      {
+                        "Longitude": -170,
+                        "Latitude": 10
+                      },
+                      {
+                        "Longitude": -10,
+                        "Latitude": 10
+                      },
+                      {
+                        "Longitude": -10,
+                        "Latitude": 80
+                      },
+                      {
+                        "Longitude": -170,
+                        "Latitude": 80
+                      }
+                    ]
+                  }
+                }
+              ],
+              "CoordinateSystem": "CARTESIAN"
+            },
+            "ResolutionAndCoordinateSystem": {
+              "HorizontalDataResolution": {
+                "NonGriddedResolutions": [
+                  {
+                    "XDimension": 4.75,
+                    "YDimension": 2,
+                    "Unit": "Kilometers",
+                    "ViewingAngleType": "At Nadir"
+                  }
+                ]
+              }
+            }
+          },
+          "SpatialCoverageType": "HORIZONTAL",
+          "GranuleSpatialRepresentation": "CARTESIAN"
+        },
+        "CollectionProgress": "ACTIVE",
+        "StandardProduct": false,
+        "ScienceKeywords": [
+          {
+            "Category": "EARTH SCIENCE",
+            "Topic": "ATMOSPHERE",
+            "Term": "ATMOSPHERIC CHEMISTRY",
+            "VariableLevel1": "NITROGEN COMPOUNDS",
+            "VariableLevel2": "NITROGEN DIOXIDE"
+          },
+          {
+            "Category": "EARTH SCIENCE",
+            "Topic": "ATMOSPHERE",
+            "Term": "AIR QUALITY",
+            "VariableLevel1": "NITROGEN OXIDES"
+          },
+          {
+            "Category": "EARTH SCIENCE",
+            "Topic": "ATMOSPHERE",
+            "Term": "AIR QUALITY",
+            "VariableLevel1": "TROPOSPHERIC OZONE"
+          }
+        ],
+        "TemporalExtents": [
+          {
+            "RangeDateTimes": [
+              {
+                "BeginningDateTime": "2025-09-17T00:00:00.000Z"
+              }
+            ],
+            "EndsAtPresentFlag": true,
+            "TemporalResolution": {
+              "Value": 6,
+              "Unit": "Minute"
+            }
+          }
+        ],
+        "ProcessingLevel": {
+          "Id": "2"
+        },
+        "DOI": {
+          "DOI": "10.5067/IS-40e/TEMPO/NO2_NRT_L2.002",
+          "Authority": "https://doi.org/"
+        },
+        "ShortName": "TEMPO_NO2_L2_NRT",
+        "EntryTitle": "TEMPO NO2 tropospheric and stratospheric columns V02 (NRT) PROVISIONAL",
+        "DirectDistributionInformation": {
+          "S3BucketAndObjectPrefixNames": [
+            "s3://asdc-prod-protected/TEMPO/TEMPO_NO2_L2_NRT_V02"
+          ],
+          "Region": "us-west-2",
+          "S3CredentialsAPIEndpoint": "https://data.asdc.earthdata.nasa.gov/s3credentials",
+          "S3CredentialsAPIDocumentationURL": "https://data.asdc.earthdata.nasa.gov/s3credentialsREADME"
+        },
+        "AccessConstraints": {
+          "Value": 4,
+          "Description": "WORLD"
+        },
+        "MetadataLanguage": "English",
+        "RelatedUrls": [
+          {
+            "Description": "TEMPO project page",
+            "URLContentType": "CollectionURL",
+            "Type": "PROJECT HOME PAGE",
+            "URL": "https://tempo.si.edu"
+          },
+          {
+            "Description": "DOI data set landing page for TEMPO_NO2_L2_NRT_V02",
+            "URLContentType": "CollectionURL",
+            "Type": "DATA SET LANDING PAGE",
+            "URL": "https://doi.org/10.5067/IS-40e/TEMPO/NO2_NRT_L2.002"
+          },
+          {
+            "Description": "Mission Logo",
+            "URLContentType": "VisualizationURL",
+            "Type": "GET RELATED VISUALIZATION",
+            "Subtype": "WORLDVIEW",
+            "URL": "https://asdc.larc.nasa.gov/static/images/project_logos/tempo.png"
+          },
+          {
+            "Description": "How to cite ASDC data",
+            "URLContentType": "PublicationURL",
+            "Type": "VIEW RELATED INFORMATION",
+            "Subtype": "DATA CITATION GUIDELINES",
+            "URL": "https://asdc.larc.nasa.gov/citing-data"
+          }
+        ],
+        "SpatialInformation": {
+          "VerticalCoordinateSystem": {
+            "DepthSystemDefinition": {
+              "Resolutions": [
+                2000,
+                2000
+              ],
+              "DatumName": "Horizontal",
+              "DistanceUnits": "Meters"
+            }
+          },
+          "SpatialCoverageType": "Horizontal"
+        },
+        "Abstract": "Nitrogen dioxide Level 2 (PROVISIONAL) files provide trace gas information at TEMPO’s native spatial resolution, ~10 km^2 at the center of the Field of Regard(FOR), for individual granules. Each granule covers the entire North-South TEMPO FOR but only a portion of the East-West FOR.",
+        "Purpose": "The Tropospheric Emissions: Monitoring of Pollution (TEMPO) Near Real-Time (NRT) V02 data products are processed using the TEMPO Science Data Processing Center (SDPC) software that is operational as of September 2025.",
+        "LocationKeywords": [
+          {
+            "Category": "CONTINENT",
+            "Type": "NORTH AMERICA"
+          }
+        ],
+        "MetadataDates": [
+          {
+            "Type": "CREATE",
+            "Date": "2025-07-28T00:00:00.000Z"
+          }
+        ],
+        "MetadataAssociations": [
+          {
+            "Type": "RELATED",
+            "EntryId": "TEMPO_NO2_L2",
+            "Version": "V04"
+          },
+          {
+            "Type": "PARENT",
+            "EntryId": "TEMPO_NO2_L2_NRT",
+            "Version": "V01",
+            "Description": "Preceding version"
+          }
+        ],
+        "VersionDescription": "Review the User Guide for more information",
+        "Version": "V02",
+        "Projects": [
+          {
+            "ShortName": "TEMPO",
+            "LongName": "Tropospheric Emissions: Monitoring of Pollution"
+          },
+          {
+            "ShortName": "LANCE",
+            "LongName": "Land, Atmosphere Near real-time Capability for Earth observation"
+          },
+          {
+            "ShortName": "SNWG",
+            "LongName": "Satellite Needs Working Group"
+          }
+        ],
+        "UseConstraints": {
+          "LicenseURL": {
+            "Name": "Data Use Guidance",
+            "Linkage": "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance",
+            "Description": "The Earth Observing System Data and Information System (EOSDIS) data use guidance for NASA data."
+          },
+          "Description": "For more information, see the ESDIS Data Use Guidance: https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance",
+          "FreeAndOpenData": true
+        },
+        "ContactPersons": [
+          {
+            "Roles": [
+              "Technical Contact"
+            ],
+            "ContactInformation": {
+              "ContactMechanisms": [
+                {
+                  "Type": "Email",
+                  "Value": "contact@example.org"
+                }
+              ],
+              "Addresses": [
+                {
+                  "StreetAddresses": [
+                    "Smithsonian Astrophysical Observatory,",
+                    "60 Garden Street,",
+                    "MS-50"
+                  ],
+                  "Country": "United States",
+                  "City": "Cambridge",
+                  "PostalCode": "02138"
+                }
+              ]
+            },
+            "FirstName": "Caroline",
+            "LastName": "Nowlan"
+          }
+        ],
+        "CollectionDataType": "NEAR_REAL_TIME",
+        "DataCenters": [
+          {
+            "Roles": [
+              "ARCHIVER"
+            ],
+            "ContactPersons": [
+              {
+                "Roles": [
+                  "Data Center Contact"
+                ],
+                "ContactInformation": {
+                  "RelatedUrls": [
+                    {
+                      "Description": "Data Center URL",
+                      "URLContentType": "DataContactURL",
+                      "Type": "HOME PAGE",
+                      "URL": "https://asdc.larc.nasa.gov/"
+                    }
+                  ],
+                  "ContactMechanisms": [
+                    {
+                      "Type": "Email",
+                      "Value": "support-asdc@earthdata.nasa.gov"
+                    }
+                  ],
+                  "Addresses": [
+                    {
+                      "StreetAddresses": [
+                        "NASA Langley Atmospheric Science Data Center",
+                        "User and Data Services",
+                        "NASA Langley Research Center"
+                      ],
+                      "Country": "United States",
+                      "City": "Hampton",
+                      "PostalCode": "23681-2199"
+                    }
+                  ]
+                },
+                "FirstName": "ASDC",
+                "LastName": "USER SERVICES"
+              }
+            ],
+            "ContactInformation": {
+              "RelatedUrls": [
+                {
+                  "Description": "Data Center URL",
+                  "URLContentType": "DataCenterURL",
+                  "Type": "HOME PAGE",
+                  "URL": "https://asdc.larc.nasa.gov/"
+                }
+              ]
+            },
+            "ShortName": "NASA/LARC/SD/ASDC",
+            "LongName": "Atmospheric Science Data Center, Science Directorate, Langley Research Center, NASA"
+          }
+        ],
+        "TemporalKeywords": [
+          "1 minute - < 1 hour"
+        ],
+        "Platforms": [
+          {
+            "Instruments": [
+              {
+                "ShortName": "TEMPO",
+                "LongName": "Tropospheric Emissions: Monitoring of Pollution"
+              }
+            ],
+            "Type": "Earth Observation Satellites",
+            "ShortName": "IS-40e",
+            "LongName": "Intelsat 40e"
+          }
+        ],
+        "MetadataSpecification": {
+          "URL": "https://cdn.earthdata.nasa.gov/umm/collection/v1.18.6",
+          "Name": "UMM-C",
+          "Version": "1.18.6"
+        },
+        "ArchiveAndDistributionInformation": {
+          "FileArchiveInformation": [
+            {
+              "Format": "netCDF-4",
+              "TotalCollectionFileSize": 247,
+              "TotalCollectionFileSizeUnit": "GB"
+            }
+          ],
+          "FileDistributionInformation": [
+            {
+              "Format": "netCDF-4",
+              "TotalCollectionFileSize": 247,
+              "TotalCollectionFileSizeUnit": "GB"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "meta": {
+        "revision-id": 23,
+        "deleted": false,
+        "format": "application/vnd.nasa.cmr.umm+json",
+        "provider-id": "LARC_CLOUD",
+        "has-combine": false,
+        "user-id": "crdowney",
+        "has-formats": true,
+        "associations": {
+          "variables": [
+            "V3730348432-LARC_CLOUD",
+            "V3730348373-LARC_CLOUD",
+            "V3730348638-LARC_CLOUD",
+            "V3730348225-LARC_CLOUD"
+          ],
+          "services": [
+            "S2164732315-XYZ_PROV",
+            "S3616918458-LARC_CLOUD",
+            "S2874702816-XYZ_PROV"
+          ],
+          "visualizations": [
+            "VIS4086808702-ESDIS",
+            "VIS4086808696-ESDIS"
+          ],
+          "data-quality-summaries": [
+            "DQS3707678175-LARC_CLOUD"
+          ]
+        },
+        "s3-links": [
+          "s3://asdc-prod-protected/TEMPO/TEMPO_NO2_L3_NRT_V02"
+        ],
+        "has-spatial-subsetting": true,
+        "native-id": "TEMPO_NO2_L3_NRT_V02",
+        "has-transforms": true,
+        "association-details": {
+          "variables": [
+            {
+              "concept-id": "V3730348432-LARC_CLOUD"
+            },
+            {
+              "concept-id": "V3730348373-LARC_CLOUD"
+            },
+            {
+              "concept-id": "V3730348638-LARC_CLOUD"
+            },
+            {
+              "concept-id": "V3730348225-LARC_CLOUD"
+            }
+          ],
+          "services": [
+            {
+              "concept-id": "S2164732315-XYZ_PROV"
+            },
+            {
+              "concept-id": "S3616918458-LARC_CLOUD"
+            },
+            {
+              "concept-id": "S2874702816-XYZ_PROV"
+            }
+          ],
+          "visualizations": [
+            {
+              "concept-id": "VIS4086808702-ESDIS"
+            },
+            {
+              "concept-id": "VIS4086808696-ESDIS"
+            }
+          ],
+          "data-quality-summaries": [
+            {
+              "concept-id": "DQS3707678175-LARC_CLOUD"
+            }
+          ]
+        },
+        "has-variables": true,
+        "concept-id": "C3685668637-LARC_CLOUD",
+        "revision-date": "2026-10-16T17:30:46.983Z",
+        "has-temporal-subsetting": true,
+        "concept-type": "collection"
+      },
+      "umm": {
+        "DataLanguage": "English",
+        "CollectionCitations": [
+          {
+            "Title": "TEMPO gridded NO2 tropospheric and stratospheric columns V02 (NRT) (PROVISIONAL)",
+            "Version": "V02",
+            "Creator": "Caroline R Nowlan, Gonzalo González Abad, Huiqun Wang, John C Houck, & Xiong Liu",
+            "ReleaseDate": "2025-09-17T00:00:00.000Z"
+          }
+        ],
+        "AdditionalAttributes": [
+          {
+            "Name": "CUMULUS",
+            "Description": "Cumulus flag",
+            "DataType": "BOOLEAN"
+          }
+        ],
+        "SpatialExtent": {
+          "HorizontalSpatialDomain": {
+            "Geometry": {
+              "GPolygons": [
+                {
+                  "Boundary": {
+                    "Points": [
+                      {
+                        "Longitude": -170,
+                        "Latitude": 10
+                      },
+                      {
+                        "Longitude": -10,
+                        "Latitude": 10
+                      },
+                      {
+                        "Longitude": -10,
+                        "Latitude": 80
+                      },
+                      {
+                        "Longitude": -170,
+                        "Latitude": 80
+                      }
+                    ]
+                  }
+                }
+              ],
+              "CoordinateSystem": "CARTESIAN"
+            },
+            "ResolutionAndCoordinateSystem": {
+              "HorizontalDataResolution": {
+                "GriddedResolutions": [
+                  {
+                    "XDimension": 0.02,
+                    "YDimension": 0.02,
+                    "Unit": "Decimal Degrees"
+                  }
+                ]
+              }
+            }
+          },
+          "SpatialCoverageType": "HORIZONTAL",
+          "GranuleSpatialRepresentation": "CARTESIAN"
+        },
+        "CollectionProgress": "ACTIVE",
+        "StandardProduct": false,
+        "ScienceKeywords": [
+          {
+            "Category": "EARTH SCIENCE",
+            "Topic": "ATMOSPHERE",
+            "Term": "ATMOSPHERIC CHEMISTRY",
+            "VariableLevel1": "NITROGEN COMPOUNDS",
+            "VariableLevel2": "NITROGEN DIOXIDE"
+          },
+          {
+            "Category": "EARTH SCIENCE",
+            "Topic": "ATMOSPHERE",
+            "Term": "AIR QUALITY",
+            "VariableLevel1": "NITROGEN OXIDES"
+          }
+        ],
+        "TemporalExtents": [
+          {
+            "RangeDateTimes": [
+              {
+                "BeginningDateTime": "2025-09-17T00:00:00.000Z"
+              }
+            ],
+            "EndsAtPresentFlag": true,
+            "TemporalResolution": {
+              "Value": 1,
+              "Unit": "Hour"
+            }
+          }
+        ],
+        "ProcessingLevel": {
+          "Id": "3"
+        },
+        "DOI": {
+          "DOI": "10.5067/IS-40e/TEMPO/NO2_NRT_L3.002",
+          "Authority": "https://doi.org/"
+        },
+        "ShortName": "TEMPO_NO2_L3_NRT",
+        "EntryTitle": "TEMPO gridded NO2 tropospheric and stratospheric columns V02 (NRT) (PROVISIONAL)",
+        "DirectDistributionInformation": {
+          "S3BucketAndObjectPrefixNames": [
+            "s3://asdc-prod-protected/TEMPO/TEMPO_NO2_L3_NRT_V02"
+          ],
+          "Region": "us-west-2",
+          "S3CredentialsAPIEndpoint": "https://data.asdc.earthdata.nasa.gov/s3credentials",
+          "S3CredentialsAPIDocumentationURL": "https://data.asdc.earthdata.nasa.gov/s3credentialsREADME"
+        },
+        "AccessConstraints": {
+          "Value": 4,
+          "Description": "WORLD"
+        },
+        "MetadataLanguage": "English",
+        "RelatedUrls": [
+          {
+            "Description": "TEMPO project page",
+            "URLContentType": "CollectionURL",
+            "Type": "PROJECT HOME PAGE",
+            "URL": "https://tempo.si.edu"
+          },
+          {
+            "Description": "DOI data set landing page for TEMPO_NO2_L3_NRT_V02",
+            "URLContentType": "CollectionURL",
+            "Type": "DATA SET LANDING PAGE",
+            "URL": "10.5067/IS-40e/TEMPO/NO2_NRT_L3.002"
+          },
+          {
+            "Description": "Mission Logo",
+            "URLContentType": "VisualizationURL",
+            "Type": "GET RELATED VISUALIZATION",
+            "Subtype": "WORLDVIEW",
+            "URL": "https://asdc.larc.nasa.gov/static/images/project_logos/tempo.png"
+          },
+          {
+            "Description": "How to cite ASDC data",
+            "URLContentType": "PublicationURL",
+            "Type": "VIEW RELATED INFORMATION",
+            "Subtype": "DATA CITATION GUIDELINES",
+            "URL": "https://asdc.larc.nasa.gov/citing-data"
+          }
+        ],
+        "SpatialInformation": {
+          "VerticalCoordinateSystem": {
+            "AltitudeSystemDefinition": {
+              "Resolutions": [
+                2,
+                2
+              ],
+              "DistanceUnits": "Kilometers"
+            }
+          },
+          "SpatialCoverageType": "Horizontal"
+        },
+        "DataDates": [
+          {
+            "Type": "CREATE",
+            "Date": "2025-09-08T13:54:47.768512Z"
+          }
+        ],
+        "Abstract": "Nitrogen dioxide Level 3 (PROVISIONAL) files provide trace gas information on a regular grid covering the TEMPO field of regard for nominal TEMPO observations. Level 3 files are derived by combining information from all Level 2 files constituting a TEMPO East-West scan cycle.",
+        "Purpose": "The Tropospheric Emissions: Monitoring of Pollution (TEMPO) Near Real-Time (NRT) V02 data products are processed using the TEMPO Science Data Processing Center (SDPC) software that is operational as of September 2025.",
+        "LocationKeywords": [
+          {
+            "Category": "CONTINENT",
+            "Type": "NORTH AMERICA"
+          }
+        ],
+        "MetadataDates": [
+          {
+            "Type": "CREATE",
+            "Date": "2025-07-24T00:00:00.000Z"
+          }
+        ],
+        "MetadataAssociations": [
+          {
+            "Type": "RELATED",
+            "EntryId": "TEMPO_NO2_L3",
+            "Version": "V04"
+          },
+          {
+            "Type": "PARENT",
+            "EntryId": "TEMPO_NO2_L3_NRT",
+            "Version": "V01",
+            "Description": "Preceding version"
+          }
+        ],
+        "VersionDescription": "Review the User Guide for more information",
+        "Version": "V02",
+        "Projects": [
+          {
+            "ShortName": "TEMPO",
+            "LongName": "Tropospheric Emissions: Monitoring of Pollution"
+          },
+          {
+            "ShortName": "LANCE",
+            "LongName": "Land, Atmosphere Near real-time Capability for Earth observation"
+          },
+          {
+            "ShortName": "SNWG",
+            "LongName": "Satellite Needs Working Group"
+          }
+        ],
+        "UseConstraints": {
+          "LicenseURL": {
+            "Name": "Data Use Guidance",
+            "Linkage": "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance",
+            "Description": "The Earth Observing System Data and Information System (EOSDIS) data use guidance for NASA data."
+          },
+          "Description": "For more information, see the ESDIS Data Use Guidance: https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance",
+          "FreeAndOpenData": true
+        },
+        "ContactPersons": [
+          {
+            "Roles": [
+              "Technical Contact"
+            ],
+            "ContactInformation": {
+              "ContactMechanisms": [
+                {
+                  "Type": "Email",
+                  "Value": "contact@example.org"
+                }
+              ],
+              "Addresses": [
+                {
+                  "StreetAddresses": [
+                    "Smithsonian Astrophysical Observatory,",
+                    "60 Garden Street,",
+                    "MS-50"
+                  ],
+                  "Country": "United States",
+                  "City": "Cambridge",
+                  "PostalCode": "02138"
+                }
+              ]
+            },
+            "FirstName": "Caroline",
+            "LastName": "Nowlan"
+          }
+        ],
+        "CollectionDataType": "NEAR_REAL_TIME",
+        "DataCenters": [
+          {
+            "Roles": [
+              "ARCHIVER"
+            ],
+            "ContactPersons": [
+              {
+                "Roles": [
+                  "Data Center Contact"
+                ],
+                "ContactInformation": {
+                  "RelatedUrls": [
+                    {
+                      "Description": "Data Center URL",
+                      "URLContentType": "DataContactURL",
+                      "Type": "HOME PAGE",
+                      "URL": "https://asdc.larc.nasa.gov/"
+                    }
+                  ],
+                  "ContactMechanisms": [
+                    {
+                      "Type": "Telephone",
+                      "Value": "757-864-8656"
+                    },
+                    {
+                      "Type": "Email",
+                      "Value": "support-asdc@earthdata.nasa.gov"
+                    }
+                  ],
+                  "Addresses": [
+                    {
+                      "StreetAddresses": [
+                        "NASA Langley Atmospheric Science Data Center",
+                        "User and Data Services",
+                        "NASA Langley Research Center"
+                      ],
+                      "Country": "United States",
+                      "City": "Hampton",
+                      "PostalCode": "23681-2199"
+                    }
+                  ]
+                },
+                "FirstName": "ASDC",
+                "LastName": "USER SERVICES"
+              }
+            ],
+            "ContactInformation": {
+              "RelatedUrls": [
+                {
+                  "Description": "Data Center URL",
+                  "URLContentType": "DataCenterURL",
+                  "Type": "HOME PAGE",
+                  "URL": "https://asdc.larc.nasa.gov/"
+                }
+              ],
+              "Addresses": [
+                {
+                  "Country": "United States"
+                }
+              ]
+            },
+            "ShortName": "NASA/LARC/SD/ASDC",
+            "LongName": "Atmospheric Science Data Center, Science Directorate, Langley Research Center, NASA"
+          }
+        ],
+        "TemporalKeywords": [
+          "Hourly - < Daily"
+        ],
+        "Platforms": [
+          {
+            "Instruments": [
+              {
+                "ShortName": "TEMPO",
+                "LongName": "Tropospheric Emissions: Monitoring of Pollution"
+              }
+            ],
+            "Type": "Earth Observation Satellites",
+            "ShortName": "IS-40e",
+            "LongName": "Intelsat 40e"
+          }
+        ],
+        "MetadataSpecification": {
+          "URL": "https://cdn.earthdata.nasa.gov/umm/collection/v1.18.6",
+          "Name": "UMM-C",
+          "Version": "1.18.6"
+        },
+        "ArchiveAndDistributionInformation": {
+          "FileArchiveInformation": [
+            {
+              "Format": "netCDF-4",
+              "TotalCollectionFileSize": 175,
+              "TotalCollectionFileSizeUnit": "GB"
+            }
+          ],
+          "FileDistributionInformation": [
+            {
+              "Format": "netCDF-4",
+              "TotalCollectionFileSize": 175,
+              "TotalCollectionFileSizeUnit": "GB"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

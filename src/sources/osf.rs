@@ -2,11 +2,19 @@
 //! this searches projects and registrations, which is where OSF data lives.
 //! An owner can mark a record's `resourceNature` as Dataset, but 4,135 of
 //! more than 10,000 records do, and 2 of the 45 hits for "sea ice", too few
-//! to filter on. A page of 100 comes back whole, so one request serves any
-//! limit; hits come by relevance and no query syntax draws an error (trove,
-//! October 2026). trove throttles per client without saying how: 17 requests
-//! in about three minutes drew HTTP 429 with no `Retry-After`, and every
-//! `/trove/` path then answered 429 for an hour (October 2026).
+//! to filter on. `page[size]` is capped at 101, so one request serves any
+//! limit; hits come by relevance, every word must match, and no query syntax draws
+//! an error (trove source and probe, October 2026). trove throttles per
+//! client without saying how: 17 requests in about three minutes drew HTTP
+//! 429 with no `Retry-After`, and every `/trove/` path then answered 429 for
+//! an hour (October 2026). Replies carry `Cache-Control: no-store`, and no
+//! term of OSF's says whether results may be stored (October 2026).
+//!
+//! `rights` names one of OSF's 19 licenses, or one it has since retired, and
+//! its URL is no help: OSF links BSD 2-Clause to the 3-Clause text. The name
+//! becomes an SPDX id; "No license" and "Other" say nothing usable and are
+//! dropped (api.osf.io/v2/licenses, October 2026). `usage` counts views in
+//! one month that differs per record, so it is no popularity (October 2026).
 //!
 //! `acceptMediatype=application/json` is not in trove's OpenAPI, which lists
 //! only `application/vnd.api+json` as stable; there the same cards sit under
@@ -90,6 +98,7 @@ mod tests {
                 updated: Some("2026-06-23".into()),
                 size_bytes: Some(142_773),
                 popularity: None,
+                formats: vec![],
                 aliases: vec![],
             }
         );

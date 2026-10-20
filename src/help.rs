@@ -427,6 +427,7 @@ fn bounds(arg: &Arg) -> (Value, Value) {
         "per_source" => {
             (json!(cli::PER_SOURCE.start()), json!(cli::PER_SOURCE.end()))
         }
+        "min_sources" => (json!(cli::MIN_SOURCES.start), Value::Null),
         _ => (Value::Null, Value::Null),
     }
 }

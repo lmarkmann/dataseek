@@ -42,6 +42,8 @@ pub struct Globals {
     pub verbose: u8,
     pub cache_dir: Option<PathBuf>,
     pub connect_timeout: u64,
+    /// `--include`: what a search that names no sources of its own gets.
+    pub include: Vec<String>,
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -112,6 +114,10 @@ struct Arg {
     required: bool,
     repeatable: bool,
     help: Option<String>,
+    /// The JSON Schema `pattern` and an example of a string value whose
+    /// shape `help --json` cannot state.
+    #[serde(skip)]
+    shape: Option<(&'static str, &'static str)>,
 }
 
 impl Arg {
@@ -138,20 +144,33 @@ impl Arg {
     }
 }
 
-/// The command behind `tool`, with `search`'s timeout held to the bounds
-/// [`deadline`] enforces.
+/// The command behind `tool`, its help worded for a model, with `search`'s
+/// timeout held to the bounds [`deadline`] enforces.
 fn described(tool: &str) -> anyhow::Result<Described> {
     let command = help::subcommand_json(tool)
         .ok_or_else(|| anyhow::anyhow!("no `{tool}` command to describe"))?;
     let mut command: Described = serde_json::from_value(command)?;
-    if tool == "search" {
-        for arg in &mut command.args {
-            if arg.key() == "timeout" {
-                (arg.minimum, arg.maximum) = (Some(1), Some(MAX_TIMEOUT));
-            }
+    for arg in &mut command.args {
+        arg.help = arg.help.as_deref().map(for_a_model);
+        if tool == "search" && arg.key() == "updated-since" {
+            arg.shape = Some((crate::filter::DAY_PATTERN, "2024-07-01"));
+        }
+        if tool == "search" && arg.key() == "timeout" {
+            (arg.minimum, arg.maximum) = (Some(1), Some(MAX_TIMEOUT));
+            arg.help = Some(format!(
+                "Seconds to wait for slow sources before answering, 1 to {MAX_TIMEOUT}"
+            ));
         }
     }
     Ok(command)
+}
+
+/// A flag's help as a tool argument's description: a list is a JSON array
+/// rather than a comma-separated value, and the ids come from the `sources`
+/// tool rather than from a command.
+fn for_a_model(help: &str) -> String {
+    help.replace(", comma-separated", "")
+        .replace("`dataseek sources`", "the sources tool")
 }
 
 /// The tool whose name is `name`, as the static string the rest uses.
@@ -208,6 +227,10 @@ fn property(arg: &Arg) -> Value {
     }
     if let Some(maximum) = arg.maximum {
         value.insert("maximum".into(), json!(maximum));
+    }
+    if let Some((pattern, example)) = arg.shape {
+        value.insert("pattern".into(), json!(pattern));
+        value.insert("examples".into(), json!([example]));
     }
     let mut property = if arg.takes_list() {
         let mut list = Map::new();
@@ -580,6 +603,32 @@ mod tests {
         assert_eq!(search["additionalProperties"], false);
     }
 
+    // The descriptions come from the command line's help, which describes
+    // comma-separated values, `dataseek sources` and a timeout of 0; none of
+    // those is true of a tool call.
+    #[test]
+    fn descriptions_describe_the_call_not_the_command_line() {
+        for tool in TOOLS {
+            let schema = schema(tool);
+            for (key, property) in schema["properties"].as_object().unwrap() {
+                let text = property["description"].as_str().unwrap_or("");
+                for wrong in ["comma-separated", "dataseek sources", "0 waits"]
+                {
+                    assert!(!text.contains(wrong), "{tool} {key}: {text}");
+                }
+            }
+        }
+        let search = schema("search");
+        assert_eq!(
+            search["properties"]["source"]["description"],
+            "Only these sources (see the sources tool)"
+        );
+        assert_eq!(
+            search["properties"]["timeout"]["description"],
+            "Seconds to wait for slow sources before answering, 1 to 300"
+        );
+    }
+
     // Through clap, the generated command line means what the call said.
     #[test]
     fn a_call_becomes_the_command_line_it_describes() {
@@ -588,6 +637,10 @@ mod tests {
             &arguments(json!({
                 "query": "sea surface temperature",
                 "source": ["zenodo", "datacite"],
+                "license": ["cc-by", "CC0-1.0"],
+                "updated-since": "2024-07",
+                "format": ["csv"],
+                "min-sources": 2,
                 "limit": 5,
                 "sort": "newest",
                 "offline": true,
@@ -602,6 +655,7 @@ mod tests {
         let Some(Cmd::Search {
             query,
             selection,
+            filters,
             limit,
             sort,
             offline,
@@ -613,6 +667,10 @@ mod tests {
         };
         assert_eq!(query, ["sea surface temperature"]);
         assert_eq!(selection.only, ["zenodo", "datacite"]);
+        assert_eq!(filters.license, ["CC-BY", "CC0-1.0"]);
+        assert_eq!(filters.updated_since.as_deref(), Some("2024-07-01"));
+        assert_eq!(filters.format, ["CSV"]);
+        assert_eq!(filters.min_sources, Some(2));
         assert_eq!(
             (limit, sort, offline, refresh),
             (5, Sort::Newest, true, false)
@@ -637,6 +695,10 @@ mod tests {
             }
             "boolean" => values.push(json!(true)),
             "integer" => values.push(json!(1)),
+            _ if property.get("examples").is_some() => {
+                values
+                    .extend(property["examples"].as_array().unwrap().clone());
+            }
             _ => values.push(json!("x")),
         }
         values

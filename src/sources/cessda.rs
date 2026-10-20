@@ -108,6 +108,7 @@ mod tests {
                 updated: Some("2026-08-11".into()),
                 size_bytes: None,
                 popularity: None,
+                formats: vec![],
                 aliases: vec!["https://urn.fi/urn:nbn:fi:fsd:T-FSD3325".into()],
             }
         );

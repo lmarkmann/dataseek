@@ -48,24 +48,9 @@ fn record(row: &Value) -> Option<Dataset> {
     .describe(text(row, "/description"))
     .doi_from(text(row, "/doi"));
     dataset.publisher = text(row, "/publishingOrganizationTitle");
-    dataset.license = text(row, "/license").and_then(|raw| spdx(&raw));
+    dataset.license = text(row, "/license");
     dataset.updated = day(text(row, "/modified"));
     dataset.valid()
-}
-
-fn spdx(license: &str) -> Option<String> {
-    let id = match license.to_ascii_lowercase().as_str() {
-        "http://creativecommons.org/publicdomain/zero/1.0/legalcode" => {
-            "CC0-1.0"
-        }
-        "http://creativecommons.org/licenses/by/4.0/legalcode" => "CC-BY-4.0",
-        "http://creativecommons.org/licenses/by-nc/4.0/legalcode" => {
-            "CC-BY-NC-4.0"
-        }
-        "unspecified" | "unsupported" => return None,
-        _ => license,
-    };
-    Some(id.to_owned())
 }
 
 #[cfg(test)]
@@ -97,30 +82,32 @@ mod tests {
                     "The International Plant Names Index Collaborators".into()
                 ),
                 doi: Some("10.15468/uhllmw".into()),
-                license: None,
+                license: Some("unspecified".into()),
                 updated: Some("2019-11-11".into()),
                 size_bytes: None,
                 popularity: None,
+                formats: vec![],
                 aliases: vec![],
             }
         );
     }
 
     #[test]
-    fn licenses_become_spdx_ids_and_placeholders_vanish() {
+    fn licenses_arrive_as_urls_or_placeholder_words() {
         let hits = parse(&fixture::json("gbif.json"), 10).unwrap();
         let licenses: Vec<_> =
             hits.iter().map(|h| h.license.as_deref()).collect();
+        let by = "http://creativecommons.org/licenses/by/4.0/legalcode";
         assert_eq!(
             licenses,
-            [None, Some("CC-BY-4.0"), Some("CC-BY-4.0"), Some("CC0-1.0")]
+            [
+                Some("unspecified"),
+                Some(by),
+                Some(by),
+                Some(
+                    "http://creativecommons.org/publicdomain/zero/1.0/legalcode"
+                ),
+            ]
         );
-        assert_eq!(
-            spdx("http://creativecommons.org/licenses/by-nc/4.0/legalcode")
-                .as_deref(),
-            Some("CC-BY-NC-4.0")
-        );
-        assert_eq!(spdx("unsupported"), None);
-        assert_eq!(spdx("custom terms").as_deref(), Some("custom terms"));
     }
 }

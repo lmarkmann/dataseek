@@ -43,7 +43,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 |---|---|---|---|---|---|
 | `huggingface` | Hugging Face Hub | Hub API | live | `$HF_TOKEN` (optional) | [docs](https://huggingface.co/docs/huggingface_hub/package_reference/hf_api) |
 | `kaggle` | Kaggle | Kaggle API | live | `$KAGGLE_API_TOKEN` (optional) | [docs](https://www.kaggle.com/docs/api) |
-| `openml` | OpenML | OpenML REST, listed | local |  | [docs](https://docs.openml.org/ecosystem/Rest/) |
+| `openml` | OpenML | OpenML Elasticsearch, listed | local |  | [docs](https://docs.openml.org/ecosystem/Rest/) |
 | `uci` | UCI Machine Learning Repository | list endpoint | local |  | [docs](https://github.com/uci-ml-repo/ucimlrepo) |
 | `roboflow` | Roboflow Universe | Universe API | live | `$ROBOFLOW_API_KEY` (required) | [docs](https://docs.roboflow.com/datasets/universe/universe/universe-search) |
 | `modelscope` | ModelScope | site API | live |  | [docs](https://www.modelscope.cn/docs) |

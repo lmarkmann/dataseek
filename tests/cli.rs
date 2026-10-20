@@ -126,6 +126,16 @@ fn result_titles(stdout: &[u8]) -> Vec<String> {
         .collect()
 }
 
+/// The sources a `search --json` report says it asked, in order.
+fn source_ids(report: &Value) -> Vec<&str> {
+    report["sources"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|s| s["id"].as_str().unwrap())
+        .collect()
+}
+
 #[test]
 fn version_matches_manifest() {
     bin()
@@ -592,6 +602,43 @@ fn opt_in_sources_are_marked_in_the_listing_and_doctor() {
     assert!(doctor.contains("opt-in mendeley"), "{doctor}");
 }
 
+// `--include` asks an opt-in source beside the rest; without it, ADR 0013
+// keeps the source out of the run.
+#[test]
+fn include_asks_an_opt_in_source_beside_the_others() {
+    let mut with = bin();
+    seed_rainfall(&with.cache());
+    let out = with
+        .args([
+            "search",
+            "rainfall",
+            "--offline",
+            "--json",
+            "--include",
+            "google,mendeley",
+        ])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    let ids = source_ids(&report);
+    assert!(ids.contains(&"google"), "{ids:?}");
+    assert!(ids.contains(&"mendeley"), "{ids:?}");
+
+    let mut without = bin();
+    seed_rainfall(&without.cache());
+    let out = without
+        .args(["search", "rainfall", "--offline", "--json"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    let ids = source_ids(&report);
+    assert!(!ids.contains(&"google"), "{ids:?}");
+    assert!(!ids.contains(&"mendeley"), "{ids:?}");
+    assert!(ids.contains(&"openml"), "{ids:?}");
+}
+
 #[test]
 fn sources_shows_the_notices_fred_and_census_require() {
     let text = stdout_text(&["sources"]);
@@ -966,6 +1013,45 @@ fn inspect_lists_the_files_a_page_describes() {
         "files"
     );
     assert!(text.lines().any(|l| l == line), "{text}");
+}
+
+#[test]
+fn inspect_reads_a_dataverse_page_through_its_export() {
+    // The server answers every path with the export's JSON, which carries no
+    // ld+json script: only a request to the export endpoint can read it.
+    let export = include_str!("fixtures/inspect/dataverse-schema-org.json");
+    let page = format!(
+        "{}citation?persistentId=doi:10.7910/DVN/X",
+        serve_page(export)
+    );
+    let out = bin()
+        .env_remove("HTTPS_PROXY")
+        .env_remove("HTTP_PROXY")
+        .args(["inspect", &page, "--json"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(report["files"].as_array().map(Vec::len), Some(2));
+}
+
+#[test]
+fn inspect_reads_the_page_when_the_dataverse_export_refuses() {
+    // Every path answers with an HTML page, so the export request gets no
+    // JSON, as when it refuses a version older than the latest.
+    let page = format!(
+        "{}dataset.xhtml?persistentId=doi:10.7910/DVN/X&version=1.0",
+        serve_page(include_str!("fixtures/inspect/zenodo.html"))
+    );
+    let out = bin()
+        .env_remove("HTTPS_PROXY")
+        .env_remove("HTTP_PROXY")
+        .args(["inspect", &page, "--json"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert!(report["dataset"]["name"].is_string(), "{report}");
 }
 
 #[test]
@@ -1579,6 +1665,67 @@ fn seeded_search_json() -> Value {
     report
 }
 
+// `results` stops at `-n`; `total` still counts every merged match.
+#[test]
+fn search_json_counts_matches_past_the_limit() {
+    let mut cmd = bin();
+    seed_rainfall(&cmd.cache());
+    let out = cmd
+        .args(["search", "rainfall", "-s", "openml", "--offline", "--json"])
+        .args(["-n", "1"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    let every = seeded_search_json()["results"].as_array().unwrap().len();
+    assert!(every > 1, "{every}");
+    assert_eq!(report["results"].as_array().unwrap().len(), 1);
+    assert_eq!(report["total"], every);
+}
+
+// A license matches in whatever spelling its source wrote, and what fails a
+// filter is counted, not shown.
+#[test]
+fn search_filters_keep_what_passes_and_count_the_rest() {
+    let mut cmd = bin();
+    let catalog = json!([
+        {
+            "title": "Rainfall in Lisbon",
+            "url": "https://www.openml.org/d/1",
+            "updated": "2001-01-01",
+            "license": "Creative Commons Attribution 4.0 International",
+        },
+        {
+            "title": "Monthly rainfall in Porto",
+            "url": "https://www.openml.org/d/2",
+            "updated": "2025-06-01",
+            "license": "https://creativecommons.org/licenses/by/4.0/",
+        },
+        {
+            "title": "Rainfall in Faro",
+            "url": "https://www.openml.org/d/3",
+            "updated": "2025-06-01",
+            "license": "odc-odbl",
+        },
+    ]);
+    seed(&cmd.cache(), "catalogs/openml.json", 0, &catalog);
+    let out = cmd
+        .args(["search", "rainfall", "-s", "openml", "--offline", "--json"])
+        .args(["--license", "cc-by", "--updated-since", "2024"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    let results = report["results"].as_array().unwrap();
+    assert_eq!(results.len(), 1, "{report}");
+    assert_eq!(results[0]["url"], "https://www.openml.org/d/2");
+    assert_eq!(results[0]["license"], "CC-BY-4.0");
+    assert_eq!(
+        (&report["total"], &report["filtered_out"]),
+        (&json!(1), &json!(2))
+    );
+}
+
 #[test]
 fn json_shapes_snapshot() {
     let sources = json_of(&["sources", "--json"]);
@@ -1617,11 +1764,22 @@ struct Mcp {
 impl Mcp {
     /// Every request the server or its children send goes to `proxy`.
     fn start(dir: &Path, proxy: &str) -> Self {
-        Self::start_as(Path::new(env!("CARGO_BIN_EXE_dataseek")), dir, proxy)
+        Self::start_as(
+            Path::new(env!("CARGO_BIN_EXE_dataseek")),
+            dir,
+            proxy,
+            &[],
+        )
     }
 
-    /// The server as `program`, a copy of the binary under test.
-    fn start_as(program: &Path, dir: &Path, proxy: &str) -> Self {
+    /// The server as `program`, a copy of the binary under test, started
+    /// with `args` after `mcp`.
+    fn start_as(
+        program: &Path,
+        dir: &Path,
+        proxy: &str,
+        args: &[&str],
+    ) -> Self {
         use std::io::BufRead;
         use std::process::Stdio;
 
@@ -1629,6 +1787,7 @@ impl Mcp {
             .env("HTTPS_PROXY", proxy)
             .env("HTTP_PROXY", proxy)
             .arg("mcp")
+            .args(args)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
@@ -1867,6 +2026,37 @@ fn an_mcp_client_drives_a_whole_session_over_stdio() {
     assert!(stderr.contains("searching 1 source"), "{stderr}");
 }
 
+// A server started with `--include` asks those sources in every search a
+// call leaves to the defaults, and leaves a call that names its own alone.
+#[test]
+fn a_server_wide_include_reaches_searches_that_do_not_choose() {
+    let dir = tempfile::tempdir().unwrap();
+    seed_rainfall(&dir.path().join("cache").join("dataseek"));
+    let mut mcp = Mcp::start_as(
+        Path::new(env!("CARGO_BIN_EXE_dataseek")),
+        dir.path(),
+        "http://127.0.0.1:9",
+        &["--include", "google,mendeley"],
+    );
+
+    let search =
+        mcp.call(1, "search", json!({ "query": "rainfall", "offline": true }));
+    assert_eq!(search["isError"], false, "{search}");
+    let ids = source_ids(&search["structuredContent"]);
+    assert!(ids.contains(&"google"), "{ids:?}");
+    assert!(ids.contains(&"mendeley"), "{ids:?}");
+
+    let chosen = mcp.call(
+        2,
+        "search",
+        json!({ "query": "rainfall", "source": ["openml"], "offline": true }),
+    );
+    assert_eq!(chosen["isError"], false, "{chosen}");
+    assert_eq!(source_ids(&chosen["structuredContent"]), ["openml"]);
+
+    mcp.close();
+}
+
 // The stateless revision: no handshake, every request names its version.
 #[test]
 fn an_mcp_client_on_the_current_revision_needs_no_handshake() {
@@ -1985,7 +2175,8 @@ fn an_mcp_server_keeps_working_after_its_binary_is_replaced() {
     let dir = tempfile::tempdir().unwrap();
     let program = dir.path().join("dataseek");
     std::fs::copy(env!("CARGO_BIN_EXE_dataseek"), &program).unwrap();
-    let mut mcp = Mcp::start_as(&program, dir.path(), "http://127.0.0.1:9");
+    let mut mcp =
+        Mcp::start_as(&program, dir.path(), "http://127.0.0.1:9", &[]);
     assert_eq!(
         mcp.ask(1, "ping", json!({}))["result"]["resultType"],
         "complete"

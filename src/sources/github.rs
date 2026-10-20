@@ -87,6 +87,7 @@ mod tests {
                 updated: Some("2026-04-09".into()),
                 size_bytes: Some(73_274_368),
                 popularity: Some(202),
+                formats: vec![],
                 aliases: vec![],
             }
         );
