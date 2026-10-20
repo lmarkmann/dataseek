@@ -2,62 +2,323 @@
   "type": "FeatureCollection",
   "features": [
     {
-      "id": "27f4373c24fc421c8194d9c813802940",
+      "id": "1d11bbdb8bca44a2ad62efa6148f99b9",
       "type": "Feature",
       "geometry": null,
       "properties": {
-        "snippet": "FGDB of Public Works Water Utilities.",
+        "snippet": null,
         "extent": null,
         "commentsEnabled": true,
         "groupDesignations": null,
         "access": "public",
         "apiToken2ExpirationDate": -1,
         "typeKeywords": [
-          "File Geodatabase"
+          "CSV"
         ],
-        "description": "<p>Zipfile with FGDB for &nbsp;City of Richland Public Works Water Utilities.</p>",
-        "licenseInfo": "<p><span style='background-color:rgb(255,255,255); color:rgb(35,34,31); font-family:Arial, sans-serif; font-size:13.3333px;'><span style='display:inline !important; float:none; font-style:normal; font-variant-caps:normal; font-variant-ligatures:normal; font-weight:400; letter-spa",
-        "ownerId": "767b5bd25ea94141a200e49b4f6b18b4",
-        "title": "Water",
-        "type": "File Geodatabase",
-        "orgId": "5g4JcCVJwbhPOszb",
+        "description": null,
+        "licenseInfo": null,
+        "ownerId": "503c3fc0225d4a488bbf2653eb5236d4",
+        "title": "Air Quality Monitoring",
+        "type": "CSV",
+        "orgId": "JMAJrTsHNLrSsWf5",
         "screenshots": [],
         "subInfo": 0,
         "advancedSettings": null,
         "appCategories": [],
-        "modified": 1790002558000,
+        "modified": 1785848751000,
         "avgRating": 0,
-        "id": "27f4373c24fc421c8194d9c813802940",
+        "id": "1d11bbdb8bca44a2ad62efa6148f99b9",
         "categories": [],
         "spatialReference": null,
         "numRatings": 0,
-        "owner": "RichlandGIS",
+        "owner": "arobins_BCGIS",
         "accessInformation": null,
         "largeThumbnail": null,
-        "lastViewed": 1787778000000,
+        "lastViewed": 1784818800000,
         "thumbnail": "thumbnail/ago_downloaded.png",
         "languages": [],
-        "created": 1643903692000,
+        "created": 1646066705000,
         "documentation": null,
         "banner": null,
         "classification": null,
         "url": null,
         "tags": [
-          "temp file geodatabase"
+          "Broward County",
+          "Broward",
+          "Broward County Florida",
+          "Broward County GIS"
         ],
-        "numViews": 46,
+        "numViews": 30,
         "numComments": 0,
-        "size": 3740026,
+        "size": 1658,
         "listed": false,
-        "scoreCompleteness": 51,
-        "culture": "english (united states)",
+        "scoreCompleteness": 50,
+        "culture": "en-us",
         "industries": [],
         "apiToken1ExpirationDate": -1,
-        "name": "Water.zip",
+        "name": "Air_Quality2.csv",
         "guid": null,
         "proxyFilter": null,
         "properties": null,
-        "source": "City of Richland, Washington",
+        "source": "             Broward County GIS",
+        "license": "none"
+      },
+      "time": null,
+      "links": [
+        {
+          "rel": "self",
+          "type": "application/geo+json",
+          "title": "This document as GeoJSON",
+          "href": "https://hub.arcgis.com/api/search/v1/collections/dataset/items/1d11bbdb8bca44a2ad62efa6148f99b9"
+        },
+        {
+          "rel": "collection",
+          "type": "application/json",
+          "title": "Dataset",
+          "href": "https://hub.arcgis.com/api/search/v1/collections/dataset"
+        }
+      ]
+    },
+    {
+      "id": "12349af8e4bf44c4b9982cb882478577",
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -80.14382000000002,
+              26.12092999999999
+            ],
+            [
+              -80.14382000000002,
+              26.12092999999999
+            ],
+            [
+              -80.14382000000002,
+              26.12092999999999
+            ],
+            [
+              -80.14382000000002,
+              26.12092999999999
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "snippet": null,
+        "extent": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                -80.14382000000002,
+                26.12092999999999
+              ],
+              [
+                -80.14382000000002,
+                26.12092999999999
+              ],
+              [
+                -80.14382000000002,
+                26.12092999999999
+              ],
+              [
+                -80.14382000000002,
+                26.12092999999999
+              ]
+            ]
+          ]
+        },
+        "commentsEnabled": true,
+        "groupDesignations": null,
+        "access": "public",
+        "apiToken2ExpirationDate": -1,
+        "typeKeywords": [
+          "ArcGIS Server",
+          "Data",
+          "Feature Access",
+          "Feature Service",
+          "Service",
+          "Singlelayer",
+          "Hosted Service"
+        ],
+        "description": null,
+        "licenseInfo": null,
+        "ownerId": "503c3fc0225d4a488bbf2653eb5236d4",
+        "title": "Air Quality Monitoring",
+        "type": "Feature Service",
+        "orgId": "JMAJrTsHNLrSsWf5",
+        "screenshots": [],
+        "subInfo": 0,
+        "advancedSettings": null,
+        "appCategories": [],
+        "modified": 1785848752000,
+        "avgRating": 0,
+        "id": "12349af8e4bf44c4b9982cb882478577",
+        "categories": [],
+        "spatialReference": "102100",
+        "numRatings": 0,
+        "owner": "arobins_BCGIS",
+        "accessInformation": null,
+        "largeThumbnail": null,
+        "lastViewed": 1785823200000,
+        "thumbnail": "thumbnail/ago_downloaded.png",
+        "languages": [],
+        "created": 1646066927000,
+        "documentation": null,
+        "banner": null,
+        "classification": null,
+        "url": "https://services.arcgis.com/JMAJrTsHNLrSsWf5/arcgis/rest/services/Air_Quality_Monitoring/FeatureServer",
+        "tags": [
+          "Broward County",
+          "Broward",
+          "Broward County Florida",
+          "Broward County GIS"
+        ],
+        "numViews": 855,
+        "numComments": 0,
+        "size": 32768,
+        "listed": false,
+        "scoreCompleteness": 50,
+        "culture": "en-us",
+        "industries": [],
+        "apiToken1ExpirationDate": -1,
+        "name": null,
+        "guid": null,
+        "proxyFilter": null,
+        "properties": null,
+        "source": "             Broward County GIS",
+        "license": "none"
+      },
+      "time": null,
+      "links": [
+        {
+          "rel": "self",
+          "type": "application/geo+json",
+          "title": "This document as GeoJSON",
+          "href": "https://hub.arcgis.com/api/search/v1/collections/dataset/items/12349af8e4bf44c4b9982cb882478577"
+        },
+        {
+          "rel": "collection",
+          "type": "application/json",
+          "title": "Dataset",
+          "href": "https://hub.arcgis.com/api/search/v1/collections/dataset"
+        }
+      ]
+    },
+    {
+      "id": "69603610e087445a827fee600710417e",
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -161.79273000000003,
+              70.1319
+            ],
+            [
+              144.35996,
+              70.1319
+            ],
+            [
+              144.35996,
+              -34.577299999999994
+            ],
+            [
+              -161.79273000000003,
+              -34.577299999999994
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "snippet": "US EPA feature layer updated to reflect the latest hour of air quality data (Ozone, etc) received from monitoring sites that report to AirNow.",
+        "extent": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                -161.79273000000003,
+                70.1319
+              ],
+              [
+                144.35996,
+                70.1319
+              ],
+              [
+                144.35996,
+                -34.577299999999994
+              ],
+              [
+                -161.79273000000003,
+                -34.577299999999994
+              ]
+            ]
+          ]
+        },
+        "commentsEnabled": true,
+        "groupDesignations": null,
+        "access": "public",
+        "apiToken2ExpirationDate": -1,
+        "typeKeywords": [
+          "ArcGIS API for JavaScript",
+          "ArcGIS Server",
+          "Data",
+          "Feature Access",
+          "Feature Service",
+          "Service",
+          "Singlelayer"
+        ],
+        "description": "<p><span style='background-color:rgb(255,255,255); color:rgb(20,20,20); font-family:&quot;Avenir Next&quot;, Avenir, &quot;Helvetica Neue&quot;, sans-serif; font-size:16px;'><span style='display:inline !important; float:none; font-style:normal; font-variant-caps:normal; font-variant-ligatures:normal; font-weight:400; letter-spacing:normal; text-align:start; text-decoration-color:initial; text-decoration-style:initial; text-indent:0px; text-transform:none; word-spacing:0px;'>US EPA feature layer updated to reflect the latest hour of air quality data (Ozone, etc) received from monitoring sites that report to AirNow.</span></span></p>",
+        "licenseInfo": "<p>ESRI</p>",
+        "ownerId": "190f12cab121437fb3f20e3b8be79f30",
+        "title": "Air Quality Monitoring",
+        "type": "Feature Service",
+        "orgId": "rQNf5tVFXFoS6EhP",
+        "screenshots": [],
+        "subInfo": 0,
+        "advancedSettings": null,
+        "appCategories": [],
+        "modified": 1783012124000,
+        "avgRating": 0,
+        "id": "69603610e087445a827fee600710417e",
+        "categories": [
+          "/Categories/Comprehensive/External"
+        ],
+        "spatialReference": null,
+        "numRatings": 0,
+        "owner": "contact@example.org_Lenexa",
+        "accessInformation": "ESRI",
+        "largeThumbnail": null,
+        "lastViewed": 1786827600000,
+        "thumbnail": "thumbnail/thumbnail1766441543588.png",
+        "languages": [],
+        "created": 1754498463000,
+        "documentation": null,
+        "banner": null,
+        "classification": null,
+        "url": "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/Air%20Now%20Current%20Monitor%20Data%20Public/FeatureServer",
+        "tags": [
+          "AirNow",
+          "AQI",
+          "Ozone",
+          "PM"
+        ],
+        "numViews": 32,
+        "numComments": 0,
+        "size": 115,
+        "listed": false,
+        "scoreCompleteness": 96,
+        "culture": "en-us",
+        "industries": [],
+        "apiToken1ExpirationDate": -1,
+        "name": null,
+        "guid": null,
+        "proxyFilter": null,
+        "properties": null,
+        "source": "Lenexa, Kansas",
         "license": "custom"
       },
       "time": null,
@@ -66,7 +327,7 @@
           "rel": "self",
           "type": "application/geo+json",
           "title": "This document as GeoJSON",
-          "href": "https://hub.arcgis.com/api/search/v1/collections/dataset/items/27f4373c24fc421c8194d9c813802940"
+          "href": "https://hub.arcgis.com/api/search/v1/collections/dataset/items/69603610e087445a827fee600710417e"
         },
         {
           "rel": "collection",
@@ -77,145 +338,142 @@
       ]
     },
     {
-      "id": "b71a0bbf07364a338192b9b585998bc7",
+      "id": "d30396f5dba34f48a7205bb4db765c07",
       "type": "Feature",
-      "geometry": null,
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -1.1491,
+              54.006
+            ],
+            [
+              -1.0287,
+              54.006
+            ],
+            [
+              -1.0287,
+              53.9277
+            ],
+            [
+              -1.1491,
+              53.9277
+            ]
+          ]
+        ]
+      },
       "properties": {
-        "snippet": null,
-        "extent": null,
-        "commentsEnabled": true,
+        "snippet": " Air quality monitoring in York",
+        "extent": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                -1.1491,
+                54.006
+              ],
+              [
+                -1.0287,
+                54.006
+              ],
+              [
+                -1.0287,
+                53.9277
+              ],
+              [
+                -1.1491,
+                53.9277
+              ]
+            ]
+          ]
+        },
+        "commentsEnabled": false,
         "groupDesignations": null,
         "access": "public",
         "apiToken2ExpirationDate": -1,
         "typeKeywords": [
-          "Coordinates Type",
-          "CRS",
-          "Feature",
-          "FeatureCollection",
-          "GeoJSON"
+          "ArcGIS Server",
+          "Data",
+          "Feature Access",
+          "Feature Service",
+          "Service"
         ],
-        "description": null,
-        "licenseInfo": null,
-        "title": "Water",
-        "type": "GeoJson",
+        "description": "<span style='mso-ansi-language: EN;'><font color='#000000' face='Calibri' size='3'>For further information about air quality monitoring - see the </font><a href='https://www.york.gov.uk/info/20059/air_pollution/172/air_quality_monitoring' target='_blank' rel='nofollow ugc noopener noreferrer'>City of York Council</a><font color='#000000' face='Calibri' size='3'> website</font></span>",
+        "licenseInfo": "<p>© Crown copyright and database rights 2017 Ordnance Survey 100020818</p><p>The licensing for this dataset is listed as <a href='https://www.ordnancesurvey.co.uk/business-and-government/help-and-support/public-sector/guidance/index.html' target='_blank' rel='nofollow ugc noopener noreferrer'><font color='#21759b'>Derived data exemption - streamlined process</font></a></p><p>For details of the Open Government Licence (OGL v3.0) - see the <a href='https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/' target='_blank' rel='nofollow ugc noopener noreferrer'>National Archives</a> website</p>",
+        "ownerId": "44d2b135a845c3e6915c0f80ee37c352",
+        "title": "AQ Monitoring",
+        "type": "Feature Service",
+        "orgId": "PucdQw82gWAXkLji",
         "screenshots": [],
         "subInfo": 0,
         "advancedSettings": null,
         "appCategories": [],
-        "modified": 1763638545000,
+        "modified": 1784815340000,
         "avgRating": 0,
-        "id": "b71a0bbf07364a338192b9b585998bc7",
+        "id": "d30396f5dba34f48a7205bb4db765c07",
         "categories": [],
-        "robots": [
-          "noindex",
-          "nofollow"
-        ],
         "spatialReference": null,
         "numRatings": 0,
-        "owner": "misabarinov333",
-        "accessInformation": null,
+        "owner": "gis_CYC",
+        "accessInformation": "© Crown copyright and database rights 2017 Ordnance Survey 100020818",
         "largeThumbnail": null,
-        "lastViewed": 1763636400000,
-        "thumbnail": null,
+        "lastViewed": 1784818800000,
+        "thumbnail": "thumbnail/thumbnail.png",
         "languages": [],
-        "created": 1763638545000,
+        "created": 1498643987000,
         "documentation": null,
         "banner": null,
         "classification": null,
-        "url": null,
-        "tags": [],
-        "numViews": 1,
-        "numComments": 0,
-        "size": 22266,
-        "listed": false,
-        "scoreCompleteness": 0,
-        "culture": "uk",
-        "industries": [],
-        "apiToken1ExpirationDate": -1,
-        "name": "Water.geojson",
-        "guid": null,
-        "proxyFilter": null,
-        "properties": null,
-        "license": "none"
-      },
-      "time": null,
-      "links": [
-        {
-          "rel": "self",
-          "type": "application/geo+json",
-          "title": "This document as GeoJSON",
-          "href": "https://hub.arcgis.com/api/search/v1/collections/dataset/items/b71a0bbf07364a338192b9b585998bc7"
-        },
-        {
-          "rel": "collection",
-          "type": "application/json",
-          "title": "Dataset",
-          "href": "https://hub.arcgis.com/api/search/v1/collections/dataset"
-        }
-      ]
-    },
-    {
-      "id": "1b6abea55255434ab95f28499222d477",
-      "type": "Feature",
-      "geometry": null,
-      "properties": {
-        "snippet": null,
-        "extent": null,
-        "commentsEnabled": true,
-        "groupDesignations": null,
-        "access": "public",
-        "typeKeywords": [
-          "Coordinates Type",
-          "CRS",
-          "Feature",
-          "FeatureCollection",
-          "GeoJSON"
+        "url": "https://maps.york.gov.uk/arcgis/rest/services/Public/EnvPlan/MapServer/20",
+        "tags": [
+          "AQMA",
+          "monitor",
+          "AQ"
         ],
-        "description": null,
-        "licenseInfo": null,
-        "title": "water",
-        "type": "GeoJson",
-        "screenshots": [],
-        "token2ExpirationDate": -1,
-        "subInfo": 0,
-        "advancedSettings": null,
-        "appCategories": [],
-        "modified": 1702443834000,
-        "avgRating": 0,
-        "id": "1b6abea55255434ab95f28499222d477",
-        "categories": [],
-        "robots": [
-          "noindex",
-          "nofollow"
-        ],
-        "spatialReference": null,
-        "numRatings": 0,
-        "owner": "propsure",
-        "accessInformation": null,
-        "largeThumbnail": null,
-        "lastViewed": 1702443600000,
-        "thumbnail": null,
-        "languages": [],
-        "tokenExpirationDate": -1,
-        "created": 1702443834000,
-        "documentation": null,
-        "banner": null,
-        "classification": null,
-        "url": null,
-        "tags": [],
-        "numViews": 1,
+        "numViews": 3358,
         "numComments": 0,
-        "size": 423696,
+        "size": 73,
         "listed": false,
-        "scoreCompleteness": 0,
+        "scoreCompleteness": 88,
         "culture": "en-gb",
         "industries": [],
-        "name": "water.geojson",
+        "apiToken1ExpirationDate": -1,
+        "name": null,
         "guid": null,
         "proxyFilter": null,
-        "properties": null,
-        "source": "propsure",
-        "license": "none"
+        "properties": {
+          "location": {
+            "extent": [
+              [
+                -1.1491,
+                53.9277
+              ],
+              [
+                -1.0287,
+                54.006
+              ]
+            ],
+            "geometries": [
+              {
+                "ymin": 53.9277,
+                "xmin": -1.1491,
+                "ymax": 54.006,
+                "xmax": -1.0287,
+                "spatialReference": {
+                  "wkid": 4326
+                },
+                "type": "extent"
+              }
+            ],
+            "type": "custom",
+            "spatialReference": {
+              "wkid": 4326
+            }
+          }
+        },
+        "source": "City of York Council",
+        "license": "custom"
       },
       "time": null,
       "links": [
@@ -223,7 +481,7 @@
           "rel": "self",
           "type": "application/geo+json",
           "title": "This document as GeoJSON",
-          "href": "https://hub.arcgis.com/api/search/v1/collections/dataset/items/1b6abea55255434ab95f28499222d477"
+          "href": "https://hub.arcgis.com/api/search/v1/collections/dataset/items/d30396f5dba34f48a7205bb4db765c07"
         },
         {
           "rel": "collection",
@@ -234,64 +492,240 @@
       ]
     },
     {
-      "id": "b3064ac66d7e4a679aba2931f777298b",
+      "id": "464af7a6e8614b1bb85663fe7fd2be0c",
       "type": "Feature",
-      "geometry": null,
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -1.1581,
+              53.0977
+            ],
+            [
+              -1.0572,
+              53.0977
+            ],
+            [
+              -1.0572,
+              52.9545
+            ],
+            [
+              -1.1581,
+              52.9545
+            ]
+          ]
+        ]
+      },
       "properties": {
-        "snippet": null,
-        "extent": null,
+        "snippet": "Air Quality Monitoring Points",
+        "extent": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                -1.1581,
+                53.0977
+              ],
+              [
+                -1.0572,
+                53.0977
+              ],
+              [
+                -1.0572,
+                52.9545
+              ],
+              [
+                -1.1581,
+                52.9545
+              ]
+            ]
+          ]
+        },
         "commentsEnabled": true,
         "groupDesignations": null,
         "access": "public",
         "apiToken2ExpirationDate": -1,
         "typeKeywords": [
-          "Coordinates Type",
-          "CRS",
-          "Feature",
-          "FeatureCollection",
-          "GeoJSON"
+          "Feature Access",
+          "Feature Service",
+          "ArcGIS Server",
+          "Service",
+          "Singlelayer",
+          "Data"
         ],
-        "description": null,
-        "licenseInfo": null,
-        "title": "Water",
-        "type": "GeoJson",
-        "orgId": "CQDK7abdVpczSUjn",
+        "description": "<span style='font-family:&quot;Avenir Next W01&quot;, &quot;Avenir Next W00&quot;, &quot;Avenir Next&quot;, Avenir, &quot;Helvetica Neue&quot;, sans-serif; font-size:16px;'>Air Quality Monitoring Points</span>",
+        "licenseInfo": "<img alt='OGL' src='https://gedlingbc.maps.arcgis.com/sharing/rest/content/items/c6e139420acb4dcbbec2780f96b4d42a/data' /><span style='color:rgb(153,153,153); font-family:&quot;Open Sans&quot;; font-size:11.5pt;'> Licensed under </span><a href='https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/' target='_blank' rel='nofollow ugc noopener noreferrer'>Open Government Licence</a>",
+        "title": "Air Quality Monitoring Points",
+        "type": "Feature Service",
+        "orgId": "ScBHKZTWsl0UTvga",
         "screenshots": [],
         "subInfo": 0,
         "advancedSettings": null,
         "appCategories": [],
-        "modified": 1775860642000,
+        "modified": 1760011639000,
         "avgRating": 0,
-        "id": "b3064ac66d7e4a679aba2931f777298b",
+        "id": "464af7a6e8614b1bb85663fe7fd2be0c",
         "categories": [],
-        "spatialReference": null,
+        "spatialReference": "",
         "numRatings": 0,
-        "owner": "kokkinen_UofA",
-        "accessInformation": null,
-        "largeThumbnail": null,
-        "lastViewed": 1776042000000,
-        "thumbnail": null,
+        "owner": "gis_admin2@gbc",
+        "accessInformation": "",
+        "largeThumbnail": "",
+        "lastViewed": 1760518800000,
+        "thumbnail": "thumbnail/ago_downloaded.png",
         "languages": [],
-        "created": 1775860642000,
+        "created": 1759927543000,
+        "documentation": null,
+        "banner": "",
+        "classification": null,
+        "url": "https://gedlingmaps.gedling.gov.uk/arcgis/rest/services/opendata/Air_Quality_Monitoring/MapServer/0",
+        "tags": [
+          "environment"
+        ],
+        "numViews": 29,
+        "numComments": 0,
+        "size": 99,
+        "listed": false,
+        "scoreCompleteness": 66,
+        "culture": "en-gb",
+        "industries": [],
+        "apiToken1ExpirationDate": -1,
+        "name": "",
+        "guid": null,
+        "proxyFilter": null,
+        "properties": null,
+        "source": "Gedling Borough Council",
+        "license": "custom"
+      },
+      "time": null,
+      "links": [
+        {
+          "rel": "self",
+          "type": "application/geo+json",
+          "title": "This document as GeoJSON",
+          "href": "https://hub.arcgis.com/api/search/v1/collections/dataset/items/464af7a6e8614b1bb85663fe7fd2be0c"
+        },
+        {
+          "rel": "collection",
+          "type": "application/json",
+          "title": "Dataset",
+          "href": "https://hub.arcgis.com/api/search/v1/collections/dataset"
+        }
+      ]
+    },
+    {
+      "id": "b946b3f030b24d0095f7456463ee38ba",
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -111.5558,
+              60.0945
+            ],
+            [
+              -100.2261,
+              60.0945
+            ],
+            [
+              -100.2261,
+              48.8909
+            ],
+            [
+              -111.5558,
+              48.8909
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "snippet": "This spatial dataset is an authoritative and dynamic record of current and historical air monitoring stations within the Saskatchewan air zones.",
+        "extent": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                -111.5558,
+                60.0945
+              ],
+              [
+                -100.2261,
+                60.0945
+              ],
+              [
+                -100.2261,
+                48.8909
+              ],
+              [
+                -111.5558,
+                48.8909
+              ]
+            ]
+          ]
+        },
+        "commentsEnabled": true,
+        "groupDesignations": null,
+        "access": "public",
+        "apiToken2ExpirationDate": -1,
+        "typeKeywords": [
+          "ArcGIS Server",
+          "Data",
+          "Feature Access",
+          "Feature Service",
+          "Metadata",
+          "Multilayer",
+          "Service"
+        ],
+        "description": "<div>Download <a href='https://environment-saskatchewan.hub.arcgis.com/datasets/saskatchewan::air-quality/about?layer=0' target='_blank' rel='nofollow ugc noopener noreferrer'>continuous monitor locations</a>, <a href='https://environment-saskatchewan.hub.arcgis.com/datasets/saskatchewan::air-quality/about?layer=1' target='_blank' rel='nofollow ugc noopener noreferrer'>wet deposition monitor locations</a>, and <a href='https://environment-saskatchewan.hub.arcgis.com/datasets/saskatchewan::air-quality/about?layer=2' target='_blank' rel='nofollow ugc noopener noreferrer'>Saskatchewan air zones</a>. <br /></div><div><br /></div><div>View <a href='https://experience.arcgis.com/experience/7431e790acad443bb618bafe817416ca' target='_blank' rel='nofollow ugc noopener noreferrer'>hourly and historical air quality data</a>.<br /></div><div><br /></div>The Ministry of Environment operates continuous ambient air monitoring stations as well as wet depostion monitors. These stations are part of the National Air Pollution Surveillance (NAPS) and Precipitation Monitoring Network (CAPMoN) respectively. Continuous ambient air monitors measure the concentration of air pollutants across Saskatchewan. While, the wet deposition program is to help understand the effects of sulfuric and nitric acids to precipitation across the province.",
+        "licenseInfo": "Monitoring station location coordinates are extracted from web maps. Coordinates are not GPS verified. <span style='font-family: &quot;Avenir Next W01&quot;, &quot;Avenir Next W00&quot;, &quot;Avenir Next&quot;, Avenir, &quot;Helvetica Neue&quot;, sans-serif; font-size: 16px;'>The Ministry of Environment distributes this data freely as a service to the people of Saskatchewan and makes no representation that this data is sufficient for all uses.</span><span style='font-family: &quot;Avenir Next W01&quot;, &quot;Avenir Next W00&quot;, &quot;Avenir Next&quot;, Avenir, &quot;Helvetica Neue&quot;, sans-serif; font-size: 16px;'> Not for resale.</span>",
+        "title": "Air Quality",
+        "type": "Feature Service",
+        "orgId": "zcv98lgAl8xQ04cW",
+        "screenshots": [],
+        "subInfo": 0,
+        "advancedSettings": null,
+        "appCategories": [],
+        "modified": 1690416371000,
+        "avgRating": 0,
+        "id": "b946b3f030b24d0095f7456463ee38ba",
+        "categories": [
+          "/Categories/Environment"
+        ],
+        "spatialReference": "2151",
+        "numRatings": 0,
+        "owner": "Saskatchewan.Government",
+        "accessInformation": "Air Quality, Ministry of Environment. Business Support Services, Ministry of Environment",
+        "largeThumbnail": null,
+        "lastViewed": 1724803200000,
+        "thumbnail": "thumbnail/thumbnail1645743862654.png",
+        "languages": [],
+        "created": 1574813327000,
         "documentation": null,
         "banner": null,
         "classification": null,
-        "url": null,
-        "tags": [],
-        "numViews": 42,
+        "url": "https://gis.saskatchewan.ca/arcgis/rest/services/EnvironmentalProtection/AirQuality_Public/FeatureServer",
+        "tags": [
+          "air quality",
+          "saskatchewan",
+          "air monitor",
+          "wet deposition monitor"
+        ],
+        "numViews": 4501,
         "numComments": 0,
-        "size": 3006509,
+        "size": 104,
         "listed": false,
-        "scoreCompleteness": 0,
+        "scoreCompleteness": 100,
         "culture": "en-us",
         "industries": [],
         "apiToken1ExpirationDate": -1,
-        "name": "Water.geojson",
+        "name": null,
         "guid": null,
         "proxyFilter": null,
         "properties": null,
-        "source": "University of Alberta",
-        "license": "none"
+        "source": "Saskatchewan Ministry of Environment",
+        "license": "custom"
       },
       "time": null,
       "links": [
@@ -299,7 +733,7 @@
           "rel": "self",
           "type": "application/geo+json",
           "title": "This document as GeoJSON",
-          "href": "https://hub.arcgis.com/api/search/v1/collections/dataset/items/b3064ac66d7e4a679aba2931f777298b"
+          "href": "https://hub.arcgis.com/api/search/v1/collections/dataset/items/b946b3f030b24d0095f7456463ee38ba"
         },
         {
           "rel": "collection",
@@ -310,66 +744,109 @@
       ]
     },
     {
-      "id": "cb61d161171d43d89ce5a31838a7a33e",
+      "id": "4dc97eb2f7f544e9a8340ed840f02873",
       "type": "Feature",
-      "geometry": null,
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -99.93537599990242,
+              36.90811500020715
+            ],
+            [
+              -95.2938889997775,
+              36.90811500020715
+            ],
+            [
+              -95.2938889997775,
+              33.88081199987397
+            ],
+            [
+              -99.93537599990242,
+              33.88081199987397
+            ]
+          ]
+        ]
+      },
       "properties": {
-        "snippet": null,
-        "extent": null,
-        "commentsEnabled": true,
+        "extent": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                -99.93537599990242,
+                36.90811500020715
+              ],
+              [
+                -95.2938889997775,
+                36.90811500020715
+              ],
+              [
+                -95.2938889997775,
+                33.88081199987397
+              ],
+              [
+                -99.93537599990242,
+                33.88081199987397
+              ]
+            ]
+          ]
+        },
+        "snippet": "Air Monitoring Sites - Fall 2015",
         "groupDesignations": null,
+        "commentsEnabled": true,
         "access": "public",
-        "apiToken2ExpirationDate": -1,
         "typeKeywords": [
-          "Coordinates Type",
-          "CRS",
-          "Feature",
-          "FeatureCollection",
-          "GeoJSON"
+          "ArcGIS Server",
+          "Data",
+          "Feature Access",
+          "Feature Service",
+          "Metadata",
+          "Service",
+          "Singlelayer",
+          "Hosted Service"
         ],
-        "description": null,
-        "licenseInfo": null,
-        "title": "water",
-        "type": "GeoJson",
+        "description": "Air Monitoring Sites.  Obtained from Oklahoma Department of Environmental Quality Fall 2015.  The Oklahoma Department of Transportation is not liable for any inaccuracies in this data.",
+        "licenseInfo": "Authorized use only.",
+        "type": "Feature Service",
+        "title": "Air_Monitoring_Sites",
         "screenshots": [],
-        "subInfo": 0,
-        "advancedSettings": null,
+        "orgId": "RBtoEUQ2lmN0K3GY",
         "appCategories": [],
-        "modified": 1764779244000,
+        "modified": 1458825159000,
         "avgRating": 0,
-        "id": "cb61d161171d43d89ce5a31838a7a33e",
+        "id": "4dc97eb2f7f544e9a8340ed840f02873",
         "categories": [],
-        "robots": [
-          "noindex",
-          "nofollow"
-        ],
-        "spatialReference": null,
+        "spatialReference": "GCS_WGS_1984",
         "numRatings": 0,
-        "owner": "pasiichnuk",
-        "accessInformation": null,
+        "owner": "OKDOT_GIS",
         "largeThumbnail": null,
-        "lastViewed": 1764777600000,
-        "thumbnail": null,
+        "accessInformation": "Oklahoma Department of Environmental Quality",
+        "thumbnail": "thumbnail/thumbnail.png",
         "languages": [],
-        "created": 1764779244000,
+        "created": 1444763851000,
         "documentation": null,
         "banner": null,
-        "classification": null,
-        "url": null,
-        "tags": [],
-        "numViews": 1,
+        "url": "https://services6.arcgis.com/RBtoEUQ2lmN0K3GY/arcgis/rest/services/Air_Monitoring_Sites/FeatureServer",
+        "tags": [
+          "odot",
+          "environmental",
+          "okdot"
+        ],
+        "numViews": 192,
         "numComments": 0,
-        "size": 25787,
+        "size": 49152,
         "listed": false,
-        "scoreCompleteness": 0,
-        "culture": "uk",
+        "scoreCompleteness": 88,
+        "culture": "en-us",
         "industries": [],
-        "apiToken1ExpirationDate": -1,
-        "name": "water.geojson",
+        "name": "Air_Monitoring_Sites",
         "guid": null,
         "proxyFilter": null,
         "properties": null,
-        "license": "none"
+        "source": "Oklahoma Department of Transportation",
+        "license": "custom"
       },
       "time": null,
       "links": [
@@ -377,7 +854,7 @@
           "rel": "self",
           "type": "application/geo+json",
           "title": "This document as GeoJSON",
-          "href": "https://hub.arcgis.com/api/search/v1/collections/dataset/items/cb61d161171d43d89ce5a31838a7a33e"
+          "href": "https://hub.arcgis.com/api/search/v1/collections/dataset/items/4dc97eb2f7f544e9a8340ed840f02873"
         },
         {
           "rel": "collection",
@@ -388,9 +865,9 @@
       ]
     }
   ],
-  "timestamp": "2026-10-06T15:30:41.305Z",
-  "numberMatched": 10000,
-  "numberReturned": 5,
+  "timestamp": "2026-10-20T12:10:29.159Z",
+  "numberMatched": 1018,
+  "numberReturned": 7,
   "links": [
     {
       "rel": "self",
@@ -402,7 +879,7 @@
       "rel": "next",
       "type": "application/geo+json",
       "title": "items (next)",
-      "href": "https://hub.arcgis.com/api/search/v1/collections/dataset/items?q=water&limit=5&startindex=6"
+      "href": "https://hub.arcgis.com/api/search/v1/collections/dataset/items?q=air quality monitoring&limit=10&startindex=11"
     },
     {
       "rel": "collection",

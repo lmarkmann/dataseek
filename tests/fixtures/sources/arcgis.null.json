@@ -1,0 +1,215 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "id": "e35400cc0e5743eeb7cfe079c506d2af",
+      "type": "Feature",
+      "geometry": null,
+      "properties": {
+        "snippet": null,
+        "extent": null,
+        "commentsEnabled": true,
+        "groupDesignations": null,
+        "access": "public",
+        "apiToken2ExpirationDate": -1,
+        "typeKeywords": [
+          "CSV"
+        ],
+        "description": "null",
+        "licenseInfo": null,
+        "title": "air quality",
+        "type": "CSV",
+        "screenshots": [],
+        "subInfo": 0,
+        "advancedSettings": null,
+        "appCategories": [],
+        "modified": 1732404320000,
+        "avgRating": 0,
+        "id": "e35400cc0e5743eeb7cfe079c506d2af",
+        "categories": [],
+        "robots": [
+          "noindex",
+          "nofollow"
+        ],
+        "spatialReference": null,
+        "numRatings": 0,
+        "owner": "Nikita_sthaa",
+        "accessInformation": null,
+        "largeThumbnail": null,
+        "lastViewed": 1732402800000,
+        "thumbnail": "thumbnail/ago_downloaded.png",
+        "languages": [],
+        "created": 1732372581000,
+        "documentation": null,
+        "banner": null,
+        "url": null,
+        "tags": [],
+        "numViews": 28,
+        "numComments": 0,
+        "size": 706,
+        "listed": false,
+        "scoreCompleteness": 33,
+        "culture": "en-gb",
+        "industries": [],
+        "apiToken1ExpirationDate": -1,
+        "name": "air_quality.csv",
+        "guid": null,
+        "proxyFilter": null,
+        "properties": null,
+        "source": "Nikita_sthaa",
+        "license": "none"
+      },
+      "time": null,
+      "links": [
+        {
+          "rel": "self",
+          "type": "application/geo+json",
+          "title": "This document as GeoJSON",
+          "href": "https://hub.arcgis.com/api/search/v1/collections/dataset/items/e35400cc0e5743eeb7cfe079c506d2af"
+        },
+        {
+          "rel": "collection",
+          "type": "application/json",
+          "title": "Dataset",
+          "href": "https://hub.arcgis.com/api/search/v1/collections/dataset"
+        }
+      ]
+    },
+    {
+      "id": "3afd8a0b7f524a78ae0ef969d28c1fb3",
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -1.815,
+              55.0539
+            ],
+            [
+              -1.2109,
+              55.0539
+            ],
+            [
+              -1.2109,
+              54.5802
+            ],
+            [
+              -1.815,
+              54.5802
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "snippet": null,
+        "extent": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                -1.815,
+                55.0539
+              ],
+              [
+                -1.2109,
+                55.0539
+              ],
+              [
+                -1.2109,
+                54.5802
+              ],
+              [
+                -1.815,
+                54.5802
+              ]
+            ]
+          ]
+        },
+        "commentsEnabled": true,
+        "groupDesignations": null,
+        "access": "public",
+        "typeKeywords": [
+          "Data",
+          "Feature Collection",
+          "Singlelayer"
+        ],
+        "description": null,
+        "licenseInfo": null,
+        "title": "Air Quality",
+        "type": "Feature Collection",
+        "screenshots": [],
+        "subInfo": 0,
+        "advancedSettings": null,
+        "appCategories": [],
+        "modified": 1660470890000,
+        "avgRating": 0,
+        "id": "3afd8a0b7f524a78ae0ef969d28c1fb3",
+        "categories": [],
+        "spatialReference": null,
+        "numRatings": 0,
+        "owner": "l.s.z.al-hinai2_ncluni",
+        "accessInformation": null,
+        "largeThumbnail": null,
+        "thumbnail": "thumbnail/ago_downloaded.png",
+        "languages": [],
+        "created": 1660470889000,
+        "documentation": null,
+        "banner": null,
+        "url": null,
+        "tags": [],
+        "numViews": 0,
+        "numComments": 0,
+        "size": 100656,
+        "listed": false,
+        "scoreCompleteness": 33,
+        "culture": "en-gb",
+        "industries": [],
+        "name": null,
+        "guid": null,
+        "proxyFilter": null,
+        "properties": null,
+        "source": "l.s.z.al-hinai2_ncluni",
+        "license": "none"
+      },
+      "time": null,
+      "links": [
+        {
+          "rel": "self",
+          "type": "application/geo+json",
+          "title": "This document as GeoJSON",
+          "href": "https://hub.arcgis.com/api/search/v1/collections/dataset/items/3afd8a0b7f524a78ae0ef969d28c1fb3"
+        },
+        {
+          "rel": "collection",
+          "type": "application/json",
+          "title": "Dataset",
+          "href": "https://hub.arcgis.com/api/search/v1/collections/dataset"
+        }
+      ]
+    }
+  ],
+  "timestamp": "2026-10-20T12:03:27.827Z",
+  "numberMatched": 8806,
+  "numberReturned": 2,
+  "links": [
+    {
+      "rel": "self",
+      "type": "application/geo+json",
+      "title": "This document as GeoJSON",
+      "href": "https://hub.arcgis.com/api/search/v1/collections/dataset/items"
+    },
+    {
+      "rel": "next",
+      "type": "application/geo+json",
+      "title": "items (next)",
+      "href": "https://hub.arcgis.com/api/search/v1/collections/dataset/items?q=air quality&limit=10&startindex=11"
+    },
+    {
+      "rel": "collection",
+      "type": "application/json",
+      "title": "Dataset",
+      "href": "https://hub.arcgis.com/api/search/v1/collections/dataset"
+    }
+  ]
+}
