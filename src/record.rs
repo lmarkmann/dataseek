@@ -104,9 +104,12 @@ fn already_clean(text: &str) -> bool {
         && !text.contains("  ")
 }
 
-/// Tags removed, control characters as spaces, invisible ones dropped.
+/// Tags removed, control characters as spaces, invisible ones dropped. A
+/// tag becomes a space, except before punctuation that closes up to the
+/// word before it, so "<b>rain</b>, snow" reads "rain, snow".
 fn strip_tags(text: &str, mut push: impl FnMut(char)) {
     let mut in_tag = false;
+    let mut after_tag = false;
     let mut chars = without_controls(text).peekable();
     while let Some(c) = chars.next() {
         match c {
@@ -115,17 +118,30 @@ fn strip_tags(text: &str, mut push: impl FnMut(char)) {
             }
             '>' if in_tag => {
                 in_tag = false;
-                push(' ');
+                after_tag = true;
             }
-            _ if !in_tag && !invisible(c) => push(c),
+            _ if !in_tag && !invisible(c) => {
+                if after_tag && !closes_up(c) {
+                    push(' ');
+                }
+                after_tag = false;
+                push(c);
+            }
             _ => {}
         }
     }
     if in_tag {
+        if after_tag {
+            push(' ');
+        }
         without_controls(unclosed_tag(text))
             .filter(|&c| !invisible(c))
             .for_each(push);
     }
+}
+
+fn closes_up(c: char) -> bool {
+    matches!(c, ',' | '.' | ';' | ':' | '!' | '?' | ')' | ']' | '}' | '%')
 }
 
 fn opens_tag(next: char) -> bool {
@@ -645,6 +661,15 @@ mod tests {
     }
 
     #[test]
+    fn punctuation_after_a_closing_tag_stays_on_its_word() {
+        assert_eq!(
+            clean("<p>Monthly <i>rain</i>, <b>snow</b>. Sites (<a>map</a>)"),
+            "Monthly rain, snow. Sites ( map)"
+        );
+        assert_eq!(clean("10<sup>3</sup>% of a<br>b"), "10 3% of a b");
+    }
+
+    #[test]
     fn day_keeps_only_the_date_of_iso_stamps() {
         assert_eq!(
             day(Some("2024-01-04T12:09:45Z".into())).as_deref(),
@@ -690,7 +715,7 @@ mod tests {
         assert_eq!(
             clean(&from_markdown(md)),
             "Title: Aged brain Dataset contact: J. Whalley one two \
-             a b 1 2 sentinel_2_l2a, bold , aged <5"
+             a b 1 2 sentinel_2_l2a, bold, aged <5"
         );
     }
 
