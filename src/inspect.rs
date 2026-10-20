@@ -1,6 +1,11 @@
 //! `inspect`: the machine-readable metadata a dataset page publishes about
 //! itself, and the files it lists. Hugging Face pages carry none in their
-//! HTML, so for them the Hub's Croissant endpoint is read instead; every other
+//! HTML, so for them the Hub's Croissant endpoint is read instead. A
+//! Dataverse dataset page is read through its installation's schema.org
+//! export, which answers where the page sits behind a bot wall (Harvard's
+//! does, October 2026), and a DOI link is first looked up in the DOI's
+//! handle record, so a DOI that lands on such a page is known as one before
+//! anything is requested from it. Every other
 //! page is searched for `application/ld+json` blocks holding a schema.org
 //! `Dataset` (top level, in an array, or inside `@graph`, whose other nodes
 //! answer `{"@id": ...}` references; keys may carry a `schema:` prefix, as
@@ -19,7 +24,7 @@ use serde_json::Value;
 use crate::find::human_bytes;
 use crate::http::{Http, SourceError};
 use crate::output::{self, Out};
-use crate::record::{clean, number, scrub_controls, summary, text};
+use crate::record::{clean, doi, number, scrub_controls, summary, text};
 use crate::ui;
 
 #[derive(Debug, thiserror::Error)]
@@ -72,20 +77,26 @@ pub fn run(url: &str, out: &Out) -> Result<()> {
         },
         _ => Error::Fetch { url: url.to_owned(), source: e },
     };
+    let no_markup = || Error::NoMarkup { url: url.to_owned() };
     let progress = ui::spinner(format!("reading {url}"));
-    let found = if let Some(id) = huggingface_id(url) {
+    let address = doi_link(url)
+        .and_then(|doi| landing(&http, &doi))
+        .unwrap_or_else(|| url.to_owned());
+    let found = if let Some(id) = huggingface_id(&address) {
         http.get(&format!(
             "https://huggingface.co/api/datasets/{id}/croissant"
         ))
         .json()
         .map(|dataset| Page { dataset, graph: Vec::new() })
         .map_err(fetch_error)
+    } else if let Some(export) = dataverse_export(&address) {
+        http.get(&export)
+            .json()
+            .map_err(fetch_error)
+            .and_then(|metadata| Page::find(&metadata).ok_or_else(no_markup))
     } else {
-        http.get(url).text().map_err(fetch_error).and_then(|html| {
-            json_ld(&html)
-                .iter()
-                .find_map(Page::find)
-                .ok_or_else(|| Error::NoMarkup { url: url.to_owned() })
+        http.get(&address).text().map_err(fetch_error).and_then(|html| {
+            json_ld(&html).iter().find_map(Page::find).ok_or_else(no_markup)
         })
     };
     progress.finish_and_clear();
@@ -310,6 +321,43 @@ fn checksum(file: &Value) -> Option<String> {
                 .then(|| format!("{algorithm}:{}", hex.to_ascii_lowercase()))
         },
     )
+}
+
+/// The DOI a `doi.org` link names, when it is one the handle API can be
+/// asked about in its path.
+fn doi_link(url: &str) -> Option<String> {
+    let rest = url
+        .strip_prefix("https://")
+        .or_else(|| url.strip_prefix("http://"))?;
+    let path = rest
+        .strip_prefix("doi.org/")
+        .or_else(|| rest.strip_prefix("dx.doi.org/"))?;
+    doi(path).filter(|d| !d.contains(['?', '#', '%']))
+}
+
+/// Where a DOI points, from its handle record; `None` when the lookup
+/// fails, and the link is then followed as given.
+fn landing(http: &Http, doi: &str) -> Option<String> {
+    let handle = http
+        .get(&format!("https://doi.org/api/handles/{doi}"))
+        .query("type", "URL")
+        .json()
+        .ok()?;
+    text(&handle, "/values/0/data/value").filter(|t| t.starts_with("http"))
+}
+
+/// The schema.org export of a Dataverse dataset page, `.../dataset.xhtml`
+/// or `.../citation` with a `persistentId`, which the installation's API
+/// serves beside the page.
+fn dataverse_export(url: &str) -> Option<String> {
+    let (page, query) = url.split_once('?')?;
+    let (root, last) = page.rsplit_once('/')?;
+    if !matches!(last, "dataset.xhtml" | "citation") || !root.contains("://") {
+        return None;
+    }
+    let id =
+        query.split(['&', '#']).find(|p| p.starts_with("persistentId="))?;
+    Some(format!("{root}/api/datasets/export?exporter=schema.org&{id}"))
 }
 
 fn huggingface_id(url: &str) -> Option<String> {
@@ -601,6 +649,47 @@ mod tests {
             Some("stanfordnlp/imdb")
         );
         assert_eq!(huggingface_id("https://huggingface.co/models/x"), None);
+    }
+
+    #[test]
+    fn dataverse_pages_are_read_through_their_export() {
+        assert_eq!(
+            dataverse_export(
+                "https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/DUWBBU"
+            )
+            .as_deref(),
+            Some(
+                "https://dataverse.harvard.edu/api/datasets/export?exporter=schema.org&persistentId=doi:10.7910/DVN/DUWBBU"
+            )
+        );
+        assert_eq!(
+            dataverse_export(
+                "https://data.example.org/dv/dataset.xhtml?version=2.0&persistentId=hdl:1902/X#files"
+            )
+            .as_deref(),
+            Some(
+                "https://data.example.org/dv/api/datasets/export?exporter=schema.org&persistentId=hdl:1902/X"
+            )
+        );
+        assert_eq!(dataverse_export("https://x.org/dataset.xhtml?id=4"), None);
+        assert_eq!(
+            dataverse_export("https://x.org/records/citation?q=1"),
+            None
+        );
+    }
+
+    #[test]
+    fn only_doi_links_are_looked_up_as_handles() {
+        assert_eq!(
+            doi_link("https://doi.org/10.7910/DVN/DUWBBU").as_deref(),
+            Some("10.7910/dvn/duwbbu")
+        );
+        assert_eq!(
+            doi_link("http://dx.doi.org/10.5281/zenodo.1").as_deref(),
+            Some("10.5281/zenodo.1")
+        );
+        assert_eq!(doi_link("https://zenodo.org/doi/10.5281/zenodo.1"), None);
+        assert_eq!(doi_link("https://doi.org/10.1000/a?b"), None);
     }
 
     #[test]

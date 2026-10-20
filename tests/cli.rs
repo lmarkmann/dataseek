@@ -1016,6 +1016,26 @@ fn inspect_lists_the_files_a_page_describes() {
 }
 
 #[test]
+fn inspect_reads_a_dataverse_page_through_its_export() {
+    // The server answers every path with the export's JSON, which carries no
+    // ld+json script: only a request to the export endpoint can read it.
+    let export = include_str!("fixtures/inspect/dataverse-schema-org.json");
+    let page = format!(
+        "{}citation?persistentId=doi:10.7910/DVN/X",
+        serve_page(export)
+    );
+    let out = bin()
+        .env_remove("HTTPS_PROXY")
+        .env_remove("HTTP_PROXY")
+        .args(["inspect", &page, "--json"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(report["files"].as_array().map(Vec::len), Some(2));
+}
+
+#[test]
 fn inspect_says_when_a_page_lists_no_files() {
     let out = inspect_page(BARE_PAGE, &["--json"]);
     assert!(out.status.success(), "{out:?}");
