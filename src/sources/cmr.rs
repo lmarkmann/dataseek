@@ -11,13 +11,25 @@
 //! come back by relevance, so one request covers any limit and keeps the
 //! source's order. CMR answers HTTP 400 to a keyword that mixes a quoted
 //! phrase with words or leaves a quote open, which `keyword` prevents.
-//! Clients are asked to name themselves in `Client-Id`.
+//! Clients are asked to name themselves in `Client-Id`. Throttling has no
+//! published numbers: a client over a rule gets 429 with `retry-after`
+//! (CMR search API, October 2026).
+//!
+//! The link is the provider's "DATA SET LANDING PAGE" from `RelatedUrls`
+//! (a doi.org link or the archive's page), else the DOI, else CMR's own
+//! HTML view of the record. The license is the `UseConstraints.LicenseURL`
+//! link, the only machine form UMM-C has; most records give free text
+//! instead, which is not a license id. The size is the collection total
+//! from `ArchiveAndDistributionInformation`, in decimal units; the schema
+//! names KB to PB without saying which (UMM-C 1.18.6, October 2026). The
+//! usage score CMR ranks by is not in any search response, only in a
+//! separate whole-catalog table.
 
 use serde_json::Value;
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::{Dataset, day, items, text};
+use crate::record::{Dataset, day, doi, items, text};
 
 pub fn search(
     ctx: &Ctx<'_>,
@@ -57,12 +69,17 @@ pub(super) fn parse(
 
 fn record(item: &Value) -> Option<Dataset> {
     let id = text(item, "/meta/concept-id")?;
-    let mut dataset = Dataset::new(
-        &text(item, "/umm/EntryTitle")?,
-        &format!("https://cmr.earthdata.nasa.gov/search/concepts/{id}.html"),
-    )
-    .describe(text(item, "/umm/Abstract"))
-    .doi_from(text(item, "/umm/DOI/DOI"));
+    let doi = text(item, "/umm/DOI/DOI").and_then(|raw| doi(&raw));
+    let url = landing_page(item)
+        .or_else(|| doi.as_ref().map(|doi| format!("https://doi.org/{doi}")))
+        .unwrap_or_else(|| {
+            format!("https://cmr.earthdata.nasa.gov/search/concepts/{id}.html")
+        });
+    let mut dataset = Dataset::new(&text(item, "/umm/EntryTitle")?, &url)
+        .describe(text(item, "/umm/Abstract"));
+    dataset.doi = doi;
+    dataset.license = text(item, "/umm/UseConstraints/LicenseURL/Linkage");
+    dataset.size_bytes = total_size(item);
     let centers = items(item, "/umm/DataCenters");
     let archive = centers.iter().find(|center| {
         items(center, "/Roles").iter().any(|role| role == "ARCHIVER")
@@ -79,6 +96,51 @@ fn record(item: &Value) -> Option<Dataset> {
     dataset.valid()
 }
 
+/// The first landing page that is a plain web link; some records put a
+/// bare DOI there.
+fn landing_page(item: &Value) -> Option<String> {
+    items(item, "/umm/RelatedUrls")
+        .iter()
+        .filter(|link| {
+            link.get("Type")
+                .is_some_and(|kind| kind == "DATA SET LANDING PAGE")
+        })
+        .filter_map(|link| text(link, "/URL"))
+        .find(|url| {
+            url.starts_with("http") && !url.contains(char::is_whitespace)
+        })
+}
+
+/// The collection's total size, archive figures before distribution ones.
+fn total_size(item: &Value) -> Option<u64> {
+    let info = item.pointer("/umm/ArchiveAndDistributionInformation")?;
+    items(info, "/FileArchiveInformation")
+        .iter()
+        .chain(items(info, "/FileDistributionInformation"))
+        .find_map(|file| {
+            let size = file.get("TotalCollectionFileSize")?.as_f64()?;
+            let unit =
+                match file.get("TotalCollectionFileSizeUnit")?.as_str()? {
+                    "KB" => 1e3,
+                    "MB" => 1e6,
+                    "GB" => 1e9,
+                    "TB" => 1e12,
+                    "PB" => 1e15,
+                    _ => return None,
+                };
+            (size > 0.0).then(|| bytes((size * unit).round()))
+        })
+}
+
+#[expect(
+    clippy::cast_possible_truncation,
+    clippy::cast_sign_loss,
+    reason = "a positive approximate size; whole bytes are the intent"
+)]
+fn bytes(size: f64) -> u64 {
+    size as u64
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -92,9 +154,7 @@ mod tests {
             hits[0],
             Dataset {
                 title: "ATLAS/ICESat-2 L3A Sea Ice Freeboard V007".into(),
-                url: "https://cmr.earthdata.nasa.gov/search/concepts/\
-                      C3565574246-NSIDC_CPRD.html"
-                    .into(),
+                url: "https://doi.org/10.5067/atlas/atl10.007".into(),
                 description: Some(
                     "ATL10 contains along-track sea ice freeboard calculated \
                      for 10 km swath segments. The data were acquired by the \
@@ -111,6 +171,86 @@ mod tests {
                 aliases: vec![],
             }
         );
+    }
+
+    #[test]
+    fn license_size_and_landing_page_map_from_a_recorded_search() {
+        let hits = parse(&fixture::json("cmr.tempo.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "TEMPO NO2 tropospheric and stratospheric columns V04 \
+                        (PROVISIONAL)"
+                    .into(),
+                url: "https://doi.org/10.5067/IS-40e/TEMPO/NO2_L2.004".into(),
+                description: Some(
+                    "Nitrogen dioxide Level 2 (PROVISIONAL) files provide \
+                     trace gas information at TEMPO\u{2019}s native spatial \
+                     resolution, ~10 km^2 at the center of the Field of \
+                     Regard (FOR), for individual granules. Each granule \
+                     covers the entire North-South TEMPO FOR but only a \
+                     portion of the East-West FOR."
+                        .into()
+                ),
+                publisher: Some("NASA/LARC/SD/ASDC".into()),
+                doi: Some("10.5067/is-40e/tempo/no2_l2.004".into()),
+                license: Some(
+                    "https://www.earthdata.nasa.gov/engage/\
+                     open-data-services-software-policies/data-use-guidance"
+                        .into()
+                ),
+                updated: Some("2026-10-16".into()),
+                size_bytes: Some(15_000_000_000_000),
+                popularity: None,
+                aliases: vec![],
+            }
+        );
+    }
+
+    #[test]
+    fn the_size_is_the_collection_total_in_decimal_units() {
+        let hits = parse(&fixture::json("cmr.tempo.json"), 10).unwrap();
+        let sizes: Vec<_> = hits.iter().map(|h| h.size_bytes).collect();
+        assert_eq!(
+            sizes,
+            [
+                Some(15_000_000_000_000),
+                Some(12_000_000_000_000),
+                Some(247_000_000_000),
+                Some(175_000_000_000),
+            ]
+        );
+        let hits = parse(&fixture::json("cmr.json"), 10).unwrap();
+        assert!(hits.iter().all(|h| h.size_bytes.is_none()));
+    }
+
+    #[test]
+    fn the_link_is_the_landing_page_else_the_doi_else_the_cmr_page() {
+        let tempo = parse(&fixture::json("cmr.tempo.json"), 10).unwrap();
+        let older = parse(&fixture::json("cmr.json"), 10).unwrap();
+        let urls: Vec<_> =
+            tempo.iter().chain(&older).map(|h| h.url.as_str()).collect();
+        assert_eq!(
+            urls,
+            [
+                "https://doi.org/10.5067/IS-40e/TEMPO/NO2_L2.004",
+                "https://doi.org/10.5067/IS-40e/TEMPO/NO2_L3.004",
+                "https://doi.org/10.5067/IS-40e/TEMPO/NO2_NRT_L2.002",
+                "https://doi.org/10.5067/is-40e/tempo/no2_nrt_l3.002",
+                "https://doi.org/10.5067/atlas/atl10.007",
+                "https://doi.org/10.5067/amsru/au_si12_nrt_r04",
+                "https://doi.org/10.26179/5d37f84cbf569",
+                "https://cmr.earthdata.nasa.gov/search/concepts/\
+                 C2545372296-AMD_USAPDC.html",
+            ]
+        );
+    }
+
+    #[test]
+    fn only_a_license_link_counts_as_a_license() {
+        let hits = parse(&fixture::json("cmr.json"), 10).unwrap();
+        assert!(hits.iter().all(|h| h.license.is_none()));
     }
 
     #[test]
