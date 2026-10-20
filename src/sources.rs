@@ -522,7 +522,7 @@ pub static SOURCES: &[Source] = &[
         "openml",
         "OpenML",
         MachineLearning,
-        "OpenML REST, listed",
+        "OpenML Elasticsearch, listed",
         "https://docs.openml.org/ecosystem/Rest/",
         openml::list,
     ),

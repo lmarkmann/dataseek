@@ -51,7 +51,7 @@ These publish a complete list but no search endpoint, so dataseek downloads the 
 
 | source | list endpoint | entries (2026-10-06) |
 |---|---|---|
-| OpenML | `/api/v1/json/data/list/limit/20000/status/active` (latest version per name) | 5,025 |
+| OpenML | `POST /es/data/data/_search`, `status: active`, sorted by `data_id` (latest version per name); the index the openml.org site queries, since the REST list carries no description, licence or date | 6,668 (2026-10-20) |
 | UCI | `/api/datasets/list` | 689 |
 | World Bank indicators | `/v2/indicator?per_page=40000` | 29,533 |
 | SDMX agencies | `/dataflow` as SDMX-ML 2.1 | IMF 222 (101 with a portal page), OECD 1,548, ECB 215, BIS 32, ILO 1,216, UNdata 15, Bundesbank 94 |
