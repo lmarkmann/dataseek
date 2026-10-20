@@ -316,6 +316,9 @@ impl<'a> Call<'a> {
                 _ => Retry::Fail(SourceError::RateLimited),
             });
         }
+        if waf_challenge(response.headers()) {
+            return Err(Retry::Fail(SourceError::Blocked));
+        }
         let body = response
             .body_mut()
             .with_config()
@@ -426,6 +429,15 @@ fn certificate_hint_for(file: Option<&OsStr>, dirs: Option<&OsStr>) -> String {
 fn quota_spent(headers: &ureq::http::HeaderMap) -> bool {
     headers.get("x-ratelimit-remaining").is_some_and(|v| v.as_bytes() == b"0")
         || headers.contains_key("retry-after")
+}
+
+/// AWS WAF Bot Control answers with this header and a script for a browser
+/// to run, under any status: Harvard Dataverse, HDX and Figshare pages send
+/// it with 202 and an empty body (October 2026).
+fn waf_challenge(headers: &ureq::http::HeaderMap) -> bool {
+    headers
+        .get("x-amzn-waf-action")
+        .is_some_and(|v| v.as_bytes() == b"challenge")
 }
 
 /// Cloudflare and similar bot walls answer 403 with an HTML interstitial.
@@ -663,6 +675,26 @@ mod tests {
                 if keyed { call.key_query("api_key", "k") } else { call };
             let outcome = call.text().unwrap_err();
             assert_eq!(outcome.to_string(), expected.to_string(), "{status}");
+            server.join().unwrap();
+        }
+    }
+
+    #[test]
+    fn a_waf_challenge_is_blocked_whatever_its_status() {
+        for (status, action, blocked) in [
+            ("202 Accepted", "challenge", true),
+            ("200 OK", "challenge", true),
+            ("200 OK", "allow", false),
+        ] {
+            let header = format!("x-amzn-waf-action: {action}");
+            let (url, server) =
+                serve(vec![response(status, &[header.as_str()], b"{}")]);
+            let outcome = Http::new().get(&url).text();
+            assert_eq!(
+                matches!(outcome, Err(SourceError::Blocked)),
+                blocked,
+                "{status} {action}: {outcome:?}"
+            );
             server.join().unwrap();
         }
     }
