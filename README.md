@@ -28,6 +28,7 @@ uvx dataseek search sea surface temperature
 dsk search sea surface temperature                 # every default source, merged and ranked
 dsk search mnist -s huggingface,kaggle             # only these sources
 dsk search inflation -c economics,finance          # only these categories
+dsk search rainfall --license cc-by --format csv   # only CC BY datasets offered as CSV
 dsk search census --json | jq -r '.results[].url'  # one URL per line, for scripts
 dsk sources                                        # every source, its protocol, key and docs
 dsk inspect https://zenodo.org/records/13135140    # a page's metadata and the files it lists

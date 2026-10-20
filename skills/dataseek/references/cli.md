@@ -31,7 +31,7 @@ Verified against `docs/reference/contract.md`, `dsk help --json`, `dsk help envi
 
 Global flags, valid with every command: `--json`, `-q`/`--quiet` (errors only on stderr), `-v`/`--verbose` (repeatable), `--color auto|always|never`, `--no-color`, `--plain` (ASCII, no color), `--no-progress`, `--cache-dir DIR`, `--connect-timeout SECS`.
 
-`search` flags: `-s/--source`, `--include`, `-x/--exclude`, `-c/--category` (comma-separated), `-n/--limit` (20), `--per-source` (10, at most 100), `--sort relevance|newest`, `--refresh`, `--offline`, `--timeout SECS` (20; 0 waits for every source). Their meaning is the MCP argument table in `references/search.md`.
+`search` flags: `-s/--source`, `--include`, `-x/--exclude`, `-c/--category` (comma-separated), `-n/--limit` (20), `--per-source` (10, or 30 with a filter; at most 100), `--license`, `--updated-since`, `--format`, `--min-sources N`, `--sort relevance|newest`, `--refresh`, `--offline`, `--timeout SECS` (20; 0 waits for every source). Their meaning is the MCP argument table in `references/search.md`.
 
 A flag beats its variable, which beats the default:
 
@@ -70,9 +70,9 @@ dsk search census --json | jq -r '.results[] | [.title, .url, (.sources | join("
 # only datasets more than one archive holds
 dsk search sea surface temperature --json | jq '[.results[] | select(.sources | length > 1)]'
 
-# only Creative Commons licenses, as the sources write them (URL or name)
-dsk search sea surface temperature --json \
-  | jq '[.results[] | select((.license // "") | test("creativecommons|cc-?by|cc0"; "i"))]'
+# only CC BY (any version) or CC0, updated since 2024, offered as CSV
+dsk search air quality --license cc-by,cc0 --updated-since 2024 --format csv --json \
+  | jq '{total, filtered_out}'
 
 # which sources did not answer, and why
 dsk search sea surface temperature --json | jq -r '.sources[] | select(.answered | not) | "\(.id)\t\(.status)"'

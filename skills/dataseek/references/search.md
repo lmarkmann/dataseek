@@ -5,6 +5,7 @@ Verified against `tools/list`, `dsk help search --json`, `dsk sources --json` an
 ## Contents
 
 - **Arguments**: which argument, on which surface, and when each one is worth setting
+- **Filters**: license, date, format and agreement constraints, and what an empty filtered result means
 - **Source ids and categories**: what to put in `source`, `exclude` and `category`
 - **Writing queries**: how long a query should be and what stays out of it
 - **Reading the result**: what each field means and which ones an answer may quote
@@ -25,7 +26,11 @@ The MCP tool's input schema is generated from the CLI's flags, so the names matc
 | `exclude` (array of ids) | `-x a,b` | none | one source floods the list with near-duplicates |
 | `category` (array of names) | `-c a,b` | every category | the domain is unmistakable (economics, life-sciences) |
 | `limit` (integer) | `-n N` | 20 | the user wants more or fewer merged results |
-| `per-source` (1 to 100) | `--per-source N` | 10 | a source should contribute deeper results; costs paging on some sources |
+| `license` (array of ids) | `--license a,b` | none | the user needs a license: SPDX ids (`CC-BY-4.0`, `CC0-1.0`) or a family (`cc-by`, every version and port) |
+| `updated-since` (`YYYY`, `YYYY-MM` or `YYYY-MM-DD`) | `--updated-since 2024` | none | the user needs data updated on or after a date |
+| `format` (array of names) | `--format csv,parquet` | none | the user needs a file format: `csv`, `json`, `parquet`, `netcdf`, `geotiff`, ... |
+| `min-sources` (integer, at least 1) | `--min-sources 2` | none | only datasets several archives hold are wanted |
+| `per-source` (1 to 100) | `--per-source N` | 10, or 30 when a filter is set | a source should contribute deeper results; costs paging on some sources |
 | `sort` (`relevance`, `newest`) | `--sort newest` | `relevance` | the user asks for recent or recently updated data |
 | `refresh` (boolean) | `--refresh` | false | the user needs answers newer than the 6-hour cache |
 | `offline` (boolean) | `--offline` | false | no network, or a repeat over the cache only |
@@ -34,6 +39,17 @@ The MCP tool's input schema is generated from the CLI's flags, so the names matc
 Over MCP, `source`, `include`, `exclude` and `category` are JSON arrays, `["zenodo", "figshare"]`; the CLI takes the same ids comma-separated. A string where an array belongs is refused with `` `source` takes a list of strings ``.
 
 `source` replaces the default set; `include` adds to it. A search with `source: ["kaggle"]` asks Kaggle alone, one with `include: ["kaggle"]` asks Kaggle and every default source. `category` and `exclude` still narrow an included source: `include: ["google"]` with `category: ["research"]` leaves Google out, because Google is an `aggregator`. A source named in `source` gets the whole `timeout` and is asked even if it had an outage in the last ten minutes.
+
+## Filters
+
+`license`, `updated-since`, `format` and `min-sources` filter the merged list before `limit` cuts it, the same way for every source. A merged dataset passes on what any of its sources stated, and a dataset that does not state a field never passes a filter on it. With a filter set each source is asked for 30 results instead of 10, so a filtered search can return more matches than the unfiltered one.
+
+Measured 2026-10-20 on "sea surface temperature", 328 matches unfiltered: `license: ["cc-by"]` kept 160, `updated-since: "2024"` 488, `format: ["netcdf"]` 37, `min-sources: 2` 10.
+
+- **Licenses are sparse.** About three results in ten name one (315 of 978 over three queries, 2026-10-20), so a license filter drops most of a search. A dropped dataset may still be openly licensed on its page; say so when the filtered list is short, and offer `inspect` on a promising unfiltered result.
+- **Formats come from five kinds of source only:** CKAN portals (`data-gov-uk`, `open-canada`, `data-gov-au`, `govdata`, `hdx`), `europa`, `arcgis`, `cmr` and `datagov`. A `format` filter leaves out every research repository; for those, `inspect` the result to read its files.
+- **An empty filtered result** says how many matched without the filters (`filtered_out` in the result). Report that number and which filter was strictest rather than "nothing found".
+- **`min-sources: 2`** keeps datasets independent archives agree on; it suits a "which datasets are well established" question, not a search for something specific.
 
 ## Source ids and categories
 
@@ -67,7 +83,7 @@ Each source runs its own search engine and most of them require every word to ma
 Measured 2026-10-20 over the default sources: "sea surface temperature" merged 328 results; "global monthly sea surface temperature dataset since 1980" merged 136.
 
 - **Two to four content words.** Drop "dataset", "data", "open", "about", "find me".
-- **Constraints stay out of the query.** Years, regions, file formats and licenses filter the results afterwards (`updated`, `description`, `license`), or become a second query when they are the topic ("Kenya census"). A year in the query also weighs heavily in the ranking, because rare tokens count most, so "since 2000" lifts tables that merely contain "2000".
+- **Constraints stay out of the query.** Licenses, dates and file formats go in the filter arguments (Filters above). A region becomes a second query when it is the topic ("Kenya census"), or is read off `description` afterwards. A year in the query also weighs heavily in the ranking, because rare tokens count most, so "since 2000" lifts tables that merely contain "2000".
 - **Use the field's own words and acronyms** as alternative queries: "SST" or "ERSST" beside "sea surface temperature", "scRNA-seq" beside "single cell RNA", "CPI" beside "consumer prices".
 - **One concept per query.** "air quality" and "asthma admissions" are two searches whose results the answer joins, not one query that few datasets match on both.
 - **English first.** Most sources index English metadata; `europa` matches across EU languages, and a national portal (`govdata`, `recherche-data-gouv`) may answer better in its own language.
@@ -81,7 +97,8 @@ Measured 2026-10-20 over the default sources: "sea surface temperature" merged 3
 |---|---|
 | `query` | the query as searched |
 | `complete` | false when the search stopped waiting for a source or a catalog was still downloading, so results from those are missing |
-| `total` | how many merged datasets matched; `results` holds the first `limit` of them |
+| `total` | how many merged datasets matched and passed the filters; `results` holds the first `limit` of them |
+| `filtered_out` | how many merged datasets the filters dropped; 0 without filters |
 | `results` | the merged datasets, best first, at most `limit` |
 | `sources` | one entry per source asked: `id`, `status`, `answered`, `results` (how many it returned), `ms` |
 
@@ -92,7 +109,8 @@ Each result:
 | `title`, `url` | always present; `url` is the landing page, the one to give the user and to pass to `inspect` |
 | `sources` | every source that holds this dataset; more than one means independent archives agree it exists |
 | `description` | cut to a few hundred characters; quote it as a summary, not as the whole record |
-| `publisher`, `doi`, `license`, `updated`, `size_bytes` | present only when a source supplied them; `license` is a name or a URL as the source wrote it |
+| `publisher`, `doi`, `license`, `updated`, `size_bytes` | present only when a source supplied them; `license` is an SPDX id (`CC-BY-4.0`) where the source's spelling maps to one, else the source's own text |
+| `formats` | the file formats the sources list, one name each (`CSV`, `NETCDF`); absent when none did |
 | `popularity` | downloads, votes or stars as one source counts them; compare only between results from the same source |
 | `aliases` | other identifiers of the same dataset (a concept DOI, a mirror URL), used for merging |
 | `score` | the rank score inside this one search; meaningless across searches and not a probability |
@@ -147,4 +165,4 @@ dsk search sea surface temperature -n 10
 dsk search ERSST -n 10
 ```
 
-List only the results that fit the request, after applying the user's constraints, and say how many were dropped and why.
+List only the results that fit the request. Constraints the filter arguments cover go in the call; any other constraint is applied to the results, and the answer says how many were dropped and why.

@@ -342,7 +342,9 @@ pub enum Command {
             Croissant for Hugging Face. The file list comes from the same \
             metadata: each file's name, format, size, checksum and link, \
             whichever the page gives, and for a Croissant file set the \
-            pattern its files match; nothing is downloaded. Under --json \
+            pattern its files match; nothing is downloaded. A doi.org \
+            link is read as the page its DOI names, and a Dataverse page \
+            through its installation's schema.org export. Under --json \
             the list is .files, beside the page's own .dataset.",
         after_help = "Examples:
   dsk inspect https://zenodo.org/records/13135140
