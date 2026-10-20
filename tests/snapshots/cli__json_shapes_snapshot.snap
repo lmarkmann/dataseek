@@ -189,7 +189,8 @@ expression: "serde_json::to_string_pretty(&shapes).unwrap()"
         "results": 2,
         "status": "ok"
       }
-    ]
+    ],
+    "total": 2
   },
   "sources": {
     "schema": "dataseek-sources/1",

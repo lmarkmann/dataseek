@@ -1626,6 +1626,24 @@ fn seeded_search_json() -> Value {
     report
 }
 
+// `results` stops at `-n`; `total` still counts every merged match.
+#[test]
+fn search_json_counts_matches_past_the_limit() {
+    let mut cmd = bin();
+    seed_rainfall(&cmd.cache());
+    let out = cmd
+        .args(["search", "rainfall", "-s", "openml", "--offline", "--json"])
+        .args(["-n", "1"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    let every = seeded_search_json()["results"].as_array().unwrap().len();
+    assert!(every > 1, "{every}");
+    assert_eq!(report["results"].as_array().unwrap().len(), 1);
+    assert_eq!(report["total"], every);
+}
+
 #[test]
 fn json_shapes_snapshot() {
     let sources = json_of(&["sources", "--json"]);

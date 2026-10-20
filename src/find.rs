@@ -154,7 +154,7 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
     let mut hits = ranked(&mut outcomes, &query, sort);
     let found = hits.len();
     hits.truncate(limit);
-    print(out, &query, &hits, sources, complete)?;
+    print(out, &query, &hits, found, sources, complete)?;
     summarize(&query, hits.len(), found, &outcomes, renewing, &services.cache);
     Ok(())
 }
@@ -377,6 +377,8 @@ struct Report<'a> {
     /// False when the search stopped waiting for a source or a catalog was
     /// still downloading, so the results may lack what those would add.
     complete: bool,
+    /// How many merged datasets matched; `results` holds the first `limit`.
+    total: usize,
     results: &'a [Hit],
     sources: Vec<SourceReport>,
 }
@@ -408,6 +410,7 @@ fn print(
     out: &Out,
     query: &str,
     hits: &[Hit],
+    total: usize,
     sources: Vec<SourceReport>,
     complete: bool,
 ) -> Result<()> {
@@ -416,6 +419,7 @@ fn print(
             schema: SCHEMA,
             query,
             complete,
+            total,
             results: hits,
             sources,
         });
