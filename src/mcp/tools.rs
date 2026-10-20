@@ -140,20 +140,30 @@ impl Arg {
     }
 }
 
-/// The command behind `tool`, with `search`'s timeout held to the bounds
-/// [`deadline`] enforces.
+/// The command behind `tool`, its help worded for a model, with `search`'s
+/// timeout held to the bounds [`deadline`] enforces.
 fn described(tool: &str) -> anyhow::Result<Described> {
     let command = help::subcommand_json(tool)
         .ok_or_else(|| anyhow::anyhow!("no `{tool}` command to describe"))?;
     let mut command: Described = serde_json::from_value(command)?;
-    if tool == "search" {
-        for arg in &mut command.args {
-            if arg.key() == "timeout" {
-                (arg.minimum, arg.maximum) = (Some(1), Some(MAX_TIMEOUT));
-            }
+    for arg in &mut command.args {
+        arg.help = arg.help.as_deref().map(for_a_model);
+        if tool == "search" && arg.key() == "timeout" {
+            (arg.minimum, arg.maximum) = (Some(1), Some(MAX_TIMEOUT));
+            arg.help = Some(format!(
+                "Seconds to wait for slow sources before answering, 1 to {MAX_TIMEOUT}"
+            ));
         }
     }
     Ok(command)
+}
+
+/// A flag's help as a tool argument's description: a list is a JSON array
+/// rather than a comma-separated value, and the ids come from the `sources`
+/// tool rather than from a command.
+fn for_a_model(help: &str) -> String {
+    help.replace(", comma-separated", "")
+        .replace("`dataseek sources`", "the sources tool")
 }
 
 /// The tool whose name is `name`, as the static string the rest uses.
@@ -580,6 +590,32 @@ mod tests {
         );
         assert_eq!(search["required"], json!(["query"]));
         assert_eq!(search["additionalProperties"], false);
+    }
+
+    // The descriptions come from the command line's help, which describes
+    // comma-separated values, `dataseek sources` and a timeout of 0; none of
+    // those is true of a tool call.
+    #[test]
+    fn descriptions_describe_the_call_not_the_command_line() {
+        for tool in TOOLS {
+            let schema = schema(tool);
+            for (key, property) in schema["properties"].as_object().unwrap() {
+                let text = property["description"].as_str().unwrap_or("");
+                for wrong in ["comma-separated", "dataseek sources", "0 waits"]
+                {
+                    assert!(!text.contains(wrong), "{tool} {key}: {text}");
+                }
+            }
+        }
+        let search = schema("search");
+        assert_eq!(
+            search["properties"]["source"]["description"],
+            "Only these sources (see the sources tool)"
+        );
+        assert_eq!(
+            search["properties"]["timeout"]["description"],
+            "Seconds to wait for slow sources before answering, 1 to 300"
+        );
     }
 
     // Through clap, the generated command line means what the call said.
