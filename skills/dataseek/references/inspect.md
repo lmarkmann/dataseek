@@ -35,12 +35,14 @@ Observed 2026-10-20 on landing pages from an `air quality` search, one per sourc
 | Outcome | Sources whose result URLs gave it |
 |---|---|
 | metadata and files | `zenodo`, `huggingface`, `kaggle`, `datagov`, `data-gov-au`, `dataverse-no`, `aws`, `cessda`, `dbnomics`, `modelscope`, `openaire` |
-| `carries no schema.org Dataset markup` | `arcgis`, `b2find`, `cmr`, `dataone`, `earth-engine`, `europa`, `figshare`, `github`, `govdata`, `hdx`, `open-canada`, `opendatasoft`, `openml`, `osf` |
-| `sent a challenge page instead of results` | `gbif` |
+| `carries no schema.org Dataset markup` | `arcgis`, `b2find`, `dataone`, `earth-engine`, `europa`, `github`, `govdata`, `open-canada`, `opendatasoft`, `openml`, `osf` |
+| `sent a challenge page instead of results` | `gbif`, and the AWS bot wall in front of `hdx`, `figshare` and `harvard-dataverse` pages |
+
+`cmr` results now link the provider's landing page or the DOI rather than NASA's record page, so whether they publish markup depends on that provider.
 
 ## When it fails
 
-1. **`carries no schema.org Dataset markup`** with a `doi` on the result: inspect `https://doi.org/<doi>` once. The DOI resolves to the publisher's canonical page, which worked for a Zenodo DOI and failed for a Harvard Dataverse DOI on 2026-10-20.
+1. **`carries no schema.org Dataset markup`** with a `doi` on the result: inspect `https://doi.org/<doi>` once. The DOI resolves to the publisher's canonical page, which worked for a Zenodo DOI on 2026-10-20; a DOI that lands behind a bot wall fails as in step 3.
 2. **Still no markup:** say the page publishes no machine-readable metadata, give its URL, and list what the search result itself carried. Read the page with a web fetch tool only if the user wants more.
 3. **`cannot fetch`** with `sent a challenge page instead of results`: the site blocks automated requests; give the URL for the user to open.
 4. **A file URL or a search page** handed to `inspect` fails the same way as a page with no markup; pass the landing page.
