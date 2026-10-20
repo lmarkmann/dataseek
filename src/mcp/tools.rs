@@ -114,6 +114,10 @@ struct Arg {
     required: bool,
     repeatable: bool,
     help: Option<String>,
+    /// The JSON Schema `pattern` and an example of a string value whose
+    /// shape `help --json` cannot state.
+    #[serde(skip)]
+    shape: Option<(&'static str, &'static str)>,
 }
 
 impl Arg {
@@ -148,6 +152,9 @@ fn described(tool: &str) -> anyhow::Result<Described> {
     let mut command: Described = serde_json::from_value(command)?;
     for arg in &mut command.args {
         arg.help = arg.help.as_deref().map(for_a_model);
+        if tool == "search" && arg.key() == "updated-since" {
+            arg.shape = Some((crate::filter::DAY_PATTERN, "2024-07-01"));
+        }
         if tool == "search" && arg.key() == "timeout" {
             (arg.minimum, arg.maximum) = (Some(1), Some(MAX_TIMEOUT));
             arg.help = Some(format!(
@@ -220,6 +227,10 @@ fn property(arg: &Arg) -> Value {
     }
     if let Some(maximum) = arg.maximum {
         value.insert("maximum".into(), json!(maximum));
+    }
+    if let Some((pattern, example)) = arg.shape {
+        value.insert("pattern".into(), json!(pattern));
+        value.insert("examples".into(), json!([example]));
     }
     let mut property = if arg.takes_list() {
         let mut list = Map::new();
@@ -626,6 +637,9 @@ mod tests {
             &arguments(json!({
                 "query": "sea surface temperature",
                 "source": ["zenodo", "datacite"],
+                "license": ["cc-by", "CC0-1.0"],
+                "updated-since": "2024-07",
+                "min-sources": 2,
                 "limit": 5,
                 "sort": "newest",
                 "offline": true,
@@ -640,6 +654,7 @@ mod tests {
         let Some(Cmd::Search {
             query,
             selection,
+            filters,
             limit,
             sort,
             offline,
@@ -651,6 +666,9 @@ mod tests {
         };
         assert_eq!(query, ["sea surface temperature"]);
         assert_eq!(selection.only, ["zenodo", "datacite"]);
+        assert_eq!(filters.license, ["cc-by", "CC0-1.0"]);
+        assert_eq!(filters.updated_since.as_deref(), Some("2024-07-01"));
+        assert_eq!(filters.min_sources, Some(2));
         assert_eq!(
             (limit, sort, offline, refresh),
             (5, Sort::Newest, true, false)
@@ -675,6 +693,10 @@ mod tests {
             }
             "boolean" => values.push(json!(true)),
             "integer" => values.push(json!(1)),
+            _ if property.get("examples").is_some() => {
+                values
+                    .extend(property["examples"].as_array().unwrap().clone());
+            }
             _ => values.push(json!("x")),
         }
         values

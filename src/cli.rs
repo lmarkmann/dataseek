@@ -172,15 +172,45 @@ pub struct Selection {
     )]
     pub categories: Vec<crate::sources::Category>,
 
-    /// How many results to ask each source for (1-100).
+    /// How many results to ask each source for (1-100; 10, or 30 when
+    /// search filters).
     #[arg(
         long,
         value_name = "N",
-        default_value_t = 10,
         value_parser = clap::value_parser!(u16).range(PER_SOURCE),
         env = "DATASEEK_PER_SOURCE"
     )]
-    pub per_source: u16,
+    pub per_source: Option<u16>,
+}
+
+/// How many results each source is asked for when nothing says otherwise.
+pub const PER_SOURCE_DEFAULT: u16 = 10;
+/// The same when `search` filters, so the filters have more to keep.
+pub const PER_SOURCE_FILTERED: u16 = 30;
+/// The values `--min-sources` accepts.
+pub const MIN_SOURCES: RangeFrom<i64> = 1..;
+
+/// What `search` keeps of the merged list. A dataset that does not state a
+/// field never passes a filter on that field.
+#[derive(Args, Clone, Debug, Default)]
+pub struct Filters {
+    /// Only datasets under these licenses, comma-separated: SPDX ids such
+    /// as CC-BY-4.0, or a family such as cc-by for every version of it.
+    #[arg(long, value_name = "IDS", value_delimiter = ',')]
+    pub license: Vec<String>,
+
+    /// Only datasets updated on or after this day (YYYY, YYYY-MM or
+    /// YYYY-MM-DD).
+    #[arg(long, value_name = "DATE", value_parser = crate::filter::day)]
+    pub updated_since: Option<String>,
+
+    /// Only datasets that at least this many sources found.
+    #[arg(
+        long,
+        value_name = "N",
+        value_parser = clap::value_parser!(u16).range(MIN_SOURCES)
+    )]
+    pub min_sources: Option<u16>,
 }
 
 fn source_ids() -> PossibleValuesParser {
@@ -258,6 +288,9 @@ pub enum Command {
 
         #[command(flatten)]
         selection: Selection,
+
+        #[command(flatten)]
+        filters: Filters,
 
         /// How many merged results to print.
         #[arg(

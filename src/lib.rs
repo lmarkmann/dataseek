@@ -27,6 +27,7 @@ mod cli;
 mod credentials;
 mod dedup;
 mod doctor;
+mod filter;
 mod find;
 mod fs;
 mod help;
@@ -237,6 +238,7 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
         Command::Search {
             query,
             selection,
+            filters,
             limit,
             sort,
             refresh,
@@ -249,6 +251,7 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
             let request = find::Request {
                 words: &query,
                 selection: &selection,
+                filters: &filters,
                 limit,
                 sort,
                 refresh,

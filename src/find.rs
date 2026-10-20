@@ -18,8 +18,11 @@ use clap::builder::styling::Style;
 use serde::Serialize;
 
 use crate::cache::Cache;
-use crate::cli::{Selection, Sort};
+use crate::cli::{
+    Filters, PER_SOURCE_DEFAULT, PER_SOURCE_FILTERED, Selection, Sort,
+};
 use crate::dedup::{Hit, merge, weigh};
+use crate::filter::Wanted;
 use crate::http::SourceError;
 use crate::output::{self, Out, fit};
 use crate::search::{Outcome, Plan, Status, run};
@@ -66,6 +69,7 @@ pub enum Error {
 pub struct Request<'a> {
     pub words: &'a [String],
     pub selection: &'a Selection,
+    pub filters: &'a Filters,
     pub limit: usize,
     pub sort: Sort,
     pub refresh: bool,
@@ -75,8 +79,17 @@ pub struct Request<'a> {
 }
 
 pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
-    let Request { words, selection, limit, sort, refresh, offline, timeout } =
-        *request;
+    let Request {
+        words,
+        selection,
+        filters,
+        limit,
+        sort,
+        refresh,
+        offline,
+        timeout,
+    } = *request;
+    let wanted = Wanted::new(filters);
     let services = Arc::new(Services::load()?);
     let query = words.join(" ");
     let plan = Arc::new(Plan {
@@ -87,7 +100,13 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
             &selection.exclude,
             &selection.categories,
         ),
-        per_source: usize::from(selection.per_source),
+        per_source: usize::from(selection.per_source.unwrap_or(
+            if wanted.any() {
+                PER_SOURCE_FILTERED
+            } else {
+                PER_SOURCE_DEFAULT
+            },
+        )),
         forced: offline || !selection.only.is_empty(),
     });
     if plan.sources.is_empty() {
@@ -152,10 +171,22 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         .iter()
         .any(|o| matches!(o.status, Status::Running(_) | Status::Downloading));
     let mut hits = ranked(&mut outcomes, &query, sort);
-    let found = hits.len();
+    let matched = hits.len();
+    hits.retain(|hit| wanted.admits(hit));
+    let found = Found {
+        total: hits.len(),
+        filtered_out: matched.saturating_sub(hits.len()),
+    };
     hits.truncate(limit);
-    print(out, &query, &hits, found, sources, complete)?;
-    summarize(&query, hits.len(), found, &outcomes, renewing, &services.cache);
+    print(out, &query, &hits, &found, sources, complete)?;
+    summarize(
+        &query,
+        hits.len(),
+        &found,
+        &outcomes,
+        renewing,
+        &services.cache,
+    );
     Ok(())
 }
 
@@ -332,12 +363,18 @@ fn named(ids: &[&str]) -> String {
 
 const NAMED: usize = 3;
 
+/// How many merged datasets passed the filters, and how many did not.
+struct Found {
+    total: usize,
+    filtered_out: usize,
+}
+
 /// The closing lines on stderr, after the results: what failed, then one
 /// line on how it went and how to see more.
 fn summarize(
     query: &str,
     shown: usize,
-    found: usize,
+    found: &Found,
     outcomes: &[Outcome],
     renewing: bool,
     cache: &Cache,
@@ -355,15 +392,25 @@ fn summarize(
         "{answered} of {} answered{still}",
         ui::count(attempted, "source")
     );
-    if found == 0 {
+    let Found { total, filtered_out } = *found;
+    let filtered = if filtered_out > 0 {
+        format!(", {filtered_out} more without the filters")
+    } else {
+        String::new()
+    };
+    if total == 0 && filtered_out > 0 {
+        ui::warn(format!(
+            "no datasets matched \"{query}\" and the filters; {filtered_out} matched without them; {sources}"
+        ));
+    } else if total == 0 {
         ui::warn(format!("no datasets matched \"{query}\"; {sources}"));
-    } else if shown < found {
+    } else if shown < total {
         ui::ok(format!(
-            "{shown} of {}; {sources}; -n {found} shows all",
-            ui::count(found, "result")
+            "{shown} of {}{filtered}; {sources}; -n {total} shows all",
+            ui::count(total, "result")
         ));
     } else {
-        ui::ok(format!("{}; {sources}", ui::count(found, "result")));
+        ui::ok(format!("{}{filtered}; {sources}", ui::count(total, "result")));
     }
 }
 
@@ -379,6 +426,8 @@ struct Report<'a> {
     complete: bool,
     /// How many merged datasets matched; `results` holds the first `limit`.
     total: usize,
+    /// How many more matched but failed a filter.
+    filtered_out: usize,
     results: &'a [Hit],
     sources: Vec<SourceReport>,
 }
@@ -410,7 +459,7 @@ fn print(
     out: &Out,
     query: &str,
     hits: &[Hit],
-    total: usize,
+    found: &Found,
     sources: Vec<SourceReport>,
     complete: bool,
 ) -> Result<()> {
@@ -419,7 +468,8 @@ fn print(
             schema: SCHEMA,
             query,
             complete,
-            total,
+            total: found.total,
+            filtered_out: found.filtered_out,
             results: hits,
             sources,
         });

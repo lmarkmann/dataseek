@@ -1664,6 +1664,49 @@ fn search_json_counts_matches_past_the_limit() {
     assert_eq!(report["total"], every);
 }
 
+// A license matches in whatever spelling its source wrote, and what fails a
+// filter is counted, not shown.
+#[test]
+fn search_filters_keep_what_passes_and_count_the_rest() {
+    let mut cmd = bin();
+    let catalog = json!([
+        {
+            "title": "Rainfall in Lisbon",
+            "url": "https://www.openml.org/d/1",
+            "updated": "2001-01-01",
+            "license": "Creative Commons Attribution 4.0 International",
+        },
+        {
+            "title": "Monthly rainfall in Porto",
+            "url": "https://www.openml.org/d/2",
+            "updated": "2025-06-01",
+            "license": "https://creativecommons.org/licenses/by/4.0/",
+        },
+        {
+            "title": "Rainfall in Faro",
+            "url": "https://www.openml.org/d/3",
+            "updated": "2025-06-01",
+            "license": "odc-odbl",
+        },
+    ]);
+    seed(&cmd.cache(), "catalogs/openml.json", 0, &catalog);
+    let out = cmd
+        .args(["search", "rainfall", "-s", "openml", "--offline", "--json"])
+        .args(["--license", "cc-by", "--updated-since", "2024"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    let results = report["results"].as_array().unwrap();
+    assert_eq!(results.len(), 1, "{report}");
+    assert_eq!(results[0]["url"], "https://www.openml.org/d/2");
+    assert_eq!(results[0]["license"], "CC-BY-4.0");
+    assert_eq!(
+        (&report["total"], &report["filtered_out"]),
+        (&json!(1), &json!(2))
+    );
+}
+
 #[test]
 fn json_shapes_snapshot() {
     let sources = json_of(&["sources", "--json"]);
