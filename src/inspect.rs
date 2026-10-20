@@ -78,6 +78,11 @@ pub fn run(url: &str, out: &Out) -> Result<()> {
         _ => Error::Fetch { url: url.to_owned(), source: e },
     };
     let no_markup = || Error::NoMarkup { url: url.to_owned() };
+    let read_page = |address: &str| {
+        http.get(address).text().map_err(fetch_error).and_then(|html| {
+            json_ld(&html).iter().find_map(Page::find).ok_or_else(no_markup)
+        })
+    };
     let progress = ui::spinner(format!("reading {url}"));
     let address = doi_link(url)
         .and_then(|doi| landing(&http, &doi))
@@ -90,14 +95,12 @@ pub fn run(url: &str, out: &Out) -> Result<()> {
         .map(|dataset| Page { dataset, graph: Vec::new() })
         .map_err(fetch_error)
     } else if let Some(export) = dataverse_export(&address) {
-        http.get(&export)
-            .json()
-            .map_err(fetch_error)
-            .and_then(|metadata| Page::find(&metadata).ok_or_else(no_markup))
+        match http.get(&export).json().ok().as_ref().and_then(Page::find) {
+            Some(page) => Ok(page),
+            None => read_page(&address),
+        }
     } else {
-        http.get(&address).text().map_err(fetch_error).and_then(|html| {
-            json_ld(&html).iter().find_map(Page::find).ok_or_else(no_markup)
-        })
+        read_page(&address)
     };
     progress.finish_and_clear();
     let mut page = found?;
@@ -348,16 +351,28 @@ fn landing(http: &Http, doi: &str) -> Option<String> {
 
 /// The schema.org export of a Dataverse dataset page, `.../dataset.xhtml`
 /// or `.../citation` with a `persistentId`, which the installation's API
-/// serves beside the page.
+/// serves beside the page. The page's `version` goes with it: the export
+/// serves only the latest published version and refuses an older one, which
+/// is then read from its page (Dataverse native API guide, October 2026).
 fn dataverse_export(url: &str) -> Option<String> {
     let (page, query) = url.split_once('?')?;
     let (root, last) = page.rsplit_once('/')?;
     if !matches!(last, "dataset.xhtml" | "citation") || !root.contains("://") {
         return None;
     }
-    let id =
-        query.split(['&', '#']).find(|p| p.starts_with("persistentId="))?;
-    Some(format!("{root}/api/datasets/export?exporter=schema.org&{id}"))
+    let query = query.split('#').next().unwrap_or_default();
+    let pair = |key: &str| {
+        query.split('&').find(|p| {
+            p.strip_prefix(key).is_some_and(|value| value.starts_with('='))
+        })
+    };
+    let id = pair("persistentId")?;
+    let export =
+        format!("{root}/api/datasets/export?exporter=schema.org&{id}");
+    Some(match pair("version") {
+        Some(version) => format!("{export}&{version}"),
+        None => export,
+    })
 }
 
 fn huggingface_id(url: &str) -> Option<String> {
@@ -668,7 +683,7 @@ mod tests {
             )
             .as_deref(),
             Some(
-                "https://data.example.org/dv/api/datasets/export?exporter=schema.org&persistentId=hdl:1902/X"
+                "https://data.example.org/dv/api/datasets/export?exporter=schema.org&persistentId=hdl:1902/X&version=2.0"
             )
         );
         assert_eq!(dataverse_export("https://x.org/dataset.xhtml?id=4"), None);

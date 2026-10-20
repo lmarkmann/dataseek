@@ -1036,6 +1036,25 @@ fn inspect_reads_a_dataverse_page_through_its_export() {
 }
 
 #[test]
+fn inspect_reads_the_page_when_the_dataverse_export_refuses() {
+    // Every path answers with an HTML page, so the export request gets no
+    // JSON, as when it refuses a version older than the latest.
+    let page = format!(
+        "{}dataset.xhtml?persistentId=doi:10.7910/DVN/X&version=1.0",
+        serve_page(include_str!("fixtures/inspect/zenodo.html"))
+    );
+    let out = bin()
+        .env_remove("HTTPS_PROXY")
+        .env_remove("HTTP_PROXY")
+        .args(["inspect", &page, "--json"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert!(report["dataset"]["name"].is_string(), "{report}");
+}
+
+#[test]
 fn inspect_says_when_a_page_lists_no_files() {
     let out = inspect_page(BARE_PAGE, &["--json"]);
     assert!(out.status.success(), "{out:?}");
