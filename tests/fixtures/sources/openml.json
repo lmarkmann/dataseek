@@ -1,231 +1,149 @@
 {
-  "data": {
-    "dataset": [
+  "took": 4030,
+  "timed_out": false,
+  "_shards": {
+    "total": 1,
+    "successful": 1,
+    "skipped": 0,
+    "failed": 0
+  },
+  "hits": {
+    "total": 6668,
+    "max_score": null,
+    "hits": [
       {
-        "did": 2,
-        "name": "anneal",
-        "version": 1,
-        "status": "active",
-        "format": "ARFF",
-        "md5_checksum": "",
-        "file_id": 1666876,
-        "quality": [
-          {
-            "name": "MajorityClassSize",
-            "value": "684.0"
+        "_index": "data",
+        "_type": "data",
+        "_id": "2",
+        "_score": null,
+        "_source": {
+          "licence": "Public",
+          "data_id": "2",
+          "last_update": "2015-09-02 00:49:04",
+          "name": "anneal",
+          "description": "**Author**: Unknown. Donated by David Sterling and Wray Buntine  \n\n**Source**: [UCI](https://archive.ics.uci.edu/ml/datasets/Annealing) - 1990  \n\n**Please cite**: [UCI](https://archive.ics.uci.edu/ml/citation_policy.html)  \n\n\n\nThe original Annealing dataset from UCI. The exact meaning of the features and classes is largely unknown.",
+          "qualities": {
+            "NumberOfFeatures": 39.0,
+            "NumberOfInstances": 898.0
           },
-          {
-            "name": "MaxNominalAttDistinctValues",
-            "value": "7.0"
-          },
-          {
-            "name": "MinorityClassSize",
-            "value": "8.0"
-          },
-          {
-            "name": "NumberOfClasses",
-            "value": "5.0"
-          },
-          {
-            "name": "NumberOfFeatures",
-            "value": "39.0"
-          },
-          {
-            "name": "NumberOfInstances",
-            "value": "898.0"
-          },
-          {
-            "name": "NumberOfInstancesWithMissingValues",
-            "value": "898.0"
-          },
-          {
-            "name": "NumberOfMissingValues",
-            "value": "22175.0"
-          },
-          {
-            "name": "NumberOfNumericFeatures",
-            "value": "6.0"
-          },
-          {
-            "name": "NumberOfSymbolicFeatures",
-            "value": "33.0"
-          }
+          "version": 1.0,
+          "runs": 13779.0
+        },
+        "sort": [
+          2
         ]
       },
       {
-        "did": 3,
-        "name": "kr-vs-kp",
-        "version": 1,
-        "status": "active",
-        "format": "ARFF",
-        "md5_checksum": "",
-        "file_id": 3,
-        "quality": [
-          {
-            "name": "MajorityClassSize",
-            "value": "1669.0"
+        "_index": "data",
+        "_type": "data",
+        "_id": "3",
+        "_score": null,
+        "_source": {
+          "licence": "Public",
+          "data_id": "3",
+          "last_update": "2014-04-06 23:19:28",
+          "name": "kr-vs-kp",
+          "description": "Author: Alen Shapiro\nSource: [UCI](https://archive.ics.uci.edu/ml/datasets/Chess+(King-Rook+vs.+King-Pawn))\nPlease cite: [UCI citation policy](https://archive.ics.uci.edu/ml/citation_policy.html)\n\n1. Title: Chess End-Game -- King+Rook versus King+Pawn on a7\n(usually abbreviated KRKPA7). The pawn on a7 means it is one square\naway from queening. It is the King+Rook's side (white) to move.",
+          "qualities": {
+            "NumberOfFeatures": 37.0,
+            "NumberOfInstances": 3196.0
           },
-          {
-            "name": "MaxNominalAttDistinctValues",
-            "value": "3.0"
-          },
-          {
-            "name": "MinorityClassSize",
-            "value": "1527.0"
-          },
-          {
-            "name": "NumberOfClasses",
-            "value": "2.0"
-          },
-          {
-            "name": "NumberOfFeatures",
-            "value": "37.0"
-          },
-          {
-            "name": "NumberOfInstances",
-            "value": "3196.0"
-          },
-          {
-            "name": "NumberOfInstancesWithMissingValues",
-            "value": "0.0"
-          },
-          {
-            "name": "NumberOfMissingValues",
-            "value": "0.0"
-          },
-          {
-            "name": "NumberOfNumericFeatures",
-            "value": "0.0"
-          },
-          {
-            "name": "NumberOfSymbolicFeatures",
-            "value": "37.0"
-          }
+          "version": 1.0,
+          "runs": 274253.0
+        },
+        "sort": [
+          3
         ]
       },
       {
-        "did": 4,
-        "name": "labor",
-        "version": 1,
-        "status": "active",
-        "format": "ARFF",
-        "md5_checksum": "",
-        "file_id": 4,
-        "quality": [
-          {
-            "name": "MajorityClassSize",
-            "value": "37.0"
+        "_index": "data",
+        "_type": "data",
+        "_id": "70",
+        "_score": null,
+        "_ignored": [
+          "suggest"
+        ],
+        "_source": {
+          "licence": "Public",
+          "data_id": "70",
+          "last_update": "2014-04-08 05:57:14",
+          "name": "BNG(anneal,nominal,1000000)",
+          "description": "",
+          "qualities": {
+            "NumberOfFeatures": 39.0,
+            "NumberOfInstances": 1000000.0
           },
-          {
-            "name": "MaxNominalAttDistinctValues",
-            "value": "3.0"
-          },
-          {
-            "name": "MinorityClassSize",
-            "value": "20.0"
-          },
-          {
-            "name": "NumberOfClasses",
-            "value": "2.0"
-          },
-          {
-            "name": "NumberOfFeatures",
-            "value": "17.0"
-          },
-          {
-            "name": "NumberOfInstances",
-            "value": "57.0"
-          },
-          {
-            "name": "NumberOfInstancesWithMissingValues",
-            "value": "56.0"
-          },
-          {
-            "name": "NumberOfMissingValues",
-            "value": "326.0"
-          },
-          {
-            "name": "NumberOfNumericFeatures",
-            "value": "8.0"
-          },
-          {
-            "name": "NumberOfSymbolicFeatures",
-            "value": "9.0"
-          }
+          "version": 1.0,
+          "runs": 143.0
+        },
+        "sort": [
+          70
         ]
       },
       {
-        "did": 43219,
-        "name": "18ProductivityPrediction",
-        "version": 1,
-        "status": "active",
-        "format": "ARFF",
-        "md5_checksum": "",
-        "file_id": 22101905,
-        "quality": [
-          {
-            "name": "NumberOfFeatures",
-            "value": "15.0"
+        "_index": "data",
+        "_type": "data",
+        "_id": "42164",
+        "_score": null,
+        "_source": {
+          "licence": "NA",
+          "data_id": "42164",
+          "last_update": "2019-10-04 12:46:11",
+          "name": "dating_profile",
+          "description": "Anonymized data of dating profiles from OkCupid",
+          "qualities": {
+            "NumberOfFeatures": 31.0,
+            "NumberOfInstances": 59946.0
           },
-          {
-            "name": "NumberOfInstances",
-            "value": "1197.0"
-          },
-          {
-            "name": "NumberOfInstancesWithMissingValues",
-            "value": "506.0"
-          },
-          {
-            "name": "NumberOfMissingValues",
-            "value": "506.0"
-          },
-          {
-            "name": "NumberOfNumericFeatures",
-            "value": "11.0"
-          },
-          {
-            "name": "NumberOfSymbolicFeatures",
-            "value": "4.0"
-          }
+          "version": 1.0,
+          "runs": 0.0
+        },
+        "sort": [
+          42164
         ]
       },
       {
-        "did": 43250,
-        "name": "18ProductivityPrediction",
-        "version": 2,
-        "status": "active",
-        "format": "ARFF",
-        "md5_checksum": "",
-        "file_id": 22101938,
-        "quality": [
-          {
-            "name": "NumberOfClasses",
-            "value": "0.0"
+        "_index": "data",
+        "_type": "data",
+        "_id": "43219",
+        "_score": null,
+        "_source": {
+          "licence": "CC0",
+          "data_id": "43219",
+          "last_update": "2022-02-21 10:04:15",
+          "name": "18ProductivityPrediction",
+          "description": "18ProductivityPrediction",
+          "qualities": {
+            "NumberOfFeatures": 15.0,
+            "NumberOfInstances": 1197.0
           },
-          {
-            "name": "NumberOfFeatures",
-            "value": "15.0"
+          "version": 1.0,
+          "runs": 0.0
+        },
+        "sort": [
+          43219
+        ]
+      },
+      {
+        "_index": "data",
+        "_type": "data",
+        "_id": "43250",
+        "_score": null,
+        "_source": {
+          "licence": "Public",
+          "data_id": "43250",
+          "last_update": "2022-02-22 09:17:57",
+          "name": "18ProductivityPrediction",
+          "description": "18ProductivityPrediction",
+          "qualities": {
+            "NumberOfFeatures": 15.0,
+            "NumberOfInstances": 1197.0
           },
-          {
-            "name": "NumberOfInstances",
-            "value": "1197.0"
-          },
-          {
-            "name": "NumberOfInstancesWithMissingValues",
-            "value": "506.0"
-          },
-          {
-            "name": "NumberOfMissingValues",
-            "value": "506.0"
-          },
-          {
-            "name": "NumberOfNumericFeatures",
-            "value": "11.0"
-          },
-          {
-            "name": "NumberOfSymbolicFeatures",
-            "value": "4.0"
-          }
+          "version": 2.0,
+          "runs": 0.0
+        },
+        "sort": [
+          43250
         ]
       }
     ]
