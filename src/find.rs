@@ -108,6 +108,7 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
             },
         )),
         forced: offline || !selection.only.is_empty(),
+        since: wanted.since.clone(),
     });
     if plan.sources.is_empty() {
         return Err(Error::NoneSelected.into());

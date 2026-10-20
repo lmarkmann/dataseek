@@ -96,6 +96,11 @@ pub struct Ctx<'a> {
     pub creds: &'a Credentials,
     pub cache: &'a Cache,
     pub refresh: bool,
+    /// The day `--updated-since` asks for. An adapter passes it on only where
+    /// the source filters on a date never earlier than the one dataseek
+    /// reads, so the source drops nothing the filter on the merged list
+    /// would keep (ADR 0020).
+    pub since: Option<&'a str>,
     stop: &'a AtomicBool,
 }
 
@@ -371,6 +376,7 @@ impl Services {
             creds: &self.creds,
             cache: &self.cache,
             refresh,
+            since: None,
             stop: &self.stop,
         }
     }

@@ -52,6 +52,13 @@
 //! "SHP", "JPG", "BIN", or empty on GovData; B2FIND sends no resources and
 //! so no formats (probes, October 2026). `file_format` turns the spellings
 //! into one name per format.
+//!
+//! `--updated-since` goes out as a `metadata_modified` range in `fq`, which
+//! all six portals honor. The date a record shows is never later than its
+//! `metadata_modified` (600 records on data.gov.uk, Canada and data.gov.au),
+//! so the range drops nothing the filter on the merged list keeps; on
+//! GovData, HDX and B2FIND it drops nothing at all, since every record there
+//! was re-harvested after 2024 (probes, October 2026).
 
 use serde_json::Value;
 
@@ -122,10 +129,20 @@ pub fn search(
         .http
         .get(&format!("{}/package_search", portal.api))
         .query("q", query.replace(':', " "))
-        .query("fq", "dataset_type:dataset")
+        .query("fq", filter_query(ctx.since))
         .query("rows", limit)
         .json()?;
     parse(portal, &body, limit)
+}
+
+fn filter_query(since: Option<&str>) -> String {
+    let datasets = "dataset_type:dataset";
+    since.map_or_else(
+        || datasets.to_owned(),
+        |day| {
+            format!("{datasets} AND metadata_modified:[{day}T00:00:00Z TO *]")
+        },
+    )
 }
 
 pub(super) fn parse(
@@ -677,6 +694,16 @@ mod tests {
                 "Access to data through SND. Data are freely accessible."
             ),
             None
+        );
+    }
+
+    #[test]
+    fn a_date_asks_for_records_modified_since() {
+        assert_eq!(filter_query(None), "dataset_type:dataset");
+        assert_eq!(
+            filter_query(Some("2024-07-01")),
+            "dataset_type:dataset AND \
+             metadata_modified:[2024-07-01T00:00:00Z TO *]"
         );
     }
 

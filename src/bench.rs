@@ -90,6 +90,7 @@ pub fn run(
                 selection.per_source.unwrap_or(PER_SOURCE_DEFAULT),
             ),
             forced: true,
+            since: None,
         });
         let outcomes = search(&services, true, &plan, &progress, None);
         for o in &outcomes {

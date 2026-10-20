@@ -27,6 +27,12 @@
 //! The formats are each `FileDistributionInformation` entry's `Format`, free
 //! text such as "HDF5", "netCDF-4" or "HDF-EOS5" (UMM-C 1.18.6, probes,
 //! October 2026).
+//!
+//! `--updated-since` goes out as `updated_since`, which compares the
+//! revision date (CMR search API, October 2026). In 200 "sea ice" records
+//! no `DataDates` update was later than the revision, so it drops nothing
+//! the filter on the merged list keeps; it cut that query from 3,387
+//! matches to 957 (probes, October 2026).
 
 use serde_json::Value;
 
@@ -39,13 +45,16 @@ pub fn search(
     query: &str,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    let body = ctx
+    let mut call = ctx
         .http
         .get("https://cmr.earthdata.nasa.gov/search/collections.umm_json")
         .header("Client-Id", "dataseek")
         .query("keyword", keyword(query))
-        .query("page_size", limit.clamp(1, 2000))
-        .json()?;
+        .query("page_size", limit.clamp(1, 2000));
+    if let Some(day) = ctx.since {
+        call = call.query("updated_since", format!("{day}T00:00:00Z"));
+    }
+    let body = call.json()?;
     parse(&body, limit)
 }
 

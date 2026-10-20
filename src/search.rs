@@ -53,6 +53,9 @@ pub struct Plan {
     /// The user named these sources, or `--offline` costs no request, so
     /// recent outages do not skip them.
     pub forced: bool,
+    /// `--updated-since`, a full day, for the sources that can ask for it
+    /// themselves through [`Ctx::since`].
+    pub since: Option<String>,
 }
 
 #[derive(Debug)]
@@ -237,7 +240,9 @@ fn spawn(
             sender.clone(),
         );
         std::thread::spawn(move || {
-            let outcome = one(&services.ctx(refresh), &plan, source);
+            let mut ctx = services.ctx(refresh);
+            ctx.since = plan.since.as_deref();
+            let outcome = one(&ctx, &plan, source);
             if !matches!(outcome.status, Status::NeedsKey(_)) {
                 progress.inc(1);
             }
@@ -310,7 +315,12 @@ fn one(ctx: &Ctx<'_>, plan: &Plan, source: &'static Source) -> Outcome {
     }
 
     let cacheable = source.persist && !source.is_catalog();
-    let key = query_key(source.id, &plan.query, plan.per_source);
+    let key = query_key(
+        source.id,
+        &plan.query,
+        plan.per_source,
+        plan.since.as_deref(),
+    );
     let cached = if cacheable {
         ctx.cache.load::<Vec<Dataset>>(Kind::Query, &key, QUERY_TTL)
     } else {
@@ -474,11 +484,12 @@ mod tests {
             sources: vec![source],
             per_source: 10,
             forced,
+            since: None,
         }
     }
 
     fn query_entry(source: &Source) -> String {
-        query_key(source.id, "rain", 10)
+        query_key(source.id, "rain", 10, None)
     }
 
     #[test]

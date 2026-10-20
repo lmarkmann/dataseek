@@ -17,6 +17,11 @@
 //! Agreement, August 2025).
 //! An item's `type` is its one format, a file type ("CSV") or a service
 //! ("Feature Service"; ArcGIS REST item types, October 2026).
+//! `--updated-since` goes out as the CQL filter `modified >= 'YYYY-MM-DD'`,
+//! which matches as many items as the same day in epoch milliseconds. The
+//! queryables list gives `modified` the path `properties.created`, but the
+//! filter compares `modified`: 13 of 100 filtered items were created
+//! earlier, none modified earlier (probes, October 2026).
 
 use serde_json::Value;
 
@@ -33,12 +38,15 @@ pub fn search(
     query: &str,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    let body = ctx
+    let mut call = ctx
         .http
         .get("https://hub.arcgis.com/api/search/v1/collections/dataset/items")
         .query("q", query)
-        .query("limit", limit)
-        .json()?;
+        .query("limit", limit);
+    if let Some(day) = ctx.since {
+        call = call.query("filter", format!("modified >= '{day}'"));
+    }
+    let body = call.json()?;
     parse(&body, limit)
 }
 

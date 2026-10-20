@@ -52,6 +52,7 @@ pub fn run(queries: &[Query], args: &[String]) -> Result<()> {
                 sources,
                 per_source: PER_SOURCE,
                 forced: true,
+                since: None,
             });
             search(&services, false, &plan, &ProgressBar::hidden(), None)
         };
