@@ -1,6 +1,7 @@
-//! The filters `search` applies to the merged list (ADR 0020). They run on
-//! merged hits, so a field any one of a dataset's sources stated counts,
-//! and they hold alike for every source whatever its own API can filter.
+//! The filters `search` applies to the merged list (ADR 0020). They read a
+//! merged hit as it is shown: its license and date are the first ones a
+//! source stated, its formats every source's. They hold alike for every
+//! source whatever its own API can filter.
 //! A dataset that does not state a field never passes a filter on it: a
 //! license filter keeps only datasets that name a matching license.
 
@@ -79,6 +80,7 @@ pub const DAY_PATTERN: &str = r"^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$";
 pub fn day(raw: &str) -> Result<String, String> {
     let day = iso_prefix(raw.trim())
         .filter(|prefix| prefix.len() == raw.trim().len())
+        .filter(|prefix| on_the_calendar(prefix))
         .ok_or_else(|| {
             format!("`{raw}` is not a day; write YYYY, YYYY-MM or YYYY-MM-DD")
         })?;
@@ -87,6 +89,28 @@ pub fn day(raw: &str) -> Result<String, String> {
         7 => format!("{day}-01"),
         _ => day.to_owned(),
     })
+}
+
+/// Whether a `YYYY-MM-DD` date names a day the month has: no 30 February.
+/// A year or a month alone always does.
+fn on_the_calendar(date: &str) -> bool {
+    let part = |range: std::ops::Range<usize>| {
+        date.get(range).and_then(|s| s.parse::<u32>().ok())
+    };
+    let (Some(year), Some(month), Some(day)) =
+        (part(0..4), part(5..7), part(8..10))
+    else {
+        return true;
+    };
+    let leap = year.is_multiple_of(4)
+        && (!year.is_multiple_of(100) || year.is_multiple_of(400));
+    let last = match month {
+        2 if leap => 29,
+        2 => 28,
+        4 | 6 | 9 | 11 => 30,
+        _ => 31,
+    };
+    day <= last
 }
 
 /// Whether a recorded date is on or after `since`, a full day, compared to
@@ -161,8 +185,18 @@ mod tests {
         assert_eq!(day("2024").as_deref(), Ok("2024-01-01"));
         assert_eq!(day("2024-07").as_deref(), Ok("2024-07-01"));
         assert_eq!(day("2024-07-30").as_deref(), Ok("2024-07-30"));
-        for bad in ["24", "2024-13", "2024-7-1", "July 2024", "2024-07-30T00"]
-        {
+        assert_eq!(day("2024-02-29").as_deref(), Ok("2024-02-29"));
+        for bad in [
+            "24",
+            "2024-13",
+            "2024-7-1",
+            "July 2024",
+            "2024-07-30T00",
+            "2024-02-30",
+            "2023-02-29",
+            "2023-04-31",
+            "1900-02-29",
+        ] {
             assert!(day(bad).is_err(), "{bad}");
         }
     }
