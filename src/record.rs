@@ -588,6 +588,7 @@ pub fn file_format(raw: &str) -> Option<String> {
     } else {
         text.as_str()
     };
+    let text = text.split(';').next().unwrap_or_default().trim();
     let lower = text.trim_start_matches('.').to_lowercase();
     let lower = lower.strip_suffix("_srvc").unwrap_or(&lower);
     if let Some((_, name)) =
@@ -874,6 +875,7 @@ mod tests {
                 "ZIP",
             ),
             ("WMS_SRVC", "WMS"),
+            ("text/csv; charset=utf-8", "CSV"),
             ("Excel XLSX", "XLSX"),
             (
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
