@@ -9,8 +9,9 @@ use crate::dedup::Hit;
 use crate::license;
 use crate::record::file_format;
 
-/// The filters with their values normalized as the records' are, so a
-/// license asked for as `cc by 4.0` matches one recorded as `CC-BY-4.0`.
+/// The filters, whose values the parsers below normalized as the records'
+/// are, so a license asked for as `cc by 4.0` matches one recorded as
+/// `CC-BY-4.0`.
 #[derive(Debug, Default)]
 pub struct Wanted {
     pub licenses: Vec<String>,
@@ -24,16 +25,8 @@ pub struct Wanted {
 impl Wanted {
     pub fn new(filters: &Filters) -> Self {
         Self {
-            licenses: filters
-                .license
-                .iter()
-                .filter_map(|l| license::normalized(l))
-                .collect(),
-            formats: filters
-                .format
-                .iter()
-                .filter_map(|f| file_format(f))
-                .collect(),
+            licenses: filters.license.clone(),
+            formats: filters.format.clone(),
             since: filters.updated_since.clone(),
             min_sources: filters.min_sources.map_or(0, usize::from),
         }
@@ -60,6 +53,22 @@ impl Wanted {
         });
         licensed && offered && recent && hit.sources.len() >= self.min_sources
     }
+}
+
+/// `--license` as the records spell it. A word that names no license, such
+/// as `unknown`, is refused rather than dropped, so the search never runs
+/// unfiltered without saying so.
+pub fn license(raw: &str) -> Result<String, String> {
+    license::normalized(raw).ok_or_else(|| {
+        format!("`{raw}` names no license; write an SPDX id such as CC-BY-4.0")
+    })
+}
+
+/// `--format` as the records spell it, refused when it names no format.
+pub fn format(raw: &str) -> Result<String, String> {
+    file_format(raw).ok_or_else(|| {
+        format!("`{raw}` names no file format; write one such as csv")
+    })
 }
 
 /// What [`day`] accepts, as a JSON Schema `pattern`.
@@ -137,7 +146,10 @@ mod tests {
 
     fn wanted(license: &[&str], since: Option<&str>, min: u16) -> Wanted {
         Wanted::new(&Filters {
-            license: license.iter().map(|l| (*l).to_owned()).collect(),
+            license: license
+                .iter()
+                .map(|l| super::license(l).unwrap())
+                .collect(),
             format: Vec::new(),
             updated_since: since.map(|s| day(s).unwrap()),
             min_sources: Some(min),
@@ -153,6 +165,15 @@ mod tests {
         {
             assert!(day(bad).is_err(), "{bad}");
         }
+    }
+
+    #[test]
+    fn a_value_that_names_nothing_is_refused() {
+        assert_eq!(license("cc by 4.0").as_deref(), Ok("CC-BY-4.0"));
+        assert!(license("unknown").is_err());
+        assert!(license(" ").is_err());
+        assert_eq!(format(".CSV").as_deref(), Ok("CSV"));
+        assert!(format("not provided").is_err());
     }
 
     #[test]
@@ -187,7 +208,7 @@ mod tests {
         assert!(!all.admits(&hit(Some("CC-BY-4.0"), None, 3)));
         assert!(!wanted(&[], None, 1).any());
         let csv = Wanted::new(&Filters {
-            format: vec!["text/csv".into()],
+            format: vec![format("text/csv").unwrap()],
             ..Filters::default()
         });
         let mut offered = hit(None, None, 1);

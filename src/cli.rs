@@ -196,7 +196,12 @@ pub const MIN_SOURCES: RangeFrom<i64> = 1..;
 pub struct Filters {
     /// Only datasets under these licenses, comma-separated: SPDX ids such
     /// as CC-BY-4.0, or a family such as cc-by for every version of it.
-    #[arg(long, value_name = "IDS", value_delimiter = ',')]
+    #[arg(
+        long,
+        value_name = "IDS",
+        value_delimiter = ',',
+        value_parser = crate::filter::license
+    )]
     pub license: Vec<String>,
 
     /// Only datasets updated on or after this day (YYYY, YYYY-MM or
@@ -206,7 +211,12 @@ pub struct Filters {
 
     /// Only datasets offered in one of these file formats, comma-separated:
     /// csv, json, parquet, netcdf, geotiff, ...
-    #[arg(long, value_name = "NAMES", value_delimiter = ',')]
+    #[arg(
+        long,
+        value_name = "NAMES",
+        value_delimiter = ',',
+        value_parser = crate::filter::format
+    )]
     pub format: Vec<String>,
 
     /// Only datasets that at least this many sources found.

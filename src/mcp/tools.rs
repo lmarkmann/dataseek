@@ -667,9 +667,9 @@ mod tests {
         };
         assert_eq!(query, ["sea surface temperature"]);
         assert_eq!(selection.only, ["zenodo", "datacite"]);
-        assert_eq!(filters.license, ["cc-by", "CC0-1.0"]);
+        assert_eq!(filters.license, ["CC-BY", "CC0-1.0"]);
         assert_eq!(filters.updated_since.as_deref(), Some("2024-07-01"));
-        assert_eq!(filters.format, ["csv"]);
+        assert_eq!(filters.format, ["CSV"]);
         assert_eq!(filters.min_sources, Some(2));
         assert_eq!(
             (limit, sort, offline, refresh),
