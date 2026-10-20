@@ -170,14 +170,8 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
     let complete = !outcomes
         .iter()
         .any(|o| matches!(o.status, Status::Running(_) | Status::Downloading));
-    let mut hits = ranked(&mut outcomes, &query, sort);
-    let matched = hits.len();
-    hits.retain(|hit| wanted.admits(hit));
-    let found = Found {
-        total: hits.len(),
-        filtered_out: matched.saturating_sub(hits.len()),
-    };
-    hits.truncate(limit);
+    let (hits, found) =
+        filtered(ranked(&mut outcomes, &query, sort), &wanted, limit);
     print(out, &query, &hits, &found, sources, complete)?;
     summarize(
         &query,
@@ -188,6 +182,23 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         &services.cache,
     );
     Ok(())
+}
+
+/// The hits that pass the filters, cut to `limit`, and how many passed and
+/// failed them.
+fn filtered(
+    mut hits: Vec<Hit>,
+    wanted: &Wanted,
+    limit: usize,
+) -> (Vec<Hit>, Found) {
+    let matched = hits.len();
+    hits.retain(|hit| wanted.admits(hit));
+    let found = Found {
+        total: hits.len(),
+        filtered_out: matched.saturating_sub(hits.len()),
+    };
+    hits.truncate(limit);
+    (hits, found)
 }
 
 /// Download again, in the background, the catalogs this search searched
@@ -515,17 +526,29 @@ fn print(
 }
 
 /// The one-line provenance under a title: sources, publisher, date, size,
-/// license, whichever are known.
+/// formats, license, whichever are known. Past [`FORMATS_SHOWN`] formats,
+/// the rest are counted.
 fn facts(hit: &Hit) -> String {
     let d = &hit.dataset;
     let mut parts = vec![hit.sources.join(", ")];
     parts.extend(d.publisher.clone());
     parts.extend(d.updated.clone());
     parts.extend(d.size_bytes.map(human_bytes));
+    if !d.formats.is_empty() {
+        let shown = d.formats.iter().take(FORMATS_SHOWN);
+        let mut formats = shown.cloned().collect::<Vec<_>>().join(", ");
+        let more = d.formats.len().saturating_sub(FORMATS_SHOWN);
+        if more > 0 {
+            formats = format!("{formats} +{more}");
+        }
+        parts.push(formats);
+    }
     parts.extend(d.license.clone());
     parts.extend(d.doi.as_ref().map(|doi| format!("doi:{doi}")));
     parts.join(" | ")
 }
+
+const FORMATS_SHOWN: usize = 3;
 
 #[expect(
     clippy::cast_precision_loss,
@@ -634,7 +657,7 @@ mod tests {
     /// What ranking [`answered`] allocates: keys, the owner map, hits, the
     /// text weighing reads and the term sets rarity weighting builds. One
     /// publisher copied on top of it reaches the bound.
-    const RANKING_BYTES: usize = 430_068;
+    const RANKING_BYTES: usize = 460_404;
 
     fn rain(url: &str, publisher: bool) -> Dataset {
         let mut d = Dataset::new("Rain", url);

@@ -157,6 +157,7 @@ mod tests {
                 updated: Some("2026-10-01".into()),
                 size_bytes: Some(585 + 939_174 + 242_821),
                 popularity: Some(3),
+                formats: vec![],
                 aliases: vec!["10.5281/zenodo.23077367".into()],
             }
         );

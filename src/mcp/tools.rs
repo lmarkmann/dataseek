@@ -639,6 +639,7 @@ mod tests {
                 "source": ["zenodo", "datacite"],
                 "license": ["cc-by", "CC0-1.0"],
                 "updated-since": "2024-07",
+                "format": ["csv"],
                 "min-sources": 2,
                 "limit": 5,
                 "sort": "newest",
@@ -668,6 +669,7 @@ mod tests {
         assert_eq!(selection.only, ["zenodo", "datacite"]);
         assert_eq!(filters.license, ["cc-by", "CC0-1.0"]);
         assert_eq!(filters.updated_since.as_deref(), Some("2024-07-01"));
+        assert_eq!(filters.format, ["csv"]);
         assert_eq!(filters.min_sources, Some(2));
         assert_eq!(
             (limit, sort, offline, refresh),

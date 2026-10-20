@@ -100,6 +100,7 @@ mod tests {
                 updated: Some("1999-08-03".into()),
                 size_bytes: Some(663_056_564),
                 popularity: None,
+                formats: vec![],
                 aliases: vec![],
             }
         );
@@ -121,6 +122,7 @@ mod tests {
                 updated: Some("2018-06-07".into()),
                 size_bytes: Some(115_343_616),
                 popularity: None,
+                formats: vec![],
                 aliases: vec!["10.13026/twfd-kb89".into()],
             }
         );

@@ -478,6 +478,7 @@ mod tests {
             updated: Some("2026-01-02".into()),
             size_bytes: Some(7),
             popularity: Some(3),
+            formats: vec![],
             aliases: vec!["10.5067/concept".into()],
         };
         let bare = Dataset::new("Bare", "https://x.org/bare");

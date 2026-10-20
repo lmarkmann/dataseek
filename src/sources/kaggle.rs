@@ -135,6 +135,7 @@ mod tests {
                 updated: Some("2024-02-22".into()),
                 size_bytes: Some(34_794),
                 popularity: Some(20_272),
+                formats: vec![],
                 aliases: vec![],
             }
         );

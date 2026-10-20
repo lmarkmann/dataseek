@@ -31,6 +31,10 @@ pub struct Dataset {
     /// within one source.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub popularity: Option<u64>,
+    /// The file formats the dataset is offered in, each once, as
+    /// [`file_format`] names them.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub formats: Vec<String>,
     /// Other identifiers for the same dataset (a concept DOI, a mirror URL),
     /// used only to merge duplicates.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -514,6 +518,104 @@ pub fn day(timestamp: Option<String>) -> Option<String> {
     }
 }
 
+/// Spellings of one format, lowercase, and the name every one becomes.
+const FORMATS: &[(&[&str], &str)] = &[
+    (&["csv", "text/csv", "comma separated values"], "CSV"),
+    (&["tsv", "tab", "text/tab-separated-values"], "TSV"),
+    (&["json", "application/json"], "JSON"),
+    (
+        &["geojson", "application/geo+json", "application/vnd.geo+json"],
+        "GEOJSON",
+    ),
+    (&["json-ld", "jsonld", "application/ld+json"], "JSON-LD"),
+    (&["xml", "application/xml", "text/xml"], "XML"),
+    (&["rdf", "rdf/xml", "application/rdf+xml"], "RDF"),
+    (&["xls", "excel xls", "application/vnd.ms-excel"], "XLS"),
+    (
+        &[
+            "xlsx",
+            "excel",
+            "excel xlsx",
+            "microsoft excel",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        ],
+        "XLSX",
+    ),
+    (
+        &[
+            "parquet",
+            "application/vnd.apache.parquet",
+            "application/x-parquet",
+        ],
+        "PARQUET",
+    ),
+    (&["nc", "nc4", "application/x-netcdf", "application/netcdf"], "NETCDF"),
+    (&["hdf5", "h5", "he5", "hdf-eos5", "application/x-hdf5"], "HDF5"),
+    (&["hdf", "hdf4", "hdf-eos", "hdf-eos2", "hdf-eos4"], "HDF4"),
+    (&["geotiff", "cog", "cloud optimized geotiff"], "GEOTIFF"),
+    (&["tif", "tiff", "image/tiff"], "TIFF"),
+    (
+        &["shp", "shapefile", "esri shapefile", "application/x-shapefile"],
+        "SHAPEFILE",
+    ),
+    (&["kml", "application/vnd.google-earth.kml+xml"], "KML"),
+    (&["grib", "grib1", "grib2"], "GRIB"),
+    (&["zip", "application/zip"], "ZIP"),
+    (&["pdf", "application/pdf"], "PDF"),
+    (&["html", "htm", "text/html"], "HTML"),
+    (&["txt", "text/plain"], "TXT"),
+    (
+        &[
+            "esri rest",
+            "feature service",
+            "map service",
+            "image service",
+            "arcgis geoservices rest api",
+        ],
+        "ESRI REST",
+    ),
+];
+
+/// A file format as one short upper-case name, so `--format csv` matches
+/// `text/csv`, `.csv` and an EU file-type URI ending in `CSV` alike: a media
+/// type or a known spelling becomes its name (`netCDF-4` is `NETCDF`), and
+/// anything else is upper-cased. `None` for what names no format ("Not
+/// provided") or is too long to be a format's name.
+pub fn file_format(raw: &str) -> Option<String> {
+    let text = clean(raw);
+    let text = if text.contains("://") {
+        text.rsplit('/').find(|part| !part.is_empty()).unwrap_or_default()
+    } else {
+        text.as_str()
+    };
+    let lower = text.trim_start_matches('.').to_lowercase();
+    let lower = lower.strip_suffix("_srvc").unwrap_or(&lower);
+    if let Some((_, name)) =
+        FORMATS.iter().find(|(spellings, _)| spellings.contains(&lower))
+    {
+        return Some((*name).to_owned());
+    }
+    if lower.starts_with("netcdf") {
+        return Some("NETCDF".to_owned());
+    }
+    let named = !lower.is_empty()
+        && lower.chars().count() <= 20
+        && lower.chars().all(|c| c.is_alphanumeric() || " -_.+/".contains(c))
+        && !matches!(lower, "not provided" | "not applicable" | "unknown");
+    named.then(|| lower.to_uppercase())
+}
+
+/// [`file_format`] of each, every name once, in the order first given.
+pub fn file_formats(raws: &[String]) -> Vec<String> {
+    let mut names: Vec<String> = Vec::new();
+    for name in raws.iter().filter_map(|raw| file_format(raw)) {
+        if !names.contains(&name) {
+            names.push(name);
+        }
+    }
+    names
+}
+
 #[cfg(test)]
 mod tests {
     use proptest::prelude::*;
@@ -757,5 +859,41 @@ mod tests {
         assert!(Dataset::new("t", "https://x").valid().is_some());
         assert!(Dataset::new("", "https://x").valid().is_none());
         assert!(Dataset::new("t", "ftp://x").valid().is_none());
+    }
+
+    /// Spellings from the CKAN, data.europa.eu, ArcGIS, CMR and data.gov
+    /// fixtures and live answers, October 2026.
+    #[test]
+    fn format_spellings_become_one_name() {
+        for (raw, name) in [
+            ("CSV", "CSV"),
+            ("text/csv", "CSV"),
+            (".csv", "CSV"),
+            (
+                "http://publications.europa.eu/resource/authority/file-type/ZIP",
+                "ZIP",
+            ),
+            ("WMS_SRVC", "WMS"),
+            ("Excel XLSX", "XLSX"),
+            (
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "XLSX",
+            ),
+            ("netCDF-4", "NETCDF"),
+            ("NetCDF4-CF", "NETCDF"),
+            ("HDF-EOS5", "HDF5"),
+            ("Feature Service", "ESRI REST"),
+            ("GeoTIFF", "GEOTIFF"),
+            ("ASPX", "ASPX"),
+        ] {
+            assert_eq!(file_format(raw).as_deref(), Some(name), "{raw}");
+        }
+        for nothing in ["", "Not provided", "unknown", &"word ".repeat(9)] {
+            assert_eq!(file_format(nothing), None, "{nothing}");
+        }
+        assert_eq!(
+            file_formats(&["CSV".into(), "csv".into(), "PDF".into()]),
+            ["CSV", "PDF"]
+        );
     }
 }

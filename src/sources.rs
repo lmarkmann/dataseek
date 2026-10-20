@@ -77,7 +77,7 @@ use crate::cache::{CATALOG_TTL, Cache, Freshness, Kind};
 use crate::credentials::{Credentials, Key};
 use crate::http::{Http, SourceError};
 use crate::license;
-use crate::record::Dataset;
+use crate::record::{Dataset, file_formats};
 
 pub type Live = fn(&Ctx<'_>, &str, usize) -> Result<Vec<Dataset>, SourceError>;
 pub type Listing = fn(&Ctx<'_>) -> Result<Vec<Dataset>, SourceError>;
@@ -208,7 +208,8 @@ impl Source {
     }
 
     /// The source's answer, each record's license as [`license::normalized`]
-    /// gives it, so every source spells one license alike.
+    /// gives it and its formats as [`file_formats`] does, so every source
+    /// spells them alike.
     pub fn search(
         &self,
         ctx: &Ctx<'_>,
@@ -219,6 +220,7 @@ impl Source {
         for dataset in &mut answer.datasets {
             dataset.license =
                 dataset.license.as_deref().and_then(license::normalized);
+            dataset.formats = file_formats(&dataset.formats);
         }
         Ok(answer)
     }

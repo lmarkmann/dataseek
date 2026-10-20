@@ -111,6 +111,7 @@ mod tests {
                 updated: Some("2026-10-06".into()),
                 size_bytes: None,
                 popularity: None,
+                formats: vec![],
                 aliases: vec!["10.6084/m9.figshare.33059219".into()],
             }
         );

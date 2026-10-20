@@ -150,6 +150,7 @@ mod tests {
                 updated: Some("2020-09-28".into()),
                 size_bytes: None,
                 popularity: Some(1),
+                formats: vec![],
                 aliases: vec![
                     "10.5281/zenodo.8260345".into(),
                     "https://zenodo.org/records/8260345".into(),

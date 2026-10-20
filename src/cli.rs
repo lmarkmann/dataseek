@@ -204,6 +204,11 @@ pub struct Filters {
     #[arg(long, value_name = "DATE", value_parser = crate::filter::day)]
     pub updated_since: Option<String>,
 
+    /// Only datasets offered in one of these file formats, comma-separated:
+    /// csv, json, parquet, netcdf, geotiff, ...
+    #[arg(long, value_name = "NAMES", value_delimiter = ',')]
+    pub format: Vec<String>,
+
     /// Only datasets that at least this many sources found.
     #[arg(
         long,

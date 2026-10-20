@@ -47,6 +47,11 @@
 //! Dataverse installations ("6828; 6803"), rounded sizes from B2SHARE
 //! ("215.9 kB; 1 file") or counts that are not bytes ("28254 data points")
 //! (probes, October 2026).
+//!
+//! Each resource's `format` is the publisher's free text: "CSV", "XLSX",
+//! "SHP", "JPG", "BIN", or empty on GovData; B2FIND sends no resources and
+//! so no formats (probes, October 2026). `file_format` turns the spellings
+//! into one name per format.
 
 use serde_json::Value;
 
@@ -191,6 +196,10 @@ fn record(portal: &Portal, row: &Value) -> Option<Dataset> {
     dataset.size_bytes = resource_bytes(row)
         .or_else(|| extra("Size").and_then(|sizes| listed_bytes(&sizes)));
     dataset.popularity = number(row, "/total_res_downloads");
+    dataset.formats = items(row, "/resources")
+        .iter()
+        .filter_map(|resource| text(resource, "/format"))
+        .collect();
     if let Some(source_page) = text(row, "/url")
         && source_page.starts_with("http")
     {
@@ -280,6 +289,12 @@ mod tests {
                 updated: Some("2018-10-17".into()),
                 size_bytes: Some(18_759 + 22_892 + 24_498 + 24_412),
                 popularity: None,
+                formats: vec![
+                    "CSV".into(),
+                    "XLSX".into(),
+                    "XLSX".into(),
+                    "CSV".into()
+                ],
                 aliases: vec![
                     "https://datamillnorth.org/dataset/\
                      climate-resilience-documents-vdwno"
@@ -330,6 +345,7 @@ mod tests {
                 updated: Some("2025-03-04".into()),
                 size_bytes: Some(787_522),
                 popularity: Some(29178),
+                formats: vec!["CSV".into()],
                 aliases: vec![],
             },
             "the fixture keeps 1 of the record's 6 resources"
@@ -375,6 +391,7 @@ mod tests {
                 updated: Some("2021-08-16".into()),
                 size_bytes: Some(27_652),
                 popularity: Some(78),
+                formats: vec!["SHP".into()],
                 aliases: vec![],
             }
         );
@@ -422,6 +439,7 @@ mod tests {
                 updated: Some("2022-03-14".into()),
                 size_bytes: Some(1_134_541),
                 popularity: None,
+                formats: vec!["JPG".into()],
                 aliases: vec![],
             },
             "`url` there is a Python dict of two API links, not a page"
@@ -470,6 +488,7 @@ mod tests {
                 updated: Some("2026-09-09".into()),
                 size_bytes: None,
                 popularity: None,
+                formats: vec![],
                 aliases: vec![],
             },
             "no `modified` extra, so the portal's own record date stands"
@@ -513,6 +532,7 @@ mod tests {
                 updated: Some("2025-11-30".into()),
                 size_bytes: Some(178_264),
                 popularity: None,
+                formats: vec!["BIN".into()],
                 aliases: vec![],
             },
             "CKAN's `notspecified` license id is no license"
@@ -568,6 +588,7 @@ mod tests {
                 updated: Some("2025-06-20".into()),
                 size_bytes: None,
                 popularity: None,
+                formats: vec![],
                 aliases: vec![],
             },
             "no `Size` extra and no resources"

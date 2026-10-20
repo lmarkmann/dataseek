@@ -15,6 +15,8 @@
 //! and `modified` is epoch milliseconds (ArcGIS REST item reference, October
 //! 2026). The terms say nothing on caching search results (Esri Master
 //! Agreement, August 2025).
+//! An item's `type` is its one format, a file type ("CSV") or a service
+//! ("Feature Service"; ArcGIS REST item types, October 2026).
 
 use serde_json::Value;
 
@@ -71,6 +73,7 @@ fn record(feature: &Value) -> Option<Dataset> {
     dataset.size_bytes =
         number(props, "/size").filter(|_| stores_its_data(props));
     dataset.popularity = number(props, "/numViews");
+    dataset.formats.extend(text(props, "/type"));
     dataset.valid()
 }
 
@@ -128,6 +131,7 @@ mod tests {
                 updated: Some("2026-08-04".into()),
                 size_bytes: Some(1658),
                 popularity: Some(30),
+                formats: vec!["CSV".into()],
                 aliases: vec![],
             }
         );
@@ -153,6 +157,7 @@ mod tests {
                 updated: Some("2016-03-24".into()),
                 size_bytes: Some(49_152),
                 popularity: Some(192),
+                formats: vec!["Feature Service".into()],
                 aliases: vec![],
             }
         );

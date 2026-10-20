@@ -91,6 +91,7 @@ mod tests {
                 updated: Some("2026-03-16".into()),
                 size_bytes: None,
                 popularity: Some(3841),
+                formats: vec![],
                 aliases: vec![
                     "https://datahub.austintexas.gov/d/sxk7-7k6z".into()
                 ],

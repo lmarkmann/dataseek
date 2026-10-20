@@ -9,13 +9,17 @@
 //! keyless host states no limit (api.data.gov, October 2026). `popularity` is
 //! the dataset page's views in the last month, the figure the catalog prints
 //! as "Views last month" (Data.gov user guide, October 2026).
+//! A distribution names its format in DCAT `format`, else `mediaType`
+//! (probes, October 2026).
 
 use serde_json::Value;
 
 use super::Ctx;
 use crate::credentials::Key;
 use crate::http::SourceError;
-use crate::record::{Dataset, day, doi, from_markdown, number, text};
+use crate::record::{
+    Dataset, day, doi, first_text, from_markdown, items, number, text,
+};
 
 /// What harvested records say when the publisher gave nothing.
 const NO_DESCRIPTION: &str = "No description found";
@@ -67,6 +71,10 @@ fn record(row: &Value) -> Option<Dataset> {
         text(row, "/dcat/license").filter(|l| !l.ends_with(UNKNOWN_LICENSE));
     dataset.updated = day(text(row, "/dcat/modified"));
     dataset.popularity = number(row, "/popularity");
+    dataset.formats = items(row, "/dcat/distribution")
+        .iter()
+        .filter_map(|d| first_text(d, &["/format", "/mediaType"]))
+        .collect();
     dataset.aliases.extend(landing);
     dataset.valid()
 }
@@ -130,6 +138,12 @@ mod tests {
                 updated: Some("2024-11-27".into()),
                 size_bytes: None,
                 popularity: Some(13),
+                formats: vec![
+                    "CSV".into(),
+                    "CSV".into(),
+                    "CSV".into(),
+                    "CSV".into()
+                ],
                 aliases: vec![],
             }
         );

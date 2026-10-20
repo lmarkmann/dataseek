@@ -29,6 +29,10 @@
 //! `catalog_record.modified` and a distribution's `modified` are the days
 //! the portal re-harvested it, within the last few months even for records
 //! published years before (probes, October 2026).
+//!
+//! A distribution's `format.id` is an id from the EU file-type vocabulary
+//! ("CSV", "GEOJSON", "WMS_SRVC" for a map service) and `format.resource`
+//! its URI (probes, October 2026).
 
 use serde_json::Value;
 
@@ -39,7 +43,8 @@ use crate::record::{Dataset, day, doi, items, localized, number, text};
 
 const INCLUDES: &str = "id,title,description,publisher,catalog.id,\
                         catalog.title,distributions.license,\
-                        distributions.byte_size,modified,issued,\
+                        distributions.byte_size,distributions.format,\
+                        modified,issued,\
                         landing_page,page,identifier,is_version_of";
 
 /// The sizes data.gov.it writes for a file it has not measured.
@@ -108,6 +113,8 @@ fn record(row: &Value) -> Option<Dataset> {
     dataset.license = distributions.iter().find_map(license);
     dataset.updated =
         day(text(row, "/modified").or_else(|| text(row, "/issued")));
+    dataset.formats =
+        distributions.iter().filter_map(|d| text(d, "/format/id")).collect();
     dataset.size_bytes = distributions
         .iter()
         .filter_map(|d| number(d, "/byte_size"))
@@ -157,6 +164,7 @@ fn doi_of(row: &Value) -> Option<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::record::file_formats;
     use crate::sources::fixture;
 
     #[test]
@@ -183,6 +191,7 @@ mod tests {
                 updated: Some("2024-08-01".into()),
                 size_bytes: Some(43_125_616),
                 popularity: None,
+                formats: vec![],
                 aliases: vec!["10.5281/zenodo.1631855".into()],
             }
         );
@@ -281,6 +290,17 @@ mod tests {
             hits[1].publisher.as_deref(),
             Some("Italian Catalogue of metadata for Spatial Data")
         );
+    }
+
+    #[test]
+    fn each_distribution_names_its_file_type() {
+        let hits = parse(&fixture::json("europa.formats.json"), 10).unwrap();
+        let formats: Vec<_> = hits.iter().map(|h| h.formats.clone()).collect();
+        assert_eq!(
+            formats,
+            [vec!["CSV"; 4], vec!["CSV", "JSON"], vec!["WMS_SRVC", "GEOJSON"],]
+        );
+        assert_eq!(file_formats(&hits[2].formats), ["WMS", "GEOJSON"]);
     }
 
     #[test]

@@ -7,12 +7,15 @@
 use crate::cli::Filters;
 use crate::dedup::Hit;
 use crate::license;
+use crate::record::file_format;
 
 /// The filters with their values normalized as the records' are, so a
 /// license asked for as `cc by 4.0` matches one recorded as `CC-BY-4.0`.
 #[derive(Debug, Default)]
 pub struct Wanted {
     pub licenses: Vec<String>,
+    /// [`file_format`] names.
+    pub formats: Vec<String>,
     /// A full ISO day.
     pub since: Option<String>,
     pub min_sources: usize,
@@ -26,6 +29,11 @@ impl Wanted {
                 .iter()
                 .filter_map(|l| license::normalized(l))
                 .collect(),
+            formats: filters
+                .format
+                .iter()
+                .filter_map(|f| file_format(f))
+                .collect(),
             since: filters.updated_since.clone(),
             min_sources: filters.min_sources.map_or(0, usize::from),
         }
@@ -34,6 +42,7 @@ impl Wanted {
     /// Whether any filter is set.
     pub fn any(&self) -> bool {
         !self.licenses.is_empty()
+            || !self.formats.is_empty()
             || self.since.is_some()
             || self.min_sources > 1
     }
@@ -44,10 +53,12 @@ impl Wanted {
             || d.license.as_deref().is_some_and(|l| {
                 self.licenses.iter().any(|w| license::matches(l, w))
             });
+        let offered = self.formats.is_empty()
+            || d.formats.iter().any(|f| self.formats.contains(f));
         let recent = self.since.as_deref().is_none_or(|since| {
             d.updated.as_deref().is_some_and(|day| on_or_after(day, since))
         });
-        licensed && recent && hit.sources.len() >= self.min_sources
+        licensed && offered && recent && hit.sources.len() >= self.min_sources
     }
 }
 
@@ -127,6 +138,7 @@ mod tests {
     fn wanted(license: &[&str], since: Option<&str>, min: u16) -> Wanted {
         Wanted::new(&Filters {
             license: license.iter().map(|l| (*l).to_owned()).collect(),
+            format: Vec::new(),
             updated_since: since.map(|s| day(s).unwrap()),
             min_sources: Some(min),
         })
@@ -174,6 +186,14 @@ mod tests {
         assert!(!all.admits(&hit(Some("CC-BY-4.0"), Some("2025-01-02"), 1)));
         assert!(!all.admits(&hit(Some("CC-BY-4.0"), None, 3)));
         assert!(!wanted(&[], None, 1).any());
+        let csv = Wanted::new(&Filters {
+            format: vec!["text/csv".into()],
+            ..Filters::default()
+        });
+        let mut offered = hit(None, None, 1);
+        offered.dataset.formats = vec!["PDF".into(), "CSV".into()];
+        assert!(csv.admits(&offered));
+        assert!(!csv.admits(&hit(None, None, 1)));
         assert!(wanted(&[], None, 1).admits(&hit(None, None, 1)));
     }
 }

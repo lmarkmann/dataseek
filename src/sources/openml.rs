@@ -166,6 +166,7 @@ mod tests {
                 updated: Some("2015-09-02".into()),
                 size_bytes: None,
                 popularity: Some(13_779),
+                formats: vec![],
                 aliases: vec![],
             }
         );
@@ -186,6 +187,7 @@ mod tests {
                 updated: Some("2022-02-22".into()),
                 size_bytes: None,
                 popularity: Some(0),
+                formats: vec![],
                 aliases: vec![],
             }
         );

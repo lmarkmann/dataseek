@@ -24,6 +24,9 @@
 //! names KB to PB without saying which (UMM-C 1.18.6, October 2026). The
 //! usage score CMR ranks by is not in any search response, only in a
 //! separate whole-catalog table.
+//! The formats are each `FileDistributionInformation` entry's `Format`, free
+//! text such as "HDF5", "netCDF-4" or "HDF-EOS5" (UMM-C 1.18.6, probes,
+//! October 2026).
 
 use serde_json::Value;
 
@@ -93,6 +96,13 @@ fn record(item: &Value) -> Option<Dataset> {
         .and_then(|date| text(date, "/Date"));
     dataset.updated =
         day(data_update.or_else(|| text(item, "/meta/revision-date")));
+    dataset.formats = items(
+        item,
+        "/umm/ArchiveAndDistributionInformation/FileDistributionInformation",
+    )
+    .iter()
+    .filter_map(|file| text(file, "/Format"))
+    .collect();
     dataset.valid()
 }
 
@@ -168,6 +178,7 @@ mod tests {
                 updated: Some("2026-10-02".into()),
                 size_bytes: None,
                 popularity: None,
+                formats: vec!["HDF5".into()],
                 aliases: vec![],
             }
         );
@@ -203,6 +214,7 @@ mod tests {
                 updated: Some("2026-10-16".into()),
                 size_bytes: Some(15_000_000_000_000),
                 popularity: None,
+                formats: vec!["netCDF-4".into()],
                 aliases: vec![],
             }
         );

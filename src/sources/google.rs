@@ -232,6 +232,7 @@ mod tests {
                 updated: Some("2019-08-13".into()),
                 size_bytes: None,
                 popularity: None,
+                formats: vec![],
                 aliases: vec![
                     "https://nsidc.org/data/g02135/versions/3".into()
                 ],
@@ -296,6 +297,7 @@ mod tests {
                 updated: Some("2022-10-06".into()),
                 size_bytes: None,
                 popularity: None,
+                formats: vec![],
                 aliases: vec![
                     "https://datasetcatalog.nlm.nih.gov/dataset?q=0002202795"
                         .into()

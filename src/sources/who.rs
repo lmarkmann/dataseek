@@ -67,6 +67,7 @@ mod tests {
                 updated: None,
                 size_bytes: None,
                 popularity: None,
+                formats: vec![],
                 aliases: vec![],
             }
         );
