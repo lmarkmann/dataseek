@@ -87,7 +87,7 @@ The search succeeded but one source is missing. Act only when that source matter
 
 ## No results
 
-An empty `results` list with sources answering means none of them holds a match for those words. In order:
+An empty `results` list with a positive `filtered_out` is not a missing match: the filters dropped that many datasets. Report the count and the filter that was set, and offer the search without it; only with `filtered_out` at 0 does an empty list with sources answering mean none of them holds a match for those words. Then, in order:
 
 1. Check `sources`: if the sources that would hold this topic did not answer, it is the table above, not the query.
 2. Shorten the query to its two most specific words, then try the field's own term or acronym (`references/search.md`, Writing queries).

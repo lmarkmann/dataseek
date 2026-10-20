@@ -9,7 +9,7 @@ An agent or a user often knows more than the words of a query: the data must be 
 
 ## Decision
 
-- `search` takes `--license`, `--updated-since`, `--format` and `--min-sources`, and applies them to the merged, ranked list before `--limit` cuts it. A merged dataset passes on a field any of its sources stated. A dataset that does not state a field never passes a filter on it.
+- `search` takes `--license`, `--updated-since`, `--format` and `--min-sources`, and applies them to the merged, ranked list before `--limit` cuts it. A filter reads a merged dataset as it is shown: its license and date are the first ones a source stated, and its formats are every source's, so a result never passes on a value it does not display. A dataset that does not state a field never passes a filter on it.
 - Every source's license is read as an SPDX id at the source boundary (`src/license.rs`): `CC-BY-4.0` however the source spelled it, placeholders such as `notspecified` dropped, anything unrecognized kept as written. `--license cc-by` matches the family, every version and port of CC BY but not CC BY-SA.
 - `--updated-since` takes a year, a month or a day and compares at the precision a record states, so a dataset dated only `2024` counts as updated after `2024-06-01`.
 - File formats are read as one name per format (`CSV`, `NETCDF`, `GEOTIFF`) from the sources that list them: CKAN portals, data.europa.eu, ArcGIS Hub, NASA CMR and data.gov.

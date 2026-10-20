@@ -17,7 +17,7 @@ compatibility: needs the dataseek binary (dsk) and network access
 
 # dataseek
 
-dataseek sends one query to every dataset source it knows, merges the records that are one dataset (a shared DOI, landing URL, or title and publisher) and ranks them by how many sources agree and how much of the query each covers. It runs as an MCP server (`dsk mcp`, three tools) and as a CLI (`dsk`, also installed as `dataseek`). They are one program: a tool returns, byte for byte, the object `dsk <command> --json` prints, so every reference here holds for both.
+dataseek sends one query to every default dataset source (the opt-in ones only when named), merges the records that are one dataset (a shared DOI, landing URL, or title and publisher) and ranks them by how many sources agree and how much of the query each covers. It runs as an MCP server (`dsk mcp`, three tools) and as a CLI (`dsk`, also installed as `dataseek`). They are one program: a tool returns, byte for byte, the object `dsk <command> --json` prints, so every reference here holds for both.
 
 **MCP first; the CLI is the fallback.** dataseek is built to be called as an MCP server, so every procedure here is written in tool arguments.
 

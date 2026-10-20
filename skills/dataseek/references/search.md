@@ -42,7 +42,7 @@ Over MCP, `source`, `include`, `exclude` and `category` are JSON arrays, `["zeno
 
 ## Filters
 
-`license`, `updated-since`, `format` and `min-sources` filter the merged list before `limit` cuts it, the same way for every source. A merged dataset passes on what any of its sources stated, and a dataset that does not state a field never passes a filter on it. With a filter set each source is asked for 30 results instead of 10, so a filtered search can return more matches than the unfiltered one.
+`license`, `updated-since`, `format` and `min-sources` filter the merged list before `limit` cuts it, the same way for every source. A filter reads each result as it is shown: the license and date it displays (the first ones a source stated) and the formats of every source. A result that does not state a field never passes a filter on it. With a filter set each source is asked for 30 results instead of 10, so a filtered search can return more matches than the unfiltered one.
 
 Measured 2026-10-20 on "sea surface temperature", 328 matches unfiltered: `license: ["cc-by"]` kept 160, `updated-since: "2024"` 488, `format: ["netcdf"]` 37, `min-sources: 2` 10.
 

@@ -21,10 +21,12 @@ Verified against `src/inspect.rs`, `dsk help inspect --json` and live runs on 20
 
 ## The result
 
-Schema `dataseek-inspect/1`, two keys:
+Schema `dataseek-inspect/1`, four keys:
 
 | Key | What it holds |
 |---|---|
+| `schema` | `dataseek-inspect/1` |
+| `url` | the URL as it was passed |
 | `dataset` | the page's own JSON-LD node as the page wrote it: commonly `name`, `description`, `creator` or `author`, `publisher`, `license`, `datePublished`, `dateModified`, `identifier`, `keywords`, `distribution`, `size` or `contentSize` |
 | `files` | dataseek's reading of the file list; each entry has whichever of `name`, `format`, `size_bytes`, `checksum` (`sha256:<hex>` or `md5:<hex>`), `url` and, for a Croissant file set, `includes` (the glob its files match, such as `plain_text/*/*.parquet`) the page gave |
 

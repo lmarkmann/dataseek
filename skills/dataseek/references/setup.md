@@ -22,7 +22,7 @@ uv tool install dataseek                 # from PyPI
 uvx dataseek search sea surface temperature   # run once, install nothing
 ```
 
-Every method installs two names for one program, `dsk` and `dataseek`. Installing changes the user's machine: ask before running one, and let the user pick the package manager they already use.
+Every method but `uvx` installs two names for one program, `dsk` and `dataseek`; `uvx` runs it once and installs neither. Installing changes the user's machine: ask before running one, and let the user pick the package manager they already use.
 
 ## Register the MCP server
 
