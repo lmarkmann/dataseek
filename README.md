@@ -72,6 +72,13 @@ Use it in the terminal, pipe its JSON into scripts, or use dataseek via MCP (`ds
 
 Each tool returns what its command prints with `--json`; keys are read from the environment the client starts it in, or from `credentials.toml`. Google Dataset Search and Mendeley Data stay opt-in here too: the model asks for them by naming them in the search tool's `source` argument, and a client can ask for them on every search with `"args": ["mcp", "--include", "google,mendeley"]`. See: [`docs/reference/contract.md`](docs/reference/contract.md#mcp-mode).
 
+## Agent skill
+[`skills/dataseek`](skills/dataseek/SKILL.md) teaches a coding agent to use dataseek over MCP or the CLI: writing queries the sources match, reading coverage and source statuses, inspecting a dataset's files, registering the server and its keys, and recovering from each error. Install it with the [skills CLI](https://github.com/vercel-labs/skills):
+
+```sh
+pnpm dlx skills add lmarkmann/dataseek
+```
+
 ## Contributing & Development Docs
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) covers setup, the commit prefixes that decide each release, the test rules and how to add a source. Report vulnerabilities privately, as [`SECURITY.md`](docs/SECURITY.md) describes.
 - [`docs/CHANGELOG.md`](docs/CHANGELOG.md): what shipped, written by release-plz.
