@@ -14,4 +14,7 @@ extend-ignore-re = [
   "has\\(\"nd\"\\)",
   "Burnt Area \\(BA\\)",
   "census for BA 44/45",
+  # HTML entity names, decoded in src/record.rs.
+  "\"curren\"",
+  "caf&eacute;",
 ]

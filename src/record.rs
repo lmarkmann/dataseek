@@ -4,7 +4,9 @@
 //! them across sources. Adapters fill what they have and leave the rest `None`;
 //! they never invent a value to make a record look complete.
 
-use pulldown_cmark::{Event, Options, Parser, Tag, TagEnd};
+use std::collections::HashMap;
+use std::ops::Range;
+
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -209,39 +211,367 @@ impl Spaced {
 }
 
 /// Markdown as the text its rendered page shows: link and emphasis text kept,
-/// images and markup dropped, a space between blocks. For fields a source
-/// documents as Markdown; HTML inside it is left for [`clean`] to strip.
+/// images, rules, fences and other markup dropped, a space between lines.
+/// For fields a source documents as Markdown. Entities are decoded, as a
+/// Markdown renderer does, so `&lt;br&gt;` becomes a tag; HTML is left for
+/// [`clean`] to strip. It reads one line at a time, so emphasis or a link
+/// broken across two lines keeps its marks, which a description can afford.
 pub fn from_markdown(text: &str) -> String {
     let mut plain = String::with_capacity(text.len());
-    let mut in_image = false;
-    let options = Options::ENABLE_TABLES | Options::ENABLE_STRIKETHROUGH;
-    for event in Parser::new_ext(text, options) {
-        match event {
-            Event::Start(Tag::Image { .. }) => in_image = true,
-            Event::End(TagEnd::Image) => in_image = false,
-            Event::Text(t)
-            | Event::Code(t)
-            | Event::Html(t)
-            | Event::InlineHtml(t)
-                if !in_image =>
-            {
-                plain.push_str(&t);
+    let mut fence = None;
+    for line in text.lines().map(str::trim) {
+        if let Some(open) = fence {
+            if line.starts_with(open) {
+                fence = None;
+            } else {
+                plain.push_str(line);
             }
-            Event::End(
-                TagEnd::Emphasis
-                | TagEnd::Strong
-                | TagEnd::Strikethrough
-                | TagEnd::Link,
-            ) => {}
-            Event::End(_) | Event::SoftBreak | Event::HardBreak => {
-                plain.push(' ');
+        } else if let Some(open) =
+            ["```", "~~~"].into_iter().find(|f| line.starts_with(f))
+        {
+            fence = Some(open);
+        } else if !is_rule(line) && !is_link_definition(line) {
+            let content = block_content(line);
+            if content.starts_with('|') || content.ends_with('|') {
+                inline(&content.replace('|', " "), &mut plain);
+            } else {
+                inline(content, &mut plain);
             }
-            _ => {}
         }
+        plain.push(' ');
     }
-    plain
+    let mut shown = Spaced::with_capacity(plain.len());
+    decode_entities(&plain, &mut shown);
+    shown.text
 }
 
+/// A line that renders as no text: a thematic break, a setext heading's
+/// underline or a table's delimiter row.
+fn is_rule(line: &str) -> bool {
+    let marks = || line.chars().filter(|c| !c.is_whitespace());
+    let delimiter_row = marks().any(|c| c == '-')
+        && marks().all(|c| matches!(c, '|' | ':' | '-'));
+    let first = marks().next();
+    let thematic = marks().nth(2).is_some()
+        && first.is_some_and(|f| {
+            matches!(f, '*' | '_' | '=') && marks().all(|c| c == f)
+        });
+    delimiter_row || thematic
+}
+
+/// `[label]: url`, which defines a link target and shows nothing.
+fn is_link_definition(line: &str) -> bool {
+    line.strip_prefix('[')
+        .and_then(|rest| rest.split_once("]:"))
+        .is_some_and(|(label, _)| !label.contains(['[', ']']))
+}
+
+/// The line without the markers that make it a quote, a list item or a
+/// heading.
+fn block_content(mut line: &str) -> &str {
+    while let Some(rest) = line.strip_prefix('>').or_else(|| list_marker(line))
+    {
+        line = rest.trim_start();
+    }
+    heading(line).unwrap_or(line)
+}
+
+/// The rest of a list item after its `-`, `*`, `+`, `1.` or `1)`.
+fn list_marker(line: &str) -> Option<&str> {
+    let rest = line.strip_prefix(['-', '*', '+']).or_else(|| {
+        let digits = line.trim_start_matches(|c: char| c.is_ascii_digit());
+        (digits.len() < line.len())
+            .then(|| digits.strip_prefix(['.', ')']))
+            .flatten()
+    })?;
+    (rest.is_empty() || rest.starts_with([' ', '\t'])).then_some(rest)
+}
+
+/// An ATX heading's text, without its opening and closing `#`s.
+fn heading(line: &str) -> Option<&str> {
+    let text = line.trim_start_matches('#');
+    let level = line.len().saturating_sub(text.len());
+    if !(1..=6).contains(&level)
+        || !(text.is_empty() || text.starts_with([' ', '\t']))
+    {
+        return None;
+    }
+    let text = text.trim_end();
+    let unclosed = text.trim_end_matches('#');
+    Some(if unclosed.is_empty() || unclosed.ends_with([' ', '\t']) {
+        unclosed
+    } else {
+        text
+    })
+}
+
+/// One line's inline Markdown as text: emphasis marks and escaping
+/// backslashes dropped, a link as its label, an image as nothing, code as
+/// its content, an autolink as its address. Code spans, brackets and
+/// emphasis are matched up front and the line is then read once, so a
+/// hostile description costs no recursion and no quadratic scan. Text
+/// between marks is copied a run at a time, and a line without the byte a
+/// match starts from skips that match, so plain prose costs a few scans.
+fn inline(line: &str, out: &mut String) {
+    let code = if line.contains('`') { code_spans(line) } else { Vec::new() };
+    let closers = if line.contains('[') {
+        brackets(line, &code)
+    } else {
+        HashMap::new()
+    };
+    let mut marks = if line.contains(['*', '_', '~']) {
+        emphasis(line, &code)
+    } else {
+        Vec::new()
+    };
+    marks.sort_unstable();
+    let mut labels: Vec<(usize, usize)> = Vec::new();
+    let mut at = 0;
+    while let Some(c) = line.get(at..).and_then(|rest| rest.chars().next()) {
+        if let Some(&(close, end)) = labels.last()
+            && at >= close
+        {
+            labels.pop();
+            at = at.max(end);
+            continue;
+        }
+        let next = at.saturating_add(c.len_utf8());
+        let mark = marks.binary_search_by_key(&at, |&(start, _)| start).ok();
+        let span = code.binary_search_by_key(&at, |span| span.start).ok();
+        if let Some(&(_, end)) = mark.and_then(|i| marks.get(i)) {
+            at = end;
+        } else if let Some(span) = span.and_then(|i| code.get(i)) {
+            out.push_str(line.get(span.text.clone()).unwrap_or_default());
+            at = span.end;
+        } else if c == '\\' {
+            match line.get(next..).and_then(|rest| rest.chars().next()) {
+                Some(p) if p.is_ascii_punctuation() => {
+                    out.push(p);
+                    at = next.saturating_add(1);
+                }
+                Some(_) => {
+                    out.push(c);
+                    at = next;
+                }
+                None => at = next,
+            }
+        } else if let Some(label) =
+            (c == '[').then(|| link(line, &closers, at)).flatten()
+        {
+            labels.push(label);
+            at = next;
+        } else if let Some((_, end)) =
+            (c == '!').then(|| link(line, &closers, next)).flatten()
+        {
+            at = end;
+        } else if let Some((address, end)) =
+            (c == '<').then(|| autolink(line, next)).flatten()
+        {
+            out.push_str(address);
+            at = end;
+        } else {
+            let marked = ['*', '_', '~', '`', '\\', '[', '!', '<', ']'];
+            let run = line.get(at..).unwrap_or_default();
+            let stop = run
+                .get(c.len_utf8()..)
+                .and_then(|rest| rest.find(marked))
+                .map_or(run.len(), |i| i.saturating_add(c.len_utf8()));
+            out.push_str(run.get(..stop).unwrap_or_default());
+            at = at.saturating_add(stop);
+        }
+    }
+}
+
+/// A code span: the bytes it covers and, inside them, its content.
+struct CodeSpan {
+    start: usize,
+    text: Range<usize>,
+    end: usize,
+}
+
+/// Every code span in `line`, in order. A run of backticks nothing closes
+/// is text, and once a run length has failed to close, later runs of that
+/// length are not searched again, so unmatched backticks stay cheap.
+fn code_spans(line: &str) -> Vec<CodeSpan> {
+    let mut spans = Vec::new();
+    let mut unclosed: Vec<usize> = Vec::new();
+    let mut at = 0;
+    while let Some(offset) = line.get(at..).and_then(|r| r.find(['`', '\\'])) {
+        let start = at.saturating_add(offset);
+        let tail = line.get(start..).unwrap_or_default();
+        if tail.starts_with('\\') {
+            let escaped = tail.chars().nth(1).map_or(0, char::len_utf8);
+            at = start.saturating_add(1).saturating_add(escaped);
+            continue;
+        }
+        let body = tail.trim_start_matches('`');
+        let fence = tail.len().saturating_sub(body.len());
+        let text_start = start.saturating_add(fence);
+        let closed = if unclosed.contains(&fence) {
+            None
+        } else {
+            fence_in(body, fence)
+        };
+        if let Some(offset) = closed {
+            let text_end = text_start.saturating_add(offset);
+            let end = text_end.saturating_add(fence);
+            spans.push(CodeSpan { start, text: text_start..text_end, end });
+            at = end;
+        } else {
+            unclosed.push(fence);
+            at = text_start;
+        }
+    }
+    spans
+}
+
+/// Where in `body` a run of exactly `len` backticks starts.
+fn fence_in(body: &str, len: usize) -> Option<usize> {
+    let mut at = 0;
+    while let Some(offset) = body.get(at..)?.find('`') {
+        let start = at.saturating_add(offset);
+        let run = body.get(start..)?;
+        let run_len =
+            run.len().saturating_sub(run.trim_start_matches('`').len());
+        if run_len == len {
+            return Some(start);
+        }
+        at = start.saturating_add(run_len);
+    }
+    None
+}
+
+/// The closing `]` or `)` of every `[` and `(` in `line` outside code spans
+/// and escapes, by the opener's byte offset: one stack per kind, one pass.
+fn brackets(line: &str, code: &[CodeSpan]) -> HashMap<usize, usize> {
+    let mut closers = HashMap::new();
+    let (mut squares, mut rounds) = (Vec::new(), Vec::new());
+    let mut spans = code.iter().peekable();
+    let mut at = 0;
+    while let Some(c) = line.get(at..).and_then(|rest| rest.chars().next()) {
+        if let Some(span) = spans.next_if(|span| span.start <= at) {
+            at = span.end;
+            continue;
+        }
+        let next = at.saturating_add(c.len_utf8());
+        let opened = match c {
+            '\\' => {
+                let escaped = line.get(next..).and_then(|r| r.chars().next());
+                at = next.saturating_add(escaped.map_or(0, char::len_utf8));
+                continue;
+            }
+            '[' => {
+                squares.push(at);
+                None
+            }
+            '(' => {
+                rounds.push(at);
+                None
+            }
+            ']' => squares.pop(),
+            ')' => rounds.pop(),
+            _ => None,
+        };
+        if let Some(open) = opened {
+            closers.insert(open, at);
+        }
+        at = next;
+    }
+    closers
+}
+
+/// A link or image whose `[` is at `open`: the offset of the `]` closing
+/// its label, and the end of the `(url)` or `[ref]` after it.
+fn link(
+    line: &str,
+    closers: &HashMap<usize, usize>,
+    open: usize,
+) -> Option<(usize, usize)> {
+    if !line.get(open..)?.starts_with('[') {
+        return None;
+    }
+    let close = *closers.get(&open)?;
+    let target = close.saturating_add(1);
+    if !line.get(target..)?.starts_with(['(', '[']) {
+        return None;
+    }
+    Some((close, closers.get(&target)?.saturating_add(1)))
+}
+
+/// `https://x.org>` or `a@b.org>` at `from`, just after a `<`: the address
+/// and the end of the autolink. Anything else after a `<` is HTML for
+/// [`clean`]. The address ends at the first space or bracket, so a line of
+/// `<`s is read once.
+fn autolink(line: &str, from: usize) -> Option<(&str, usize)> {
+    let rest = line.get(from..)?;
+    let end =
+        rest.find(|c: char| matches!(c, '>' | '<') || c.is_whitespace())?;
+    let (address, tail) = rest.split_at_checked(end)?;
+    let is_address = address.contains("://") || address.contains('@');
+    (tail.starts_with('>') && is_address)
+        .then(|| (address, from.saturating_add(end).saturating_add(1)))
+}
+
+/// Byte ranges of the `*`, `_` and `~~` runs in `line` that open or close
+/// emphasis, paired by CommonMark's flanking rules. A run that pairs with
+/// nothing, like the `*` in `*.csv` or `5 * 3`, or a `_` inside a word, as in
+/// `sentinel_2_l2a`, stays text. At most 64 openers wait for a closer, which
+/// bounds the search for one.
+fn emphasis(line: &str, code: &[CodeSpan]) -> Vec<(usize, usize)> {
+    const OPENERS: usize = 64;
+    let mut paired = Vec::new();
+    let mut open: Vec<(char, usize, usize)> = Vec::new();
+    let mut spans = code.iter().peekable();
+    let mut prev = ' ';
+    let mut at = 0;
+    while let Some(c) = line.get(at..).and_then(|rest| rest.chars().next()) {
+        if let Some(span) = spans.next_if(|span| span.start <= at) {
+            at = span.end;
+            prev = '`';
+            continue;
+        }
+        let next = at.saturating_add(c.len_utf8());
+        if c == '\\' {
+            let escaped = line.get(next..).and_then(|r| r.chars().next());
+            at = next.saturating_add(escaped.map_or(0, char::len_utf8));
+            prev = escaped.unwrap_or(c);
+            continue;
+        }
+        if !matches!(c, '*' | '_' | '~') {
+            at = next;
+            prev = c;
+            continue;
+        }
+        let run = line.get(at..).unwrap_or_default();
+        let body = run.trim_start_matches(c);
+        let end = at.saturating_add(run.len().saturating_sub(body.len()));
+        let after = body.chars().next().unwrap_or(' ');
+        let left = !after.is_whitespace();
+        let right = !prev.is_whitespace();
+        let (opens, closes) = match c {
+            '_' => (
+                left && !prev.is_alphanumeric(),
+                right && !after.is_alphanumeric(),
+            ),
+            '~' if end.saturating_sub(at) != 2 => (false, false),
+            _ => (left, right),
+        };
+        let opener =
+            open.iter().rposition(|&(d, ..)| d == c).filter(|_| closes);
+        if let Some(i) = opener {
+            if let Some(&(_, s, e)) = open.get(i) {
+                paired.push((s, e));
+                paired.push((at, end));
+            }
+            open.truncate(i);
+        } else if opens && open.len() < OPENERS {
+            open.push((c, at, end));
+        }
+        at = end;
+        prev = c;
+    }
+    paired
+}
 /// HTML entities decoded in one pass, so `&amp;lt;` stays the text `&lt;`.
 /// Unknown names and numeric codes for control characters stay as written.
 /// The `;` is looked for only as far as the longest name, so text full of
@@ -283,11 +613,21 @@ fn entity(name: &str) -> Option<char> {
         "mdash" => '\u{2014}',
         "hellip" => '\u{2026}',
         "rarr" => '\u{2192}',
+        "bull" => '\u{2022}',
+        "minus" => '\u{2212}',
+        "euro" => '\u{20ac}',
+        "trade" => '\u{2122}',
         _ => {
-            let code = name.strip_prefix('#')?;
-            let number = match code.strip_prefix(['x', 'X']) {
-                Some(hex) => u32::from_str_radix(hex, 16).ok()?,
-                None => code.parse().ok()?,
+            let number = match name.strip_prefix('#') {
+                Some(code) => match code.strip_prefix(['x', 'X']) {
+                    Some(hex) => u32::from_str_radix(hex, 16).ok()?,
+                    None => code.parse().ok()?,
+                },
+                None => LATIN1
+                    .iter()
+                    .position(|&n| n == name)
+                    .and_then(|i| u32::try_from(i).ok())?
+                    .checked_add(0xa0)?,
             };
             return char::from_u32(number)
                 .filter(|&c| !c.is_control() && !invisible(c));
@@ -295,6 +635,22 @@ fn entity(name: &str) -> Option<char> {
     };
     Some(named)
 }
+
+/// The entity names of U+00A0 to U+00FF, in code point order.
+const LATIN1: [&str; 96] = [
+    "nbsp", "iexcl", "cent", "pound", "curren", "yen", "brvbar", "sect",
+    "uml", "copy", "ordf", "laquo", "not", "shy", "reg", "macr", "deg",
+    "plusmn", "sup2", "sup3", "acute", "micro", "para", "middot", "cedil",
+    "sup1", "ordm", "raquo", "frac14", "frac12", "frac34", "iquest", "Agrave",
+    "Aacute", "Acirc", "Atilde", "Auml", "Aring", "AElig", "Ccedil", "Egrave",
+    "Eacute", "Ecirc", "Euml", "Igrave", "Iacute", "Icirc", "Iuml", "ETH",
+    "Ntilde", "Ograve", "Oacute", "Ocirc", "Otilde", "Ouml", "times",
+    "Oslash", "Ugrave", "Uacute", "Ucirc", "Uuml", "Yacute", "THORN", "szlig",
+    "agrave", "aacute", "acirc", "atilde", "auml", "aring", "aelig", "ccedil",
+    "egrave", "eacute", "ecirc", "euml", "igrave", "iacute", "icirc", "iuml",
+    "eth", "ntilde", "ograve", "oacute", "ocirc", "otilde", "ouml", "divide",
+    "oslash", "ugrave", "uacute", "ucirc", "uuml", "yacute", "thorn", "yuml",
+];
 
 /// [`clean`], cut to a teaser on a char boundary. `None` when nothing is left.
 pub fn summary(text: &str) -> Option<String> {
@@ -820,6 +1176,57 @@ mod tests {
             "Title: Aged brain Dataset contact: J. Whalley one two \
              a b 1 2 sentinel_2_l2a, bold, aged <5"
         );
+    }
+
+    #[test]
+    fn hostile_markdown_costs_linear_time_and_no_recursion() {
+        let n = 50_000;
+        let nested = format!("{}x{}", "[".repeat(n), "](u)".repeat(n));
+        let fences: Vec<String> = (1..=300).map(|k| "`".repeat(k)).collect();
+        let hostile = [
+            "[".repeat(n),
+            "![".repeat(n),
+            "(".repeat(n),
+            "<".repeat(n),
+            "*a ".repeat(n),
+            "_a ".repeat(n),
+            fences.join(" "),
+        ];
+        let started = std::time::Instant::now();
+        assert_eq!(clean(&from_markdown(&nested)), "x");
+        for md in &hostile {
+            assert_ne!(from_markdown(md), "");
+        }
+        assert!(started.elapsed() < std::time::Duration::from_secs(10));
+    }
+
+    #[test]
+    fn markdown_marks_that_pair_with_nothing_stay_text() {
+        let cases = [
+            ("*.csv and *.nc files", "*.csv and *.nc files"),
+            ("5 * 3 = 15", "5 * 3 = 15"),
+            ("a **bold** and _em_ ~~gone~~ word", "a bold and em gone word"),
+            (
+                "[![build](https://x.org/b.svg)](https://ci.org) Data from \
+                 <https://x.org/d> \\*not em\\*",
+                "Data from https://x.org/d *not em*",
+            ),
+            (
+                "```\nlet a = 1;\n```\n---\n[ref]: https://x.org\n\
+                 > quoted `code_span`",
+                "let a = 1; quoted code_span",
+            ),
+            ("## C# notes ##", "C# notes"),
+            (
+                "A [page](https://en.wikipedia.org/wiki/Foo_(bar)) here",
+                "A page here",
+            ),
+            ("caf&eacute; &raquo;x&laquo; &lt;br&gt;end", "café »x« end"),
+        ];
+        for (md, shown) in cases {
+            assert_eq!(clean(&from_markdown(md)), shown, "{md:?}");
+        }
+        assert_eq!(clean("Mat&iacute;as &uuml;ber"), "Matías über");
     }
 
     #[test]
