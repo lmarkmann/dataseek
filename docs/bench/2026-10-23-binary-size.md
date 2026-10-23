@@ -18,7 +18,9 @@ rustc                1.99.1
 llvm                 23.1.1
 host                 aarch64-apple-darwin
 cross builds         cargo-zigbuild with zig 0.17.0
-size tool            cargo-bsize 0.0.2
+size tool            cargo-bsize 0.0.2, bloaty
+nightly              rustc 1.101.0-nightly (2026-10-20), for the #[optimize] rows
+containers           colima 0.10.3, Docker Engine 29.5.2, debian:trixie
 baseline commit      2f5c27c (v0.10.0)
 ```
 
@@ -41,7 +43,10 @@ File size of the stripped release binary, in bytes, each commit on top of the on
 | `credentials.toml` read without toml | 2,399,952 | -66,656 | 3,885,536 | -98,184 |
 | progress drawn without indicatif | 2,316,560 | -83,392 | 3,797,176 | -88,360 |
 | man page written without clap_mangen | 2,283,248 | -33,312 | 3,758,392 | -38,784 |
-| total | | -480,880 (-17.4%) | | -592,760 (-13.6%) |
+| Windows console check, rustls-webpki 0.103.16 | 2,283,248 | 0 | 3,763,816 | +5,424 |
+| total | | -480,880 (-17.4%) | | -587,336 (-13.5%) |
+
+The last row is two fixes that came after the size work: the progress line's check that a Windows console understands escape codes (`anstyle-query`, 1,200 bytes on Linux), and the rustls-webpki release that distrusts the emSign intermediates (4,224 bytes).
 
 Release archive of the final build, `dataseek` and `dsk` inside:
 
@@ -74,6 +79,22 @@ On `aarch64-apple-darwin` unless the row says otherwise; the base is the binary 
 | Linux: `--icf=all` | | zig's linker rejects it; fat LTO with one codegen unit already merges identical functions |
 | `panic = "abort"`, on v0.10.0 | -413,936 | a panicking adapter would end the whole search instead of failing one source |
 | replacing anyhow | | 5.3 KiB of crate code; a boxed error with a context wrapper adds back most of it |
+| dataseek's own code at `opt-level = "z"`, on the final build | -558,112 | not timed; it can only be slower than the next row |
+| the same, with every function in `cache`, `catalog`, `dedup`, `record`, `sdmx` and `eurostat` marked `#[optimize(speed)]` (nightly; stable from Rust 1.101) | -525,456 | parsing, matching and merging 10% to 75% slower |
+
+The last two rows are the largest lever left, and the reason it stays unused. Under fat LTO, dependency code inlined into dataseek is compiled at dataseek's level, so `z` shrinks clap's parser, `core` and the unwind tables along with dataseek's own functions. `#[optimize(speed)]` only covers the body of the function it marks: the serde, iterator, sort and hash code a marked function instantiates for dataseek's types is compiled as separate functions at the crate's `z`. Criterion medians on nightly, the shipped profile run before and after the split to bound noise (the two runs agreed within 1.3%):
+
+| group | split against shipped |
+|---|---:|
+| `markdown` | +75% |
+| `catalog/load` | +60% |
+| `parse/eurostat` | +54% |
+| `merge` | +32% to +40% |
+| `catalog/search` | +31% to +36% |
+| `parse/sdmx` | +11% |
+| `clean` | +10% |
+
+Keeping the hot modules at `opt-level = 3` on stable would need them in a second crate of the workspace, which would have to be published alongside dataseek for `cargo install` to build it.
 
 ### Why Linux stays larger
 
@@ -92,11 +113,12 @@ The release build spends most of its time in one fat-LTO codegen unit, so sixtee
 
 ## Verdict
 
-Five dependencies were each replaced by the few dozen to few hundred lines dataseek needed of them: the binary is 17.4% smaller on macOS and 13.6% on Linux, and the archive a user downloads is about 60% smaller. Every test passes and `just relevance` is unchanged at nDCG@10 0.6403. The largest lever left is `panic = "abort"`, kept off because one adapter's panic would end the whole search.
+Five dependencies were each replaced by the few dozen to few hundred lines dataseek needed of them: the binary is 17.4% smaller on macOS and 13.5% on Linux, and the archive a user downloads is about 60% smaller. Every test passes and `just relevance` is unchanged at nDCG@10 0.6403. The two largest levers left are both kept off: compiling dataseek for size (-525 to -558 KB) slows parsing, matching and merging by up to 75%, and `panic = "abort"` (-414 KB) would let one adapter's panic end the whole search.
 
 ## Caveats
 
-- A live search over native-tls on macOS answered from 70 of 71 sources. The Linux TLS change (rustls without a bundled provider, ring's passed in) was not tried live: no Linux machine or container was available, and CI's Linux job builds and tests it without a TLS connection.
+- A live search over native-tls on macOS answered from 70 of 71 sources. The Linux binaries were tried in a `debian:trixie` container, arm64 natively and x86_64 under Rosetta: the release workflow's archive step, run as written, packed both targets; a fresh container checked each `.sha256` and unpacked the archive; both binaries printed their version and man page; without `ca-certificates` a search failed with the `Try:` line naming that package; with it, the v0.10.0 binary and this one, given the same query and `--timeout 0`, both answered from 70 of 71 sources, the same one (OpenNeuro, HTTP 502) failing for both.
+- Debian's base image has no `xz`, so `tar xJf` on the archive fails there until `xz-utils` is installed. Desktop installs and most CI images carry it, and none of the documented installs needs the system's: Homebrew installs its own `xz` to unpack the formula's archive, `cargo binstall` decompresses in process, `uv` installs the wheel and `cargo install` builds from source.
 - The Linux binary was cross-built with zig as the linker; the release job builds natively. Its relative changes are the result, its absolute size is not.
 - Windows was not built. Its TLS stack and dependencies follow macOS, so its changes should too.
 - The stub bounds overstate what a rewrite saves, because the rewrite's own code comes back: pulldown-cmark's stub saved 199 KB on macOS, the rewrite 182 KB.
