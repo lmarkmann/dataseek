@@ -56,8 +56,10 @@ jobs:
           target: ${{ matrix.target }}
           manylinux: ${{ matrix.manylinux || 'auto' }}
           args: --release --locked --out dist
-      # The binaries the wheel carries, archived under the name cargo binstall
-      # looks for: dataseek-<target>.tar.gz, or .zip on Windows.
+      # The binaries the wheel carries, archived under a name cargo binstall
+      # looks for: dataseek-<target>.tar.xz, or .zip on Windows. dsk is a
+      # copy of dataseek, and xz, unlike gzip, reaches back far enough to
+      # store the second copy almost free.
       - name: archive
         shell: bash
         env:
@@ -73,8 +75,8 @@ jobs:
             archive="$dir.zip"
             7z a -bd "archives/$archive" "$dir" > /dev/null
           else
-            archive="$dir.tar.gz"
-            tar czf "archives/$archive" "$dir"
+            archive="$dir.tar.xz"
+            tar cJf "archives/$archive" "$dir"
           fi
           cd archives
           if command -v sha256sum > /dev/null; then
@@ -226,7 +228,7 @@ jobs:
           REPO: ${{ github.repository }}
           TAG: ${{ github.event.release.tag_name }}
         run: |
-          gh release download "$TAG" --repo "$REPO" -p '*.tar.gz.sha256' -D sums
+          gh release download "$TAG" --repo "$REPO" -p '*.tar.xz.sha256' -D sums
           scripts/homebrew-formula.sh "$TAG" sums > tap/Formula/dataseek.rb
       - name: push
         working-directory: tap
