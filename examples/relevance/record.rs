@@ -10,9 +10,8 @@ use std::time::Duration;
 
 use anyhow::{Result, bail};
 use dataseek::internals::{
-    Outcome, Plan, SOURCES, Services, Source, search, select,
+    Outcome, Plan, Progress, SOURCES, Services, Source, search, select,
 };
-use indicatif::ProgressBar;
 
 use crate::snapshot::{self, Answered, Lists, Query};
 
@@ -54,7 +53,7 @@ pub fn run(queries: &[Query], args: &[String]) -> Result<()> {
                 forced: true,
                 since: None,
             });
-            search(&services, false, &plan, &ProgressBar::hidden(), None)
+            search(&services, false, &plan, &Progress::hidden(), None)
         };
         let mut outcomes = ask(sources.clone());
         let failed: Vec<_> = outcomes

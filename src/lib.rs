@@ -60,6 +60,7 @@ pub mod internals {
     pub use crate::sources::eurostat::parse as eurostat_toc;
     pub use crate::sources::sdmx::flows as sdmx_dataflows;
     pub use crate::sources::{SOURCES, Services, Source, select};
+    pub use crate::ui::Progress;
 }
 
 use std::ffi::OsString;

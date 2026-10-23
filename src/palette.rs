@@ -57,55 +57,9 @@ pub fn help() -> Styles {
         .invalid(warning())
 }
 
-/// The accent as an indicatif template token, which accepts names, `#rrggbb`
-/// and 256-color indices.
-pub fn accent_token() -> String {
-    token_for(ACCENT)
-}
-
-fn token_for(color: Color) -> String {
-    match color {
-        Color::Ansi(c) => ansi_name(c).to_owned(),
-        Color::Rgb(RgbColor(r, g, b)) => format!("#{r:02x}{g:02x}{b:02x}"),
-        Color::Ansi256(c) => c.index().to_string(),
-    }
-}
-
-fn ansi_name(c: AnsiColor) -> &'static str {
-    match c {
-        AnsiColor::Black | AnsiColor::BrightBlack => "black",
-        AnsiColor::Red | AnsiColor::BrightRed => "red",
-        AnsiColor::Green | AnsiColor::BrightGreen => "green",
-        AnsiColor::Yellow | AnsiColor::BrightYellow => "yellow",
-        AnsiColor::Blue | AnsiColor::BrightBlue => "blue",
-        AnsiColor::Magenta | AnsiColor::BrightMagenta => "magenta",
-        AnsiColor::Cyan | AnsiColor::BrightCyan => "cyan",
-        AnsiColor::White | AnsiColor::BrightWhite => "white",
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn named_accent_maps_exactly() {
-        assert_eq!(ansi_name(AnsiColor::Cyan), "cyan");
-        assert_eq!(ansi_name(AnsiColor::BrightCyan), "cyan");
-    }
-
-    // A token console's parser rejects drops the color silently.
-    #[test]
-    fn every_role_shape_produces_a_token_console_accepts() {
-        use clap::builder::styling::Ansi256Color;
-
-        assert_eq!(token_for(Color::Ansi(AnsiColor::Blue)), "blue");
-        assert_eq!(
-            token_for(Color::Rgb(RgbColor(0x7a, 0xa2, 0xf7))),
-            "#7aa2f7"
-        );
-        assert_eq!(token_for(Color::Ansi256(Ansi256Color(42))), "42");
-    }
 
     #[test]
     fn roles_carry_a_foreground_color() {
