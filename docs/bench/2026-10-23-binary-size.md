@@ -94,6 +94,8 @@ The last two rows are the largest lever left, and the reason it stays unused. Un
 | `parse/sdmx` | +11% |
 | `clean` | +10% |
 
+std rebuilt without its `backtrace` feature (nightly `-Zbuild-std=std,panic_unwind -Zbuild-std-features=panic-unwind`, with `core`, `alloc`, `std` and `hashbrown` held at `opt-level = 3`) is the one lever here that costs no speed: 2,150,560 bytes against 2,283,296 for the same rebuild with the feature, -132,736, and every bench group within 2% of the shipped profile except `catalog/load/4000` at +4%, inside the 10% the two shipped runs differed by. It drops gimli, addr2line and rustc_demangle, which only symbolize a `RUST_BACKTRACE=1` trace; panics still unwind. It needs a nightly toolchain for the release build, so it joins the parked nightly levers in the watchlist.
+
 Keeping the hot modules at `opt-level = 3` on stable would need them in a second crate of the workspace, which would have to be published alongside dataseek for `cargo install` to build it.
 
 ### Why Linux stays larger

@@ -78,6 +78,6 @@ Trigger: published documentation and terms for the API, or the v2 indicator list
 
 ## Nightly size levers
 
-`-Zfmt-debug=none` (-224 KiB), `-Zlocation-detail=none` (-96 KiB) and the `optimize_for_size` std feature through `build-std` (-288 KiB) all shrink the release binary further ([measurement](../bench/2026-10-07-binary-size.md)). Parked because `rust-toolchain.toml` pins stable and a release profile cannot set them there.
+`-Zfmt-debug=none` (-224 KiB), `-Zlocation-detail=none` (-96 KiB) and the `optimize_for_size` std feature through `build-std` (-288 KiB) all shrink the release binary further ([measurement](../bench/2026-10-07-binary-size.md)). So does `build-std` with std's `backtrace` feature left out (-130 KiB on macOS, search speed unchanged, [measurement](../bench/2026-10-23-binary-size.md)): panics still unwind and print their message, but `RUST_BACKTRACE=1` prints no frames. Parked because `rust-toolchain.toml` pins stable and a release profile cannot set them there.
 
 Trigger: any of them stabilizes as a `[profile]` key or a stable `-C` flag. Re-run `just bloat --what-if --levers=<that lever>` before adopting it.
