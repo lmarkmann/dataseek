@@ -182,8 +182,87 @@ fn env(var: &str) -> Option<String> {
 fn read_toml(path: &Path) -> HashMap<String, String> {
     std::fs::read_to_string(path)
         .ok()
-        .and_then(|text| toml::from_str::<HashMap<String, String>>(&text).ok())
+        .and_then(|text| flat_table(&text))
         .unwrap_or_default()
+}
+
+/// `credentials.toml` as the flat table of `name = "value"` lines it is
+/// documented to be, with comments and either kind of one-line string. Any
+/// other line, such as a `[table]` header, a value that is not a string, a
+/// multi-line string or a name given twice, makes the whole file unreadable,
+/// so a file is read as TOML reads it or not at all.
+fn flat_table(text: &str) -> Option<HashMap<String, String>> {
+    let mut table = HashMap::new();
+    for line in text.lines().map(str::trim) {
+        if line.is_empty() || line.starts_with('#') {
+            continue;
+        }
+        let (name, rest) = if line.starts_with(['"', '\'']) {
+            toml_string(line)?
+        } else {
+            let end = line.find(|c: char| {
+                !(c.is_ascii_alphanumeric() || c == '_' || c == '-')
+            })?;
+            let (name, rest) = line.split_at_checked(end)?;
+            (!name.is_empty()).then(|| (name.to_owned(), rest))?
+        };
+        let rest = rest.trim_start().strip_prefix('=')?.trim_start();
+        let (value, rest) = toml_string(rest)?;
+        let rest = rest.trim_start();
+        if !(rest.is_empty() || rest.starts_with('#'))
+            || table.insert(name, value).is_some()
+        {
+            return None;
+        }
+    }
+    Some(table)
+}
+
+/// A one-line TOML string at the start of `text`, `"basic"` with its escapes
+/// or `'literal'` without, and the text after it.
+fn toml_string(text: &str) -> Option<(String, &str)> {
+    if text.starts_with("\"\"\"") || text.starts_with("'''") {
+        return None;
+    }
+    if let Some(literal) = text.strip_prefix('\'') {
+        let (value, rest) = literal.split_once('\'')?;
+        return Some((value.to_owned(), rest));
+    }
+    let body = text.strip_prefix('"')?;
+    let mut chars = body.char_indices();
+    let mut value = String::new();
+    while let Some((i, c)) = chars.next() {
+        match c {
+            '"' => return Some((value, body.get(i..)?.get(1..)?)),
+            '\\' => value.push(match chars.next()?.1 {
+                '"' => '"',
+                '\\' => '\\',
+                'b' => '\u{8}',
+                't' => '\t',
+                'n' => '\n',
+                'f' => '\u{c}',
+                'r' => '\r',
+                'u' => unicode_escape(&mut chars, 4)?,
+                'U' => unicode_escape(&mut chars, 8)?,
+                _ => return None,
+            }),
+            c if c.is_control() && c != '\t' => return None,
+            c => value.push(c),
+        }
+    }
+    None
+}
+
+fn unicode_escape(
+    chars: &mut impl Iterator<Item = (usize, char)>,
+    digits: usize,
+) -> Option<char> {
+    let hex: String = chars.take(digits).map(|(_, c)| c).collect();
+    let all_hex = hex.chars().all(|c| c.is_ascii_hexdigit());
+    (hex.len() == digits && all_hex)
+        .then(|| u32::from_str_radix(&hex, 16).ok())
+        .flatten()
+        .and_then(char::from_u32)
 }
 
 fn kaggle_dir() -> Option<PathBuf> {
@@ -270,6 +349,33 @@ mod tests {
     fn secrets_never_debug_print_their_value() {
         let secret = Secret::Token("abc123".into());
         assert!(!format!("{secret:?}").contains("abc123"));
+    }
+
+    #[test]
+    fn the_credentials_file_reads_as_toml_or_not_at_all() {
+        let table = flat_table(
+            "# keys\n\nfred = \"a\\\"b\\u00e9\" # comment\n  \
+             'datagov' = 'C:\\raw'\nnc-bi_2=\"x\"\n",
+        )
+        .unwrap();
+        assert_eq!(table.get("fred").map(String::as_str), Some("a\"bé"));
+        assert_eq!(table.get("datagov").map(String::as_str), Some("C:\\raw"));
+        assert_eq!(table.get("nc-bi_2").map(String::as_str), Some("x"));
+        assert_eq!(flat_table("").unwrap().len(), 0);
+        for refused in [
+            "[keys]\nfred = \"a\"",
+            "fred = 1",
+            "fred = \"a\"\nfred = \"b\"",
+            "fred = \"\"\"a\"\"\"",
+            "fred = \"a\" b",
+            "fred = \"unterminated",
+            "fred = \"\\q\"",
+            "fred.key = \"a\"",
+            "= \"a\"",
+            "fred",
+        ] {
+            assert_eq!(flat_table(refused), None, "{refused:?}");
+        }
     }
 
     #[test]

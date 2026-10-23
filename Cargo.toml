@@ -52,7 +52,6 @@ serde_json = "1"
 tempfile = "3"
 terminal_size = "0.4"
 thiserror = "2"
-toml = { version = "1", default-features = false, features = ["parse", "serde", "std"] }
 
 [target.'cfg(unix)'.dependencies]
 signal-hook = { version = "0.4", default-features = false }
@@ -85,6 +84,8 @@ criterion = { version = "5", package = "codspeed-criterion-compat", default-feat
 insta = { version = "1", features = ["filters"] }
 predicates = "3"
 proptest = "1"
+# The relevance example reads its queries file.
+toml = { version = "1", default-features = false, features = ["parse", "serde", "std"] }
 
 # A local HTTPS server under a private root, for the test that Linux trusts
 # what SSL_CERT_FILE names; rustls with ring is already in the build there.
