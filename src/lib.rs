@@ -55,7 +55,7 @@ pub mod internals {
     pub use crate::catalog::search as catalog_search;
     pub use crate::catalog::{MAX_TERMS, found, needles, terms, words};
     pub use crate::dedup::{Hit, identity_keys, idf, merge, weigh};
-    pub use crate::record::{Dataset, clean};
+    pub use crate::record::{Dataset, clean, from_markdown};
     pub use crate::search::{Outcome, Plan, Status, quorum, run as search};
     pub use crate::sources::eurostat::parse as eurostat_toc;
     pub use crate::sources::sdmx::flows as sdmx_dataflows;

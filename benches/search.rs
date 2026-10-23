@@ -1,6 +1,6 @@
 //! The CPU side of a search, by stage: parsing downloaded catalogs, loading
 //! a cached catalog, searching it, fusing the per-source lists and cleaning
-//! remote text. Network time dwarfs all of it; these exist so a change that
+//! remote text, Markdown descriptions included. Network time dwarfs all of it; these exist so a change that
 //! makes one stage grow faster than its input shows up before a user waits
 //! on it (ADR 0012).
 //!
@@ -25,8 +25,8 @@ use criterion::{
     criterion_main,
 };
 use dataseek::internals::{
-    Cache, Dataset, Kind, catalog_search, clean, eurostat_toc, merge,
-    sdmx_dataflows, weigh,
+    Cache, Dataset, Kind, catalog_search, clean, eurostat_toc, from_markdown,
+    merge, sdmx_dataflows, weigh,
 };
 
 #[rustfmt::skip]
@@ -179,6 +179,18 @@ fn html(bytes: usize) -> String {
     paragraph.repeat(bytes.div_ceil(paragraph.len()))
 }
 
+/// A CKAN `notes` field: a heading, a list, links, emphasis, code and an
+/// image, the marks `from_markdown` strips.
+fn markdown(bytes: usize) -> String {
+    let section = "## Sea surface temperature\n\n\
+        Monthly **gridded** fields from [NOAA ERSST](https://example.org/sst) \
+        and _partners_, with `sst_anomaly` in kelvin.\n\n\
+        - Coverage: 1854 to present\n\
+        - Resolution: 2 degrees\n\
+        ![map](https://example.org/map.png)\n\n";
+    section.repeat(bytes.div_ceil(section.len()))
+}
+
 /// Prose whose ampersands start no entity, as in "R&D" or "Q&A", and which
 /// has no semicolon to end one.
 fn ampersands(bytes: usize) -> String {
@@ -298,6 +310,20 @@ fn sanitize(c: &mut Criterion) {
             &text,
             |b, text| {
                 b.iter(|| clean(black_box(text)));
+            },
+        );
+    }
+    group.finish();
+
+    let mut group = c.benchmark_group("markdown");
+    for bytes in [200, 2_000, 20_000] {
+        let text = markdown(bytes);
+        group.throughput(Throughput::Bytes(text.len() as u64));
+        group.bench_with_input(
+            BenchmarkId::from_parameter(bytes),
+            &text,
+            |b, text| {
+                b.iter(|| from_markdown(black_box(text)));
             },
         );
     }
