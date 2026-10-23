@@ -118,7 +118,7 @@ dsk man > ~/.local/share/man/man1/dsk.1        # then: man dsk
 
 `man` is a hidden command: the overview, `-h` and `--help` leave it out, `dataseek help --json` still lists it, as it lists every command that runs.
 
-Both are data, so both go to stdout, and both are derived from the clap definition rather than maintained by hand. The man page is rendered on demand by `clap_mangen` instead of at build time by a build script, so it cannot drift from the flags. `help::man_page` adds two things clap_mangen does not: a flag hidden from `-h` still gets its description, and the examples, exit codes (from `EXIT_CODES`, like `help exit-codes`) and bug address become EXAMPLES, EXIT STATUS and REPORTING BUGS sections. The tests assert the page carries the manifest version, renders without errors, names every command, describes every option and has those three sections, and that fish parses the completion script.
+Both are data, so both go to stdout, and both are derived from the clap definition rather than maintained by hand. The man page is rendered on demand by `help::man_page`, which writes the roff itself from the clap definition instead of at build time by a build script, so it cannot drift from the flags. A flag hidden from `-h` still gets its description, and the examples, exit codes (from `EXIT_CODES`, like `help exit-codes`) and bug address become EXAMPLES, EXIT STATUS and REPORTING BUGS sections. It leaves the date empty, so two builds of one commit print the same page. The tests assert the page carries the manifest version, renders without errors, names every command, describes every option and has those three sections, and that fish parses the completion script.
 
 ## Color
 

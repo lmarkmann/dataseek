@@ -197,46 +197,94 @@ pub fn show_man(page: &[u8]) -> bool {
             .is_ok_and(|status| status.success())
 }
 
-/// The man page, in roff. clap_mangen draws the flags and commands from the
-/// plain definition, because roff would run together the value lists that
-/// `cli::command()` writes into the long help. Two fixes on top:
-///
-/// - A flag hidden from `-h` has no long help of its own, and clap_mangen
-///   would print it with no description, so its help becomes its long help.
-/// - The examples, exit codes and bug address that `--help` closes with
-///   become EXAMPLES, EXIT STATUS and REPORTING BUGS instead of one EXTRA
-///   section, from the same examples and from [`EXIT_CODES`].
-pub fn man_page() -> std::io::Result<Vec<u8>> {
-    use clap::CommandFactory;
-
-    let cmd = cli::Cli::command()
-        .after_help(None::<&'static str>)
-        .after_long_help(None::<&'static str>)
-        .mut_args(|arg| match arg.get_help().cloned() {
-            Some(help)
-                if arg.is_hide_short_help_set()
-                    && arg.get_long_help().is_none() =>
-            {
-                arg.long_help(help)
-            }
-            _ => arg,
-        });
-    let mut rendered = Vec::new();
-    clap_mangen::Man::new(cmd).render(&mut rendered)?;
-    let mut page = String::from_utf8_lossy(&rendered).into_owned();
-    let closing = closing_sections();
-    match page.find(".SH VERSION") {
-        Some(at) => page.insert_str(at, &closing),
-        None => page.push_str(&closing),
-    }
-    Ok(page.into_bytes())
-}
-
-fn closing_sections() -> String {
+/// The man page, in roff, drawn from the plain definition, because roff
+/// would run together the value lists that `cli::command()` writes into the
+/// long help. A flag hidden from `-h` has no long help of its own, so its
+/// help stands in. The examples, exit codes and bug address that `--help`
+/// closes with become EXAMPLES, EXIT STATUS and REPORTING BUGS, from the
+/// same examples and from [`EXIT_CODES`].
+pub fn man_page() -> String {
     use std::fmt::Write as _;
 
-    let roff = |text: &str| text.replace('\\', "\\e").replace('-', "\\-");
-    let mut page = String::from(".SH EXAMPLES\n.nf\n");
+    use clap::CommandFactory;
+
+    let mut cmd = cli::Cli::command();
+    cmd.build();
+    let name = cmd.get_name();
+    let version = env!("CARGO_PKG_VERSION");
+    let about = cmd.get_about().map(ToString::to_string).unwrap_or_default();
+    let mut page = format!(
+        ".ie \\n(.g .ds Aq \\(aq\n.el .ds Aq '\n\
+         .TH {name} 1 \"\" \"{name} {version}\"\n\
+         .SH NAME\n{name} \\- {}\n.SH SYNOPSIS\n\\fB{name}\\fR",
+        roff(&about)
+    );
+    let options: Vec<&Arg> = cmd
+        .get_arguments()
+        .filter(|arg| !arg.is_hide_set() && !arg.is_positional())
+        .collect();
+    for arg in &options {
+        let repeats = matches!(arg.get_action(), ArgAction::Count);
+        let _ = write!(
+            page,
+            " [{}]{}",
+            flags(arg, "|"),
+            if repeats { "..." } else { "" }
+        );
+    }
+    page.push_str(" [\\fIcommand\\fR]\n.SH DESCRIPTION\n");
+    let description = cmd.get_long_about().map(ToString::to_string);
+    page.push_str(&lines(&description.unwrap_or(about), ".PP"));
+    page.push_str(".SH OPTIONS\n");
+    for arg in &options {
+        let _ = write!(page, ".TP\n{}", flags(arg, ", "));
+        if arg.get_action().takes_values() {
+            for value in arg.get_value_names().unwrap_or_default() {
+                let _ = write!(page, " \\fI<{}>\\fR", roff(value.as_str()));
+            }
+            let defaults: Vec<_> = arg
+                .get_default_values()
+                .iter()
+                .map(|value| value.to_string_lossy())
+                .collect();
+            if !defaults.is_empty() && !arg.is_hide_default_value_set() {
+                let _ =
+                    write!(page, " [default: {}]", roff(&defaults.join(",")));
+            }
+        }
+        let help = arg.get_long_help().or_else(|| arg.get_help());
+        let help = help.map(ToString::to_string).unwrap_or_default();
+        let _ = write!(page, "\n{}", lines(&help, ".br"));
+        let values: Vec<_> = arg
+            .get_possible_values()
+            .into_iter()
+            .filter(|value| !value.is_hide_set())
+            .collect();
+        if !values.is_empty() && !arg.is_hide_possible_values_set() {
+            page.push_str(".br\n\\fIPossible values:\\fR\n.RS 14\n");
+            for value in values {
+                let meaning = value.get_help().map(|help| format!(": {help}"));
+                let item = format!(
+                    "{}{}",
+                    value.get_name(),
+                    meaning.unwrap_or_default()
+                );
+                let _ = writeln!(page, ".IP \\(bu 2\n{}", roff(&item));
+            }
+            page.push_str(".RE\n");
+        }
+    }
+    page.push_str(".SH COMMANDS\n");
+    for sub in cmd.get_subcommands().filter(|sub| !sub.is_hide_set()) {
+        let about = sub.get_about().map(ToString::to_string);
+        let _ = writeln!(
+            page,
+            ".TP\n\\fB{}\\fR\n{}",
+            roff(sub.get_name()),
+            roff(&about.unwrap_or_default())
+        );
+    }
+    page.push_str(".SH EXAMPLES\n.nf\n");
     for line in cli::examples!().lines().skip(1) {
         let _ = writeln!(page, "{}", roff(line));
     }
@@ -246,7 +294,39 @@ fn closing_sections() -> String {
     }
     let issues = concat!(env!("CARGO_PKG_REPOSITORY"), "/issues");
     let _ = writeln!(page, ".SH \"REPORTING BUGS\"\n{}", roff(issues));
+    let _ = writeln!(page, ".SH VERSION\nv{version}");
     page
+}
+
+/// An option's flags in bold, `-q` before `--quiet`, joined by `separator`.
+fn flags(arg: &Arg, separator: &str) -> String {
+    let short = arg.get_short().map(|c| format!("-{c}"));
+    let long = arg.get_long().map(|long| format!("--{long}"));
+    short
+        .into_iter()
+        .chain(long)
+        .map(|flag| format!("\\fB{}\\fR", roff(&flag)))
+        .collect::<Vec<_>>()
+        .join(separator)
+}
+
+/// Each line of `text` as a line of roff, a blank one as the `blank`
+/// request.
+fn lines(text: &str, blank: &str) -> String {
+    text.lines()
+        .map(|line| match line.trim() {
+            "" => format!("{blank}\n"),
+            _ => format!("{}\n", roff(line)),
+        })
+        .collect()
+}
+
+/// `text` as roff text: backslashes, hyphens and quotes escaped, and a
+/// leading period kept from reading as a request.
+fn roff(text: &str) -> String {
+    let escaped =
+        text.replace('\\', "\\e").replace('-', "\\-").replace('\'', "\\*(Aq");
+    if escaped.starts_with('.') { format!("\\&{escaped}") } else { escaped }
 }
 
 /// clap's styled help as ANSI text; the stream decides whether it stays.

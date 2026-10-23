@@ -303,9 +303,10 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
         }
         // Rendered on demand so the page cannot drift from the flags.
         Command::Man => {
-            let page = help::man_page()?;
-            if !(io::stdout().is_terminal() && help::show_man(&page)) {
-                out.stdout().write_all(&page)?;
+            let page = help::man_page();
+            if !(io::stdout().is_terminal() && help::show_man(page.as_bytes()))
+            {
+                out.stdout().write_all(page.as_bytes())?;
             }
         }
         Command::Help { topic } => help::run(topic.as_deref(), out)?,

@@ -1366,15 +1366,23 @@ fn man_renders_roff_with_the_manifest_version() {
 #[test]
 fn the_man_page_renders_and_lists_every_command() {
     let Some(mut renderer) = tool("mandoc") else { return };
-    // Errors only: clap_mangen's output draws style warnings (the date
-    // field, paragraph macros) that are not ours to fix.
+    // Errors only: the page leaves its date empty, which mandoc warns about,
+    // because a build date would make two builds of one commit differ.
     renderer.args(["-T", "utf8", "-W", "error"]);
     let dir = tempfile::tempdir().unwrap();
     let page = dir.path().join("dataseek.1");
     std::fs::write(&page, stdout_text(&["man"])).unwrap();
     let out = renderer.arg(&page).output().unwrap();
     assert!(out.status.success(), "{out:?}");
-    let text = String::from_utf8_lossy(&out.stdout);
+    // Bold is drawn by overstriking, `m\bm`; keep the second of each pair.
+    let mut text = String::new();
+    for c in String::from_utf8_lossy(&out.stdout).chars() {
+        if c == '\u{8}' {
+            text.pop();
+        } else {
+            text.push(c);
+        }
+    }
     let help = json_of(&["help", "--json"]);
     for command in help["command"]["commands"].as_array().unwrap() {
         let name = command["name"].as_str().unwrap();

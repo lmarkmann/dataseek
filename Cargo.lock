@@ -319,16 +319,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1c133bc6a41be0d194c306b5506d15e6feeea7b1d6604bd3f8310dfb2ca96486"
 
 [[package]]
-name = "clap_mangen"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "211d617eaa4b735c96c9e0228fcbdb5120ef623f2b8cb67ffb84c3e02dbc28a4"
-dependencies = [
- "clap",
- "roff",
-]
-
-[[package]]
 name = "codspeed"
 version = "5.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -507,7 +497,6 @@ dependencies = [
  "assert_cmd",
  "clap",
  "clap_complete",
- "clap_mangen",
  "codspeed-criterion-compat",
  "etcetera",
  "insta",
@@ -1426,12 +1415,6 @@ dependencies = [
  "untrusted",
  "windows-sys 0.52.0",
 ]
-
-[[package]]
-name = "roff"
-version = "1.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "323c417e1d9665a65b263ec744ba09030cfb277e9daa0b018a4ab62e57bc8189"
 
 [[package]]
 name = "rustc_version"
