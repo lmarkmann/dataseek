@@ -17,4 +17,6 @@ extend-ignore-re = [
   # HTML entity names, decoded in src/record.rs.
   "\"curren\"",
   "caf&eacute;",
+  # The ELF section of dynamic relocation records.
+  "\\.rela\\.dyn",
 ]

@@ -93,7 +93,7 @@ Criterion, `just bench --baseline main`, median change against v0.6.0:
 ### Dependencies
 
 - `toml`, `signal-hook` and `indicatif` lost the default features dataseek never uses (`display`, `channel` and `iterator`, `wasmbind`). Thin LTO had already dropped that code, so the binary did not change; the lockfile lost 13 crates.
-- `ureq` on macOS and Windows still bundles the Mozilla root store (`webpki-root-certs`), which the platform verifier never reads. ureq 3.4.2 compiles its native-tls connector only under the `native-tls` feature, which always pulls the roots in; `native-tls-no-default` builds, then panics on the first HTTPS request. See the watch list.
+- `ureq` on macOS and Windows still bundles the Mozilla root store (`webpki-root-certs`), which the platform verifier never reads. ureq 3.4.2 compiles its native-tls connector only under the `native-tls` feature, which always pulls the roots in; `native-tls-no-default` builds, then panics on the first HTTPS request. ureq 3.5 fixed it ([2026-10-23](2026-10-23-binary-size.md)).
 - The duplicate `base64` (0.22 through jaq-std, 0.23 through ureq) left with `--jq`.
 
 ### --jq

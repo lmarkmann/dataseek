@@ -81,9 +81,3 @@ Trigger: published documentation and terms for the API, or the v2 indicator list
 `-Zfmt-debug=none` (-224 KiB), `-Zlocation-detail=none` (-96 KiB) and the `optimize_for_size` std feature through `build-std` (-288 KiB) all shrink the release binary further ([measurement](../bench/2026-10-07-binary-size.md)). Parked because `rust-toolchain.toml` pins stable and a release profile cannot set them there.
 
 Trigger: any of them stabilizes as a `[profile]` key or a stable `-C` flag. Re-run `just bloat --what-if --levers=<that lever>` before adopting it.
-
-## ureq without the bundled root store on macOS and Windows
-
-`src/http.rs` verifies through the platform's trust store there, yet ureq's `native-tls` feature also links `webpki-root-certs`. `native-tls-no-default` would drop it, but ureq 3.4.2 compiles its native-tls connector only under `native-tls`, so that build panics on the first HTTPS request.
-
-Trigger: a ureq release whose native-tls connector works under `native-tls-no-default`. A live `dataseek search` on macOS is the test, because no test here makes a real TLS connection.
