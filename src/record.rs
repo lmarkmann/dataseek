@@ -222,8 +222,10 @@ pub fn from_markdown(text: &str) -> String {
     let mut fence = None;
     let mut paragraph = false;
     for line in text.lines().map(str::trim) {
-        if let Some(open) = fence {
-            if line.starts_with(open) {
+        if let Some((mark, len)) = fence {
+            let rest = line.trim_start_matches(mark);
+            if line.len().saturating_sub(rest.len()) >= len && rest.is_empty()
+            {
                 fence = None;
             } else {
                 plain.push_str(line);
@@ -264,17 +266,15 @@ fn is_rule(line: &str) -> bool {
     delimiter_row || thematic
 }
 
-/// The fence a line opens, ```` ``` ```` or `~~~`. A backtick fence's info
-/// string holds no backtick, so a line starting with a ```` ```code``` ````
-/// span opens nothing.
-fn fence_opener(line: &str) -> Option<&'static str> {
-    if line.starts_with("~~~") {
-        Some("~~~")
-    } else {
-        (line.starts_with("```")
-            && !line.trim_start_matches('`').contains('`'))
-        .then_some("```")
-    }
+/// The mark and length of the fence a line opens, three or more backticks
+/// or tildes; only a run of the same mark at least as long, alone on its
+/// line, closes it. A backtick fence's info string holds no backtick, so a
+/// line starting with a ```` ```code``` ```` span opens nothing.
+fn fence_opener(line: &str) -> Option<(char, usize)> {
+    let mark = line.chars().next().filter(|c| matches!(c, '`' | '~'))?;
+    let info = line.trim_start_matches(mark);
+    let len = line.len().saturating_sub(info.len());
+    (len >= 3 && !(mark == '`' && info.contains('`'))).then_some((mark, len))
 }
 
 /// `[label]: url`, with an optional quoted title, which defines a link
@@ -1330,6 +1330,8 @@ mod tests {
                 "dsk search runs then more",
             ),
             ("~~~\n*kept* as code\n~~~\nafter", "*kept* as code after"),
+            ("````\n```\ninner\n```\n````\n**after**", "``` inner ``` after"),
+            ("```\n```bash\n```\n**after**", "```bash after"),
             (
                 "[1]: Smith et al. 2020\n[ref]: https://x.org \"Title\"",
                 "[1]: Smith et al. 2020",

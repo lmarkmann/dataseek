@@ -239,7 +239,8 @@ fn toml_string(text: &str) -> Option<(String, &str)> {
     }
     if let Some(literal) = text.strip_prefix('\'') {
         let (value, rest) = literal.split_once('\'')?;
-        return Some((value.to_owned(), rest));
+        let controls = value.chars().any(|c| c.is_control() && c != '\t');
+        return (!controls).then(|| (value.to_owned(), rest));
     }
     let body = text.strip_prefix('"')?;
     let mut chars = body.char_indices();
@@ -408,6 +409,8 @@ mod tests {
             "fred = \"\\ud800\"",
             "fred = \"\\x4\"",
             "fred = 'a'b'",
+            "fred = 'a\u{0}b'",
+            "fred = 'a\tb'",
             "[keys]",
             "fred = true",
         ] {
