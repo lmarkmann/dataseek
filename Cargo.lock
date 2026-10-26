@@ -492,12 +492,12 @@ version = "0.10.0"
 dependencies = [
  "allocation-counter",
  "anstream",
- "anstyle-query",
  "anyhow",
  "assert_cmd",
  "clap",
  "clap_complete",
  "codspeed-criterion-compat",
+ "enable-ansi-support",
  "etcetera",
  "insta",
  "predicates",
@@ -576,6 +576,15 @@ name = "either"
 version = "1.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "252afb9ae5eaa683babdc6a068b3f5726eb19e05070c731f9b2a23a7c3e8ed34"
+
+[[package]]
+name = "enable-ansi-support"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ea7457668b3da8a4b702f3d79e131aa3e81cd7e81cc95fb2d54fce9f182ecc77"
+dependencies = [
+ "windows-sys 0.61.2",
+]
 
 [[package]]
 name = "encode_unicode"

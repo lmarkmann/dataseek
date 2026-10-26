@@ -54,11 +54,11 @@ pub fn init(out: &Out) {
 
 /// Whether the terminal erases a line on `\x1b[K`, which a live display
 /// redraws with. A Windows console does once virtual terminal processing is
-/// on, which this turns on; it fails when stdout or stderr is not a console,
-/// and the display then falls back to status lines. Off Windows there is
-/// nothing to turn on.
+/// on, which this turns on for the console itself, so a redirected stdout
+/// does not keep it off; a console too old for it fails, and the display
+/// then falls back to status lines. Off Windows there is nothing to turn on.
 fn redraws() -> bool {
-    anstyle_query::windows::enable_ansi_colors().unwrap_or(true)
+    enable_ansi_support::enable_ansi_support().is_ok()
 }
 
 fn set(mode: Mode, unicode: bool, color: bool) {
@@ -276,7 +276,8 @@ fn erase_to_end() {
 }
 
 /// One frame, `  ⠹ msg 3s` or `  msg [███░░░] 2/4 3s`, cut to fit a terminal
-/// `width` columns wide by shortening the message, so it never wraps.
+/// `width` columns wide by shortening the message and, below a bar's width,
+/// dropping the bar, so it does not wrap where the counts alone fit.
 fn frame(
     msg: &str,
     len: Option<u64>,
@@ -314,13 +315,17 @@ fn frame(
                 .unwrap_or(0);
             let bar = full.repeat(filled)
                 + &empty.repeat(BAR.saturating_sub(filled));
-            (
-                None,
-                format!(
-                    " [{}] {pos}/{len} {time}",
-                    paint(palette::accent(), bar)
-                ),
-            )
+            let counts = format!(" {pos}/{len} {time}");
+            // The indent, the brackets, four columns of message and the
+            // column the cursor rests in.
+            let bar_fits =
+                BAR.saturating_add(10).saturating_add(counts.len()) <= width;
+            let suffix = if bar_fits {
+                format!(" [{}]{counts}", paint(palette::accent(), bar))
+            } else {
+                counts
+            };
+            (None, suffix)
         }
     };
     let indent = if mark.is_some() { 4 } else { 2 };
@@ -328,9 +333,11 @@ fn frame(
     let room = width.saturating_sub(1).saturating_sub(fixed);
     let msg = if msg.chars().count() <= room {
         msg.to_owned()
-    } else {
+    } else if room > 3 {
         let cut: String = msg.chars().take(room.saturating_sub(3)).collect();
         cut + "..."
+    } else {
+        msg.chars().take(room).collect()
     };
     match mark {
         Some(spin) => {
@@ -340,7 +347,7 @@ fn frame(
     }
 }
 
-/// Columns a string takes, escape sequences not counted.
+/// Characters a string shows, escape sequences not counted.
 fn visible(text: &str) -> usize {
     let mut in_escape = false;
     text.chars()
@@ -382,7 +389,7 @@ mod tests {
     }
 
     #[test]
-    fn frames_show_progress_and_never_wrap() {
+    fn frames_show_progress_and_fit_the_terminal() {
         let _guard = locked();
         set(Mode::Live, false, false);
         let secs = Duration::from_secs;
@@ -409,11 +416,33 @@ mod tests {
             ),
             "  | a very lo... 0s"
         );
+        assert_eq!(frame("scanning", None, 0, secs(3), 1, 10), "  / sc 3s");
+        assert_eq!(
+            frame("sources", Some(4), 2, secs(75), 0, 30),
+            "  sources 2/4 1m 15s"
+        );
         let plain = frame("x", Some(1), 1, secs(0), 0, 80);
         set(Mode::Live, false, true);
         let colored = frame("x", Some(1), 1, secs(0), 0, 80);
         assert_ne!(colored, plain);
         assert_eq!(visible(&colored), plain.chars().count());
+    }
+
+    #[test]
+    fn a_live_display_stops_at_once_and_with_its_last_handle() {
+        let _guard = locked();
+        let started = Instant::now();
+        let finished = Progress::start("x".to_owned(), Some(2));
+        finished.inc(1);
+        finished.finish_and_clear();
+        assert!(started.elapsed() < Duration::from_secs(1));
+        let dropped = Progress::start("y".to_owned(), None);
+        let watched = dropped.0.as_ref().map(Arc::downgrade).unwrap();
+        drop(dropped);
+        while watched.upgrade().is_some() {
+            assert!(started.elapsed() < Duration::from_secs(1));
+            std::thread::sleep(Duration::from_millis(5));
+        }
     }
 
     #[test]
