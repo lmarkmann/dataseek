@@ -1222,6 +1222,18 @@ fn linux_with_no_roots_says_how_to_install_them() {
 }
 
 #[test]
+fn doctor_names_a_credentials_file_that_supplies_no_key() {
+    let mut cmd = bin();
+    let config = cmd.dir.path().join("config").join("dataseek");
+    std::fs::create_dir_all(&config).unwrap();
+    std::fs::write(config.join("credentials.toml"), "[keys]\nfred = \"a\"\n")
+        .unwrap();
+    let out = cmd.args(["doctor", "--plain"]).output().unwrap();
+    let text = String::from_utf8_lossy(&out.stdout);
+    assert!(text.contains("credentials.toml supplies no key"), "{text}");
+}
+
+#[test]
 fn doctor_reports_ready_with_clean_pipe() {
     let out = bin().arg("doctor").output().unwrap();
     assert!(out.status.success());

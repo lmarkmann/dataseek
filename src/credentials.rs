@@ -128,16 +128,22 @@ impl fmt::Debug for Secret {
 #[derive(Default)]
 pub struct Credentials {
     found: HashMap<Key, (Secret, Origin)>,
-    /// Files holding a key that other users on the machine can read.
+    /// Key files that other users on the machine can read.
     pub loose_files: Vec<PathBuf>,
+    /// A `credentials.toml` that exists but could not be read as a flat
+    /// table, so it supplied no key.
+    pub unread_file: Option<PathBuf>,
 }
 
 impl Credentials {
     pub fn load(config_dir: &Path) -> Self {
         let mut creds = Self::default();
         let file = config_dir.join("credentials.toml");
-        let from_file = read_toml(&file);
-        if !from_file.is_empty() && is_loose(&file) {
+        let from_file = read_toml(&file).unwrap_or_else(|| {
+            creds.unread_file = Some(file.clone());
+            HashMap::new()
+        });
+        if is_loose(&file) {
             creds.loose_files.push(file.clone());
         }
         for key in Key::ALL {
@@ -179,19 +185,26 @@ fn env(var: &str) -> Option<String> {
         .filter(|v| !v.is_empty())
 }
 
-fn read_toml(path: &Path) -> HashMap<String, String> {
-    std::fs::read_to_string(path)
-        .ok()
-        .and_then(|text| flat_table(&text))
-        .unwrap_or_default()
+/// The table in `credentials.toml`, empty when there is no such file and
+/// `None` when there is one that cannot be read as a table.
+fn read_toml(path: &Path) -> Option<HashMap<String, String>> {
+    match std::fs::read_to_string(path) {
+        Ok(text) => flat_table(&text),
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => {
+            Some(HashMap::new())
+        }
+        Err(_) => None,
+    }
 }
 
 /// `credentials.toml` as the flat table of `name = "value"` lines it is
-/// documented to be, with comments and either kind of one-line string. Any
-/// other line, such as a `[table]` header, a value that is not a string, a
-/// multi-line string or a name given twice, makes the whole file unreadable,
-/// so a file is read as TOML reads it or not at all.
+/// documented to be, with comments, a leading byte order mark and either
+/// kind of one-line string. Any other line, such as a `[table]` header, a
+/// value that is not a string, a multi-line string or a name given twice,
+/// makes the whole file unreadable, so a file is read as TOML reads it or
+/// not at all.
 fn flat_table(text: &str) -> Option<HashMap<String, String>> {
+    let text = text.strip_prefix('\u{feff}').unwrap_or(text);
     let mut table = HashMap::new();
     for line in text.lines().map(str::trim) {
         if line.is_empty() || line.starts_with('#') {
@@ -242,6 +255,8 @@ fn toml_string(text: &str) -> Option<(String, &str)> {
                 'n' => '\n',
                 'f' => '\u{c}',
                 'r' => '\r',
+                'e' => '\u{1b}',
+                'x' => unicode_escape(&mut chars, 2)?,
                 'u' => unicode_escape(&mut chars, 4)?,
                 'U' => unicode_escape(&mut chars, 8)?,
                 _ => return None,
@@ -376,6 +391,39 @@ mod tests {
         ] {
             assert_eq!(flat_table(refused), None, "{refused:?}");
         }
+    }
+
+    // The toml crate is the oracle: the file is TOML, read the way it was
+    // before dataseek read it by hand.
+    #[test]
+    fn the_credentials_file_reads_as_the_toml_crate_reads_it() {
+        for file in [
+            "\u{feff}fred = \"a\"\n",
+            "\u{feff}# keys\nfred = \"a\"",
+            "fred = \"a\"\r\ndatagov = 'b'\r\n",
+            "fred = \"a#b\" # \"quoted\" comment",
+            "fred=\"a\"#tight",
+            "fred = \"\\e[0m\\x41\\t\\u00e9\\U0001F600\"",
+            "\"fred\" = \"a\"\nfred = \"b\"",
+            "fred = \"\\ud800\"",
+            "fred = \"\\x4\"",
+            "fred = 'a'b'",
+            "[keys]",
+            "fred = true",
+        ] {
+            let expected =
+                toml::from_str::<HashMap<String, String>>(file).ok();
+            assert_eq!(flat_table(file), expected, "{file:?}");
+        }
+    }
+
+    #[test]
+    fn an_unreadable_credentials_file_is_reported_not_skipped() {
+        let dir = tempfile::tempdir().unwrap();
+        assert_eq!(Credentials::load(dir.path()).unread_file, None);
+        let file = dir.path().join("credentials.toml");
+        std::fs::write(&file, "[keys]\nfred = \"a\"\n").unwrap();
+        assert_eq!(Credentials::load(dir.path()).unread_file, Some(file));
     }
 
     #[test]

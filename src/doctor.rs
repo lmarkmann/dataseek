@@ -110,7 +110,8 @@ fn gather(out: &Out) -> Result<Vec<Check>> {
 
 /// One line per API key: where it was found, or where to get one. A missing
 /// key is never a failure, since sources without one run anonymously or are
-/// skipped; a key file other users can read is.
+/// skipped; a key file that supplies no key, or that other users can read,
+/// is.
 fn keys(config: &std::path::Path) -> Vec<Check> {
     let creds = Credentials::load(config);
     let mut checks: Vec<Check> = Key::ALL
@@ -124,6 +125,17 @@ fn keys(config: &std::path::Path) -> Vec<Check> {
             ok: true,
         })
         .collect();
+    if let Some(path) = &creds.unread_file {
+        checks.push(Check {
+            label: "key file".to_owned(),
+            detail: format!(
+                "{} supplies no key; write one name = \"value\" line per \
+                 key, nothing else",
+                path.display()
+            ),
+            ok: false,
+        });
+    }
     for path in &creds.loose_files {
         checks.push(Check {
             label: "key file".to_owned(),
