@@ -2,6 +2,32 @@
 
 What shipped, newest first. release-plz writes each section from the conventional commits merged since the previous tag; see [`reference/release.md`](reference/release.md).
 
+## 0.10.1 - 2026-10-26
+
+### Docs
+
+- Comments and docs match the rewrites, the binary size note counts the review fixes, and the man page test checks COMMANDS
+
+### Fixed
+
+- A Markdown fence closes only on a run of its own mark at least as long, and credentials.toml refuses control characters in literal strings as TOML does
+- On Windows the live progress line stays on when stdout is redirected, and the line drops its bar instead of wrapping on a narrow terminal
+- Markdown descriptions keep a wrapped line that starts with a year, a [label]: line that is not a link definition, and text after a line opening with a code span; Greek and math entities decode
+- Credentials.toml with a byte order mark or TOML 1.1 escapes supplies its keys again, and doctor names a file that supplies none
+- Linux builds reject certificate paths through the distrusted emSign intermediates (rustls-webpki 0.103.16, RUSTSEC-2026-0382)
+- Ureq 3.5 drops the Mozilla root store the binary never read, 115 KB smaller on macOS and 55 KB on Linux
+
+### Other
+
+- Webpki-root-certs 1.0.11 clears RUSTSEC-2026-0383; no released target links it
+
+### Performance
+
+- The man page is written without clap_mangen, 33 to 39 KB smaller, and names commands instead of pages that do not exist
+- Spinners and progress bars are drawn without indicatif, 83 to 88 KB smaller
+- Credentials.toml is read without the toml crate, 67 to 98 KB smaller
+- Markdown descriptions are stripped without pulldown-cmark, 180 to 310 KB smaller, and Latin-1 entities decode
+
 ## 0.10.0 - 2026-10-20
 
 ### Added
