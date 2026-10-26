@@ -211,14 +211,16 @@ impl Spaced {
 }
 
 /// Markdown as the text its rendered page shows: link and emphasis text kept,
-/// images, rules, fences and other markup dropped, a space between lines.
-/// For fields a source documents as Markdown. Entities are decoded, as a
-/// Markdown renderer does, so `&lt;br&gt;` becomes a tag; HTML is left for
-/// [`clean`] to strip. It reads one line at a time, so emphasis or a link
-/// broken across two lines keeps its marks, which a description can afford.
+/// images, rules, fence lines and other markup dropped, a space between
+/// lines. For fields a source documents as Markdown. Entities are decoded,
+/// code included, so an escaped tag such as `&lt;br&gt;` reaches [`clean`]
+/// as `<br>` and is stripped, where a rendered page would show it. It reads
+/// one line at a time, so emphasis or a link broken across two lines keeps
+/// its marks, which a description can afford.
 pub fn from_markdown(text: &str) -> String {
     let mut plain = String::with_capacity(text.len());
     let mut fence = None;
+    let mut paragraph = false;
     for line in text.lines().map(str::trim) {
         if let Some(open) = fence {
             if line.starts_with(open) {
@@ -226,12 +228,15 @@ pub fn from_markdown(text: &str) -> String {
             } else {
                 plain.push_str(line);
             }
-        } else if let Some(open) =
-            ["```", "~~~"].into_iter().find(|f| line.starts_with(f))
-        {
+            paragraph = false;
+        } else if let Some(open) = fence_opener(line) {
             fence = Some(open);
-        } else if !is_rule(line) && !is_link_definition(line) {
-            let content = block_content(line);
+            paragraph = false;
+        } else if is_rule(line) || is_link_definition(line) {
+            paragraph = false;
+        } else {
+            let content;
+            (content, paragraph) = block_content(line, paragraph);
             if content.starts_with('|') || content.ends_with('|') {
                 inline(&content.replace('|', " "), &mut plain);
             } else {
@@ -259,28 +264,64 @@ fn is_rule(line: &str) -> bool {
     delimiter_row || thematic
 }
 
-/// `[label]: url`, which defines a link target and shows nothing.
+/// The fence a line opens, ```` ``` ```` or `~~~`. A backtick fence's info
+/// string holds no backtick, so a line starting with a ```` ```code``` ````
+/// span opens nothing.
+fn fence_opener(line: &str) -> Option<&'static str> {
+    if line.starts_with("~~~") {
+        Some("~~~")
+    } else {
+        (line.starts_with("```")
+            && !line.trim_start_matches('`').contains('`'))
+        .then_some("```")
+    }
+}
+
+/// `[label]: url`, with an optional quoted title, which defines a link
+/// target and shows nothing. `[Note]: the data is preliminary` is text.
 fn is_link_definition(line: &str) -> bool {
-    line.strip_prefix('[')
-        .and_then(|rest| rest.split_once("]:"))
-        .is_some_and(|(label, _)| !label.contains(['[', ']']))
+    line.strip_prefix('[').and_then(|rest| rest.split_once("]:")).is_some_and(
+        |(label, target)| {
+            let mut words = target.split_whitespace();
+            !label.contains(['[', ']'])
+                && words.next().is_some()
+                && words
+                    .next()
+                    .is_none_or(|title| title.starts_with(['"', '\'', '(']))
+        },
+    )
 }
 
 /// The line without the markers that make it a quote, a list item or a
-/// heading.
-fn block_content(mut line: &str) -> &str {
-    while let Some(rest) = line.strip_prefix('>').or_else(|| list_marker(line))
-    {
-        line = rest.trim_start();
+/// heading, and whether what is left is paragraph text. Paragraph text on
+/// the line before means only a `1.` or `1)` starts a list, so a wrapped
+/// line that begins `2020.` stays text.
+fn block_content(mut line: &str, after_paragraph: bool) -> (&str, bool) {
+    let mut item = false;
+    loop {
+        if let Some(rest) = line.strip_prefix('>') {
+            line = rest.trim_start();
+        } else if let Some(rest) = list_marker(line, after_paragraph && !item)
+        {
+            line = rest.trim_start();
+            item = true;
+        } else {
+            break;
+        }
     }
-    heading(line).unwrap_or(line)
+    match heading(line) {
+        Some(text) => (text, false),
+        None => (line, !item && !line.is_empty()),
+    }
 }
 
-/// The rest of a list item after its `-`, `*`, `+`, `1.` or `1)`.
-fn list_marker(line: &str) -> Option<&str> {
+/// The rest of a list item after its `-`, `*`, `+`, `1.` or `1)`, numbered
+/// from 1 only when it would interrupt a paragraph.
+fn list_marker(line: &str, interrupts: bool) -> Option<&str> {
     let rest = line.strip_prefix(['-', '*', '+']).or_else(|| {
         let digits = line.trim_start_matches(|c: char| c.is_ascii_digit());
-        (digits.len() < line.len())
+        let number = line.get(..line.len().saturating_sub(digits.len()))?;
+        (!number.is_empty() && (!interrupts || number == "1"))
             .then(|| digits.strip_prefix(['.', ')']))
             .flatten()
     })?;
@@ -500,7 +541,7 @@ fn link(
 
 /// `https://x.org>` or `a@b.org>` at `from`, just after a `<`: the address
 /// and the end of the autolink. Anything else after a `<` is HTML for
-/// [`clean`]. The address ends at the first space or bracket, so a line of
+/// [`clean`]. The address ends at the first space or angle bracket, so a line of
 /// `<`s is read once.
 fn autolink(line: &str, from: usize) -> Option<(&str, usize)> {
     let rest = line.get(from..)?;
@@ -513,10 +554,11 @@ fn autolink(line: &str, from: usize) -> Option<(&str, usize)> {
 }
 
 /// Byte ranges of the `*`, `_` and `~~` runs in `line` that open or close
-/// emphasis, paired by CommonMark's flanking rules. A run that pairs with
-/// nothing, like the `*` in `*.csv` or `5 * 3`, or a `_` inside a word, as in
-/// `sentinel_2_l2a`, stays text. At most 64 openers wait for a closer, which
-/// bounds the search for one.
+/// emphasis, paired by CommonMark's flanking rules for whitespace and words
+/// but not its punctuation cases, so `**Title:**Plasma` loses its marks. A
+/// run that pairs with nothing, like the `*` in `*.csv` or `5 * 3`, or a `_`
+/// inside a word, as in `sentinel_2_l2a`, stays text. At most 64 openers
+/// wait for a closer, which bounds the search for one.
 fn emphasis(line: &str, code: &[CodeSpan]) -> Vec<(usize, usize)> {
     const OPENERS: usize = 64;
     let mut paired = Vec::new();
@@ -572,10 +614,12 @@ fn emphasis(line: &str, code: &[CodeSpan]) -> Vec<(usize, usize)> {
     }
     paired
 }
+
 /// HTML entities decoded in one pass, so `&amp;lt;` stays the text `&lt;`.
-/// Unknown names and numeric codes for control characters stay as written.
-/// The `;` is looked for only as far as the longest name, so text full of
-/// bare `&` stays linear.
+/// Unknown names and numeric codes for control characters stay as written;
+/// an invisible format character such as `&shy;` decodes to nothing. The
+/// `;` is looked for only as far as the longest name, so text full of bare
+/// `&` stays linear.
 fn decode_entities(text: &str, out: &mut Spaced) {
     let mut rest = text;
     while let Some((head, tail)) = rest.split_once('&') {
@@ -587,7 +631,9 @@ fn decode_entities(text: &str, out: &mut Spaced) {
             .and_then(|end| tail.split_at_checked(end))
             .and_then(|(name, after)| Some((entity(name)?, after.get(1..)?)));
         if let Some((c, after)) = decoded {
-            out.push(c);
+            if !invisible(c) {
+                out.push(c);
+            }
             rest = after;
         } else {
             out.push('&');
@@ -604,7 +650,7 @@ fn entity(name: &str) -> Option<char> {
         "gt" => '>',
         "quot" => '"',
         "apos" => '\'',
-        "nbsp" => ' ',
+        "nbsp" | "thinsp" | "ensp" | "emsp" => ' ',
         "lsquo" => '\u{2018}',
         "rsquo" => '\u{2019}',
         "ldquo" => '\u{201c}',
@@ -617,24 +663,81 @@ fn entity(name: &str) -> Option<char> {
         "minus" => '\u{2212}',
         "euro" => '\u{20ac}',
         "trade" => '\u{2122}',
+        "dagger" => '\u{2020}',
+        "Dagger" => '\u{2021}',
+        "permil" => '\u{2030}',
+        "prime" => '\u{2032}',
+        "Prime" => '\u{2033}',
+        "larr" => '\u{2190}',
+        "uarr" => '\u{2191}',
+        "darr" => '\u{2193}',
+        "harr" => '\u{2194}',
+        "rArr" => '\u{21d2}',
+        "hArr" => '\u{21d4}',
+        "forall" => '\u{2200}',
+        "part" => '\u{2202}',
+        "exist" => '\u{2203}',
+        "nabla" => '\u{2207}',
+        "isin" => '\u{2208}',
+        "notin" => '\u{2209}',
+        "prod" => '\u{220f}',
+        "sum" => '\u{2211}',
+        "lowast" => '\u{2217}',
+        "radic" => '\u{221a}',
+        "prop" => '\u{221d}',
+        "infin" => '\u{221e}',
+        "and" => '\u{2227}',
+        "or" => '\u{2228}',
+        "cap" => '\u{2229}',
+        "cup" => '\u{222a}',
+        "int" => '\u{222b}',
+        "sim" => '\u{223c}',
+        "asymp" => '\u{2248}',
+        "ne" => '\u{2260}',
+        "equiv" => '\u{2261}',
+        "le" => '\u{2264}',
+        "ge" => '\u{2265}',
+        "sub" => '\u{2282}',
+        "sup" => '\u{2283}',
         _ => {
             let number = match name.strip_prefix('#') {
                 Some(code) => match code.strip_prefix(['x', 'X']) {
                     Some(hex) => u32::from_str_radix(hex, 16).ok()?,
                     None => code.parse().ok()?,
                 },
-                None => LATIN1
-                    .iter()
-                    .position(|&n| n == name)
-                    .and_then(|i| u32::try_from(i).ok())?
-                    .checked_add(0xa0)?,
+                None => greek(name).or_else(|| {
+                    LATIN1
+                        .iter()
+                        .position(|&n| n == name)
+                        .and_then(|i| u32::try_from(i).ok())?
+                        .checked_add(0xa0)
+                })?,
             };
-            return char::from_u32(number)
-                .filter(|&c| !c.is_control() && !invisible(c));
+            return char::from_u32(number).filter(|&c| !c.is_control());
         }
     };
     Some(named)
 }
+
+/// `alpha` to `omega` from U+03B1, and capitalized, `Alpha` to `Omega` from
+/// U+0391, where there is no capital final sigma.
+fn greek(name: &str) -> Option<u32> {
+    let mut chars = name.chars();
+    let first = chars.next()?;
+    let base = if first.is_ascii_uppercase() { 0x391 } else { 0x3b1 };
+    let lower = first.to_ascii_lowercase();
+    let i = GREEK
+        .iter()
+        .position(|n| n.strip_prefix(lower) == Some(chars.as_str()))?;
+    (name != "Sigmaf").then(|| u32::try_from(i).ok()?.checked_add(base))?
+}
+
+/// The Greek letters' entity names, in code point order.
+const GREEK: [&str; 25] = [
+    "alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta",
+    "iota", "kappa", "lambda", "mu", "nu", "xi", "omicron", "pi", "rho",
+    "sigmaf", "sigma", "tau", "upsilon", "phi", "chi", "psi", "omega",
+];
 
 /// The entity names of U+00A0 to U+00FF, in code point order.
 const LATIN1: [&str; 96] = [
@@ -1179,7 +1282,7 @@ mod tests {
     }
 
     #[test]
-    fn hostile_markdown_costs_linear_time_and_no_recursion() {
+    fn hostile_markdown_costs_no_quadratic_time_and_no_recursion() {
         let n = 50_000;
         let nested = format!("{}x{}", "[".repeat(n), "](u)".repeat(n));
         let fences: Vec<String> = (1..=300).map(|k| "`".repeat(k)).collect();
@@ -1222,6 +1325,27 @@ mod tests {
                 "A page here",
             ),
             ("caf&eacute; &raquo;x&laquo; &lt;br&gt;end", "café »x« end"),
+            (
+                "```dsk search``` runs\nthen *more*",
+                "dsk search runs then more",
+            ),
+            ("~~~\n*kept* as code\n~~~\nafter", "*kept* as code after"),
+            (
+                "[1]: Smith et al. 2020\n[ref]: https://x.org \"Title\"",
+                "[1]: Smith et al. 2020",
+            ),
+            (
+                "Collected from 1990 to\n2020. Measurements follow.",
+                "Collected from 1990 to 2020. Measurements follow.",
+            ),
+            ("Steps:\n\n2. second\n3. third", "Steps: second third"),
+            ("- item\n2) next", "item next"),
+            ("soft&shy;ware", "software"),
+            (
+                "&Delta;T &le; 5 &mu;m, &sigma;&sup2; &ne; &infin;",
+                "ΔT ≤ 5 μm, σ² ≠ ∞",
+            ),
+            ("&Sigmaf; &ALPHA;", "&Sigmaf; &ALPHA;"),
         ];
         for (md, shown) in cases {
             assert_eq!(clean(&from_markdown(md)), shown, "{md:?}");
@@ -1238,7 +1362,7 @@ mod tests {
             "Monthly software data"
         );
         let v = json!({"t": "\u{200b} x\u{200f}", "m": {"en": "\u{2060}y"}});
-        assert_eq!(clean("a&#x200b;b&#8206;"), "a&#x200b;b&#8206;");
+        assert_eq!(clean("a&#x200b;b&#8206; soft&shy;ware"), "ab software");
         assert_eq!(text(&v, "/t").as_deref(), Some("x"));
         assert_eq!(localized(v.get("m")).as_deref(), Some("y"));
         assert_eq!(clean("\u{645}\u{200c}\u{647}"), "\u{645}\u{200c}\u{647}");
