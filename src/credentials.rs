@@ -128,16 +128,22 @@ impl fmt::Debug for Secret {
 #[derive(Default)]
 pub struct Credentials {
     found: HashMap<Key, (Secret, Origin)>,
-    /// Files holding a key that other users on the machine can read.
+    /// Key files that other users on the machine can read.
     pub loose_files: Vec<PathBuf>,
+    /// A `credentials.toml` that exists but could not be read as a flat
+    /// table, so it supplied no key.
+    pub unread_file: Option<PathBuf>,
 }
 
 impl Credentials {
     pub fn load(config_dir: &Path) -> Self {
         let mut creds = Self::default();
         let file = config_dir.join("credentials.toml");
-        let from_file = read_toml(&file);
-        if !from_file.is_empty() && is_loose(&file) {
+        let from_file = read_toml(&file).unwrap_or_else(|| {
+            creds.unread_file = Some(file.clone());
+            HashMap::new()
+        });
+        if is_loose(&file) {
             creds.loose_files.push(file.clone());
         }
         for key in Key::ALL {
@@ -179,11 +185,100 @@ fn env(var: &str) -> Option<String> {
         .filter(|v| !v.is_empty())
 }
 
-fn read_toml(path: &Path) -> HashMap<String, String> {
-    std::fs::read_to_string(path)
-        .ok()
-        .and_then(|text| toml::from_str::<HashMap<String, String>>(&text).ok())
-        .unwrap_or_default()
+/// The table in `credentials.toml`, empty when there is no such file and
+/// `None` when there is one that cannot be read as a table.
+fn read_toml(path: &Path) -> Option<HashMap<String, String>> {
+    match std::fs::read_to_string(path) {
+        Ok(text) => flat_table(&text),
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => {
+            Some(HashMap::new())
+        }
+        Err(_) => None,
+    }
+}
+
+/// `credentials.toml` as the flat table of `name = "value"` lines it is
+/// documented to be, with comments, a leading byte order mark and either
+/// kind of one-line string. Any other line, such as a `[table]` header, a
+/// value that is not a string, a multi-line string or a name given twice,
+/// makes the whole file unreadable, so a file is read as TOML reads it or
+/// not at all.
+fn flat_table(text: &str) -> Option<HashMap<String, String>> {
+    let text = text.strip_prefix('\u{feff}').unwrap_or(text);
+    let mut table = HashMap::new();
+    for line in text.lines().map(str::trim) {
+        if line.is_empty() || line.starts_with('#') {
+            continue;
+        }
+        let (name, rest) = if line.starts_with(['"', '\'']) {
+            toml_string(line)?
+        } else {
+            let end = line.find(|c: char| {
+                !(c.is_ascii_alphanumeric() || c == '_' || c == '-')
+            })?;
+            let (name, rest) = line.split_at_checked(end)?;
+            (!name.is_empty()).then(|| (name.to_owned(), rest))?
+        };
+        let rest = rest.trim_start().strip_prefix('=')?.trim_start();
+        let (value, rest) = toml_string(rest)?;
+        let rest = rest.trim_start();
+        if !(rest.is_empty() || rest.starts_with('#'))
+            || table.insert(name, value).is_some()
+        {
+            return None;
+        }
+    }
+    Some(table)
+}
+
+/// A one-line TOML string at the start of `text`, `"basic"` with its escapes
+/// or `'literal'` without, and the text after it.
+fn toml_string(text: &str) -> Option<(String, &str)> {
+    if text.starts_with("\"\"\"") || text.starts_with("'''") {
+        return None;
+    }
+    if let Some(literal) = text.strip_prefix('\'') {
+        let (value, rest) = literal.split_once('\'')?;
+        let controls = value.chars().any(|c| c.is_control() && c != '\t');
+        return (!controls).then(|| (value.to_owned(), rest));
+    }
+    let body = text.strip_prefix('"')?;
+    let mut chars = body.char_indices();
+    let mut value = String::new();
+    while let Some((i, c)) = chars.next() {
+        match c {
+            '"' => return Some((value, body.get(i..)?.get(1..)?)),
+            '\\' => value.push(match chars.next()?.1 {
+                '"' => '"',
+                '\\' => '\\',
+                'b' => '\u{8}',
+                't' => '\t',
+                'n' => '\n',
+                'f' => '\u{c}',
+                'r' => '\r',
+                'e' => '\u{1b}',
+                'x' => unicode_escape(&mut chars, 2)?,
+                'u' => unicode_escape(&mut chars, 4)?,
+                'U' => unicode_escape(&mut chars, 8)?,
+                _ => return None,
+            }),
+            c if c.is_control() && c != '\t' => return None,
+            c => value.push(c),
+        }
+    }
+    None
+}
+
+fn unicode_escape(
+    chars: &mut impl Iterator<Item = (usize, char)>,
+    digits: usize,
+) -> Option<char> {
+    let hex: String = chars.take(digits).map(|(_, c)| c).collect();
+    let all_hex = hex.chars().all(|c| c.is_ascii_hexdigit());
+    (hex.len() == digits && all_hex)
+        .then(|| u32::from_str_radix(&hex, 16).ok())
+        .flatten()
+        .and_then(char::from_u32)
 }
 
 fn kaggle_dir() -> Option<PathBuf> {
@@ -270,6 +365,68 @@ mod tests {
     fn secrets_never_debug_print_their_value() {
         let secret = Secret::Token("abc123".into());
         assert!(!format!("{secret:?}").contains("abc123"));
+    }
+
+    #[test]
+    fn the_credentials_file_reads_as_toml_or_not_at_all() {
+        let table = flat_table(
+            "# keys\n\nfred = \"a\\\"b\\u00e9\" # comment\n  \
+             'datagov' = 'C:\\raw'\nnc-bi_2=\"x\"\n",
+        )
+        .unwrap();
+        assert_eq!(table.get("fred").map(String::as_str), Some("a\"bé"));
+        assert_eq!(table.get("datagov").map(String::as_str), Some("C:\\raw"));
+        assert_eq!(table.get("nc-bi_2").map(String::as_str), Some("x"));
+        assert_eq!(flat_table("").unwrap().len(), 0);
+        for refused in [
+            "[keys]\nfred = \"a\"",
+            "fred = 1",
+            "fred = \"a\"\nfred = \"b\"",
+            "fred = \"\"\"a\"\"\"",
+            "fred = \"a\" b",
+            "fred = \"unterminated",
+            "fred = \"\\q\"",
+            "fred.key = \"a\"",
+            "= \"a\"",
+            "fred",
+        ] {
+            assert_eq!(flat_table(refused), None, "{refused:?}");
+        }
+    }
+
+    // The toml crate is the oracle: the file is TOML, read the way it was
+    // before dataseek read it by hand.
+    #[test]
+    fn the_credentials_file_reads_as_the_toml_crate_reads_it() {
+        for file in [
+            "\u{feff}fred = \"a\"\n",
+            "\u{feff}# keys\nfred = \"a\"",
+            "fred = \"a\"\r\ndatagov = 'b'\r\n",
+            "fred = \"a#b\" # \"quoted\" comment",
+            "fred=\"a\"#tight",
+            "fred = \"\\e[0m\\x41\\t\\u00e9\\U0001F600\"",
+            "\"fred\" = \"a\"\nfred = \"b\"",
+            "fred = \"\\ud800\"",
+            "fred = \"\\x4\"",
+            "fred = 'a'b'",
+            "fred = 'a\u{0}b'",
+            "fred = 'a\tb'",
+            "[keys]",
+            "fred = true",
+        ] {
+            let expected =
+                toml::from_str::<HashMap<String, String>>(file).ok();
+            assert_eq!(flat_table(file), expected, "{file:?}");
+        }
+    }
+
+    #[test]
+    fn an_unreadable_credentials_file_is_reported_not_skipped() {
+        let dir = tempfile::tempdir().unwrap();
+        assert_eq!(Credentials::load(dir.path()).unread_file, None);
+        let file = dir.path().join("credentials.toml");
+        std::fs::write(&file, "[keys]\nfred = \"a\"\n").unwrap();
+        assert_eq!(Credentials::load(dir.path()).unread_file, Some(file));
     }
 
     #[test]

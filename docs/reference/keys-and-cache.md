@@ -9,6 +9,8 @@ fred = "..."
 datagov = "..."
 ```
 
+Each key is one `name = "value"` line, in double or single quotes, with `#` comments allowed. A file holding anything else, such as a `[table]` header, a multi-line string or a name given twice, supplies no key at all, and `dataseek doctor` names it.
+
 | source | environment variable | file key | without it | get one |
 |---|---|---|---|---|
 | Hugging Face | `HF_TOKEN` | `huggingface` | 500 requests per 5 min per IP | https://huggingface.co/settings/tokens |

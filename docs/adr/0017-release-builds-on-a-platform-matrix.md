@@ -9,7 +9,7 @@ PyPI wheels and `cargo binstall` both need prebuilt binaries for Linux (x86_64, 
 
 ## Decision
 
-`.github/workflows/release.yml` runs when a GitHub release is published, which release-plz does when its release PR merges. One job per target builds the wheel with maturin, on a machine of the target's OS (Linux aarch64 in maturin's cross container), and archives the same binaries as `dataseek-<target>.tar.gz` (`.zip` on Windows) with a SHA-256 file. The archives are attested and attached to the release; the wheels and an sdist go to PyPI with `uv publish` through trusted publishing. A pull request that changes the release build runs the builds and publishes nothing. CI stays one Linux job.
+`.github/workflows/release.yml` runs when a GitHub release is published, which release-plz does when its release PR merges. One job per target builds the wheel with maturin, on a machine of the target's OS (Linux aarch64 in maturin's cross container), and archives the same binaries as `dataseek-<target>.tar.xz` (`.zip` on Windows) with a SHA-256 file. The archives are attested and attached to the release; the wheels and an sdist go to PyPI with `uv publish` through trusted publishing. A pull request that changes the release build runs the builds and publishes nothing. CI stays one Linux job.
 
 ## Consequences
 

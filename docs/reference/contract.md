@@ -118,7 +118,7 @@ dsk man > ~/.local/share/man/man1/dsk.1        # then: man dsk
 
 `man` is a hidden command: the overview, `-h` and `--help` leave it out, `dataseek help --json` still lists it, as it lists every command that runs.
 
-Both are data, so both go to stdout, and both are derived from the clap definition rather than maintained by hand. The man page is rendered on demand by `clap_mangen` instead of at build time by a build script, so it cannot drift from the flags. `help::man_page` adds two things clap_mangen does not: a flag hidden from `-h` still gets its description, and the examples, exit codes (from `EXIT_CODES`, like `help exit-codes`) and bug address become EXAMPLES, EXIT STATUS and REPORTING BUGS sections. The tests assert the page carries the manifest version, renders without errors, names every command, describes every option and has those three sections, and that fish parses the completion script.
+Both are data, so both go to stdout, and both are derived from the clap definition rather than maintained by hand. The man page is rendered on demand by `help::man_page`, which writes the roff itself from the clap definition instead of at build time by a build script, so it cannot drift from the flags. A flag hidden from `-h` still gets its description, and the examples, exit codes (from `EXIT_CODES`, like `help exit-codes`) and bug address become EXAMPLES, EXIT STATUS and REPORTING BUGS sections. It leaves the date empty, so two builds of one commit print the same page. The tests assert the page carries the manifest version, renders without errors, names every command but the hidden `man` under COMMANDS, describes every option and has those three sections, and that fish parses the completion script.
 
 ## Color
 
@@ -136,7 +136,7 @@ Roles are semantic (`accent`, `success`, `danger`), not literal, so swapping a c
 
 The same roles drive clap help styling, stdout text, and the stderr progress accent. `anstream` strips escapes whenever the stream is not a terminal, so call sites style unconditionally and never branch on color. On a color terminal, result URLs are OSC 8 hyperlinks. When stdout is a terminal, color or not, a result's title and facts line are cut to the terminal width (`COLUMNS` wins) with an ellipsis, and its description to that width held between 40 and 80 columns, so it reads as prose on a wide terminal; URLs are never cut. In a pipe, and with `--plain`, every line stays whole.
 
-indicatif parses its color token with `console::Style::from_dotted_str`, which understands named colors, `#rrggbb` truecolor, and a bare 256-color index, so `palette::accent_token()` renders whichever shape the accent takes exactly. Spinners and bars match help and stdout rather than approximating them.
+Spinners and bars paint with `palette::accent()` through `anstream`, like help and stdout, so they match whatever shape the accent takes. The one escape they write past `anstream` is `\x1b[K`, which erases the rest of the line between frames; `anstream` would strip it with color off and leave stale text behind.
 
 ## Platform directories
 

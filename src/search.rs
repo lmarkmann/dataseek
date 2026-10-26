@@ -32,7 +32,7 @@ use std::sync::atomic::Ordering;
 use std::sync::mpsc::{self, RecvTimeoutError};
 use std::time::{Duration, Instant};
 
-use indicatif::ProgressBar;
+use crate::ui::Progress;
 
 use crate::cache::{Freshness, Kind, QUERY_TTL, query_key};
 use crate::credentials::Key;
@@ -119,7 +119,7 @@ pub fn run(
     services: &Arc<Services>,
     refresh: bool,
     plan: &Arc<Plan>,
-    progress: &ProgressBar,
+    progress: &Progress,
     deadline: Option<Duration>,
 ) -> Vec<Outcome> {
     let started = Instant::now();
@@ -224,7 +224,7 @@ fn spawn(
     services: &Arc<Services>,
     refresh: bool,
     plan: &Arc<Plan>,
-    progress: &ProgressBar,
+    progress: &Progress,
     skip: &[bool],
 ) -> (mpsc::Receiver<(usize, Outcome)>, usize) {
     let (sender, receiver) = mpsc::channel();
@@ -630,7 +630,7 @@ mod tests {
         let services = Arc::new(Services::scratch(dir.path()));
         let plan = Arc::new(plan(source, true));
         let mut outcomes =
-            run(&services, false, &plan, &ProgressBar::hidden(), deadline);
+            run(&services, false, &plan, &Progress::hidden(), deadline);
         assert_eq!(outcomes.len(), 1);
         outcomes.remove(0)
     }
@@ -661,7 +661,7 @@ mod tests {
         let plan = Arc::new(Plan { sources, ..plan(&ANSWERS, forced) });
         let started = Instant::now();
         let outcomes =
-            run(&services, false, &plan, &ProgressBar::hidden(), deadline);
+            run(&services, false, &plan, &Progress::hidden(), deadline);
         (outcomes, started.elapsed())
     }
 
@@ -821,7 +821,7 @@ mod tests {
             &services,
             false,
             &plan,
-            &ProgressBar::hidden(),
+            &Progress::hidden(),
             Some(Duration::from_millis(50)),
         );
         assert!(

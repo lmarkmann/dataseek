@@ -55,11 +55,12 @@ pub mod internals {
     pub use crate::catalog::search as catalog_search;
     pub use crate::catalog::{MAX_TERMS, found, needles, terms, words};
     pub use crate::dedup::{Hit, identity_keys, idf, merge, weigh};
-    pub use crate::record::{Dataset, clean};
+    pub use crate::record::{Dataset, clean, from_markdown};
     pub use crate::search::{Outcome, Plan, Status, quorum, run as search};
     pub use crate::sources::eurostat::parse as eurostat_toc;
     pub use crate::sources::sdmx::flows as sdmx_dataflows;
     pub use crate::sources::{SOURCES, Services, Source, select};
+    pub use crate::ui::Progress;
 }
 
 use std::ffi::OsString;
@@ -302,9 +303,10 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
         }
         // Rendered on demand so the page cannot drift from the flags.
         Command::Man => {
-            let page = help::man_page()?;
-            if !(io::stdout().is_terminal() && help::show_man(&page)) {
-                out.stdout().write_all(&page)?;
+            let page = help::man_page();
+            if !(io::stdout().is_terminal() && help::show_man(page.as_bytes()))
+            {
+                out.stdout().write_all(page.as_bytes())?;
             }
         }
         Command::Help { topic } => help::run(topic.as_deref(), out)?,

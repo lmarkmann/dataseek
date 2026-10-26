@@ -43,17 +43,14 @@ anyhow = "1"
 anstream = "1"
 clap = { version = "4", features = ["derive", "env", "wrap_help"] }
 clap_complete = "4"
-clap_mangen = "0.3"
 etcetera = "0.11"
-indicatif = { version = "0.18", default-features = false, features = ["unicode-width"] }
-pulldown-cmark = { version = "0.13", default-features = false }
 quick-xml = "0.42"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tempfile = "3"
 terminal_size = "0.4"
 thiserror = "2"
-toml = { version = "1", default-features = false, features = ["parse", "serde", "std"] }
+enable-ansi-support = "0.3"
 
 [target.'cfg(unix)'.dependencies]
 signal-hook = { version = "0.4", default-features = false }
@@ -64,14 +61,16 @@ signal-hook = { version = "0.4", default-features = false }
 # have for Windows or macOS, so this split is what lets ADR 0002's
 # cross-checks compile (ADR 0011). Every platform trusts the OS's root
 # certificates; platform-verifier gives rustls the system store (ADR 0014).
-# src/http.rs picks the matching provider.
+# Neither ureq feature set bundles Mozilla roots, which PlatformVerifier
+# never reads; src/http.rs picks the matching provider.
 [target.'cfg(any(windows, target_os = "macos"))'.dependencies]
-ureq = { version = "3", default-features = false, features = ["json", "gzip", "native-tls"] }
+ureq = { version = "3.5", default-features = false, features = ["json", "gzip", "native-tls-no-default"] }
 
-# rustls itself only to tell a refused certificate from a dead host.
+# rustls itself to hand ureq ring's provider and to tell a refused
+# certificate from a dead host.
 [target.'cfg(not(any(windows, target_os = "macos")))'.dependencies]
-rustls = { version = "0.23", default-features = false, features = ["std"] }
-ureq = { version = "3", features = ["json", "platform-verifier"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
+ureq = { version = "3.5", default-features = false, features = ["json", "gzip", "rustls-no-provider", "platform-verifier"] }
 
 [features]
 # Re-exports for benches/ and the relevance example only; unstable and
@@ -85,6 +84,8 @@ criterion = { version = "5", package = "codspeed-criterion-compat", default-feat
 insta = { version = "1", features = ["filters"] }
 predicates = "3"
 proptest = "1"
+# The relevance example reads its queries file.
+toml = { version = "1", default-features = false, features = ["parse", "serde", "std"] }
 
 # A local HTTPS server under a private root, for the test that Linux trusts
 # what SSL_CERT_FILE names; rustls with ring is already in the build there.

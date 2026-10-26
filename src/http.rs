@@ -158,12 +158,19 @@ impl Http {
 /// The OS's trust store everywhere, so a root certificate installed for a
 /// TLS-inspecting proxy is trusted: through the OS's own TLS stack on Windows
 /// and macOS, through rustls and rustls-platform-verifier elsewhere.
-/// `Cargo.toml` enables the matching ureq features per platform.
+/// `Cargo.toml` enables the matching ureq features per platform, with the
+/// defaults off to leave out the bundled Mozilla roots `PlatformVerifier`
+/// never reads. ureq then brings no crypto provider, so the rustls build
+/// passes ring's.
 fn tls() -> ureq::tls::TlsConfig {
     let builder = ureq::tls::TlsConfig::builder()
         .root_certs(ureq::tls::RootCerts::PlatformVerifier);
     #[cfg(any(windows, target_os = "macos"))]
     let builder = builder.provider(ureq::tls::TlsProvider::NativeTls);
+    #[cfg(not(any(windows, target_os = "macos")))]
+    let builder = builder.unversioned_rustls_crypto_provider(
+        std::sync::Arc::new(rustls::crypto::ring::default_provider()),
+    );
     builder.build()
 }
 

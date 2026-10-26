@@ -1222,6 +1222,18 @@ fn linux_with_no_roots_says_how_to_install_them() {
 }
 
 #[test]
+fn doctor_names_a_credentials_file_that_supplies_no_key() {
+    let mut cmd = bin();
+    let config = cmd.dir.path().join("config").join("dataseek");
+    std::fs::create_dir_all(&config).unwrap();
+    std::fs::write(config.join("credentials.toml"), "[keys]\nfred = \"a\"\n")
+        .unwrap();
+    let out = cmd.args(["doctor", "--plain"]).output().unwrap();
+    let text = String::from_utf8_lossy(&out.stdout);
+    assert!(text.contains("credentials.toml supplies no key"), "{text}");
+}
+
+#[test]
 fn doctor_reports_ready_with_clean_pipe() {
     let out = bin().arg("doctor").output().unwrap();
     assert!(out.status.success());
@@ -1366,19 +1378,39 @@ fn man_renders_roff_with_the_manifest_version() {
 #[test]
 fn the_man_page_renders_and_lists_every_command() {
     let Some(mut renderer) = tool("mandoc") else { return };
-    // Errors only: clap_mangen's output draws style warnings (the date
-    // field, paragraph macros) that are not ours to fix.
+    // Errors only: the page leaves its date empty, which mandoc warns about,
+    // because a build date would make two builds of one commit differ.
     renderer.args(["-T", "utf8", "-W", "error"]);
     let dir = tempfile::tempdir().unwrap();
     let page = dir.path().join("dataseek.1");
     std::fs::write(&page, stdout_text(&["man"])).unwrap();
     let out = renderer.arg(&page).output().unwrap();
     assert!(out.status.success(), "{out:?}");
-    let text = String::from_utf8_lossy(&out.stdout);
+    // Bold is drawn by overstriking, `m\bm`; keep the second of each pair.
+    let mut text = String::new();
+    for c in String::from_utf8_lossy(&out.stdout).chars() {
+        if c == '\u{8}' {
+            text.pop();
+        } else {
+            text.push(c);
+        }
+    }
+    let commands = text
+        .split_once("COMMANDS")
+        .and_then(|(_, rest)| rest.split_once("EXAMPLES"))
+        .unwrap()
+        .0;
+    let listed: Vec<&str> = commands
+        .lines()
+        .filter_map(|line| line.split_whitespace().next())
+        .collect();
     let help = json_of(&["help", "--json"]);
     for command in help["command"]["commands"].as_array().unwrap() {
         let name = command["name"].as_str().unwrap();
-        assert!(text.contains(name), "{name} missing from the man page");
+        // `man` is hidden, so its own page leaves it out.
+        if name != "man" {
+            assert!(listed.contains(&name), "{name} missing from COMMANDS");
+        }
     }
 }
 
