@@ -1,8 +1,8 @@
 //! The CPU side of a search, by stage: parsing downloaded catalogs, loading
 //! a cached catalog, searching it, fusing the per-source lists and cleaning
-//! remote text, Markdown descriptions included. Network time dwarfs all of it; these exist so a change that
-//! makes one stage grow faster than its input shows up before a user waits
-//! on it (ADR 0012).
+//! remote text, Markdown descriptions included. Network time dwarfs all of
+//! it; these exist so a change that makes one stage grow faster than its
+//! input shows up before a user waits on it (ADR 0012).
 //!
 //! Inputs are synthetic, shaped after real responses (ECB's SDMX-ML dataflow
 //! list, Eurostat's table of contents, 2026-10-06) and built from a word list

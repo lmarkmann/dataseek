@@ -321,7 +321,7 @@ fn lines(text: &str, blank: &str) -> String {
         .collect()
 }
 
-/// `text` as roff text: backslashes, hyphens and quotes escaped, and a
+/// `text` as roff text: backslashes, hyphens and apostrophes escaped, and a
 /// leading period kept from reading as a request.
 fn roff(text: &str) -> String {
     let escaped =

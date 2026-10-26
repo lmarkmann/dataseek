@@ -1395,10 +1395,22 @@ fn the_man_page_renders_and_lists_every_command() {
             text.push(c);
         }
     }
+    let commands = text
+        .split_once("COMMANDS")
+        .and_then(|(_, rest)| rest.split_once("EXAMPLES"))
+        .unwrap()
+        .0;
+    let listed: Vec<&str> = commands
+        .lines()
+        .filter_map(|line| line.split_whitespace().next())
+        .collect();
     let help = json_of(&["help", "--json"]);
     for command in help["command"]["commands"].as_array().unwrap() {
         let name = command["name"].as_str().unwrap();
-        assert!(text.contains(name), "{name} missing from the man page");
+        // `man` is hidden, so its own page leaves it out.
+        if name != "man" {
+            assert!(listed.contains(&name), "{name} missing from COMMANDS");
+        }
     }
 }
 

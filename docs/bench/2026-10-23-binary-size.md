@@ -44,11 +44,12 @@ File size of the stripped release binary, in bytes, each commit on top of the on
 | progress drawn without indicatif | 2,316,560 | -83,392 | 3,797,176 | -88,360 |
 | man page written without clap_mangen | 2,283,248 | -33,312 | 3,758,392 | -38,784 |
 | Windows console check, rustls-webpki 0.103.16 | 2,283,248 | 0 | 3,763,816 | +5,424 |
-| total | | -480,880 (-17.4%) | | -587,336 (-13.5%) |
+| review fixes | 2,299,744 | +16,496 | 3,769,912 | +6,096 |
+| total | | -464,384 (-16.8%) | | -581,240 (-13.4%) |
 
-The last row is two fixes that came after the size work: the progress line's check that a Windows console understands escape codes (`anstyle-query`, 1,200 bytes on Linux), and the rustls-webpki release that distrusts the emSign intermediates (4,224 bytes).
+The last two rows came after the size work. The first is the progress line's check that a Windows console understands escape codes (1,200 bytes on Linux) and the rustls-webpki release that distrusts the emSign intermediates (4,224 bytes). The second is what review of the rewrites found: `credentials.toml` with a byte order mark or TOML 1.1's `\e` and `\x` escapes read again, Markdown that the first rewrite read differently from pulldown-cmark (a wrapped line starting `2020.`, a `[label]: text` line, a line opening with a code span), Greek and math entity names, the progress bar dropped on a narrow terminal, and `enable-ansi-support` in place of `anstyle-query`, which gave up when stdout was redirected. Its code is 5.2 KB on macOS; the rest of the 16 KB is `__TEXT` crossing a 16 KiB page.
 
-Release archive of the final build, `dataseek` and `dsk` inside:
+Release archive of the build before the review fixes, `dataseek` and `dsk` inside:
 
 | archive | `aarch64-apple-darwin` | `x86_64-unknown-linux-gnu` |
 |---|---:|---:|
@@ -60,8 +61,8 @@ gzip's 32 KB window never sees that `dsk` repeats `dataseek`, so a `.tar.gz` hol
 ### What each change replaced
 
 - **ureq 3.5.** `native-tls-no-default` now builds a working connector (ureq PR #1204), so macOS and Windows stop linking `webpki-root-certs`, which `RootCerts::PlatformVerifier` never reads. Linux moved to `rustls-no-provider` with ring's provider passed in `src/http.rs`, which drops the same roots there. A live `dataseek search` over each TLS stack is the test, because no test here makes a real TLS connection.
-- **pulldown-cmark.** Descriptions only need Markdown turned into plain text, not parsed into a tree. `record::from_markdown` strips fences, rules, link definitions, list and quote markers and headings line by line, then pairs code spans, brackets and emphasis in one linear, non-recursive pass. Over every string in the recorded fixtures, 4,693 of 4,697 come out the same as before; of the four that differ, one reads better (`**Title:**Plasma`) and three are an opendatasoft field that never goes through Markdown. A test feeds it 50,000 nested openers of every kind and asserts linear time. Over the same strings, `clean(from_markdown(..))`, which is what a record's description goes through, takes 56 ms per 20 passes against 62 ms with pulldown-cmark, best of 7, and 3.65 ms against 4.41 ms on a 20 KB synthetic description. The new `markdown` bench group keeps it measured. The first version was twice as slow as pulldown-cmark, because it matched every line for code, links and emphasis and copied one character at a time; it now skips a match whose opening byte the line lacks and copies plain runs whole.
-- **toml.** `credentials.toml` holds one `name = "value"` per line. `credentials::flat_table` reads exactly that, with TOML's string escapes, and treats anything else (a table, a multi-line string, a duplicate key) as supplying no key at all.
+- **pulldown-cmark.** Descriptions only need Markdown turned into plain text, not parsed into a tree. `record::from_markdown` strips fences, rules, link definitions, list and quote markers and headings line by line, then pairs code spans, brackets and emphasis in one non-recursive pass. Over every string in the recorded fixtures, 4,693 of 4,697 come out the same as before; of the four that differ, one reads better (`**Title:**Plasma`) and three are an opendatasoft field that never goes through Markdown. A test feeds it 50,000 nested openers of every kind and asserts it finishes in seconds, which a quadratic scan would not. Over the same strings, `clean(from_markdown(..))`, which is what a record's description goes through, takes 56 ms per 20 passes against 62 ms with pulldown-cmark, best of 7, and 3.65 ms against 4.41 ms on a 20 KB synthetic description. The new `markdown` bench group keeps it measured. The first version was twice as slow as pulldown-cmark, because it matched every line for code, links and emphasis and copied one character at a time; it now skips a match whose opening byte the line lacks and copies plain runs whole.
+- **toml.** `credentials.toml` holds one `name = "value"` per line. `credentials::flat_table` reads exactly that, with TOML 1.1's string escapes and a leading byte order mark, and treats anything else (a table, a multi-line string, a duplicate key) as supplying no key at all.
 - **indicatif.** dataseek draws one spinner or one bar at a time. `ui::Progress` is a ticker thread redrawing one line every 90 ms and clearing it when the work finishes or the handle drops.
 - **clap_mangen.** The page has one fixed shape: options, commands, examples, exit status. `help::man_page` writes that roff from the clap definition. It also stopped referring to `dataseek-search(1)` and the other per-command pages, which were never installed.
 
@@ -115,7 +116,7 @@ The release build spends most of its time in one fat-LTO codegen unit, so sixtee
 
 ## Verdict
 
-Five dependencies were each replaced by the few dozen to few hundred lines dataseek needed of them: the binary is 17.4% smaller on macOS and 13.5% on Linux, and the archive a user downloads is about 60% smaller. Every test passes and `just relevance` is unchanged at nDCG@10 0.6403. The two largest levers left are both kept off: compiling dataseek for size (-525 to -558 KB) slows parsing, matching and merging by up to 75%, and `panic = "abort"` (-414 KB) would let one adapter's panic end the whole search.
+Four dependencies were replaced by the few dozen to few hundred lines dataseek needed of them, and ureq stopped linking a root store it never read: the binary is 16.8% smaller on macOS and 13.4% on Linux, and the archive a user downloads is about 60% smaller. Every test passes and `just relevance` is unchanged at nDCG@10 0.6403. The two largest levers left are both kept off: compiling dataseek for size (-525 to -558 KB) slows parsing, matching and merging by up to 75%, and `panic = "abort"` (-414 KB) would let one adapter's panic end the whole search.
 
 ## Caveats
 
