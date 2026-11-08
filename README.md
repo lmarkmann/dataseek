@@ -1,6 +1,6 @@
 ![dataseek: every dataset source it searches, set out as a periodic table](https://raw.githubusercontent.com/lmarkmann/dataseek/main/docs/assets/dataseek-banner.png)
 
-[![crates.io](https://img.shields.io/crates/v/dataseek?style=flat-square&label=crates.io&color=dea584&logo=rust&logoColor=black)](https://crates.io/crates/dataseek)[![PyPI](https://img.shields.io/pypi/v/dataseek?style=flat-square&label=PyPI&color=3775A9&logo=pypi&logoColor=white)](https://pypi.org/project/dataseek/)[![Homebrew](https://img.shields.io/badge/brew-lmarkmann%2Ftap-FBB040?style=flat-square&logo=homebrew&logoColor=black)](https://github.com/lmarkmann/dataseek)[![License](https://img.shields.io/crates/l/dataseek?style=flat-square&color=2DA44E)](https://github.com/lmarkmann/dataseek)
+[![crates.io](https://img.shields.io/crates/v/dataseek?style=flat-square&label=crates.io&color=dea584&logo=rust&logoColor=black)](https://crates.io/crates/dataseek) [![PyPI](https://img.shields.io/pypi/v/dataseek?style=flat-square&label=PyPI&color=3775A9&logo=pypi&logoColor=white)](https://pypi.org/project/dataseek/) [![Homebrew](https://img.shields.io/badge/brew-lmarkmann%2Ftap-FBB040?style=flat-square&logo=homebrew&logoColor=black)](https://github.com/lmarkmann/dataseek) [![License](https://img.shields.io/crates/l/dataseek?style=flat-square&color=2DA44E)](https://github.com/lmarkmann/dataseek)
 
 <!-- repo-description -->
 Search for datasets from the terminal
