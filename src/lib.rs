@@ -101,7 +101,6 @@ fn restore_sigpipe() -> Arc<AtomicBool> {
 /// Run the command line named by the process arguments. Shared by the
 /// `dataseek` and `dsk` binaries; clap reads the invoked name from `argv[0]`,
 /// so usage lines and completions follow whichever name was typed.
-#[must_use]
 pub fn main() -> ExitCode {
     let sigpipe_kills = restore_sigpipe();
 

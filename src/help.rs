@@ -212,7 +212,7 @@ pub fn man_page() -> String {
     cmd.build();
     let name = cmd.get_name();
     let version = env!("CARGO_PKG_VERSION");
-    let about = cmd.get_about().map(ToString::to_string).unwrap_or_default();
+    let about = cmd.get_about().map_or_default(ToString::to_string);
     let mut page = format!(
         ".ie \\n(.g .ds Aq \\(aq\n.el .ds Aq '\n\
          .TH {name} 1 \"\" \"{name} {version}\"\n\
@@ -253,7 +253,7 @@ pub fn man_page() -> String {
             }
         }
         let help = arg.get_long_help().or_else(|| arg.get_help());
-        let help = help.map(ToString::to_string).unwrap_or_default();
+        let help = help.map_or_default(ToString::to_string);
         let _ = write!(page, "\n{}", lines(&help, ".br"));
         let values: Vec<_> = arg
             .get_possible_values()
