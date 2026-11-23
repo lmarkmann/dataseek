@@ -233,9 +233,9 @@ pub(crate) struct Baseline {
 /// gate tolerates: a quarter of its standard error.
 #[derive(Serialize, Deserialize)]
 pub(crate) struct Gate {
-    pub(crate) mean: f64,
-    pub(crate) low: f64,
-    pub(crate) high: f64,
+    mean: f64,
+    low: f64,
+    high: f64,
     pub(crate) tolerance: f64,
 }
 
@@ -296,7 +296,7 @@ fn per_query(cases: &[Case], scores: &[Score]) -> BTreeMap<String, Vec<f64>> {
 
 /// How one metric's mean moved against the baseline.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(crate) enum Change {
+enum Change {
     Fell,
     Same,
     Rose,
@@ -307,7 +307,7 @@ pub(crate) enum Change {
 /// A drop past the tolerance falls; a drop of exactly the tolerance does
 /// not. Both sides are rounded as the baseline is, so float noise never
 /// decides.
-pub(crate) fn change(was: Option<&Gate>, now: f64) -> Change {
+fn change(was: Option<&Gate>, now: f64) -> Change {
     let Some(was) = was else { return Change::Missing };
     let delta = round(now - was.mean);
     if delta < -was.tolerance {
@@ -326,11 +326,7 @@ const QUERY_DROP: f64 = 0.1;
 /// Why one query fails the gate on its own, if it does: a graded query whose
 /// nDCG@10 fell by more than `QUERY_DROP`, or a known item that was in the
 /// top 10 and left it. `was` is the query's baseline values.
-pub(crate) fn slipped(
-    graded: bool,
-    was: &[f64],
-    now: &Score,
-) -> Option<String> {
+fn slipped(graded: bool, was: &[f64], now: &Score) -> Option<String> {
     let Some(&first) = was.first() else {
         return Some("has no baseline value".to_owned());
     };
