@@ -276,54 +276,11 @@ impl<'a> Call<'a> {
         if OFFLINE.load(Ordering::Relaxed) {
             return Err(Retry::Fail(SourceError::Offline));
         }
-        let result = match self.method {
-            Method::Get => {
-                let mut request = self.http.agent.get(&self.url);
-                for (k, v) in &self.query {
-                    request = request.query(k, v);
-                }
-                for (k, v) in &self.headers {
-                    request = request.header(k, v);
-                }
-                request
-                    .config()
-                    .timeout_global(Some(self.timeout))
-                    .build()
-                    .call()
-            }
-            Method::Post => {
-                let mut request = self.http.agent.post(&self.url);
-                for (k, v) in &self.query {
-                    request = request.query(k, v);
-                }
-                for (k, v) in &self.headers {
-                    request = request.header(k, v);
-                }
-                let request = request
-                    .config()
-                    .timeout_global(Some(self.timeout))
-                    .build();
-                match &self.body {
-                    Some(body) => request.send_json(body),
-                    None => request.send_empty(),
-                }
-            }
-        };
-        let mut response = result.map_err(|e| Retry::Fail(transport(&e)))?;
+        let mut response =
+            self.call().map_err(|e| Retry::Fail(transport(&e)))?;
         let status = response.status().as_u16();
-        if status == 429 || (status == 403 && quota_spent(response.headers()))
-        {
-            let wait = response
-                .headers()
-                .get("retry-after")
-                .and_then(|v| v.to_str().ok())
-                .and_then(|v| v.trim().parse::<u64>().ok())
-                .map(Duration::from_secs);
-            return Err(match (status, wait) {
-                (_, Some(wait)) => Retry::After(wait),
-                (429, None) => Retry::After(Duration::from_secs(1)),
-                _ => Retry::Fail(SourceError::RateLimited),
-            });
+        if let Some(retry) = throttled(status, response.headers()) {
+            return Err(retry);
         }
         if waf_challenge(response.headers()) {
             return Err(Retry::Fail(SourceError::Blocked));
@@ -337,18 +294,72 @@ impl<'a> Call<'a> {
         let body = String::from_utf8(body).unwrap_or_else(|invalid| {
             String::from_utf8_lossy(invalid.as_bytes()).into_owned()
         });
+        self.answer(status, body).map_err(Retry::Fail)
+    }
+
+    fn call(&self) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
+        match self.method {
+            Method::Get => {
+                self.prepared(self.http.agent.get(&self.url)).call()
+            }
+            Method::Post => {
+                let request = self.prepared(self.http.agent.post(&self.url));
+                match &self.body {
+                    Some(body) => request.send_json(body),
+                    None => request.send_empty(),
+                }
+            }
+        }
+    }
+
+    /// The request with this call's parameters, headers and deadline.
+    fn prepared<B>(
+        &self,
+        mut request: ureq::RequestBuilder<B>,
+    ) -> ureq::RequestBuilder<B> {
+        for (k, v) in &self.query {
+            request = request.query(k, v);
+        }
+        for (k, v) in &self.headers {
+            request = request.header(k, v);
+        }
+        request.config().timeout_global(Some(self.timeout)).build()
+    }
+
+    /// The body of a success, or the failure a status stands for.
+    fn answer(
+        &self,
+        status: u16,
+        body: String,
+    ) -> Result<String, SourceError> {
         match status {
             200..=299 => Ok(body),
             401 | 403 if looks_like_challenge(&body) => {
-                Err(Retry::Fail(SourceError::Blocked))
+                Err(SourceError::Blocked)
             }
-            401 | 403 if self.keyed => {
-                Err(Retry::Fail(SourceError::Unauthorized(status)))
-            }
-            401 | 403 => Err(Retry::Fail(SourceError::Refused(status))),
-            _ => Err(Retry::Fail(SourceError::Status(status))),
+            401 | 403 if self.keyed => Err(SourceError::Unauthorized(status)),
+            401 | 403 => Err(SourceError::Refused(status)),
+            _ => Err(SourceError::Status(status)),
         }
     }
+}
+
+/// What a response that asks for fewer requests is answered with: HTTP 429,
+/// or a 403 whose headers show a spent quota. `Retry-After` gives the wait.
+fn throttled(status: u16, headers: &ureq::http::HeaderMap) -> Option<Retry> {
+    if status != 429 && !(status == 403 && quota_spent(headers)) {
+        return None;
+    }
+    let wait = headers
+        .get("retry-after")
+        .and_then(|v| v.to_str().ok())
+        .and_then(|v| v.trim().parse::<u64>().ok())
+        .map(Duration::from_secs);
+    Some(match (status, wait) {
+        (_, Some(wait)) => Retry::After(wait),
+        (429, None) => Retry::After(Duration::from_secs(1)),
+        _ => Retry::Fail(SourceError::RateLimited),
+    })
 }
 
 enum Retry {
