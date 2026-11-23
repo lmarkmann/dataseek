@@ -34,6 +34,7 @@ How each search interface takes a query, pages, ranks and limits, as found when 
 | EBI Search | GET `/ebisearch/ws/rest/{domain}` | `query` | domain fields | relevance | 1,000 |
 | OmicsDI | GET `/ws/dataset/search` | `query` (plus `NOT repository:"biostudies-literature"`) | full text | default order (docs: relevance) | 100 (docs; the server answers more) |
 | Synapse | POST `/repo/v1/search` | `queryTerm` list, `booleanQuery` | any word, ranked | relevance | 1,000 per page (observed) |
+| ENCODE | GET `/search/` | `searchTerm`, `type=Experiment`, `status=released`, `field=` per property | every word, across the experiment metadata | relevance | `limit` (dataseek asks 100 at most); no hit answers 404 with a JSON body; `from` answered 403 (2026-11-23) |
 | DANDI | GET `/api/dandisets/` | `search`, `ordering`, `empty=false` | every word as a substring of the version metadata, ignoring case; a `key:value` word is a filter | none; oldest first, `ordering=-stars` sorts by stars | 1,000 |
 | CERN Open Data | GET `/api/records/` | `q`, `type=Dataset` | Invenio | relevance | 10,000 results (observed, HTTP 400 beyond) |
 | CESSDA | GET `/api/DataSets/v2/search` | `q`, mandatory `metadataLanguage` | full text, every word must match | relevance | 200 per request; `offset + limit` <= 10,000 |
@@ -87,6 +88,7 @@ These publish a complete list but no search endpoint, so dataseek downloads the 
 | GitHub search | 10 per minute | 30 per minute |
 | GitLab | 60 requests per clock hour per IP, then 429 with `Retry-After` to the next full hour (observed 2026-11-23); the docs also give 400 project-list requests per 10 minutes | 2,000 project-list requests per 10 minutes (dataseek reads no GitLab key) |
 | CERN Open Data | 60 per minute, 429 with `Retry-After: 60` (headers) | none |
+| ENCODE | 10 GET requests per second per user, group, company or lab (terms); an IP block on abuse | none |
 | OpenDataSoft | 10,000 calls a day, shared by every anonymous caller | none |
 | OSF (trove) | unstated; 17 requests in 3 minutes drew an hour-long 429 | none |
 | OpenAlex (not used) | $0.10 per day of search credit | $1 per day free, then paid |

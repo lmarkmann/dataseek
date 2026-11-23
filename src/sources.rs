@@ -37,6 +37,7 @@ mod dataone;
 mod dataverse;
 mod dbnomics;
 mod ebi;
+mod encode;
 mod europa;
 pub(crate) mod eurostat;
 mod figshare;
@@ -1227,6 +1228,14 @@ pub static SOURCES: &[Source] = &[
         "https://rest-docs.synapse.org/",
         synapse::search,
     ),
+    live(
+        "encode",
+        "ENCODE",
+        LifeSciences,
+        "ENCODE REST",
+        "https://www.encodeproject.org/help/rest-api/",
+        encode::search,
+    ),
     // Neuroscience and clinical.
     listed(
         "openneuro",
@@ -1515,6 +1524,7 @@ mod tests {
             ("dataone", |b, n| dataone::parse(b, n)),
             ("dataverse", |b, n| dataverse::parse(b, n)),
             ("dbnomics", |b, n| dbnomics::parse(b, n)),
+            ("encode", |b, n| encode::parse(b, n)),
             ("europa", |b, n| europa::parse(b, n)),
             ("figshare", |b, n| figshare::parse(b, n)),
             ("fred", |b, n| fred::parse(b, n)),

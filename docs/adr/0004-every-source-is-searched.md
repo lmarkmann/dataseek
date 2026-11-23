@@ -152,6 +152,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `omicsdi` | OmicsDI | OmicsDI | live |  | [docs](https://www.omicsdi.org/ws/) |
 | `cellxgene` | CZ CELLxGENE | Curation API, listed | local |  | [docs](https://api.cellxgene.cziscience.com/curation/ui/) |
 | `synapse` | Synapse | Synapse REST | live |  | [docs](https://rest-docs.synapse.org/) |
+| `encode` | ENCODE | ENCODE REST | live |  | [docs](https://www.encodeproject.org/help/rest-api/) |
 
 ### neuroscience
 
