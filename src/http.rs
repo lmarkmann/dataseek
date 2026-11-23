@@ -46,6 +46,8 @@ pub fn connect_within(limit: Duration) {
 /// user's: whoever runs dataseek, the remote logs see this one.
 pub const CONTACT: &str = "user@dataseek.dev";
 
+/// Counts decoded bytes, not gzip bytes on the wire. World Bank, the largest
+/// catalog, decodes to 15 MB (November 2026).
 const BODY_LIMIT: u64 = 64 * 1024 * 1024;
 const LONGEST_RETRY_WAIT: Duration = Duration::from_secs(4);
 /// DNS and connect failures under a burst of parallel lookups are often

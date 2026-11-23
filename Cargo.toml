@@ -64,13 +64,13 @@ signal-hook = { version = "0.4.6", default-features = false }
 # Neither ureq feature set bundles Mozilla roots, which PlatformVerifier
 # never reads; src/http.rs picks the matching provider.
 [target.'cfg(any(windows, target_os = "macos"))'.dependencies]
-ureq = { version = "3.5", default-features = false, features = ["json", "gzip", "native-tls-no-default"] }
+ureq = { version = "3.5.2", default-features = false, features = ["json", "gzip", "native-tls-no-default"] }
 
 # rustls itself to hand ureq ring's provider and to tell a refused
 # certificate from a dead host.
 [target.'cfg(not(any(windows, target_os = "macos")))'.dependencies]
 rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
-ureq = { version = "3.5", default-features = false, features = ["json", "gzip", "rustls-no-provider", "platform-verifier"] }
+ureq = { version = "3.5.2", default-features = false, features = ["json", "gzip", "rustls-no-provider", "platform-verifier"] }
 
 [features]
 # Re-exports for benches/ and the relevance example only; unstable and
