@@ -248,25 +248,31 @@ fn toml_string(text: &str) -> Option<(String, &str)> {
     while let Some((i, c)) = chars.next() {
         match c {
             '"' => return Some((value, body.get(i..)?.get(1..)?)),
-            '\\' => value.push(match chars.next()?.1 {
-                '"' => '"',
-                '\\' => '\\',
-                'b' => '\u{8}',
-                't' => '\t',
-                'n' => '\n',
-                'f' => '\u{c}',
-                'r' => '\r',
-                'e' => '\u{1b}',
-                'x' => unicode_escape(&mut chars, 2)?,
-                'u' => unicode_escape(&mut chars, 4)?,
-                'U' => unicode_escape(&mut chars, 8)?,
-                _ => return None,
-            }),
+            '\\' => value.push(escaped(&mut chars)?),
             c if c.is_control() && c != '\t' => return None,
             c => value.push(c),
         }
     }
     None
+}
+
+/// The character an escape in a basic string stands for, read from after
+/// its backslash.
+fn escaped(chars: &mut impl Iterator<Item = (usize, char)>) -> Option<char> {
+    Some(match chars.next()?.1 {
+        '"' => '"',
+        '\\' => '\\',
+        'b' => '\u{8}',
+        't' => '\t',
+        'n' => '\n',
+        'f' => '\u{c}',
+        'r' => '\r',
+        'e' => '\u{1b}',
+        'x' => unicode_escape(chars, 2)?,
+        'u' => unicode_escape(chars, 4)?,
+        'U' => unicode_escape(chars, 8)?,
+        _ => return None,
+    })
 }
 
 fn unicode_escape(

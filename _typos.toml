@@ -11,7 +11,7 @@ extend-ignore-re = [
   "(?i)\\bby(-nc)?-nd\\b",
   "(?i)\\bcc by nc nd\\b",
   "\"-ND\"",
-  "has\\(\"nd\"\\)",
+  "\"nd\"",
   "Burnt Area \\(BA\\)",
   "census for BA 44/45",
   # HTML entity names, decoded in src/record.rs.
