@@ -2,7 +2,7 @@
 
 ## API keys
 
-No key is needed for most sources: 100 of the 106 answer without one. Keys raise rate limits or unlock three sources. Set a key as an environment variable, or put it in `credentials.toml` in the config directory (`dataseek doctor` prints the path) with permissions `600`:
+No key is needed for most sources: 103 of the 106 answer without one, and 98 take none at all. Keys raise rate limits or unlock three sources. Set a key as an environment variable, or put it in `credentials.toml` in the config directory (`dataseek doctor` prints the path) with permissions `600`:
 
 ```toml
 fred = "..."

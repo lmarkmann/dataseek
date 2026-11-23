@@ -1,6 +1,8 @@
 # CLI and scripts
 
-Verified against `docs/reference/contract.md`, `dsk help --json`, `dsk help environment`, `dsk help exit-codes` and live runs on 2026-10-20. Every `jq` recipe below was run against real output that day.
+Verified against `docs/reference/contract.md`, `dsk help --json`, `dsk help environment`, `dsk help exit-codes` and live runs on 2026-10-20; every `jq` recipe below was run against real output that day. The command list and the shape of `dsk help --json` were checked again on 2026-11-23.
+
+This is the fallback surface and the one for scripts. How a tool call becomes a command: `references/mcp.md`, The CLI fallback.
 
 ## Contents
 

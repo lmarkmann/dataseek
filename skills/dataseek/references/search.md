@@ -1,6 +1,6 @@
 # Search
 
-Verified against `tools/list`, `dsk help search --json`, `dsk sources --json` and live searches on 2026-10-20.
+Verified against `tools/list`, `dsk help search --json`, the `sources` tool and live searches on 2026-11-23. The share of results that name a license was measured on 2026-10-20.
 
 ## Contents
 
@@ -16,7 +16,7 @@ Verified against `tools/list`, `dsk help search --json`, `dsk sources --json` an
 
 ## Arguments
 
-The MCP tool's input schema is generated from the CLI's flags, so the names match: an MCP argument is the long flag without its dashes. Only `query` is required.
+The MCP tool's input schema is generated from the CLI's flags, so the names match: an MCP argument is the long flag without its leading dashes (`updated-since`, not `updated_since`). Only `query` is required. Types and bounds as the schema states them: `references/mcp.md`, The four tools.
 
 | MCP argument | CLI | Default | Set it when |
 |---|---|---|---|
@@ -44,7 +44,7 @@ Over MCP, `source`, `include`, `exclude` and `category` are JSON arrays, `["zeno
 
 `license`, `updated-since`, `format` and `min-sources` filter the merged list before `limit` cuts it, the same way for every source. A filter reads each result as it is shown: the license and date it displays (the first ones a source stated) and the formats of every source. A result that does not state a field never passes a filter on it. With a filter set each source is asked for 30 results instead of 10, so a filtered search can return more matches than the unfiltered one.
 
-Measured 2026-10-20 on "sea surface temperature", 328 matches unfiltered: `license: ["cc-by"]` kept 160, `updated-since: "2024"` 488, `format: ["netcdf"]` 37, `min-sources: 2` 10.
+Measured 2026-11-23 on "sea surface temperature", 345 matches unfiltered: `license: ["cc-by"]` kept 155, `updated-since: "2024"` 533, `format: ["netcdf"]` 36, `min-sources: 2` 8.
 
 - **Licenses are sparse.** About three results in ten name one (315 of 978 over three queries, 2026-10-20), so a license filter drops most of a search. A dropped dataset may still be openly licensed on its page; say so when the filtered list is short, and offer `inspect` on a promising unfiltered result.
 - **Formats come from five kinds of source only:** CKAN portals (`data-gov-uk`, `open-canada`, `data-gov-au`, `govdata`, `hdx`, `data-go-jp`, `energydata`, `open-africa`, `netl-edx`, `opendata-swiss`), `europa`, `arcgis`, `cmr` and `datagov`. A `format` filter leaves out every research repository; for those, `inspect` the result to read its files.
@@ -53,7 +53,7 @@ Measured 2026-10-20 on "sea surface temperature", 328 matches unfiltered: `licen
 
 ## Source ids and categories
 
-The `sources` tool (or `dsk sources --json`) is the live list: id, name, category, protocol, key status and docs URL for each. As of 2026-10-20, by category; `*` marks a catalog source, whose whole list dataseek downloads weekly and searches locally:
+The `sources` tool (or `dsk sources --json`) is the live list, and the `search` schema lists every id as an `enum`. As of 2026-11-23, 106 sources by category; `*` marks a source whose `search` is `local`: dataseek downloads its whole list weekly and searches it on this machine. What each source holds and how it matches: `references/sources.md`.
 
 | Category | Sources |
 |---|---|
@@ -64,7 +64,7 @@ The `sources` tool (or `dsk sources --json`) is the live list: id, name, categor
 | `finance` | `ecb`*, `bis`*, `fred`, `bundesbank`*, `fiscal-data`* |
 | `geospatial` | `cmr`, `planetary-computer`*, `earth-search`*, `copernicus-dataspace`*, `copernicus-cds`*, `swisstopo`*, `usgs-landsat`*, `earth-engine`*, `ncei`, `pangaea` |
 | `government` | `europa`, `datagov`, `data-gov-uk`, `open-canada`, `data-gov-au`, `govdata`, `hdx`, `data-go-jp`, `energydata`, `open-africa`, `netl-edx`, `opendata-swiss`, `socrata`, `socrata-eu`, `opendatasoft`, `arcgis` |
-| `life-sciences` | `geo`, `arrayexpress`, `biostudies`, `omicsdi`, `cellxgene`*, `synapse`, `encode`, `grandchallenge`, `tcia`, `bioimages`, `empiar` |
+| `life-sciences` | `geo`, `arrayexpress`, `biostudies`, `bioimages`, `empiar`, `omicsdi`, `cellxgene`*, `grandchallenge`*, `tcia`*, `synapse`, `encode` |
 | `machine-learning` | `huggingface`, `kaggle`, `openml`*, `uci`*, `roboflow`, `modelscope`, `mozilla`, `clarin`, `elg`, `aws`*, `tfds`*, `openslr`*, `lila`*, `polaris`*, `academictorrents`*, `googleresearch`*, `opus`*, `neurips`*, `pwc`* |
 | `neuroscience` | `openneuro`*, `dandi`, `physionet`* |
 | `physics` | `cern`, `materials-project`*, `nomad`* |
@@ -72,7 +72,7 @@ The `sources` tool (or `dsk sources --json`) is the live list: id, name, categor
 | `social-science` | `cessda`, `unicef`*, `aussda`, `qdr` |
 | `statistics` | `ihsn`, `fao-microdata`, `unhcr-microdata`, `eurostat`*, `undata`*, `datacommons`, `owid`, `census`*, `who`* |
 
-Map the user's words to ids before narrowing: "Hugging Face" is `huggingface`, "data.gov" is `datagov`, "the World Bank" is `worldbank` (indicators) plus `worldbank-microdata` (surveys), "NASA Earthdata" is `cmr`, "Earth Engine" is `earth-engine`. An id outside this list is refused with the list of valid ones.
+Map the user's words to ids before narrowing: "Hugging Face" is `huggingface`, "data.gov" is `datagov`, "the World Bank" is `worldbank` (indicators) plus `worldbank-microdata` (surveys), "NASA Earthdata" is `cmr`, "Earth Engine" is `earth-engine`. An id outside this list is refused with the list of valid ones. Which sources fit which need: `references/sources.md`, Choose sources for a need.
 
 A category is a coarse filter. Aggregators such as `datacite` and `openaire` index most research repositories and sit in `aggregator`, so a `category: ["life-sciences"]` search leaves them out; add them with a second, unfiltered search when recall matters more than focus.
 
@@ -80,11 +80,12 @@ A category is a coarse filter. Aggregators such as `datacite` and `openaire` ind
 
 Each source runs its own search engine and most of them require every word to match: the catalog sources need every word as a token prefix, PANGAEA, CESSDA and ModelScope need every word, Socrata needs all of up to three terms, and Hugging Face matches words against the repository id, or for several words also against the dataset card. So every word added is a filter at most sources.
 
-Measured 2026-10-20 over the default sources: "sea surface temperature" merged 328 results; "global monthly sea surface temperature dataset since 1980" merged 136.
+Measured 2026-11-23 over the default sources: "sea surface temperature" merged 345 results; "global monthly sea surface temperature dataset since 1980" merged 187.
 
 - **Two to four content words.** Drop "dataset", "data", "open", "about", "find me".
 - **Constraints stay out of the query.** Licenses, dates and file formats go in the filter arguments (Filters above). A region becomes a second query when it is the topic ("Kenya census"), or is read off `description` afterwards. A year in the query also weighs heavily in the ranking, because rare tokens count most, so "since 2000" lifts tables that merely contain "2000".
 - **Use the field's own words and acronyms** as alternative queries: "SST" or "ERSST" beside "sea surface temperature", "scRNA-seq" beside "single cell RNA", "CPI" beside "consumer prices".
+- **Plain words, no operators.** The query goes to every source as typed, and quotes, `AND`, `field:value` and wildcards mean different things to each engine. A filter belongs in an argument.
 - **One concept per query.** "air quality" and "asthma admissions" are two searches whose results the answer joins, not one query that few datasets match on both.
 - **English first.** Most sources index English metadata; `europa` matches across EU languages, and a national portal (`govdata`, `recherche-data-gouv`) may answer better in its own language.
 - **Run independent queries in parallel**, at most four calls at once over MCP.
@@ -133,7 +134,7 @@ Several results with the same title from one source are different datasets (one 
 | `downloading its catalog` | no | its first catalog download is still running and the next search will have it |
 | any other text | no | the failure itself, such as `timed out`, `rate limited by the source`, `refused the request (HTTP 403)` |
 
-A missing source matters only when the topic belongs to it: a missing `fred` matters for US economic series and not for protein structures. The fix for each status: `references/troubleshoot.md`.
+A missing source matters only when the topic belongs to it: a missing `fred` matters for US economic series and not for protein structures. The sources a default search most often does not wait for, the four EBI archives among them: `references/sources.md`, Slow, limited and keyed sources. The fix for each status: `references/troubleshoot.md`.
 
 ## Opt-in sources
 
@@ -155,14 +156,14 @@ A server started with `dsk mcp --include google` adds Google to every search tha
 Datasets
 1. Extended Reconstructed Sea Surface Temperature (ERSST), Version 4
    https://catalog.data.gov/dataset/extended-reconstructed-sea-surface-temperature-ersst-version-4
-   datagov, ncei | NOAA National Centers for Environmental Information | updated 2015-05-26 | CC0 1.0 | doi:10.7289/v5kd1vvf
+   datagov, ncei | NOAA National Centers for Environmental Information | updated 2015-05-26 | CC0-1.0 | doi:10.7289/v5kd1vvf
 2. ...
 
-Coverage: 10 of 430 matches shown; 93 of 101 sources answered; complete: false, govdata not waited for after 1 s.
+Coverage: 10 of 345 matches shown; 91 of 104 sources answered; complete: false. Missing for this topic: openaire and b2find, not waited for after 4 s.
 
 Queries
 dsk search sea surface temperature -n 10
 dsk search ERSST -n 10
 ```
 
-List only the results that fit the request. Constraints the filter arguments cover go in the call; any other constraint is applied to the results, and the answer says how many were dropped and why.
+The counts come from the result: `total`, the length of `sources`, and the entries whose `answered` is true. List only the results that fit the request. Constraints the filter arguments cover go in the call; any other constraint is applied to the results, and the answer says how many were dropped and why.
