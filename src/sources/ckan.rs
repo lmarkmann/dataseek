@@ -163,13 +163,7 @@ pub(super) fn parse(
 fn record(portal: &Portal, row: &Value) -> Option<Dataset> {
     let name = text(row, "/name")?;
     let title = text(row, "/title").unwrap_or_else(|| name.clone());
-    let extra = |key: &str| {
-        items(row, "/extras").iter().find_map(|e| {
-            (e.get("key").and_then(Value::as_str) == Some(key))
-                .then(|| text(e, "/value"))
-                .flatten()
-        })
-    };
+    let extra = |key: &str| extra(row, key);
     let doi = extra("DOI")
         .or_else(|| text(row, "/digital_object_identifier"))
         .or_else(|| {
@@ -179,28 +173,8 @@ fn record(portal: &Portal, row: &Value) -> Option<Dataset> {
     let mut dataset = Dataset::new(&title, &format!("{}{name}", portal.page))
         .describe(text(row, "/notes").map(|notes| from_markdown(&notes)))
         .doi_from(doi);
-    dataset.publisher = extra("publisher_name")
-        .or_else(|| extra("Publisher"))
-        .or_else(|| {
-            text(row, "/organization/title").map(|title| {
-                match title.split_once(" | ") {
-                    Some((english, _)) if portal.bilingual_orgs => {
-                        english.to_owned()
-                    }
-                    _ => title,
-                }
-            })
-        })
-        .or_else(|| text(row, "/author"));
-    dataset.license = text(row, "/license_title")
-        .or_else(|| {
-            items(row, "/resources").iter().find_map(|r| text(r, "/license"))
-        })
-        .or_else(|| extra("Rights").and_then(|rights| named_license(&rights)))
-        .filter(|license| license.chars().count() <= LONGEST_LICENSE)
-        .filter(|_| {
-            text(row, "/license_id").as_deref() != Some("notspecified")
-        });
+    dataset.publisher = publisher(portal, row);
+    dataset.license = license(row);
     dataset.updated = [
         text(row, "/last_modified"),
         extra("modified"),
@@ -223,6 +197,49 @@ fn record(portal: &Portal, row: &Value) -> Option<Dataset> {
         dataset.aliases.push(source_page);
     }
     dataset.valid()
+}
+
+/// The value of the harvested extra named `key`.
+fn extra(row: &Value, key: &str) -> Option<String> {
+    items(row, "/extras").iter().find_map(|e| {
+        (e.get("key").and_then(Value::as_str) == Some(key))
+            .then(|| text(e, "/value"))
+            .flatten()
+    })
+}
+
+/// The publisher a harvested record names, else the organization, in
+/// English where the portal writes two languages, else the author.
+fn publisher(portal: &Portal, row: &Value) -> Option<String> {
+    extra(row, "publisher_name")
+        .or_else(|| extra(row, "Publisher"))
+        .or_else(|| {
+            text(row, "/organization/title").map(|title| {
+                match title.split_once(" | ") {
+                    Some((english, _)) if portal.bilingual_orgs => {
+                        english.to_owned()
+                    }
+                    _ => title,
+                }
+            })
+        })
+        .or_else(|| text(row, "/author"))
+}
+
+/// The license of the dataset, of its first resource that names one, or of
+/// the harvested rights statement.
+fn license(row: &Value) -> Option<String> {
+    text(row, "/license_title")
+        .or_else(|| {
+            items(row, "/resources").iter().find_map(|r| text(r, "/license"))
+        })
+        .or_else(|| {
+            extra(row, "Rights").and_then(|rights| named_license(&rights))
+        })
+        .filter(|license| license.chars().count() <= LONGEST_LICENSE)
+        .filter(|_| {
+            text(row, "/license_id").as_deref() != Some("notspecified")
+        })
 }
 
 fn resource_bytes(row: &Value) -> Option<u64> {

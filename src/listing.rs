@@ -9,7 +9,7 @@ use serde::Serialize;
 use crate::credentials::Credentials;
 use crate::output::{self, Out};
 use crate::palette;
-use crate::sources::{Need, SOURCES};
+use crate::sources::{Need, SOURCES, Source};
 
 #[derive(Serialize)]
 struct Row {
@@ -28,29 +28,33 @@ struct Row {
     notice: Option<&'static str>,
 }
 
-pub fn run(out: &Out) -> Result<()> {
-    let dirs = crate::paths::resolve()?;
-    let creds = Credentials::load(&dirs.config);
-    let rows: Vec<Row> = SOURCES
-        .iter()
-        .map(|s| Row {
-            id: s.id,
-            name: s.name,
-            category: s.category.to_string(),
-            protocol: s.protocol,
-            search: if s.is_catalog() { "local" } else { "live" },
-            key: match s.key {
+impl Row {
+    fn of(source: &Source, creds: &Credentials) -> Self {
+        Self {
+            id: source.id,
+            name: source.name,
+            category: source.category.to_string(),
+            protocol: source.protocol,
+            search: if source.is_catalog() { "local" } else { "live" },
+            key: match source.key {
                 None => "none",
                 Some((key, _)) if creds.get(key).is_some() => "set",
                 Some((_, Need::Optional)) => "optional",
                 Some((_, Need::Required)) => "missing",
             },
-            key_env: s.key.map(|(key, _)| key.env_var()),
-            docs: s.docs,
-            opt_in: s.opt_in,
-            notice: s.notice,
-        })
-        .collect();
+            key_env: source.key.map(|(key, _)| key.env_var()),
+            docs: source.docs,
+            opt_in: source.opt_in,
+            notice: source.notice,
+        }
+    }
+}
+
+pub fn run(out: &Out) -> Result<()> {
+    let dirs = crate::paths::resolve()?;
+    let creds = Credentials::load(&dirs.config);
+    let rows: Vec<Row> =
+        SOURCES.iter().map(|source| Row::of(source, &creds)).collect();
 
     if out.json {
         return out.json(&serde_json::json!({

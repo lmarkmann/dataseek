@@ -231,6 +231,9 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
             help::overview(out)
         };
     };
+    if command.offline() {
+        http::go_offline();
+    }
     match command {
         Command::Search {
             query,
@@ -242,9 +245,6 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
             offline,
             timeout,
         } => {
-            if offline {
-                http::go_offline();
-            }
             let request = find::Request {
                 words: &query,
                 selection: &selection,
@@ -261,16 +261,8 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
         Command::Bench { queries, selection } => {
             bench::run(&queries, &selection, out)?;
         }
-        Command::Inspect { url, offline } => {
-            if offline {
-                http::go_offline();
-            }
-            inspect::run(&url, out)?;
-        }
-        Command::Related { url, by, limit, offline } => {
-            if offline {
-                http::go_offline();
-            }
+        Command::Inspect { url, .. } => inspect::run(&url, out)?,
+        Command::Related { url, by, limit, .. } => {
             related::run(&url, by, limit, out)?;
         }
         Command::Mcp { include } => mcp::run(
@@ -285,33 +277,35 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
         )?,
         Command::Cache(action) => cache_cmd::run(action, out)?,
         Command::Doctor => doctor::run(out)?,
-        // clap_complete::generate panics on a failed write. Generating into a
-        // Vec cannot fail, so the real write goes through the error path.
-        // A script on a terminal is a wall of text nobody reads; what the
-        // reader needs there is where to save it.
-        Command::Completion { shell } if io::stdout().is_terminal() => {
-            ui::stage(help::completion_hint(shell, invoked_name()));
-        }
-        Command::Completion { shell } => {
-            let mut cmd = cli::command();
-            let mut script = Vec::new();
-            clap_complete::generate(
-                shell,
-                &mut cmd,
-                invoked_name(),
-                &mut script,
-            );
-            out.stdout().write_all(&script)?;
-        }
-        // Rendered on demand so the page cannot drift from the flags.
-        Command::Man => {
-            let page = help::man_page();
-            if !(io::stdout().is_terminal() && help::show_man(page.as_bytes()))
-            {
-                out.stdout().write_all(page.as_bytes())?;
-            }
-        }
+        Command::Completion { shell } => completion(shell, out)?,
+        Command::Man => man(out)?,
         Command::Help { topic } => help::run(topic.as_deref(), out)?,
+    }
+    Ok(())
+}
+
+/// A script on a terminal is a wall of text nobody reads; what the reader
+/// needs there is where to save it. `clap_complete::generate` panics on a
+/// failed write. Generating into a `Vec` cannot fail, so the real write
+/// goes through the error path.
+fn completion(shell: clap_complete::Shell, out: &Out) -> anyhow::Result<()> {
+    if io::stdout().is_terminal() {
+        ui::stage(help::completion_hint(shell, invoked_name()));
+        return Ok(());
+    }
+    let mut cmd = cli::command();
+    let mut script = Vec::new();
+    clap_complete::generate(shell, &mut cmd, invoked_name(), &mut script);
+    out.stdout().write_all(&script)?;
+    Ok(())
+}
+
+/// The man page, rendered on demand so it cannot drift from the flags:
+/// through `man` on a terminal, as roff anywhere else.
+fn man(out: &Out) -> anyhow::Result<()> {
+    let page = help::man_page();
+    if !(io::stdout().is_terminal() && help::show_man(page.as_bytes())) {
+        out.stdout().write_all(page.as_bytes())?;
     }
     Ok(())
 }

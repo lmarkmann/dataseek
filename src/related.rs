@@ -191,17 +191,28 @@ pub fn run(url: &str, by: By, limit: usize, out: &Out) -> Result<()> {
 /// The resolver for `url` and whether the URL is `https`.
 fn plan(url: &str, by: By) -> Result<(Plan, bool), Error> {
     let unknown = || Error::Unsupported { url: url.to_owned() };
-    let (scheme, rest) = url.trim().split_once("://").ok_or_else(unknown)?;
+    let (secure, host, path) = page(url).ok_or_else(unknown)?;
+    let plan = resolver(host, &path, by).ok_or_else(unknown)?;
+    if by == By::Forks && !matches!(plan, Plan::GitHubForks { .. }) {
+        return Err(Error::NoForks);
+    }
+    Ok((plan, secure))
+}
+
+/// Whether the URL is `https`, its host without `www.`, and the path
+/// segments that name the item.
+fn page(url: &str) -> Option<(bool, &str, Vec<&str>)> {
+    let (scheme, rest) = url.trim().split_once("://")?;
     let secure = match scheme {
         "https" => true,
         "http" => false,
-        _ => return Err(unknown()),
+        _ => return None,
     };
     let rest = rest.split(['?', '#']).next().unwrap_or_default();
     let mut parts = rest.split('/').filter(|part| !part.is_empty());
-    let host = parts.next().ok_or_else(unknown)?;
+    let host = parts.next()?;
     let host = host.strip_prefix("www.").unwrap_or(host);
-    let path: Vec<&str> = parts.collect();
+    let mut path: Vec<&str> = parts.collect();
     // A GitLab project path ends where `/-/` starts a page inside it; on the
     // other hosts nothing past the third segment names the item.
     let named = if host == "gitlab.com" {
@@ -209,24 +220,25 @@ fn plan(url: &str, by: By) -> Result<(Plan, bool), Error> {
     } else {
         path.len().min(3)
     };
-    let path = path.get(..named).unwrap_or_default();
-    if !path.iter().all(|part| plain(part)) {
-        return Err(unknown());
-    }
-    let plan = match (host, path) {
+    path.truncate(named);
+    path.iter().all(|part| plain(part)).then_some((secure, host, path))
+}
+
+fn resolver(host: &str, path: &[&str], by: By) -> Option<Plan> {
+    Some(match (host, path) {
         ("huggingface.co", ["datasets", owner, name]) => Plan::HubOwner {
             owner: (*owner).to_owned(),
             item: Some(format!("{owner}/{name}")),
         },
         ("huggingface.co", ["papers", id, ..])
         | ("arxiv.org", ["abs" | "pdf", id, ..]) => {
-            Plan::HubPaper { arxiv: arxiv_id(id).ok_or_else(unknown)? }
+            Plan::HubPaper { arxiv: arxiv_id(id)? }
         }
         ("huggingface.co", ["collections", owner, slug]) => {
             Plan::HubCollection { slug: format!("{owner}/{slug}") }
         }
         ("huggingface.co", [first, ..]) if HUB_PAGES.contains(first) => {
-            return Err(unknown());
+            return None;
         }
         ("huggingface.co", [owner]) => {
             Plan::HubOwner { owner: (*owner).to_owned(), item: None }
@@ -244,12 +256,8 @@ fn plan(url: &str, by: By) -> Result<(Plan, bool), Error> {
         ("gitlab.com", [_, _, ..]) => {
             Plan::GitLabOwner { project: path.join("/") }
         }
-        _ => return Err(unknown()),
-    };
-    if by == By::Forks && !matches!(plan, Plan::GitHubForks { .. }) {
-        return Err(Error::NoForks);
-    }
-    Ok((plan, secure))
+        _ => return None,
+    })
 }
 
 /// Whether a path segment is a name the hosts allow: nothing in it can

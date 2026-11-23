@@ -29,67 +29,22 @@ pub fn run(out: &Out) -> Result<()> {
 fn gather(out: &Out) -> Result<Vec<Check>> {
     let dirs = paths::resolve()?;
 
-    let existence = |path: &std::path::Path| {
-        if path.exists() {
-            "exists".to_owned()
-        } else {
-            "not yet created".to_owned()
-        }
+    // The color line is informational, not a verdict. The reasons stay
+    // unlisted because anstream's rules (NO_COLOR, CLICOLOR, TERM, CI, ...)
+    // keep moving.
+    let color = if out.color_on_stdout() {
+        "enabled"
+    } else {
+        "disabled (piped, or suppressed by the environment)"
     };
-
+    let unicode = if out.plain { "ascii (--plain)" } else { "enabled" };
     let mut checks = vec![
-        Check {
-            label: "version".to_owned(),
-            detail: env!("CARGO_PKG_VERSION").to_owned(),
-            ok: true,
-        },
-        Check {
-            label: "config".to_owned(),
-            detail: format!(
-                "{} ({})",
-                dirs.config.display(),
-                existence(&dirs.config)
-            ),
-            ok: true,
-        },
-        Check {
-            label: "cache".to_owned(),
-            detail: format!(
-                "{} ({})",
-                dirs.cache.display(),
-                existence(&dirs.cache)
-            ),
-            ok: true,
-        },
-        Check {
-            label: "state".to_owned(),
-            detail: format!(
-                "{} ({})",
-                dirs.state.display(),
-                existence(&dirs.state)
-            ),
-            ok: true,
-        },
-        Check {
-            label: "color".to_owned(),
-            // Informational, not a verdict. The reasons stay unlisted because
-            // anstream's rules (NO_COLOR, CLICOLOR, TERM, CI, ...) keep moving.
-            detail: if out.color_on_stdout() {
-                "enabled".to_owned()
-            } else {
-                "disabled (piped, or suppressed by the environment)".to_owned()
-            },
-            ok: true,
-        },
-        Check {
-            label: "unicode".to_owned(),
-            detail: if out.plain {
-                "ascii (--plain)".to_owned()
-            } else {
-                "enabled".to_owned()
-            },
-            ok: true,
-        },
+        fact("version", env!("CARGO_PKG_VERSION")),
+        place("config", &dirs.config),
+        place("cache", &dirs.cache),
+        place("state", &dirs.state),
+        fact("color", color),
+        fact("unicode", unicode),
     ];
     checks.extend(keys(&dirs.config));
     checks.extend(opt_ins());
@@ -106,6 +61,17 @@ fn gather(out: &Out) -> Result<Vec<Check>> {
     });
 
     Ok(checks)
+}
+
+/// A line that reports and never fails.
+fn fact(label: &str, detail: impl Into<String>) -> Check {
+    Check { label: label.to_owned(), detail: detail.into(), ok: true }
+}
+
+/// A directory dataseek uses, and whether it exists yet.
+fn place(label: &str, path: &std::path::Path) -> Check {
+    let state = if path.exists() { "exists" } else { "not yet created" };
+    fact(label, format!("{} ({state})", path.display()))
 }
 
 /// One line per API key: where it was found, or where to get one. A missing

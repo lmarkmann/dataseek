@@ -491,6 +491,18 @@ pub enum Command {
     },
 }
 
+impl Command {
+    /// Whether `--offline` was given: the command then sends no request.
+    pub fn offline(&self) -> bool {
+        matches!(
+            self,
+            Self::Search { offline: true, .. }
+                | Self::Inspect { offline: true, .. }
+                | Self::Related { offline: true, .. }
+        )
+    }
+}
+
 #[derive(Subcommand, Clone)]
 pub enum CacheAction {
     /// Where the cache lives, how full it is, and its budget.
