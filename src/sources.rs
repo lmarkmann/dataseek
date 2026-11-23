@@ -77,6 +77,7 @@ mod owid;
 mod pangaea;
 mod physionet;
 mod polaris;
+mod pwc;
 mod roboflow;
 pub(crate) mod sdmx;
 mod socrata;
@@ -816,6 +817,14 @@ pub static SOURCES: &[Source] = &[
         "virtual site data files",
         "https://neurips.cc/Conferences/2026/CallForEvaluationsDatasets",
         neurips::list,
+    ),
+    listed(
+        "pwc",
+        "Papers with Code archive",
+        MachineLearning,
+        "archived JSON dump",
+        "https://huggingface.co/datasets/pwc-archive/files",
+        pwc::list,
     ),
     keyed(
         live(

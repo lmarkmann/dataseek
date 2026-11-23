@@ -300,6 +300,15 @@ impl<'a> Call<'a> {
     }
 
     pub fn text(self) -> Result<String, SourceError> {
+        let body = self.bytes()?;
+        Ok(String::from_utf8(body).unwrap_or_else(|invalid| {
+            String::from_utf8_lossy(invalid.as_bytes()).into_owned()
+        }))
+    }
+
+    /// The body as it came, for a file that is not text, such as a gzip
+    /// archive. Statuses and retries are those of [`Self::text`].
+    pub fn bytes(self) -> Result<Vec<u8>, SourceError> {
         match self.send() {
             Err(Retry::After(wait)) if wait <= LONGEST_RETRY_WAIT => {
                 std::thread::sleep(wait);
@@ -313,7 +322,7 @@ impl<'a> Call<'a> {
         }
     }
 
-    fn send(&self) -> Result<String, Retry> {
+    fn send(&self) -> Result<Vec<u8>, Retry> {
         if OFFLINE.load(Ordering::Relaxed) {
             return Err(Retry::Fail(SourceError::Offline));
         }
@@ -332,9 +341,6 @@ impl<'a> Call<'a> {
             .limit(BODY_LIMIT)
             .read_to_vec()
             .map_err(|e| Retry::Fail(transport(&e)))?;
-        let body = String::from_utf8(body).unwrap_or_else(|invalid| {
-            String::from_utf8_lossy(invalid.as_bytes()).into_owned()
-        });
         self.answer(status, body).map_err(Retry::Fail)
     }
 
@@ -371,11 +377,13 @@ impl<'a> Call<'a> {
     fn answer(
         &self,
         status: u16,
-        body: String,
-    ) -> Result<String, SourceError> {
+        body: Vec<u8>,
+    ) -> Result<Vec<u8>, SourceError> {
         match status {
             200..=299 => Ok(body),
-            401 | 403 if looks_like_challenge(&body) => {
+            401 | 403
+                if looks_like_challenge(&String::from_utf8_lossy(&body)) =>
+            {
                 Err(SourceError::Blocked)
             }
             401 | 403 if self.keyed => Err(SourceError::Unauthorized(status)),
@@ -657,6 +665,21 @@ mod tests {
         ]);
         assert_eq!(Http::new().get(&url).text().unwrap(), "results");
         assert_eq!(server.join().unwrap().len(), 2);
+    }
+
+    #[test]
+    fn bytes_come_back_as_sent_and_text_replaces_invalid_ones() {
+        let gzip_magic = [0x1f, 0x8b, 0x08, 0x00];
+        let (url, server) = serve(vec![
+            response("200 OK", &[], &gzip_magic),
+            response("200 OK", &[], &gzip_magic),
+        ]);
+        assert_eq!(Http::new().get(&url).bytes().unwrap(), gzip_magic);
+        assert_eq!(
+            Http::new().get(&url).text().unwrap(),
+            "\u{1f}\u{fffd}\u{8}\0"
+        );
+        server.join().unwrap();
     }
 
     #[test]

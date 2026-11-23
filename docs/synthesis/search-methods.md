@@ -74,6 +74,7 @@ These publish a complete list but no search endpoint, so dataseek downloads the 
 | Google Research Datasets | `/resources/datasets/?page=N`, 15 cards a page, until a page brings no new link | 169 (2026-11-23) |
 | OPUS | `opusapi?corpora=True`, names only, so matching is on the name | 1,215 (2026-11-23) |
 | NeurIPS Datasets and Benchmarks | `/static/virtual/data/neurips-<year>-orals-posters.json` for 2022 to 2026 (12 to 27 MB each), rows of the track only, each title once | 2,411 (2026-11-23) |
+| Papers with Code archive | `pwc-archive/files` `jul-28-datasets.json.gz` on Hugging Face (8.4 MB, 47 MB inflated, frozen 2025-07-28), rows with a homepage | 11,265 (2026-11-23) |
 | CELLxGENE | Curation API `/collections` | 397 |
 | Grand Challenge | `/api/v1/challenges/?limit=100`, following `next` | 264 (2026-11-23) |
 | The Cancer Imaging Archive | `/api/v1/collections/?per_page=100` with `_fields`, three pages | 241 (2026-11-23) |
