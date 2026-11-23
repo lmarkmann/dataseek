@@ -51,6 +51,7 @@ mod gee;
 mod github;
 mod gitlab;
 mod google;
+mod googleresearch;
 mod grandchallenge;
 mod huggingface;
 mod kaggle;
@@ -788,6 +789,14 @@ pub static SOURCES: &[Source] = &[
         "RSS database file",
         "https://academictorrents.com/docs/api.html",
         academictorrents::list,
+    ),
+    listed(
+        "googleresearch",
+        "Google Research Datasets",
+        MachineLearning,
+        "dataset index pages",
+        "https://research.google/resources/datasets/",
+        googleresearch::list,
     ),
     keyed(
         live(
