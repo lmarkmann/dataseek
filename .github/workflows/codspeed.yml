@@ -41,19 +41,19 @@ jobs:
           rustup update --no-self-update
           rustup toolchain install
       - name: cache
-        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           save-if: ${{ github.ref == 'refs/heads/main' }}
       # Same version as the codspeed crate in Cargo.lock; the two move together.
       - name: tools
-        uses: taiki-e/install-action@4cef1412cce204788f482e778a0b9187f9626a29 # v2.87.21
+        uses: taiki-e/install-action@ab49d3c64680143e184118bed66a46419fc15519 # v2.90.5
         with:
-          tool: cargo-codspeed@5.0.2
+          tool: cargo-codspeed@6.1.0
           fallback: cargo-binstall
       - name: build
         run: cargo codspeed build --features internals --locked
       - name: run
-        uses: CodSpeedHQ/action@373d6868929f444bc08d901fd0eb0ad52a8875ea # v5.2.1
+        uses: CodSpeedHQ/action@af75f77f17a054769abefaa42fe8dc2975469b5f # v5.6.3
         with:
           mode: simulation
           run: cargo codspeed run
