@@ -435,6 +435,21 @@ mod tests {
     use super::*;
     use crate::record::Dataset;
 
+    /// A file of 100 bytes in `dir`, last changed `age` seconds before the
+    /// second 1000.
+    fn cached_file(
+        dir: &Path,
+        name: &str,
+        kind: Kind,
+        age: u64,
+    ) -> CachedFile {
+        let path = dir.join(name);
+        std::fs::write(&path, vec![b'x'; 100]).unwrap();
+        let changed = Duration::from_secs(1000_u64.saturating_sub(age));
+        let modified = UNIX_EPOCH.checked_add(changed).unwrap();
+        CachedFile { path, kind, bytes: 100, modified }
+    }
+
     #[test]
     fn entries_round_trip_and_age_into_stale() {
         let dir = tempfile::tempdir().unwrap();
@@ -526,14 +541,7 @@ mod tests {
     fn trimming_evicts_catalogs_before_the_marks() {
         let dir = tempfile::tempdir().unwrap();
         let file = |name: &str, kind: Kind, age: u64| {
-            let path = dir.path().join(name);
-            std::fs::write(&path, vec![b'x'; 100]).unwrap();
-            CachedFile {
-                path,
-                kind,
-                bytes: 100,
-                modified: UNIX_EPOCH + Duration::from_secs(1000 - age),
-            }
+            cached_file(dir.path(), name, kind, age)
         };
         let files = vec![
             file("mark.json", Kind::Warming, 50),
@@ -592,14 +600,7 @@ mod tests {
     fn trimming_evicts_newer_queries_before_an_older_catalog() {
         let dir = tempfile::tempdir().unwrap();
         let file = |name: &str, kind: Kind, age: u64| {
-            let path = dir.path().join(name);
-            std::fs::write(&path, vec![b'x'; 100]).unwrap();
-            CachedFile {
-                path,
-                kind,
-                bytes: 100,
-                modified: UNIX_EPOCH + Duration::from_secs(1000 - age),
-            }
+            cached_file(dir.path(), name, kind, age)
         };
         let files = vec![
             file("catalog.json", Kind::Catalog, 50),

@@ -115,6 +115,26 @@ fn json_of(args: &[&str]) -> Value {
     serde_json::from_str(&stdout_text(args)).unwrap()
 }
 
+/// The stderr of a run that failed with exit code 1.
+fn failure(out: std::process::Output) -> String {
+    assert_eq!(out.status.code(), Some(1), "{out:?}");
+    String::from_utf8(out.stderr).unwrap()
+}
+
+/// The exit code of a run that failed, and the one event on its stderr.
+fn error_event(args: &[&str]) -> (Option<i32>, Value) {
+    let out = bin().args(args).output().unwrap();
+    (out.status.code(), serde_json::from_slice(&out.stderr).unwrap())
+}
+
+/// A host that accepts a connection and never answers, and its address as
+/// a proxy.
+fn silent_proxy() -> (std::net::TcpListener, String) {
+    let silent = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let proxy = format!("http://{}", silent.local_addr().unwrap());
+    (silent, proxy)
+}
+
 fn result_titles(stdout: &[u8]) -> Vec<String> {
     let report: Value = serde_json::from_slice(stdout).unwrap();
     report
@@ -366,15 +386,11 @@ fn errors_under_json_are_events_on_stderr() {
 
     // clap's own usage errors take the same shape, with clap's details as
     // causes.
-    let out = bin().args(["--json", "no-such-command"]).output().unwrap();
-    assert_eq!(out.status.code(), Some(2));
-    let event: Value = serde_json::from_slice(&out.stderr).unwrap();
+    let (code, event) = error_event(&["--json", "no-such-command"]);
+    assert_eq!(code, Some(2));
     assert_eq!(event["event"], "error");
-    let out = bin()
-        .args(["--json", "search", "x", "--sort", "oldest"])
-        .output()
-        .unwrap();
-    let event: Value = serde_json::from_slice(&out.stderr).unwrap();
+    let (_, event) =
+        error_event(&["--json", "search", "x", "--sort", "oldest"]);
     assert_eq!(
         event["message"],
         "invalid value 'oldest' for '--sort <ORDER>'"
@@ -383,8 +399,7 @@ fn errors_under_json_are_events_on_stderr() {
         event["causes"],
         json!(["[possible values: relevance, newest]"])
     );
-    let out = bin().args(["--json", "search"]).output().unwrap();
-    let event: Value = serde_json::from_slice(&out.stderr).unwrap();
+    let (_, event) = error_event(&["--json", "search"]);
     assert_eq!(event["causes"], json!(["<QUERY>..."]));
 }
 
@@ -399,12 +414,9 @@ fn an_unknown_flag_is_never_read_as_query_words() {
     assert_eq!(out.status.code(), Some(2));
     assert_eq!(out.stdout, b"");
 
-    let out = bin()
-        .args(["--json", "sources", "--jq", ".sources"])
-        .output()
-        .unwrap();
-    assert_eq!(out.status.code(), Some(2));
-    let event: Value = serde_json::from_slice(&out.stderr).unwrap();
+    let (code, event) =
+        error_event(&["--json", "sources", "--jq", ".sources"]);
+    assert_eq!(code, Some(2));
     assert_eq!(event["event"], "error");
 }
 
@@ -459,8 +471,7 @@ fn offline_with_nothing_cached_says_so_and_marks_no_outage() {
         .args(["search", "climate", "-s", "datacite,zenodo", "--offline"])
         .output()
         .unwrap();
-    assert_eq!(out.status.code(), Some(1));
-    let stderr = String::from_utf8(out.stderr).unwrap();
+    let stderr = failure(out);
     assert!(stderr.contains("nothing cached answers"), "{stderr}");
     let outages =
         std::fs::read_dir(cache.join("outages")).map_or(0, Iterator::count);
@@ -557,8 +568,7 @@ fn every_source_resting_says_so_and_how_to_ask_anyway() {
         .args(["-x", "openaire,google,b2find"])
         .output()
         .unwrap();
-    assert_eq!(out.status.code(), Some(1));
-    let stderr = String::from_utf8(out.stderr).unwrap();
+    let stderr = failure(out);
     assert!(stderr.contains("resting"), "{stderr}");
     assert!(stderr.contains("-s"), "{stderr}");
 }
@@ -569,8 +579,7 @@ fn excluding_every_chosen_source_names_the_exclusion() {
     cmd.env("DATASEEK_EXCLUDE", "zenodo");
     let out =
         cmd.args(["search", "climate", "-s", "zenodo"]).output().unwrap();
-    assert_eq!(out.status.code(), Some(1));
-    let stderr = String::from_utf8(out.stderr).unwrap();
+    let stderr = failure(out);
     assert!(stderr.contains("DATASEEK_EXCLUDE"), "{stderr}");
 }
 
@@ -606,37 +615,29 @@ fn opt_in_sources_are_marked_in_the_listing_and_doctor() {
 // keeps the source out of the run.
 #[test]
 fn include_asks_an_opt_in_source_beside_the_others() {
-    let mut with = bin();
-    seed_rainfall(&with.cache());
-    let out = with
-        .args([
-            "search",
-            "rainfall",
-            "--offline",
-            "--json",
-            "--include",
-            "google,mendeley",
-        ])
-        .output()
-        .unwrap();
-    assert!(out.status.success(), "{out:?}");
-    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
-    let ids = source_ids(&report);
-    assert!(ids.contains(&"google"), "{ids:?}");
-    assert!(ids.contains(&"mendeley"), "{ids:?}");
+    let has = |ids: &[String], id: &str| ids.iter().any(|i| i == id);
+    let ids = rainfall_sources(&["--include", "google,mendeley"]);
+    assert!(has(&ids, "google"), "{ids:?}");
+    assert!(has(&ids, "mendeley"), "{ids:?}");
 
-    let mut without = bin();
-    seed_rainfall(&without.cache());
-    let out = without
+    let ids = rainfall_sources(&[]);
+    assert!(!has(&ids, "google"), "{ids:?}");
+    assert!(!has(&ids, "mendeley"), "{ids:?}");
+    assert!(has(&ids, "openml"), "{ids:?}");
+}
+
+/// The sources an offline search of the seeded rainfall cache asks.
+fn rainfall_sources(extra: &[&str]) -> Vec<String> {
+    let mut cmd = bin();
+    seed_rainfall(&cmd.cache());
+    let out = cmd
         .args(["search", "rainfall", "--offline", "--json"])
+        .args(extra)
         .output()
         .unwrap();
     assert!(out.status.success(), "{out:?}");
     let report: Value = serde_json::from_slice(&out.stdout).unwrap();
-    let ids = source_ids(&report);
-    assert!(!ids.contains(&"google"), "{ids:?}");
-    assert!(!ids.contains(&"mendeley"), "{ids:?}");
-    assert!(ids.contains(&"openml"), "{ids:?}");
+    source_ids(&report).into_iter().map(str::to_owned).collect()
 }
 
 #[test]
@@ -874,8 +875,7 @@ fn cache_warm_into_an_unwritable_dir_fails_before_downloading() {
         .arg(&file)
         .output()
         .unwrap();
-    assert_eq!(out.status.code(), Some(1));
-    let stderr = String::from_utf8(out.stderr).unwrap();
+    let stderr = failure(out);
     assert!(stderr.contains("cannot write the cache"), "{stderr}");
     assert!(!stderr.contains("downloading"), "{stderr}");
 }
@@ -1099,6 +1099,19 @@ fn inspect_page(page: &'static str, args: &[&str]) -> std::process::Output {
         .unwrap()
 }
 
+/// `inspect --json` of an address on a local server, with no proxy in the
+/// way.
+fn inspect_address(address: &str) -> Value {
+    let out = bin()
+        .env_remove("HTTPS_PROXY")
+        .env_remove("HTTP_PROXY")
+        .args(["inspect", address, "--json"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    serde_json::from_slice(&out.stdout).unwrap()
+}
+
 /// `inspect --json` of a local page.
 fn inspect_json(page: &'static str) -> Value {
     let out = inspect_page(page, &["--json"]);
@@ -1137,14 +1150,7 @@ fn inspect_reads_a_dataverse_page_through_its_export() {
         "{}citation?persistentId=doi:10.7910/DVN/X",
         serve_page(export)
     );
-    let out = bin()
-        .env_remove("HTTPS_PROXY")
-        .env_remove("HTTP_PROXY")
-        .args(["inspect", &page, "--json"])
-        .output()
-        .unwrap();
-    assert!(out.status.success(), "{out:?}");
-    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    let report = inspect_address(&page);
     assert_eq!(report["files"].as_array().map(Vec::len), Some(2));
 }
 
@@ -1156,14 +1162,7 @@ fn inspect_reads_the_page_when_the_dataverse_export_refuses() {
         "{}dataset.xhtml?persistentId=doi:10.7910/DVN/X&version=1.0",
         serve_page(include_str!("fixtures/inspect/zenodo.html"))
     );
-    let out = bin()
-        .env_remove("HTTPS_PROXY")
-        .env_remove("HTTP_PROXY")
-        .args(["inspect", &page, "--json"])
-        .output()
-        .unwrap();
-    assert!(out.status.success(), "{out:?}");
-    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    let report = inspect_address(&page);
     assert!(report["dataset"]["name"].is_string(), "{report}");
 }
 
@@ -1681,8 +1680,7 @@ fn help_for_one_command_matches_its_entry_in_the_surface() {
 fn assert_ctrl_c_interrupts() {
     use std::os::unix::process::ExitStatusExt;
 
-    let silent = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let proxy = format!("http://{}", silent.local_addr().unwrap());
+    let (_silent, proxy) = silent_proxy();
     let dir = tempfile::tempdir().unwrap();
     let mut child =
         sandboxed(Path::new(env!("CARGO_BIN_EXE_dataseek")), dir.path())
@@ -2283,8 +2281,7 @@ fn an_mcp_server_whose_client_stops_reading_ends_its_calls() {
     use std::io::{Read, Write};
     use std::os::unix::process::ExitStatusExt;
 
-    let silent = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let proxy = format!("http://{}", silent.local_addr().unwrap());
+    let (silent, proxy) = silent_proxy();
     let dir = tempfile::tempdir().unwrap();
     let mut mcp = Mcp::start(dir.path(), &proxy);
     waiting_search(&mut mcp, 1);
@@ -2357,8 +2354,7 @@ fn an_mcp_server_keeps_working_after_its_binary_is_replaced() {
 // and closing stdin ends the calls still running.
 #[test]
 fn an_mcp_session_keeps_answering_while_calls_run() {
-    let silent = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let proxy = format!("http://{}", silent.local_addr().unwrap());
+    let (_silent, proxy) = silent_proxy();
     let dir = tempfile::tempdir().unwrap();
     let mut mcp = Mcp::start(dir.path(), &proxy);
     for id in 1..=4 {

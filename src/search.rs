@@ -759,16 +759,34 @@ mod tests {
         outcomes.iter().map(|o| &o.status).collect()
     }
 
-    #[test]
-    fn a_first_catalog_download_is_not_waited_for_once_the_rest_answered() {
-        let (outcomes, took) =
-            search(vec![&ANSWERS, &CATALOG_HANGS], false, DEADLINE, |_| {});
+    /// The search came back with the live source's answer and left the
+    /// catalog download running.
+    fn assert_download_left(outcomes: &[Outcome], took: Duration) {
         assert!(took < Duration::from_secs(5), "{took:?}");
-        let statuses = statuses(&outcomes);
+        let statuses = statuses(outcomes);
         assert!(
             matches!(statuses[..], [Status::Fetched, Status::Downloading]),
             "{statuses:?}"
         );
+    }
+
+    /// What `one` makes of a source once the deadline has passed, whether
+    /// it parked the source as down, and how many answers it cached.
+    fn past_the_deadline(source: &'static Source) -> (Outcome, bool, usize) {
+        let dir = tempfile::tempdir().unwrap();
+        let services = Services::scratch(dir.path());
+        services.stop.store(true, Ordering::Relaxed);
+        let ctx = services.ctx(false);
+        let outcome = one(&ctx, &plan(source, true), source);
+        let parked = ctx.cache.recent_outage(source.id).is_some();
+        (outcome, parked, ctx.cache.usage().files)
+    }
+
+    #[test]
+    fn a_first_catalog_download_is_not_waited_for_once_the_rest_answered() {
+        let (outcomes, took) =
+            search(vec![&ANSWERS, &CATALOG_HANGS], false, DEADLINE, |_| {});
+        assert_download_left(&outcomes, took);
     }
 
     #[test]
@@ -804,12 +822,7 @@ mod tests {
                     assert!(services.cache.claim_warming(CATALOG_WARMING.id));
                 },
             );
-            assert!(took < Duration::from_secs(5), "{took:?}");
-            let statuses = statuses(&outcomes);
-            assert!(
-                matches!(statuses[..], [Status::Fetched, Status::Downloading]),
-                "forced {forced}: {statuses:?}"
-            );
+            assert_download_left(&outcomes, took);
         }
     }
 
@@ -924,30 +937,19 @@ mod tests {
 
     #[test]
     fn a_failure_past_the_deadline_parks_no_source() {
-        let dir = tempfile::tempdir().unwrap();
-        let services = Services::scratch(dir.path());
-        services.stop.store(true, Ordering::Relaxed);
-        let ctx = services.ctx(false);
-        let outcome = one(&ctx, &plan(&TIMES_OUT, true), &TIMES_OUT);
+        let (outcome, parked, _) = past_the_deadline(&TIMES_OUT);
         assert!(matches!(
             outcome.status,
             Status::Failed(SourceError::Timeout)
         ));
-        assert!(
-            ctx.cache.recent_outage(TIMES_OUT.id).is_none(),
-            "a deadline-cut-off source was parked as down"
-        );
+        assert!(!parked, "a deadline-cut-off source was parked as down");
     }
 
     #[test]
     fn a_complete_answer_is_kept_even_past_the_deadline() {
-        let dir = tempfile::tempdir().unwrap();
-        let services = Services::scratch(dir.path());
-        services.stop.store(true, Ordering::Relaxed);
-        let ctx = services.ctx(false);
-        let outcome = one(&ctx, &plan(&ANSWERS, true), &ANSWERS);
+        let (outcome, _, cached) = past_the_deadline(&ANSWERS);
         assert!(matches!(outcome.status, Status::Fetched));
         assert_eq!(outcome.datasets, found());
-        assert_eq!(ctx.cache.usage().files, 1, "the full answer was not kept");
+        assert_eq!(cached, 1, "the full answer was not kept");
     }
 }
