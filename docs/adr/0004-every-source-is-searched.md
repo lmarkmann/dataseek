@@ -54,6 +54,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `tfds` | TensorFlow Datasets | catalog page | local |  | [docs](https://www.tensorflow.org/datasets/catalog/overview) |
 | `openslr` | OpenSLR | resource index page | local |  | [docs](https://www.openslr.org/resources.php) |
 | `lila` | LILA BC | WordPress posts API, listed | local |  | [docs](https://lila.science/datasets) |
+| `polaris` | Polaris Hub | Hub API, listed | local |  | [docs](https://polaris-hub.github.io/polaris/stable/) |
 
 ### code
 

@@ -71,6 +71,7 @@ mod osf;
 mod owid;
 mod pangaea;
 mod physionet;
+mod polaris;
 mod roboflow;
 pub(crate) mod sdmx;
 mod socrata;
@@ -769,6 +770,14 @@ pub static SOURCES: &[Source] = &[
         "WordPress posts API, listed",
         "https://lila.science/datasets",
         lila::list,
+    ),
+    listed(
+        "polaris",
+        "Polaris Hub",
+        MachineLearning,
+        "Hub API, listed",
+        "https://polaris-hub.github.io/polaris/stable/",
+        polaris::list,
     ),
     keyed(
         live(
