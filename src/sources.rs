@@ -1369,6 +1369,14 @@ pub static SOURCES: &[Source] = &[
         EBI_DOCS,
         Adapter::Ebi(&ebi::BIOSTUDIES),
     ),
+    via(
+        "bioimages",
+        "BioImage Archive",
+        LifeSciences,
+        "EBI Search",
+        EBI_DOCS,
+        Adapter::Ebi(&ebi::BIOIMAGES),
+    ),
     live(
         "omicsdi",
         "OmicsDI",

@@ -28,6 +28,14 @@ pub static BIOSTUDIES: Domain = Domain {
     name: "biostudies-other",
     page: "https://www.ebi.ac.uk/biostudies/studies/",
 };
+/// The BioImage Archive sends an empty description and abstract for every
+/// entry sampled, so a record holds only its name and release date. EBI
+/// Search took 25 to 60 seconds to answer this domain on 2026-11-23, as it
+/// did for the other domains that day.
+pub static BIOIMAGES: Domain = Domain {
+    name: "bioimages",
+    page: "https://www.ebi.ac.uk/biostudies/bioimages/studies/",
+};
 
 const OPERATORS: &str = r#"+-!(){}[]^"~*?:\/&|"#;
 
@@ -186,6 +194,26 @@ mod tests {
                 popularity: None,
                 formats: vec![],
                 aliases: vec![],
+            }
+        );
+    }
+
+    #[test]
+    fn a_bioimages_entry_has_a_name_and_a_release_date_only() {
+        let hits = parse(&BIOIMAGES, &fixture::json("ebi.bioimages.json"), 10)
+            .unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Correlated fluorescence and 3D electron microscopy \
+                        with high sensitivity and spatial precision"
+                    .into(),
+                url: "https://www.ebi.ac.uk/biostudies/bioimages/studies/\
+                      S-JCBD-201009037"
+                    .into(),
+                updated: Some("2011-01-03".into()),
+                ..Dataset::default()
             }
         );
     }

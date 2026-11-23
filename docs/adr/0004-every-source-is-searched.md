@@ -168,6 +168,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `geo` | NCBI GEO | E-utilities | live | `$NCBI_API_KEY` (optional) | [docs](https://www.ncbi.nlm.nih.gov/books/NBK25501/) |
 | `arrayexpress` | ArrayExpress (EBI) | EBI Search | live |  | [docs](https://www.ebi.ac.uk/ebisearch/documentation/rest-api) |
 | `biostudies` | BioStudies (EBI) | EBI Search | live |  | [docs](https://www.ebi.ac.uk/ebisearch/documentation/rest-api) |
+| `bioimages` | BioImage Archive | EBI Search | live |  | [docs](https://www.ebi.ac.uk/ebisearch/documentation/rest-api) |
 | `omicsdi` | OmicsDI | OmicsDI | live |  | [docs](https://www.omicsdi.org/ws/) |
 | `cellxgene` | CZ CELLxGENE | Curation API, listed | local |  | [docs](https://api.cellxgene.cziscience.com/curation/ui/) |
 | `grandchallenge` | Grand Challenge | REST API, listed | local |  | [docs](https://grand-challenge.org/documentation/grand-challenge-api/) |

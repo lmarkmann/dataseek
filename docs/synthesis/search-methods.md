@@ -31,7 +31,7 @@ How each search interface takes a query, pages, ranks and limits, as found when 
 | GBIF | GET `/v1/dataset/search` | `q` | full text | relevance | 1,000 |
 | DataONE | GET `/cn/v2/query/solr/` | Solr `q`, `fq` | Solr fields | Solr relevance | 10,000 (observed) |
 | NCBI GEO | GET `esearch.fcgi` then `esummary.fcgi` | `term` (Entrez syntax) | indexed fields, `[ETYP]` filters | Entrez default order, not an explicit relevance rank | 10,000 (`retmax`); `retstart` pages |
-| EBI Search | GET `/ebisearch/ws/rest/{domain}` | `query` | domain fields | relevance | 1,000 |
+| EBI Search | GET `/ebisearch/ws/rest/{domain}` | `query` | domain fields | relevance | 1,000; every domain took 25 to 60 seconds on 2026-11-23 |
 | OmicsDI | GET `/ws/dataset/search` | `query` (plus `NOT repository:"biostudies-literature"`) | full text | default order (docs: relevance) | 100 (docs; the server answers more) |
 | Synapse | POST `/repo/v1/search` | `queryTerm` list, `booleanQuery` | any word, ranked | relevance | 1,000 per page (observed) |
 | ENCODE | GET `/search/` | `searchTerm`, `type=Experiment`, `status=released`, `field=` per property | every word, across the experiment metadata | relevance | `limit` (dataseek asks 100 at most); no hit answers 404 with a JSON body; `from` answered 403 (2026-11-23) |

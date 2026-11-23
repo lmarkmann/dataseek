@@ -1,0 +1,66 @@
+{
+  "hitCount": 225,
+  "entries": [
+    {
+      "acc": "S-JCBD-201009037",
+      "id": "S-JCBD-201009037",
+      "source": "bioimages",
+      "fields": {
+        "name": [
+          "Correlated fluorescence and 3D electron microscopy with high sensitivity and spatial precision"
+        ],
+        "description": [],
+        "abstract": [],
+        "release_date": [
+          "20110103"
+        ]
+      }
+    },
+    {
+      "acc": "S-BIAD490",
+      "id": "S-BIAD490",
+      "source": "bioimages",
+      "fields": {
+        "name": [
+          "Deciphering the Mechanisms of Developmental Disorders (DMDD)"
+        ],
+        "description": [],
+        "abstract": [],
+        "release_date": [
+          "20220622"
+        ]
+      }
+    },
+    {
+      "acc": "S-BIAD4239",
+      "id": "S-BIAD4239",
+      "source": "bioimages",
+      "fields": {
+        "name": [
+          "Microscopy Nodes: versatile 3D microscopy visualization with Blender"
+        ],
+        "description": [],
+        "abstract": [],
+        "release_date": [
+          "20261012"
+        ]
+      }
+    },
+    {
+      "acc": "S-BIAD2266",
+      "id": "S-BIAD2266",
+      "source": "bioimages",
+      "fields": {
+        "name": [
+          "Enhancing the effective resolution of intravital microscopy with digital expansion microscopy"
+        ],
+        "description": [],
+        "abstract": [],
+        "release_date": [
+          "20250905"
+        ]
+      }
+    }
+  ],
+  "facets": []
+}

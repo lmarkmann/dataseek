@@ -17,7 +17,7 @@ A protocol is written once and configured per registry row:
 | Dataverse Search API | `dataverse.rs` | Harvard, Borealis, Recherche Data Gouv, DataverseNL, DataverseNO, DaRUS, Juelich DATA, CORA.RDR, AUSSDA, QDR | live |
 | NADA catalog search | `nada.rs` | World Bank, IHSN, FAO, UNHCR | live |
 | Socrata Discovery | `socrata.rs` | US and EU regions (every Socrata domain) | live |
-| EBI Search | `ebi.rs` | ArrayExpress, BioStudies | live |
+| EBI Search | `ebi.rs` | ArrayExpress, BioStudies, BioImage Archive | live |
 | STAC collections | `stac.rs` | Planetary Computer, Earth Search, Copernicus Data Space, Copernicus CDS, Swisstopo, USGS LandsatLook | local |
 | SDMX-ML 2.1 dataflows | `sdmx.rs` | IMF, OECD, ECB, BIS, ILO, UNdata, Bundesbank, UNICEF | local |
 | DCAT-AP | `europa.rs` | every EU national portal, through data.europa.eu | live |

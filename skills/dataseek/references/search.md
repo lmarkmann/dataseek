@@ -64,7 +64,7 @@ The `sources` tool (or `dsk sources --json`) is the live list: id, name, categor
 | `finance` | `ecb`*, `bis`*, `fred`, `bundesbank`*, `fiscal-data`* |
 | `geospatial` | `cmr`, `planetary-computer`*, `earth-search`*, `copernicus-dataspace`*, `copernicus-cds`*, `swisstopo`*, `usgs-landsat`*, `earth-engine`*, `ncei`, `pangaea` |
 | `government` | `europa`, `datagov`, `data-gov-uk`, `open-canada`, `data-gov-au`, `govdata`, `hdx`, `data-go-jp`, `energydata`, `open-africa`, `socrata`, `socrata-eu`, `opendatasoft`, `arcgis` |
-| `life-sciences` | `geo`, `arrayexpress`, `biostudies`, `omicsdi`, `cellxgene`*, `synapse`, `encode`, `grandchallenge`, `tcia` |
+| `life-sciences` | `geo`, `arrayexpress`, `biostudies`, `omicsdi`, `cellxgene`*, `synapse`, `encode`, `grandchallenge`, `tcia`, `bioimages`|
 | `machine-learning` | `huggingface`, `kaggle`, `openml`*, `uci`*, `roboflow`, `modelscope`, `mozilla`, `clarin`, `elg`, `aws`*, `tfds`*, `openslr`*, `lila`*, `polaris`*, `academictorrents`*, `googleresearch`*, `opus`*, `neurips`*, `pwc`* |
 | `neuroscience` | `openneuro`*, `dandi`, `physionet`* |
 | `physics` | `cern`, `materials-project`*, `nomad`* |
