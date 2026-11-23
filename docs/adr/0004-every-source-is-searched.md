@@ -47,6 +47,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `uci` | UCI Machine Learning Repository | list endpoint | local |  | [docs](https://github.com/uci-ml-repo/ucimlrepo) |
 | `roboflow` | Roboflow Universe | Universe API | live | `$ROBOFLOW_API_KEY` (required) | [docs](https://docs.roboflow.com/datasets/universe/universe/universe-search) |
 | `modelscope` | ModelScope | site API | live |  | [docs](https://www.modelscope.cn/docs) |
+| `mozilla` | Mozilla Data Collective | MDC REST | live |  | [docs](https://mozilladatacollective.com/api-reference/docs) |
 | `aws` | Registry of Open Data on AWS | registry page | local |  | [docs](https://github.com/awslabs/open-data-registry) |
 | `tfds` | TensorFlow Datasets | catalog page | local |  | [docs](https://www.tensorflow.org/datasets/catalog/overview) |
 

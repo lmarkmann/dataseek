@@ -1,0 +1,129 @@
+{
+  "items": [
+    {
+      "id": "cmu5ktqhe00pgmh07p1xamabd",
+      "slug": "common-voice-scripted-speech-27-0-german-8b79e329",
+      "name": "Common Voice Scripted Speech 27.0 - German",
+      "shortDescription": "A collection of read speech recordings in German.",
+      "longDescription": "A collection of read speech recordings in German (Deutsch).",
+      "sizeBytes": 37382527376,
+      "checksum": "74b8a87761afc4e1a9feca8ff0447b11106b2e13959ee8d78d01665945be011d",
+      "createdAt": "2026-09-17T13:39:50.738Z",
+      "organization": {
+        "name": "Mozilla Common Voice",
+        "slug": "mozilla-common-voice-d7c62f37"
+      },
+      "pricing": {
+        "isPaid": false,
+        "basePriceCents": null,
+        "currency": null,
+        "platformFeeRate": null,
+        "platformFeeCents": null,
+        "totalPriceCents": null
+      },
+      "locale": "de",
+      "license": "Creative Commons Zero v1.0 Universal (CC0-1.0)",
+      "licenseAbbreviation": "CC0-1.0",
+      "task": "ASR",
+      "format": "MP3",
+      "datasetUrl": "https://mozilladatacollective.com/datasets/cmu5ktqhe00pgmh07p1xamabd",
+      "filename": "common-voice-scripted-speech-27-0-german-8b79e329.tar.gz",
+      "isPaid": false,
+      "basePriceCents": null
+    },
+    {
+      "id": "cmu5mc2sn00s5mi07udtq2864",
+      "slug": "common-voice-spontaneous-speech-5-0-germ-c080878a",
+      "name": "Common Voice Spontaneous Speech 5.0 - German",
+      "shortDescription": "A collection of spontaneous responses to questions in German.",
+      "longDescription": "A collection of spontaneous responses to questions in German (Deutsch).",
+      "sizeBytes": 40589347,
+      "checksum": "53a8f79c26894cc2c2d73a97fb0bd898ecafb5e3eedf80a9f1e30c6ef56b9884",
+      "createdAt": "2026-09-17T14:22:06.119Z",
+      "organization": {
+        "name": "Mozilla Common Voice",
+        "slug": "mozilla-common-voice-d7c62f37"
+      },
+      "pricing": {
+        "isPaid": false,
+        "basePriceCents": null,
+        "currency": null,
+        "platformFeeRate": null,
+        "platformFeeCents": null,
+        "totalPriceCents": null
+      },
+      "locale": "de",
+      "license": "Creative Commons Zero v1.0 Universal (CC0-1.0)",
+      "licenseAbbreviation": "CC0-1.0",
+      "task": "ASR",
+      "format": "MP3",
+      "datasetUrl": "https://mozilladatacollective.com/datasets/cmu5mc2sn00s5mi07udtq2864",
+      "filename": "common-voice-spontaneous-speech-5-0-germ-c080878a.tar.gz",
+      "isPaid": false,
+      "basePriceCents": null
+    },
+    {
+      "id": "cmou2fdyx015fl307bux4c4gi",
+      "slug": "covost-2-german-english-73346f8c",
+      "name": "CoVoST 2 German-English",
+      "shortDescription": "The dataset includes 154856 audio files in German and their translations in English.",
+      "longDescription": "CoVoST 2 is a large-scale multilingual speech to text translation corpus based on Mozilla Common Voice 4.0. This segment of the corpus contains the German audio and the translations in English.",
+      "sizeBytes": 6332180063,
+      "checksum": "b59707d418947938c52b1e3362e72a981df7cc704b459ff83c0d1e96bc96ff52",
+      "createdAt": "2026-05-06T13:00:48.633Z",
+      "organization": {
+        "name": "MDC Curators",
+        "slug": "mdc-curators-8b10d7ae"
+      },
+      "pricing": {
+        "isPaid": false,
+        "basePriceCents": null,
+        "currency": null,
+        "platformFeeRate": null,
+        "platformFeeCents": null,
+        "totalPriceCents": null
+      },
+      "locale": "de, en",
+      "license": "Creative Commons Attribution Non Commercial 4.0 International (CC-BY-NC-4.0)",
+      "licenseAbbreviation": "CC-BY-NC-4.0",
+      "task": "MT",
+      "format": "MP3, TSV",
+      "datasetUrl": "https://mozilladatacollective.com/datasets/cmou2fdyx015fl307bux4c4gi",
+      "filename": "covost-2-german-english-73346f8c.tar.gz",
+      "isPaid": false,
+      "basePriceCents": null
+    },
+    {
+      "id": "cmpq9bjzy00f7nv07qff3brpb",
+      "slug": "covost-2-english-german-10a2754c",
+      "name": "CoVoST 2 English - German",
+      "shortDescription": "The dataset includes audio files in English and their translations in German.",
+      "longDescription": "CoVoST 2 is a large-scale multilingual speech to text translation corpus based on Mozilla Common Voice 4.0. This segment of the corpus contains the English audio (436 hours) and the translations in German.",
+      "sizeBytes": 13482337226,
+      "checksum": "13c77f08cc51470d03edd983625cdb0b359e9ce2f0376e94f8a5a4b36fa8f5c5",
+      "createdAt": "2026-05-29T01:42:24.766Z",
+      "organization": {
+        "name": "MDC Curators",
+        "slug": "mdc-curators-8b10d7ae"
+      },
+      "pricing": {
+        "isPaid": false,
+        "basePriceCents": null,
+        "currency": null,
+        "platformFeeRate": null,
+        "platformFeeCents": null,
+        "totalPriceCents": null
+      },
+      "locale": "en, de",
+      "license": "Creative Commons Attribution Non Commercial 4.0 International (CC-BY-NC-4.0)",
+      "licenseAbbreviation": "CC-BY-NC-4.0",
+      "task": "MT",
+      "format": "MP3, TSV",
+      "datasetUrl": "https://mozilladatacollective.com/datasets/cmpq9bjzy00f7nv07qff3brpb",
+      "filename": "covost-2-english-german-10a2754c.tar.gz",
+      "isPaid": false,
+      "basePriceCents": null
+    }
+  ],
+  "total": 100
+}

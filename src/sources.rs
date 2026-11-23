@@ -53,6 +53,7 @@ mod kaggle;
 mod materials;
 mod mendeley;
 mod modelscope;
+mod mozilla;
 mod nada;
 mod ncbi;
 mod ncei;
@@ -708,6 +709,14 @@ pub static SOURCES: &[Source] = &[
         "site API",
         "https://www.modelscope.cn/docs",
         modelscope::search,
+    ),
+    live(
+        "mozilla",
+        "Mozilla Data Collective",
+        MachineLearning,
+        "MDC REST",
+        "https://mozilladatacollective.com/api-reference/docs",
+        mozilla::search,
     ),
     listed(
         "aws",
@@ -1534,6 +1543,7 @@ mod tests {
             ("kaggle", |b, n| kaggle::parse(b, n)),
             ("mendeley", |b, n| mendeley::parse(b, n)),
             ("modelscope", |b, n| modelscope::parse(b, n)),
+            ("mozilla", |b, n| mozilla::parse(b, n)),
             ("ncei", |b, n| ncei::parse(b, n)),
             ("omicsdi", |b, n| omicsdi::parse(b, n)),
             ("openaire", |b, n| openaire::parse(b, n)),
