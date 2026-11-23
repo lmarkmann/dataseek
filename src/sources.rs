@@ -21,6 +21,7 @@
 //! source that answers an error to a query its parser cannot read, and
 //! `paginate_next` for pages that link the next one.
 
+mod academictorrents;
 mod arcgis;
 mod aws;
 mod cellxgene;
@@ -779,6 +780,14 @@ pub static SOURCES: &[Source] = &[
         "Hub API, listed",
         "https://polaris-hub.github.io/polaris/stable/",
         polaris::list,
+    ),
+    listed(
+        "academictorrents",
+        "Academic Torrents",
+        MachineLearning,
+        "RSS database file",
+        "https://academictorrents.com/docs/api.html",
+        academictorrents::list,
     ),
     keyed(
         live(

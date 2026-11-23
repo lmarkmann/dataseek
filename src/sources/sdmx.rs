@@ -242,7 +242,7 @@ impl Reading {
 }
 
 /// The text of a predefined entity reference; any other shows as a space.
-fn reference(name: &str) -> &'static str {
+pub(super) fn reference(name: &str) -> &'static str {
     match name {
         "amp" => "&",
         "lt" => "<",

@@ -55,6 +55,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `openslr` | OpenSLR | resource index page | local |  | [docs](https://www.openslr.org/resources.php) |
 | `lila` | LILA BC | WordPress posts API, listed | local |  | [docs](https://lila.science/datasets) |
 | `polaris` | Polaris Hub | Hub API, listed | local |  | [docs](https://polaris-hub.github.io/polaris/stable/) |
+| `academictorrents` | Academic Torrents | RSS database file | local |  | [docs](https://academictorrents.com/docs/api.html) |
 
 ### code
 
