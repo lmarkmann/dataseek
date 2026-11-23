@@ -1,0 +1,87 @@
+[
+  {
+    "link": "https://www.cancerimagingarchive.net/collection/fhcc-ptrc-melanoma/",
+    "cancer_types": [
+      "Melanoma",
+      "Metastatic disease"
+    ],
+    "collection_doi": "10.7937/axrh-hy45",
+    "cancer_locations": [
+      "Skin of Body",
+      "Lung",
+      "Lymph Node"
+    ],
+    "collection_page_accessibility": "",
+    "supporting_data": [
+      "Genomics",
+      "Proteomics"
+    ],
+    "species": [
+      "Human"
+    ],
+    "collection_title": "Identification of Proteomic Subtypes with Differential Responses to Immune Checkpoint Inhibition in Melanoma",
+    "date_updated": "2026-11-04",
+    "subjects": "208",
+    "collection_short_title": "FHCC-PTRC-Melanoma",
+    "data_types": false,
+    "collection_abstract": "<p>Predictive biomarkers for combined PD-1/CTLA-4 blockade in metastatic melanoma remain limited. We analyzed pretreatment proteogenomic data to define response and resistance biology. We profiled 208 pretreatment FFPE specimens from 207 patients with metastatic cutaneous melanoma treated across 12 institutions, including 164 receiving dual PD-1+CTLA-4 blockade (Discovery, n=97; Validation 1, n=67) and 44 receiving PD-1 monotherapy (Validation 2). Tumors underwent TMT-based proteomics, RNA seque",
+    "collection_summary": ""
+  },
+  {
+    "link": "https://www.cancerimagingarchive.net/collection/cfb-gbm/",
+    "cancer_types": [
+      "Glioblastoma"
+    ],
+    "collection_doi": "10.7937/v9pn-2f72",
+    "cancer_locations": [
+      "Brain"
+    ],
+    "collection_page_accessibility": "Public",
+    "supporting_data": [
+      "Software/Source Code"
+    ],
+    "species": [
+      "Human"
+    ],
+    "collection_title": "Pre and post treatment MRI and radiotherapy plans of patients with glioblastoma: the CFB-GBM cohort",
+    "date_updated": "2026-09-11",
+    "subjects": "264",
+    "collection_short_title": "CFB-GBM",
+    "data_types": [
+      "CT",
+      "MR",
+      "Segmentation"
+    ],
+    "collection_abstract": "<p>The <em>“Centre François Baclesse glioblastoma (CFB-GBM)” </em>dataset includes 264 patients with glioblastoma involved in the clinical routine. For all patients, pre-treatment MRI (at t0) were acquired. The sequences, such as T1Gd, T1 anatomical, T1 gradient echo, T2 anatomical, T2-FLAIR, T2* or diffusion weighted imaging, were included, depending on their availability. In addition, post-treatment MRI at different times (four (t1) and six months (t2) after t0 MRI acquisition) were obtained, ",
+    "collection_summary": ""
+  },
+  {
+    "link": "https://www.cancerimagingarchive.net/collection/psma-pet-ct-lesions/",
+    "cancer_types": [
+      "Prostate Cancer"
+    ],
+    "collection_doi": "10.7937/R7EP-3X37",
+    "cancer_locations": [
+      "Prostate Gland"
+    ],
+    "collection_page_accessibility": "Public",
+    "supporting_data": [
+      "Software/Source Code"
+    ],
+    "species": [
+      "Human"
+    ],
+    "collection_title": "A whole-body PSMA-PET/CT dataset with manually annotated tumor lesions",
+    "date_updated": "2026-02-26",
+    "subjects": "378",
+    "collection_short_title": "PSMA-PET-CT-Lesions",
+    "data_types": [
+      "CT",
+      "SEG",
+      "Demographic",
+      "Protocol"
+    ],
+    "collection_abstract": "<p><span style=\"font-weight: 400\">We provide a large, annotated dataset of 597 whole-body PSMA-PET/CT studies from 378 male patients with suspected or diagnosed prostate carcinoma. Scans were acquired at LMU University Hospital, LMU Munich (2014–2022) on three clinical PET/CT scanners, jointly operated by the Departments of Nuclear Medicine and Radiology. All PSMA-avid tumor lesions were manually segmented on the PET images in 3D space using a dedicated software solution. </span><span style=\"fon",
+    "collection_summary": "<h2 id=\"PSMAPETCTLesions(Private)-UsageNotes\"> </h2><p><span data-olk-copy-source=\"MessageBody\">. </span></p>"
+  }
+]

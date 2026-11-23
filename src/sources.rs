@@ -82,6 +82,7 @@ pub(crate) mod sdmx;
 mod socrata;
 mod stac;
 mod synapse;
+mod tcia;
 mod tfds;
 mod uci;
 mod who;
@@ -1318,6 +1319,14 @@ pub static SOURCES: &[Source] = &[
         "REST API, listed",
         "https://grand-challenge.org/documentation/grand-challenge-api/",
         grandchallenge::list,
+    ),
+    listed(
+        "tcia",
+        "The Cancer Imaging Archive",
+        LifeSciences,
+        "WordPress collections API, listed",
+        "https://www.cancerimagingarchive.net/tcia-api-guides/",
+        tcia::list,
     ),
     live(
         "synapse",

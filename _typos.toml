@@ -13,6 +13,8 @@ extend-ignore-re = [
   "\"-ND\"",
   "\"nd\"",
   "Burnt Area \\(BA\\)",
+  # A name with an escaped c-cedilla in a TCIA abstract.
+  "Fran\\\\u\\{e7\\}ois",
   "census for BA 44/45",
   # HTML entity names, decoded in src/record.rs.
   "\"curren\"",

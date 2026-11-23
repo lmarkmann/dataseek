@@ -76,6 +76,7 @@ These publish a complete list but no search endpoint, so dataseek downloads the 
 | NeurIPS Datasets and Benchmarks | `/static/virtual/data/neurips-<year>-orals-posters.json` for 2022 to 2026 (12 to 27 MB each), rows of the track only, each title once | 2,411 (2026-11-23) |
 | CELLxGENE | Curation API `/collections` | 397 |
 | Grand Challenge | `/api/v1/challenges/?limit=100`, following `next` | 264 (2026-11-23) |
+| The Cancer Imaging Archive | `/api/v1/collections/?per_page=100` with `_fields`, three pages | 241 (2026-11-23) |
 | OpenNeuro | GraphQL `datasets`, cursor pages of 100 | 1,905 |
 | PhysioNet | `/api/v1/projects/published/` | 477 |
 | MPContribs | `/projects/` | 72 |

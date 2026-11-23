@@ -162,6 +162,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `omicsdi` | OmicsDI | OmicsDI | live |  | [docs](https://www.omicsdi.org/ws/) |
 | `cellxgene` | CZ CELLxGENE | Curation API, listed | local |  | [docs](https://api.cellxgene.cziscience.com/curation/ui/) |
 | `grandchallenge` | Grand Challenge | REST API, listed | local |  | [docs](https://grand-challenge.org/documentation/grand-challenge-api/) |
+| `tcia` | The Cancer Imaging Archive | WordPress collections API, listed | local |  | [docs](https://www.cancerimagingarchive.net/tcia-api-guides/) |
 | `synapse` | Synapse | Synapse REST | live |  | [docs](https://rest-docs.synapse.org/) |
 | `encode` | ENCODE | ENCODE REST | live |  | [docs](https://www.encodeproject.org/help/rest-api/) |
 
