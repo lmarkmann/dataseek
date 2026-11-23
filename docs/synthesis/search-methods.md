@@ -67,6 +67,7 @@ These publish a complete list but no search endpoint, so dataseek downloads the 
 | Earth Engine | catalog HTML page | 867 |
 | AWS Open Data | registry index HTML page | 1,215 |
 | TensorFlow Datasets | catalog overview page: names and category headings | 446 |
+| OpenSLR | `resources.php` HTML table, from the openslr.trmal.net mirror; Software rows dropped | 152 (2026-11-23) |
 | CELLxGENE | Curation API `/collections` | 397 |
 | OpenNeuro | GraphQL `datasets`, cursor pages of 100 | 1,905 |
 | PhysioNet | `/api/v1/projects/published/` | 477 |
@@ -94,6 +95,7 @@ These publish a complete list but no search endpoint, so dataseek downloads the 
 | Mozilla Data Collective | 120 requests a window, the window under a minute (`x-ratelimit-*` headers, 2026-11-23) | the same for search; downloads have their own quota |
 | CLARIN VLO | none published; `robots.txt` sets `Crawl-delay: 5` | none |
 | ENCODE | 10 GET requests per second per user, group, company or lab (terms); an IP block on abuse | none |
+| OpenSLR | 5 simultaneous connections per host, then a firewall rule drops them (home page) | none |
 | OpenDataSoft | 10,000 calls a day, shared by every anonymous caller | none |
 | OSF (trove) | unstated; 17 requests in 3 minutes drew an hour-long 429 | none |
 | OpenAlex (not used) | $0.10 per day of search credit | $1 per day free, then paid |

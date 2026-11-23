@@ -52,6 +52,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `elg` | European Language Grid | ELG catalogue API | live |  | [docs](https://european-language-grid.readthedocs.io/en/stable/all/A1_PythonSDK/Catalog.html) |
 | `aws` | Registry of Open Data on AWS | registry page | local |  | [docs](https://github.com/awslabs/open-data-registry) |
 | `tfds` | TensorFlow Datasets | catalog page | local |  | [docs](https://www.tensorflow.org/datasets/catalog/overview) |
+| `openslr` | OpenSLR | resource index page | local |  | [docs](https://www.openslr.org/resources.php) |
 
 ### code
 

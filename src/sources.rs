@@ -65,6 +65,7 @@ mod openaire;
 mod opendatasoft;
 mod openml;
 mod openneuro;
+mod openslr;
 mod osf;
 mod owid;
 mod pangaea;
@@ -751,6 +752,14 @@ pub static SOURCES: &[Source] = &[
         "catalog page",
         "https://www.tensorflow.org/datasets/catalog/overview",
         tfds::list,
+    ),
+    listed(
+        "openslr",
+        "OpenSLR",
+        MachineLearning,
+        "resource index page",
+        "https://www.openslr.org/resources.php",
+        openslr::list,
     ),
     keyed(
         live(
