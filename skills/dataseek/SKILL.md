@@ -1,19 +1,19 @@
 ---
 name: dataseek
 description: >
-  Not for papers or citations, not for reading rows inside one dataset, not
-  for downloading or converting data files, and not for changing dataseek's
-  own code or source adapters. Finds datasets across 106 archives at once
-  (Hugging Face, Kaggle, Zenodo, Dataverse, data.gov, data.europa.eu, IMF,
-  OECD, ECB, NASA, Copernicus, GEO and more) through dataseek: its MCP
-  server's search, sources, inspect and related tools, or the dsk CLI with
-  --json when no tool is listed.
+  Finds datasets across 106 archives at once (Hugging Face, Kaggle, Zenodo,
+  Dataverse, data.gov, data.europa.eu, IMF, OECD, ECB, NASA, Copernicus, GEO
+  and more) through dataseek: its MCP server's search, sources, inspect and
+  related tools, or the dsk CLI with --json when no tool is listed.
   Use on "find a dataset on", "is there open data about", "where can I get
   data for", "search Kaggle and Hugging Face for", "which archive holds",
   "what files and license does this dataset have", "what else does this
   owner publish", "add dataseek to my MCP client", "which API keys does
   dataseek need", and when a dsk command or dataseek tool call fails, skips
   a source or returns nothing.
+  Not for papers or citations, not for reading rows inside one dataset, not
+  for downloading or converting data files, and not for changing dataseek's
+  own code or source adapters.
 compatibility: needs the dataseek binary (dsk) and network access
 ---
 
