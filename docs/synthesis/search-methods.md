@@ -71,6 +71,7 @@ These publish a complete list but no search endpoint, so dataseek downloads the 
 | LILA BC | WordPress `/wp-json/wp/v2/posts?per_page=100`, posts under `/datasets/` | 59 (2026-11-23) |
 | Polaris Hub | `polarishub.io/api/v1/dataset?limit=100` (6 MB: every row carries its README) | 96 (2026-11-23) |
 | CELLxGENE | Curation API `/collections` | 397 |
+| Grand Challenge | `/api/v1/challenges/?limit=100`, following `next` | 264 (2026-11-23) |
 | OpenNeuro | GraphQL `datasets`, cursor pages of 100 | 1,905 |
 | PhysioNet | `/api/v1/projects/published/` | 477 |
 | MPContribs | `/projects/` | 72 |

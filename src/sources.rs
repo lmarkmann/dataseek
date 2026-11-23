@@ -50,6 +50,7 @@ mod gee;
 mod github;
 mod gitlab;
 mod google;
+mod grandchallenge;
 mod huggingface;
 mod kaggle;
 mod lila;
@@ -1273,6 +1274,14 @@ pub static SOURCES: &[Source] = &[
         "Curation API, listed",
         "https://api.cellxgene.cziscience.com/curation/ui/",
         cellxgene::list,
+    ),
+    listed(
+        "grandchallenge",
+        "Grand Challenge",
+        LifeSciences,
+        "REST API, listed",
+        "https://grand-challenge.org/documentation/grand-challenge-api/",
+        grandchallenge::list,
     ),
     live(
         "synapse",

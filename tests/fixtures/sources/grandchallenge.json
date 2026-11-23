@@ -1,0 +1,64 @@
+{
+  "count": 264,
+  "next": "https://grand-challenge.org/api/v1/challenges/?limit=100&offset=100",
+  "previous": null,
+  "results": [
+    {
+      "api_url": "https://grand-challenge.org/api/v1/challenges/VESSEL12/",
+      "url": "https://vessel12.grand-challenge.org/",
+      "slug": "VESSEL12",
+      "title": "",
+      "description": "The VESSEL12 challenge compares methods for automatic (and semi-automatic) segmentation of blood vessels in the lungs from CT images.",
+      "public": true,
+      "status": "CLOSED",
+      "logo": "https://public.grand-challenge-user-content.org/logos/challenge/1/logo.png",
+      "submission_types": [],
+      "start_date": null,
+      "end_date": null,
+      "publications": [
+        "https://doi.org/10.1016/j.media.2014.07.003"
+      ],
+      "created": "2013-09-10T14:28:22Z",
+      "modified": "2025-07-16T13:56:05.640059Z",
+      "incentives": [
+        "Publication"
+      ]
+    },
+    {
+      "api_url": "https://grand-challenge.org/api/v1/challenges/subsolidNodules/",
+      "url": "https://subsolidnodules.grand-challenge.org/",
+      "slug": "subsolidNodules",
+      "title": "Subsolid Nodules",
+      "description": "We are presenting results of our segmentation method for subsolid lung nodules.",
+      "public": true,
+      "status": "CLOSED",
+      "logo": "https://public.grand-challenge-user-content.org/logos/challenge/10/logo.png",
+      "submission_types": [],
+      "start_date": null,
+      "end_date": null,
+      "publications": [],
+      "created": "2013-09-10T14:28:22Z",
+      "modified": "2025-07-16T13:56:05.931106Z",
+      "incentives": []
+    },
+    {
+      "api_url": "https://grand-challenge.org/api/v1/challenges/CADDementia/",
+      "url": "https://caddementia.grand-challenge.org/",
+      "slug": "CADDementia",
+      "title": "CADDementia",
+      "description": "We seek algorithms that perform multi-class classification of patients with Alzheimer’s disease (AD), patients with mild cognitive impairment (MCI) and healthy controls (CN) using multi-center structural MRI data.",
+      "public": true,
+      "status": "CLOSED",
+      "logo": "https://public.grand-challenge-user-content.org/logos/challenge/17/logo3_100.png",
+      "submission_types": [],
+      "start_date": null,
+      "end_date": null,
+      "publications": [
+        "https://doi.org/10.1016/j.neuroimage.2015.01.048"
+      ],
+      "created": "2013-10-11T08:34:01Z",
+      "modified": "2025-07-16T13:56:06.088338Z",
+      "incentives": []
+    }
+  ]
+}

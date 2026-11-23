@@ -157,6 +157,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `biostudies` | BioStudies (EBI) | EBI Search | live |  | [docs](https://www.ebi.ac.uk/ebisearch/documentation/rest-api) |
 | `omicsdi` | OmicsDI | OmicsDI | live |  | [docs](https://www.omicsdi.org/ws/) |
 | `cellxgene` | CZ CELLxGENE | Curation API, listed | local |  | [docs](https://api.cellxgene.cziscience.com/curation/ui/) |
+| `grandchallenge` | Grand Challenge | REST API, listed | local |  | [docs](https://grand-challenge.org/documentation/grand-challenge-api/) |
 | `synapse` | Synapse | Synapse REST | live |  | [docs](https://rest-docs.synapse.org/) |
 | `encode` | ENCODE | ENCODE REST | live |  | [docs](https://www.encodeproject.org/help/rest-api/) |
 
