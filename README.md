@@ -6,7 +6,9 @@
 Search for datasets from the terminal
 <!-- /repo-description -->
 
-Datasets sit in dozens of archives: Hugging Face and Kaggle, Zenodo and Dataverse, data.gov and data.europa.eu, the IMF and the ECB, NASA and Copernicus. Each has its own search box and its own idea of relevance, and many host the same dataset under different names. dataseek queries them all at once and returns one deduplicated, ranked list, naming every archive that holds each result. Datasets carried by more archives, and matching more of your query, rank higher.
+Datasets sit in dozens of archives: Hugging Face and Kaggle, Zenodo and Dataverse, data.gov and data.europa.eu, the IMF and the ECB, NASA and Copernicus. Each has its own search box and its own idea of relevance, and many host the same dataset under different names. dataseek queries 106 of them at once and returns one deduplicated, ranked list, naming every archive that holds each result. Datasets carried by more archives, and matching more of your query, rank higher.
+
+The 106 sources span fourteen categories: machine-learning hubs and benchmark lists, research repositories, national open-data portals, statistical offices and central banks, earth-observation catalogs, and archives for genomics, medical imaging, microscopy, neuroscience, physics, social science, and speech and language corpora. [The full list](docs/adr/0004-every-source-is-searched.md) names each one, and `dsk sources` prints it.
 
 Most sources need no key and nothing to set up. Results come back in the terminal, as JSON for scripts, or to an AI client over MCP. Google Dataset Search and Mendeley Data are the exception: neither permits automated searches, so dataseek asks them only when you name them, `-s google,mendeley` for those alone or `--include google,mendeley` beside the rest ([ADR 0013](docs/adr/0013-opt-in-sources.md)). `dsk` is the same program under a shorter name.
 
@@ -75,7 +77,7 @@ Use it in the terminal, pipe its JSON into scripts, or use dataseek via MCP (`ds
 Each tool returns what its command prints with `--json`; keys are read from the environment the client starts it in, or from `credentials.toml`. Google Dataset Search and Mendeley Data stay opt-in here too: the model asks for them by naming them in the search tool's `source` argument, and a client can ask for them on every search with `"args": ["mcp", "--include", "google,mendeley"]`. See: [`docs/reference/contract.md`](docs/reference/contract.md#mcp-mode).
 
 ## Agent skill
-[`skills/dataseek`](skills/dataseek/SKILL.md) teaches a coding agent to use dataseek over MCP or the CLI: writing queries the sources match, reading coverage and source statuses, inspecting a dataset's files, registering the server and its keys, and recovering from each error. Install it with the [skills CLI](https://github.com/vercel-labs/skills):
+[`skills/dataseek`](skills/dataseek/SKILL.md) teaches a coding agent to use dataseek over MCP, with the CLI as the fallback: choosing among the 106 sources, writing queries the sources match, reading coverage and source statuses, inspecting a dataset's files, listing what else an owner publishes, registering the server and its keys, and recovering from each error. Install it with the [skills CLI](https://github.com/vercel-labs/skills):
 
 ```sh
 pnpm dlx skills add lmarkmann/dataseek
