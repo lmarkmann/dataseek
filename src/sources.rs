@@ -15,6 +15,11 @@
 //! drop records without a title or link ([`Dataset::valid`]), map a changed
 //! response to [`SourceError::Shape`] rather than an empty list, and never put
 //! a credential into a URL or message that could be printed.
+//!
+//! What adapters share lives in this module too: `parse_list`
+//! for a body that holds its records in one list, `retry_plain` for a
+//! source that answers an error to a query its parser cannot read, and
+//! `paginate_next` for pages that link the next one.
 
 mod arcgis;
 mod aws;
