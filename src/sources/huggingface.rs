@@ -197,9 +197,9 @@ fn pick(
     terms: &[String],
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    let wide = terms.len() > 1;
     let needles = catalog::needles(terms);
-    let least = terms.len().div_ceil(2).max(terms.len().min(LEAST_WORDS));
+    let least = (terms.len() > 1)
+        .then(|| terms.len().div_ceil(2).max(terms.len().min(LEAST_WORDS)));
     let hits = match hits {
         Some(body) => hit_list(body)?,
         None => &[],
@@ -216,42 +216,70 @@ fn pick(
         let rows = body.as_array().ok_or_else(|| {
             SourceError::shape("expected a list of datasets")
         })?;
-        for row in rows {
-            let Some(id) = text(row, "/id") else { continue };
-            let rank = ranks.get(&id).copied();
-            if !seen.insert(id) {
-                continue;
-            }
-            let held = if wide { holds(&haystack(row), &needles) } else { 0 };
-            if wide && held < least && rank.is_none() {
-                continue;
-            }
-            if let Some(dataset) = record(row) {
-                scored.push((held, rank, dataset));
-            }
-        }
+        scored.extend(rows.iter().filter_map(|row| {
+            listed(row, &ranks, &mut seen, &needles, least)
+        }));
     }
-    for (rank, hit) in hits.iter().enumerate() {
-        let Some(name) = text(hit, "/name") else { continue };
-        if !seen.insert(name) {
-            continue;
-        }
-        if let Some(dataset) = hit_record(hit) {
-            let held = holds(&hit_haystack(hit, &dataset), &needles);
-            scored.push((held, Some(rank), dataset));
-        }
-    }
-    if wide {
-        scored.sort_by(|(a, i, x), (b, j, y)| {
-            b.cmp(a)
-                .then_with(|| y.popularity.cmp(&x.popularity))
-                .then_with(|| {
-                    i.unwrap_or(usize::MAX).cmp(&j.unwrap_or(usize::MAX))
-                })
-                .then_with(|| x.title.cmp(&y.title))
-        });
+    scored.extend(
+        hits.iter()
+            .enumerate()
+            .filter_map(|(rank, hit)| found(hit, rank, &mut seen, &needles)),
+    );
+    if least.is_some() {
+        scored.sort_by(order);
     }
     Ok(scored.into_iter().take(limit).map(|(_, _, dataset)| dataset).collect())
+}
+
+/// A listing row to rank, the first time its dataset shows. For a query of
+/// several words `least` is set, and a row that holds fewer of them stays
+/// only when the full-text search found its dataset too.
+fn listed(
+    row: &Value,
+    ranks: &HashMap<String, usize>,
+    seen: &mut HashSet<String>,
+    needles: &[String],
+    least: Option<usize>,
+) -> Option<Scored> {
+    let id = text(row, "/id")?;
+    let rank = ranks.get(&id).copied();
+    if !seen.insert(id) {
+        return None;
+    }
+    let held = least.map_or(0, |_| holds(&haystack(row), needles));
+    if least.is_some_and(|least| held < least) && rank.is_none() {
+        return None;
+    }
+    Some((held, rank, record(row)?))
+}
+
+/// A full-text hit to rank, when no listing row showed its dataset.
+fn found(
+    hit: &Value,
+    rank: usize,
+    seen: &mut HashSet<String>,
+    needles: &[String],
+) -> Option<Scored> {
+    if !seen.insert(text(hit, "/name")?) {
+        return None;
+    }
+    let dataset = hit_record(hit)?;
+    let held = holds(&hit_haystack(hit, &dataset), needles);
+    Some((held, Some(rank), dataset))
+}
+
+/// The most query words first, then the most downloads, then the full-text
+/// place, then the title.
+fn order(one: &Scored, other: &Scored) -> std::cmp::Ordering {
+    let (held, place, dataset) = one;
+    let (other_held, other_place, other_dataset) = other;
+    other_held
+        .cmp(held)
+        .then_with(|| other_dataset.popularity.cmp(&dataset.popularity))
+        .then_with(|| {
+            place.unwrap_or(usize::MAX).cmp(&other_place.unwrap_or(usize::MAX))
+        })
+        .then_with(|| dataset.title.cmp(&other_dataset.title))
 }
 
 /// The hits of a full-text answer.

@@ -39,17 +39,7 @@ fn parse(page: &str) -> Vec<Dataset> {
         let Some((category, rest)) = section.split_once('"') else {
             continue;
         };
-        let links = rest.split_once("</ul>").map_or(rest, |(list, _)| list);
-        for link in links.split(LINK).skip(1) {
-            let Some((name, _)) = link.split_once('"') else {
-                continue;
-            };
-            let plain = name.chars().all(|c| {
-                c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_'
-            });
-            if !plain || name == "overview" {
-                continue;
-            }
+        for name in names(rest) {
             let categories = sections.entry(name).or_insert_with(|| {
                 order.push(name);
                 Vec::new()
@@ -70,6 +60,18 @@ fn parse(page: &str) -> Vec<Dataset> {
             .valid()
         })
         .collect()
+}
+
+/// The dataset names the first list of a section links to.
+fn names(section: &str) -> impl Iterator<Item = &str> {
+    let links = section.split_once("</ul>").map_or(section, |(list, _)| list);
+    links.split(LINK).skip(1).filter_map(|link| {
+        let (name, _) = link.split_once('"')?;
+        let plain = name
+            .chars()
+            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_');
+        (plain && name != "overview").then_some(name)
+    })
 }
 
 #[cfg(test)]

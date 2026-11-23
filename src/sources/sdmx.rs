@@ -168,81 +168,107 @@ struct Open {
     text: String,
 }
 
+impl Field {
+    fn of(element: &str) -> Option<Self> {
+        match element {
+            "Name" => Some(Self::Name),
+            "Description" => Some(Self::Description),
+            "AnnotationTitle" => Some(Self::AnnotationTitle),
+            "AnnotationType" => Some(Self::AnnotationType),
+            _ => None,
+        }
+    }
+}
+
+/// The state between two events: the flows read, the one being read, the
+/// element open inside it, and the title of the annotation that waits for
+/// its type.
+#[derive(Default)]
+struct Reading {
+    flows: Vec<Flow>,
+    current: Option<Flow>,
+    open: Option<Open>,
+    annotation_title: String,
+}
+
+impl Reading {
+    fn start(&mut self, element: &BytesStart<'_>) {
+        let name = element.local_name().into_inner();
+        if name == "Dataflow" {
+            self.current = Some(start_of(element));
+        } else if let Some(field) = Field::of(name)
+            && self.current.is_some()
+        {
+            self.open = Some(Open {
+                field,
+                english: attribute(element, "lang").is_none_or(|l| l == "en"),
+                text: String::new(),
+            });
+        }
+    }
+
+    fn text(&mut self, piece: &str) {
+        if let Some(open) = self.open.as_mut() {
+            open.text.push_str(piece);
+        }
+    }
+
+    fn end(&mut self, name: &str) {
+        match name {
+            "Dataflow" => self.end_flow(),
+            "Annotation" => self.annotation_title.clear(),
+            _ if Field::of(name).is_some() => {
+                if let (Some(flow), Some(open)) =
+                    (self.current.as_mut(), self.open.take())
+                {
+                    close(flow, open, &mut self.annotation_title);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    /// A flow without an id is dropped; one without a name shows its id.
+    fn end_flow(&mut self) {
+        if let Some(mut flow) = self.current.take()
+            && !flow.id.is_empty()
+        {
+            if flow.name.is_empty() {
+                flow.name.clone_from(&flow.id);
+            }
+            self.flows.push(flow);
+        }
+    }
+}
+
+/// The text of a predefined entity reference; any other shows as a space.
+fn reference(name: &str) -> &'static str {
+    match name {
+        "amp" => "&",
+        "lt" => "<",
+        "gt" => ">",
+        "quot" => "\"",
+        "apos" => "'",
+        _ => " ",
+    }
+}
+
 pub fn flows(xml: &str) -> Result<Vec<Flow>, SourceError> {
     let mut reader = Reader::from_str(xml);
-    let mut flows = Vec::new();
-    let mut current: Option<Flow> = None;
-    let mut open: Option<Open> = None;
-    let mut annotation_title = String::new();
+    let mut reading = Reading::default();
     loop {
         match reader.read_event() {
-            Ok(Event::Start(e)) => match e.local_name().into_inner() {
-                "Dataflow" => current = Some(start_of(&e)),
-                name @ ("Name" | "Description" | "AnnotationTitle"
-                | "AnnotationType")
-                    if current.is_some() =>
-                {
-                    open = Some(Open {
-                        field: match name {
-                            "Name" => Field::Name,
-                            "Description" => Field::Description,
-                            "AnnotationTitle" => Field::AnnotationTitle,
-                            _ => Field::AnnotationType,
-                        },
-                        english: attribute(&e, "lang")
-                            .is_none_or(|l| l == "en"),
-                        text: String::new(),
-                    });
-                }
-                _ => {}
-            },
-            Ok(Event::Text(t)) => {
-                if let Some(o) = open.as_mut() {
-                    o.text.push_str(&t.xml10_content());
-                }
-            }
-            Ok(Event::GeneralRef(r)) => {
-                if let Some(o) = open.as_mut() {
-                    o.text.push_str(match &*r {
-                        "amp" => "&",
-                        "lt" => "<",
-                        "gt" => ">",
-                        "quot" => "\"",
-                        "apos" => "'",
-                        _ => " ",
-                    });
-                }
-            }
-            Ok(Event::End(e)) => match e.local_name().into_inner() {
-                "Dataflow" => {
-                    if let Some(mut flow) = current.take()
-                        && !flow.id.is_empty()
-                    {
-                        if flow.name.is_empty() {
-                            flow.name.clone_from(&flow.id);
-                        }
-                        flows.push(flow);
-                    }
-                }
-                "Name" | "Description" | "AnnotationTitle"
-                | "AnnotationType" => {
-                    if let (Some(flow), Some(o)) =
-                        (current.as_mut(), open.take())
-                    {
-                        close(flow, o, &mut annotation_title);
-                    }
-                }
-                "Annotation" => annotation_title.clear(),
-                _ => {}
-            },
-            Ok(Event::Eof) => break,
+            Ok(Event::Start(e)) => reading.start(&e),
+            Ok(Event::Text(t)) => reading.text(&t.xml10_content()),
+            Ok(Event::GeneralRef(r)) => reading.text(reference(&r)),
+            Ok(Event::End(e)) => reading.end(e.local_name().into_inner()),
+            Ok(Event::Eof) => return Ok(reading.flows),
             Err(e) => {
                 return Err(SourceError::shape(format!("bad SDMX-ML: {e}")));
             }
             Ok(_) => {}
         }
     }
-    Ok(flows)
 }
 
 fn start_of(element: &BytesStart<'_>) -> Flow {
