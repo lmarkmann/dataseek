@@ -58,6 +58,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `academictorrents` | Academic Torrents | RSS database file | local |  | [docs](https://academictorrents.com/docs/api.html) |
 | `googleresearch` | Google Research Datasets | dataset index pages | local |  | [docs](https://research.google/resources/datasets/) |
 | `opus` | OPUS | OPUS API corpus list | local |  | [docs](https://opus.nlpl.eu/opusapi) |
+| `neurips` | NeurIPS Datasets and Benchmarks | virtual site data files | local |  | [docs](https://neurips.cc/Conferences/2026/CallForEvaluationsDatasets) |
 
 ### code
 

@@ -73,6 +73,7 @@ These publish a complete list but no search endpoint, so dataseek downloads the 
 | Academic Torrents | `database.xml` (RSS 2.0, 3.2 MB, rebuilt nightly), category Dataset | 1,724 (2026-11-23) |
 | Google Research Datasets | `/resources/datasets/?page=N`, 15 cards a page, until a page brings no new link | 169 (2026-11-23) |
 | OPUS | `opusapi?corpora=True`, names only, so matching is on the name | 1,215 (2026-11-23) |
+| NeurIPS Datasets and Benchmarks | `/static/virtual/data/neurips-<year>-orals-posters.json` for 2022 to 2026 (12 to 27 MB each), rows of the track only, each title once | 2,411 (2026-11-23) |
 | CELLxGENE | Curation API `/collections` | 397 |
 | Grand Challenge | `/api/v1/challenges/?limit=100`, following `next` | 264 (2026-11-23) |
 | OpenNeuro | GraphQL `datasets`, cursor pages of 100 | 1,905 |

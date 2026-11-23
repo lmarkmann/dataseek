@@ -63,6 +63,7 @@ mod mozilla;
 mod nada;
 mod ncbi;
 mod ncei;
+mod neurips;
 mod nomad;
 mod omicsdi;
 mod openaire;
@@ -806,6 +807,14 @@ pub static SOURCES: &[Source] = &[
         "OPUS API corpus list",
         "https://opus.nlpl.eu/opusapi",
         opus::list,
+    ),
+    listed(
+        "neurips",
+        "NeurIPS Datasets and Benchmarks",
+        MachineLearning,
+        "virtual site data files",
+        "https://neurips.cc/Conferences/2026/CallForEvaluationsDatasets",
+        neurips::list,
     ),
     keyed(
         live(
