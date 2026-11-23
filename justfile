@@ -176,9 +176,7 @@ zizmor:
 
 audit: deny zizmor
 
-# Show the diff the next release PR would make, then restore the tree.
-# The diff the next release PR would make, rendered in a throwaway clone: no
-# working tree is touched, so a linked worktree works and nothing needs undoing.
+# Show the diff the next release PR would make, rendered in a throwaway clone.
 release-preview:
     #!/usr/bin/env bash
     set -euo pipefail
