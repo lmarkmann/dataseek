@@ -45,33 +45,7 @@ pub fn run(queries: &[Query], args: &[String]) -> Result<()> {
     let mut kept = Vec::new();
     let mut ready = Vec::new();
     for (i, query) in chosen.iter().enumerate() {
-        let ask = |sources| {
-            let plan = Arc::new(Plan {
-                query: query.text.clone(),
-                sources,
-                per_source: PER_SOURCE,
-                forced: true,
-                since: None,
-            });
-            search(&services, false, &plan, &Progress::hidden(), None)
-        };
-        let mut outcomes = ask(sources.clone());
-        let failed: Vec<_> = outcomes
-            .iter()
-            .filter(|o| o.status.attempted() && !o.status.answered())
-            .map(|o| o.source)
-            .collect();
-        if !failed.is_empty() {
-            std::thread::sleep(RETRY_AFTER);
-            for retried in ask(failed) {
-                if let Some(slot) = outcomes
-                    .iter_mut()
-                    .find(|o| o.source.id == retried.source.id)
-                {
-                    *slot = retried;
-                }
-            }
-        }
+        let outcomes = ask_twice(&services, &sources, query);
         if spliced.is_some() {
             match splice(query, &outcomes, accept_lost)? {
                 Ok(retrieval) => ready.push((*query, retrieval)),
@@ -91,13 +65,60 @@ pub fn run(queries: &[Query], args: &[String]) -> Result<()> {
             outcomes.len()
         )?;
     }
-    if !kept.is_empty() && spliced.is_some() {
+    conclude(&kept, &ready, spliced.is_some())
+}
+
+/// One query asked of `sources`. Those that fail are asked once more after
+/// a pause, and that answer stands.
+fn ask_twice(
+    services: &Arc<Services>,
+    sources: &[&'static Source],
+    query: &Query,
+) -> Vec<Outcome> {
+    let ask = |sources| {
+        let plan = Arc::new(Plan {
+            query: query.text.clone(),
+            sources,
+            per_source: PER_SOURCE,
+            forced: true,
+            since: None,
+        });
+        search(services, false, &plan, &Progress::hidden(), None)
+    };
+    let mut outcomes = ask(sources.to_vec());
+    let failed: Vec<_> = outcomes
+        .iter()
+        .filter(|o| o.status.attempted() && !o.status.answered())
+        .map(|o| o.source)
+        .collect();
+    if failed.is_empty() {
+        return outcomes;
+    }
+    std::thread::sleep(RETRY_AFTER);
+    for retried in ask(failed) {
+        if let Some(slot) =
+            outcomes.iter_mut().find(|o| o.source.id == retried.source.id)
+        {
+            *slot = retried;
+        }
+    }
+    outcomes
+}
+
+/// Saves the spliced snapshots, all of them or none, and fails when a
+/// source that answered last time was lost: `kept` names those queries.
+fn conclude(
+    kept: &[String],
+    ready: &[(&Query, snapshot::Retrieval)],
+    spliced: bool,
+) -> Result<()> {
+    if !kept.is_empty() && spliced {
         bail!(
             "sources that answered last time failed, so no snapshot was changed:\n  {}\n  Try:   re-record later, or pass --accept-lost to record the failures",
             kept.join("\n  ")
         );
     }
-    for (query, retrieval) in &ready {
+    for (query, retrieval) in ready {
         snapshot::save(
             query,
             &retrieval.dataseek,

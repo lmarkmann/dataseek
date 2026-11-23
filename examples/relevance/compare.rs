@@ -310,55 +310,35 @@ fn flips(
 ) -> Result<()> {
     writeln!(out, "Labels whose flip would change an adoption decision:")?;
     let mut flagged = 0_usize;
-    let held: Vec<usize> = (0..cases.len())
-        .filter(|&i| {
-            cases.get(i).is_some_and(|c| {
-                c.query.graded() && c.query.half == Half::Held
-            })
-        })
+    let held: Vec<(usize, &Case)> = cases
+        .iter()
+        .enumerate()
+        .filter(|(_, c)| c.query.graded() && c.query.half == Half::Held)
         .collect();
     for f in finalists {
         let decision = verdict(cases, &base.scores, &f.scores, mrr_tolerance);
-        for &ci in &held {
-            let Some(case) = cases.get(ci) else { continue };
-            let mut seen = HashSet::new();
-            for hit in base.top(ci).iter().chain(f.top(ci)) {
-                let Some(index) = case.judged.index(&hit.dataset) else {
-                    continue;
-                };
-                let Some(g) = case.judged.grade(&hit.dataset) else {
-                    continue;
-                };
-                if !seen.insert(index) {
-                    continue;
-                }
-                let flipped: Grade = if g == 0 { 2 } else { 0 };
+        for &(ci, case) in &held {
+            for (index, grade, title) in labels(case, base.top(ci), f.top(ci))
+            {
+                let flipped = if grade == 0 { 2 } else { 0 };
                 let judged = case.judged.with(index, flipped);
-                let rescore = |scores: &[Score], ranking: &Evaluated| {
-                    let mut scores = scores.to_vec();
+                let rescore = |ranking: &Evaluated| {
+                    let mut scores = ranking.scores.clone();
                     if let Some(slot) = scores.get_mut(ci) {
-                        *slot = graded(
-                            &judged,
-                            ranking
-                                .rankings
-                                .get(ci)
-                                .map_or(&[], Vec::as_slice),
-                        );
+                        let ranked = ranking.rankings.get(ci);
+                        *slot =
+                            graded(&judged, ranked.map_or(&[], Vec::as_slice));
                     }
                     scores
                 };
-                let after = verdict(
-                    cases,
-                    &rescore(&base.scores, base),
-                    &rescore(&f.scores, f),
-                    mrr_tolerance,
-                );
+                let after =
+                    verdict(cases, &rescore(base), &rescore(f), mrr_tolerance);
                 if after.adopt != decision.adopt {
                     flagged = flagged.saturating_add(1);
                     writeln!(
                         out,
-                        "  {:<24} grade {g}  {}  ({})",
-                        case.query.id, hit.dataset.title, f.name
+                        "  {:<24} grade {grade}  {title}  ({})",
+                        case.query.id, f.name
                     )?;
                 }
             }
@@ -368,6 +348,28 @@ fn flips(
         writeln!(out, "  none")?;
     }
     Ok(())
+}
+
+/// The labels the top 10 of two rankings of one query rest on, each once:
+/// its index among the query's labels, its grade and the title it shows.
+fn labels<'a>(
+    case: &Case,
+    base: &'a [Hit],
+    finalist: &'a [Hit],
+) -> Vec<(usize, Grade, &'a str)> {
+    let mut seen = HashSet::new();
+    base.iter()
+        .chain(finalist)
+        .filter_map(|hit| {
+            let index = case.judged.index(&hit.dataset)?;
+            let grade = case.judged.grade(&hit.dataset)?;
+            seen.insert(index).then_some((
+                index,
+                grade,
+                hit.dataset.title.as_str(),
+            ))
+        })
+        .collect()
 }
 
 /// Grade-1 labels in a held-out top 10: the borderline calls the held-out
