@@ -47,6 +47,7 @@ How each search interface takes a query, pages, ranks and limits, as found when 
 | GitLab | GET `/api/v4/projects` | `search`, `topic=dataset` | every word as a substring of the path, name or description, ignoring case (2026-11-23) | `order_by=star_count`; a relevance order exists only for a signed-in member's own projects | 100 (`per_page`); `page` reaches 50,000 projects, `pagination=keyset` beyond |
 | ModelScope | GET `/api/v1/dolphin/datasets` | `Query` | names, authors and descriptions, every word must match | site default | 100 per page, larger values capped (October 2026) |
 | Mozilla Data Collective | GET `/api/datasets` | `q`, `pricing=free` | loose: a query of several words, or of no real word, still answers datasets that share a part of it (2026-11-23) | relevance (`sort` also takes `newest`, `size`) | 100 (`limit`; 101 answers 400) |
+| CLARIN VLO | GET `/api/records` | `q` (Solr), `fq=resourceClass:corpus` | metadata full text; a word with a colon is a field query | relevance | `size`; `from` reached 9,990 with an empty page past the end (2026-11-23) |
 | Roboflow Universe | GET `/universe/search` | `q`, inline filters (`images>100`) | names, classes | site default | 12 a page by the SDK default; `page` from 1 |
 
 ## Catalogs searched locally
@@ -90,6 +91,7 @@ These publish a complete list but no search endpoint, so dataseek downloads the 
 | GitLab | 60 requests per clock hour per IP, then 429 with `Retry-After` to the next full hour (observed 2026-11-23); the docs also give 400 project-list requests per 10 minutes | 2,000 project-list requests per 10 minutes (dataseek reads no GitLab key) |
 | CERN Open Data | 60 per minute, 429 with `Retry-After: 60` (headers) | none |
 | Mozilla Data Collective | 120 requests a window, the window under a minute (`x-ratelimit-*` headers, 2026-11-23) | the same for search; downloads have their own quota |
+| CLARIN VLO | none published; `robots.txt` sets `Crawl-delay: 5` | none |
 | ENCODE | 10 GET requests per second per user, group, company or lab (terms); an IP block on abuse | none |
 | OpenDataSoft | 10,000 calls a day, shared by every anonymous caller | none |
 | OSF (trove) | unstated; 17 requests in 3 minutes drew an hour-long 429 | none |

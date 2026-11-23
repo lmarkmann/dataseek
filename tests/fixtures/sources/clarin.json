@@ -1,0 +1,199 @@
+{
+  "records": [
+    {
+      "id": "https_58__47__47_clarin-pl.eu_47_server_47_cmdi_47_oai-metadata_63_metadataPrefix_61_cmdi_38_handle_61_11321_47_821",
+      "dataRoot": null,
+      "sourcePath": "/srv/vlo-data/clarin/results/cmdi/CLARIN_PL_Repository/oai_clarin_pl_eu_11321_821.xml",
+      "selflink": "https://clarin-pl.eu/server/cmdi/oai-metadata?metadataPrefix=cmdi&handle=11321/821",
+      "profileId": null,
+      "resources": [],
+      "landingPages": [],
+      "pathValuesMap": null,
+      "fields": {
+        "description": [
+          "{code:und}A collection of 1040 EU parliament speeches with transcription and annotations. Includes original speeches and PL/EN translations."
+        ],
+        "availability": [
+          "PUB",
+          "BY"
+        ],
+        "_selfLink": [
+          "https://clarin-pl.eu/server/cmdi/oai-metadata?metadataPrefix=cmdi&handle=11321/821"
+        ],
+        "languageCode": [
+          "code:pol",
+          "code:eng"
+        ],
+        "license": [
+          "https://creativecommons.org/licenses/by/4.0/"
+        ],
+        "name": [
+          "EU Parliament Speech corpus"
+        ],
+        "resourceClass": [
+          "corpus"
+        ],
+        "licenseType": [
+          "PUB"
+        ],
+        "id": [
+          "https_58__47__47_clarin-pl.eu_47_server_47_cmdi_47_oai-metadata_63_metadataPrefix_61_cmdi_38_handle_61_11321_47_821"
+        ],
+        "_fileName": [
+          "/srv/vlo-data/clarin/results/cmdi/CLARIN_PL_Repository/oai_clarin_pl_eu_11321_821.xml"
+        ],
+        "_resourceRefCount": [
+          14
+        ]
+      }
+    },
+    {
+      "id": "https_58__47__47_hdl.handle.net_47_20.500.12537_47_197_64_format_61_cmdi",
+      "dataRoot": null,
+      "sourcePath": "/srv/vlo-data/clarin/results/cmdi/CLARIN_IS/oai_repository_clarin_is_20_500_12537_197.xml",
+      "selflink": "https://hdl.handle.net/20.500.12537/197@format=cmdi",
+      "profileId": null,
+      "resources": [],
+      "landingPages": [],
+      "pathValuesMap": null,
+      "fields": {
+        "description": [
+          "{code:und}Alþingisumræður (Parliament Speech Corpus) is an Icelandic spoken language corpus that contains twenty hours of speeches from the Icelandic Parliament, in synchronized text- and sound files.\r\n\r\n[ICELANDIC]\r\nAlþingisumræður er málheild með íslensku talmáli. Í málheildinni eru ræður frá Alþingi Íslendinga, alls rúmir tuttugu klukkutímar af upptökum ásamt umritun þeirra í texta. Hljóð- og t"
+        ],
+        "availability": [
+          "PUB",
+          "BY"
+        ],
+        "_selfLink": [
+          "https://hdl.handle.net/20.500.12537/197@format=cmdi"
+        ],
+        "languageCode": [
+          "code:isl"
+        ],
+        "license": [
+          "https://creativecommons.org/licenses/by/3.0/"
+        ],
+        "name": [
+          "Parliament Speech Corpus (Alþingisumræður)"
+        ],
+        "resourceClass": [
+          "corpus"
+        ],
+        "licenseType": [
+          "PUB"
+        ],
+        "id": [
+          "https_58__47__47_hdl.handle.net_47_20.500.12537_47_197_64_format_61_cmdi"
+        ],
+        "_fileName": [
+          "/srv/vlo-data/clarin/results/cmdi/CLARIN_IS/oai_repository_clarin_is_20_500_12537_197.xml"
+        ],
+        "_resourceRefCount": [
+          2
+        ]
+      }
+    },
+    {
+      "id": "urn_58_nbn_58_fi_58_lb-2022052002",
+      "dataRoot": null,
+      "sourcePath": "/srv/vlo-data/clarin/results/cmdi/FIN_CLARIN/oai_clarino_uib_no_lb_2022052002.xml",
+      "selflink": "urn:nbn:fi:lb-2022052002",
+      "profileId": null,
+      "resources": [],
+      "landingPages": [],
+      "pathValuesMap": null,
+      "fields": {
+        "availability": [
+          "PUB",
+          "BY",
+          "ND",
+          "Other"
+        ],
+        "_selfLink": [
+          "urn:nbn:fi:lb-2022052002"
+        ],
+        "languageCode": [
+          "code:fin"
+        ],
+        "license": [
+          "https://www.kielipankki.fi/support/clarin-eula/#text_pub"
+        ],
+        "name": [
+          "Aalto Finnish Parliament ASR Corpus 2008-2020, version 2",
+          "Aallon puheentunnistuskorpus eduskunnan istunnoista 2008-2020, versio 2"
+        ],
+        "resourceClass": [
+          "corpus"
+        ],
+        "licenseType": [
+          "PUB"
+        ],
+        "id": [
+          "urn_58_nbn_58_fi_58_lb-2022052002"
+        ],
+        "_fileName": [
+          "/srv/vlo-data/clarin/results/cmdi/FIN_CLARIN/oai_clarino_uib_no_lb_2022052002.xml"
+        ],
+        "_resourceRefCount": [
+          1
+        ],
+        "description": [
+          "{code:eng}# Aalto Finnish Parliament ASR Corpus 2008-2020, version 2\n\nShort name: `fi-parliament-asr-v2`\nPersistent Identifier of this resource: http://urn.fi/urn:nbn:fi:lb-2022052002\n\nThis corpus is extracted from the Finnish parliament plenary session transcripts and videos by the\nAalto Speech Recognition group. The original session transcripts and videos are available at the web\nportals of the ",
+          "{code:fin}Tämä aineisto tulee saataville Kielipankin latauspalveluun, ks. Access location."
+        ]
+      }
+    },
+    {
+      "id": "urn_58_nbn_58_fi_58_lb-2022052004",
+      "dataRoot": null,
+      "sourcePath": "/srv/vlo-data/clarin/results/cmdi/FIN_CLARIN/oai_clarino_uib_no_lb_2022052004.xml",
+      "selflink": "urn:nbn:fi:lb-2022052004",
+      "profileId": null,
+      "resources": [],
+      "landingPages": [],
+      "pathValuesMap": null,
+      "fields": {
+        "description": [
+          "{code:eng}# Aalto Finland Swedish Parliament ASR Corpus 2015-2020\nShort name: `sv-fi-parliament-asr`\nPersistent Identifier of this resource:\n\nThis corpus is extracted from the transcripts and the videos of Swedish speeches held during plenary sessions in the Parliament of Finland. The extraction was done by the Aalto Speech Recognition group. The original session transcripts and videos are availab",
+          "{code:fin}Tämä aineisto tulee saataville Kielipankin latauspalveluun, ks. Access location."
+        ],
+        "availability": [
+          "PUB",
+          "BY",
+          "ND",
+          "Other"
+        ],
+        "_selfLink": [
+          "urn:nbn:fi:lb-2022052004"
+        ],
+        "languageCode": [
+          "code:swe"
+        ],
+        "license": [
+          "https://www.kielipankki.fi/support/clarin-eula/#text_pub"
+        ],
+        "name": [
+          "Aalto Finland Swedish Parliament ASR Corpus 2015-2020",
+          "Aallon puheentunnistuskorpus eduskunnan istuntojen ruotsinkielisistä puheenvuoroista 2015-2020"
+        ],
+        "resourceClass": [
+          "corpus"
+        ],
+        "licenseType": [
+          "PUB"
+        ],
+        "id": [
+          "urn_58_nbn_58_fi_58_lb-2022052004"
+        ],
+        "_fileName": [
+          "/srv/vlo-data/clarin/results/cmdi/FIN_CLARIN/oai_clarino_uib_no_lb_2022052004.xml"
+        ],
+        "_resourceRefCount": [
+          1
+        ]
+      }
+    }
+  ],
+  "numFound": 90,
+  "start": 0
+}

@@ -28,6 +28,7 @@ mod census;
 mod cern;
 mod cessda;
 mod ckan;
+mod clarin;
 mod cmr;
 mod dandi;
 mod datacite;
@@ -717,6 +718,14 @@ pub static SOURCES: &[Source] = &[
         "MDC REST",
         "https://mozilladatacollective.com/api-reference/docs",
         mozilla::search,
+    ),
+    live(
+        "clarin",
+        "CLARIN VLO",
+        MachineLearning,
+        "VLO API",
+        "https://vlo.clarin.eu/api/swagger-ui/index.html",
+        clarin::search,
     ),
     listed(
         "aws",
@@ -1525,6 +1534,7 @@ mod tests {
             ("arcgis", |b, n| arcgis::parse(b, n)),
             ("cern", |b, n| cern::parse(b, n)),
             ("cessda", |b, n| cessda::parse(b, n)),
+            ("clarin", |b, n| clarin::parse(b, n)),
             ("cmr", |b, n| cmr::parse(b, n)),
             ("dandi", |b, n| dandi::parse(b, n)),
             ("datacite", |b, n| datacite::parse(b, n)),
