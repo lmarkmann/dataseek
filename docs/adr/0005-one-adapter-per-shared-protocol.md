@@ -19,7 +19,7 @@ A protocol is written once and configured per registry row:
 | Socrata Discovery | `socrata.rs` | US and EU regions (every Socrata domain) | live |
 | EBI Search | `ebi.rs` | ArrayExpress, BioStudies | live |
 | STAC collections | `stac.rs` | Planetary Computer, Earth Search, Copernicus Data Space, Copernicus CDS, Swisstopo, USGS LandsatLook | local |
-| SDMX-ML 2.1 dataflows | `sdmx.rs` | IMF, OECD, ECB, BIS, ILO, UNdata, Bundesbank | local |
+| SDMX-ML 2.1 dataflows | `sdmx.rs` | IMF, OECD, ECB, BIS, ILO, UNdata, Bundesbank, UNICEF | local |
 | DCAT-AP | `europa.rs` | every EU national portal, through data.europa.eu | live |
 | DataCite, OpenAIRE | `datacite.rs`, `openaire.rs` | thousands of DOI and OAI-PMH repositories | live |
 

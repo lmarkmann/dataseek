@@ -101,6 +101,7 @@ Verdicts: **keep** (the provider documents or invites this use), **keep with con
 | `materials-project` | keep | "You may collect large fractions of the database for analysis via the Materials Project API"; "You agree to not scrape the website directly." [terms](https://legacy.materialsproject.org/terms) | none | 2026-10-06 |
 | `nomad` | keep | the terms bar only "run auto-responders or 'spam' on the site or Service"; "Rate limits are enforced based on your IP address." [terms](https://nomad-lab.eu/nomad-lab/terms.html), [API docs](https://docs.nomad-lab.eu/howto/manage/program/api.html) | none | 2026-10-06 |
 | `cessda` | keep | "Resource- discovery metadata in a structured format shall be openly available for any third party to harvest." (Data Access Policy, principle 9) [policy](https://www.cessda.eu/CESSDA-Documents/Policies/Data-Acess-Policy/CESSDA-Data-Access-Policy.pdf) | none | 2026-10-06 |
+| `unicef` | keep | "Use the SDMX REST API to programmatically access data that is available in UNICEF's Data Warehouse Explorer." [SDMX API page](https://data.unicef.org/sdmx-api-documentation/); `sdmx.data.unicef.org/robots.txt` answers the registry's HTML page, so no robots rule applies | none | 2026-11-23 |
 
 ## Counts
 

@@ -190,3 +190,4 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | id | source | protocol | search | key | API docs |
 |---|---|---|---|---|---|
 | `cessda` | CESSDA Data Catalogue | CESSDA | live |  | [docs](https://api.tech.cessda.eu/) |
+| `unicef` | UNICEF SDMX | SDMX | local |  | [docs](https://data.unicef.org/sdmx-api-documentation/) |

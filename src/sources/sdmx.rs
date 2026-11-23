@@ -108,6 +108,19 @@ pub static UNDATA: Agency = Agency {
     },
 };
 
+/// UNICEF's registry also lists the flows of its country and regional offices
+/// (`BRAZIL_CO`, `MENARO`), 56 flows in all, in a 25 KB list. Only 3 flows
+/// carry a description (2026-11-23).
+pub static UNICEF: Agency = Agency {
+    dataflows: "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/dataflow",
+    publisher: "UNICEF",
+    page: |agency, id| {
+        Some(format!(
+            "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/dataflow/{agency}/{id}"
+        ))
+    },
+};
+
 pub fn list(
     ctx: &Ctx<'_>,
     agency: &Agency,
@@ -489,6 +502,34 @@ mod tests {
                 updated: Some("2026-10-03".into()),
                 ..Dataset::default()
             }
+        );
+    }
+
+    #[test]
+    fn unicef_lists_its_office_flows_beside_its_own() {
+        let datasets =
+            parse(&UNICEF, &fixture::text("sdmx.unicef.xml")).unwrap();
+        assert_eq!(datasets.len(), 3);
+        assert_eq!(
+            datasets[0],
+            Dataset {
+                title: "Brazil Country Office".into(),
+                url: "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/\
+                      dataflow/BRAZIL_CO/BRAZIL_CO"
+                    .into(),
+                description: Some("BRAZIL_CO".into()),
+                publisher: Some("UNICEF".into()),
+                ..Dataset::default()
+            },
+            "no description, so the flow id stands in"
+        );
+        assert_eq!(datasets[1].title, "UNICEF Middle East and North Africa");
+        assert_eq!(datasets[1].updated, None, "layout annotations only");
+        assert_eq!(
+            datasets[2].description.as_deref(),
+            Some(
+                "Children\u{2019}s Climate and Environment Risk Index (CCRI)"
+            )
         );
     }
 

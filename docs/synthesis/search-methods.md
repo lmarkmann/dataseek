@@ -60,7 +60,7 @@ These publish a complete list but no search endpoint, so dataseek downloads the 
 | OpenML | `POST /es/data/data/_search`, `status: active`, sorted by `data_id` (latest version per name); the index the openml.org site queries, since the REST list carries no description, licence or date | 6,668 (2026-10-20) |
 | UCI | `/api/datasets/list` | 689 |
 | World Bank indicators | `/v2/indicator?per_page=40000` | 29,533 |
-| SDMX agencies | `/dataflow` as SDMX-ML 2.1 | IMF 222 (101 with a portal page), OECD 1,548, ECB 215, BIS 32, ILO 1,216, UNdata 15, Bundesbank 94 |
+| SDMX agencies | `/dataflow` as SDMX-ML 2.1 | IMF 222 (101 with a portal page), OECD 1,548, ECB 215, BIS 32, ILO 1,216, UNdata 15, Bundesbank 94; UNICEF 56 (2026-11-23) |
 | Eurostat | catalogue table of contents (`toc/txt`) | 7,563 |
 | WHO GHO | OData `/api/Indicator` | 3,099 |
 | STAC catalogs | `/collections?limit=1000`, following `next` | Planetary Computer 138, Earth Search 9, Copernicus Data Space 427, CDS 144; Swisstopo 515 on 6 pages of 100 and LandsatLook 14 (2026-11-23) |

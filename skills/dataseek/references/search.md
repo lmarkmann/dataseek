@@ -69,7 +69,7 @@ The `sources` tool (or `dsk sources --json`) is the live list: id, name, categor
 | `neuroscience` | `openneuro`*, `dandi`, `physionet`* |
 | `physics` | `cern`, `materials-project`*, `nomad`* |
 | `research` | `zenodo`, `figshare`, `harvard-dataverse`, `borealis`, `recherche-data-gouv`, `dataverse-nl`, `dataverse-no`, `osf`, `mendeley` (opt-in) |
-| `social-science` | `cessda` |
+| `social-science` | `cessda`, `unicef`* |
 | `statistics` | `ihsn`, `fao-microdata`, `unhcr-microdata`, `eurostat`*, `undata`*, `datacommons`, `owid`, `census`*, `who`* |
 
 Map the user's words to ids before narrowing: "Hugging Face" is `huggingface`, "data.gov" is `datagov`, "the World Bank" is `worldbank` (indicators) plus `worldbank-microdata` (surveys), "NASA Earthdata" is `cmr`, "Earth Engine" is `earth-engine`. An id outside this list is refused with the list of valid ones.

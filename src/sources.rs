@@ -1428,6 +1428,14 @@ pub static SOURCES: &[Source] = &[
         "https://api.tech.cessda.eu/",
         cessda::search,
     ),
+    via(
+        "unicef",
+        "UNICEF SDMX",
+        SocialScience,
+        "SDMX",
+        "https://data.unicef.org/sdmx-api-documentation/",
+        Adapter::Sdmx(&sdmx::UNICEF),
+    ),
 ];
 
 /// Recorded responses under `tests/fixtures`, the oracle the tests read

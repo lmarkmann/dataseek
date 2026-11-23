@@ -101,6 +101,7 @@ The **related** column is what a record links to. The neighbors of an item (its 
 | `materials-project` | `license=CCA4` or `CCPD` on `/projects/` | none on projects | none | none (`/contributions/`, `/structures/`, `/tables/`, `/attachments/`) | `/contributions/download/gz/?project=<name>`; `/attachments/` (name, mime, md5) | `_skip` and `_limit` (500) | `total_count` | `references[]` | `/apispec.json`; per-project `columns[]` |
 | `nomad` | none | none (`order_by` only) | none | `dataset_type` | `POST /entries/rawdir/query`; `GET /entries/{entry_id}/rawdir` | `page_after_value` with `next_page_after_value`, or `page`, or `page_offset` | `pagination.total` | entries of a dataset through `/entries/query` | `GET /datasets/{dataset_id}` |
 | `cessda` | none | `dataCollectionYearMin`, `dataCollectionYearMax` | none | `classifications`, `studyAreaCountries`, `publishers`, `keywords` | none | `offset` and `limit` (200; sum to 10,000) | `ResultsCount.available` | `relatedPublications`, `series` | OAI-PMH `/oai-pmh/v0/oai` (oai_dc, oai_datacite, oai_ddi25) |
+| `unicef` | none | none | none | none | none | none | none | `references=descendants` or `all` | SDMX-ML structure; `format=sdmx-json` |
 
 ## Counts per column
 
