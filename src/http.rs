@@ -46,6 +46,8 @@ pub fn connect_within(limit: Duration) {
 /// user's: whoever runs dataseek, the remote logs see this one.
 pub const CONTACT: &str = "user@dataseek.dev";
 
+/// Counts decoded bytes, not gzip bytes on the wire. World Bank, the largest
+/// catalog, decodes to 15 MB (November 2026).
 const BODY_LIMIT: u64 = 64 * 1024 * 1024;
 const LONGEST_RETRY_WAIT: Duration = Duration::from_secs(4);
 /// DNS and connect failures under a burst of parallel lookups are often
@@ -113,6 +115,47 @@ impl SourceError {
 
     pub fn shape(what: impl Into<String>) -> Self {
         Self::Shape(terminal_safe(what.into()))
+    }
+}
+
+/// Why a command that reads one address got no answer from its host, for
+/// the two failures that say nothing about the address.
+#[derive(Debug, thiserror::Error)]
+pub enum Unreached {
+    #[error(
+        "cannot reach {url}\n  Try:   check the address and the connection, then run it again"
+    )]
+    Unreachable {
+        url: String,
+        #[source]
+        source: SourceError,
+    },
+    #[error("cannot verify the certificate of {url}\n  Try:   {hint}")]
+    Certificate {
+        url: String,
+        /// From [`certificate_hint`].
+        hint: String,
+        #[source]
+        source: SourceError,
+    },
+}
+
+impl Unreached {
+    /// The failure to connect to `url` that `error` is, or `error` back
+    /// when it is of another kind.
+    pub fn of(url: &str, error: SourceError) -> Result<Self, SourceError> {
+        let url = url.to_owned();
+        match error {
+            SourceError::Unreachable(_) => {
+                Ok(Self::Unreachable { url, source: error })
+            }
+            SourceError::Certificate(_) => Ok(Self::Certificate {
+                url,
+                hint: certificate_hint(),
+                source: error,
+            }),
+            other => Err(other),
+        }
     }
 }
 
@@ -257,6 +300,15 @@ impl<'a> Call<'a> {
     }
 
     pub fn text(self) -> Result<String, SourceError> {
+        let body = self.bytes()?;
+        Ok(String::from_utf8(body).unwrap_or_else(|invalid| {
+            String::from_utf8_lossy(invalid.as_bytes()).into_owned()
+        }))
+    }
+
+    /// The body as it came, for a file that is not text, such as a gzip
+    /// archive. Statuses and retries are those of [`Self::text`].
+    pub fn bytes(self) -> Result<Vec<u8>, SourceError> {
         match self.send() {
             Err(Retry::After(wait)) if wait <= LONGEST_RETRY_WAIT => {
                 std::thread::sleep(wait);
@@ -270,58 +322,15 @@ impl<'a> Call<'a> {
         }
     }
 
-    fn send(&self) -> Result<String, Retry> {
+    fn send(&self) -> Result<Vec<u8>, Retry> {
         if OFFLINE.load(Ordering::Relaxed) {
             return Err(Retry::Fail(SourceError::Offline));
         }
-        let result = match self.method {
-            Method::Get => {
-                let mut request = self.http.agent.get(&self.url);
-                for (k, v) in &self.query {
-                    request = request.query(k, v);
-                }
-                for (k, v) in &self.headers {
-                    request = request.header(k, v);
-                }
-                request
-                    .config()
-                    .timeout_global(Some(self.timeout))
-                    .build()
-                    .call()
-            }
-            Method::Post => {
-                let mut request = self.http.agent.post(&self.url);
-                for (k, v) in &self.query {
-                    request = request.query(k, v);
-                }
-                for (k, v) in &self.headers {
-                    request = request.header(k, v);
-                }
-                let request = request
-                    .config()
-                    .timeout_global(Some(self.timeout))
-                    .build();
-                match &self.body {
-                    Some(body) => request.send_json(body),
-                    None => request.send_empty(),
-                }
-            }
-        };
-        let mut response = result.map_err(|e| Retry::Fail(transport(&e)))?;
+        let mut response =
+            self.call().map_err(|e| Retry::Fail(transport(&e)))?;
         let status = response.status().as_u16();
-        if status == 429 || (status == 403 && quota_spent(response.headers()))
-        {
-            let wait = response
-                .headers()
-                .get("retry-after")
-                .and_then(|v| v.to_str().ok())
-                .and_then(|v| v.trim().parse::<u64>().ok())
-                .map(Duration::from_secs);
-            return Err(match (status, wait) {
-                (_, Some(wait)) => Retry::After(wait),
-                (429, None) => Retry::After(Duration::from_secs(1)),
-                _ => Retry::Fail(SourceError::RateLimited),
-            });
+        if let Some(retry) = throttled(status, response.headers()) {
+            return Err(retry);
         }
         if waf_challenge(response.headers()) {
             return Err(Retry::Fail(SourceError::Blocked));
@@ -332,21 +341,74 @@ impl<'a> Call<'a> {
             .limit(BODY_LIMIT)
             .read_to_vec()
             .map_err(|e| Retry::Fail(transport(&e)))?;
-        let body = String::from_utf8(body).unwrap_or_else(|invalid| {
-            String::from_utf8_lossy(invalid.as_bytes()).into_owned()
-        });
-        match status {
-            200..=299 => Ok(body),
-            401 | 403 if looks_like_challenge(&body) => {
-                Err(Retry::Fail(SourceError::Blocked))
+        self.answer(status, body).map_err(Retry::Fail)
+    }
+
+    fn call(&self) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
+        match self.method {
+            Method::Get => {
+                self.prepared(self.http.agent.get(&self.url)).call()
             }
-            401 | 403 if self.keyed => {
-                Err(Retry::Fail(SourceError::Unauthorized(status)))
+            Method::Post => {
+                let request = self.prepared(self.http.agent.post(&self.url));
+                match &self.body {
+                    Some(body) => request.send_json(body),
+                    None => request.send_empty(),
+                }
             }
-            401 | 403 => Err(Retry::Fail(SourceError::Refused(status))),
-            _ => Err(Retry::Fail(SourceError::Status(status))),
         }
     }
+
+    /// The request with this call's parameters, headers and deadline.
+    fn prepared<B>(
+        &self,
+        mut request: ureq::RequestBuilder<B>,
+    ) -> ureq::RequestBuilder<B> {
+        for (k, v) in &self.query {
+            request = request.query(k, v);
+        }
+        for (k, v) in &self.headers {
+            request = request.header(k, v);
+        }
+        request.config().timeout_global(Some(self.timeout)).build()
+    }
+
+    /// The body of a success, or the failure a status stands for.
+    fn answer(
+        &self,
+        status: u16,
+        body: Vec<u8>,
+    ) -> Result<Vec<u8>, SourceError> {
+        match status {
+            200..=299 => Ok(body),
+            401 | 403
+                if looks_like_challenge(&String::from_utf8_lossy(&body)) =>
+            {
+                Err(SourceError::Blocked)
+            }
+            401 | 403 if self.keyed => Err(SourceError::Unauthorized(status)),
+            401 | 403 => Err(SourceError::Refused(status)),
+            _ => Err(SourceError::Status(status)),
+        }
+    }
+}
+
+/// What a response that asks for fewer requests is answered with: HTTP 429,
+/// or a 403 whose headers show a spent quota. `Retry-After` gives the wait.
+fn throttled(status: u16, headers: &ureq::http::HeaderMap) -> Option<Retry> {
+    if status != 429 && !(status == 403 && quota_spent(headers)) {
+        return None;
+    }
+    let wait = headers
+        .get("retry-after")
+        .and_then(|v| v.to_str().ok())
+        .and_then(|v| v.trim().parse::<u64>().ok())
+        .map(Duration::from_secs);
+    Some(match (status, wait) {
+        (_, Some(wait)) => Retry::After(wait),
+        (429, None) => Retry::After(Duration::from_secs(1)),
+        _ => Retry::Fail(SourceError::RateLimited),
+    })
 }
 
 enum Retry {
@@ -603,6 +665,21 @@ mod tests {
         ]);
         assert_eq!(Http::new().get(&url).text().unwrap(), "results");
         assert_eq!(server.join().unwrap().len(), 2);
+    }
+
+    #[test]
+    fn bytes_come_back_as_sent_and_text_replaces_invalid_ones() {
+        let gzip_magic = [0x1f, 0x8b, 0x08, 0x00];
+        let (url, server) = serve(vec![
+            response("200 OK", &[], &gzip_magic),
+            response("200 OK", &[], &gzip_magic),
+        ]);
+        assert_eq!(Http::new().get(&url).bytes().unwrap(), gzip_magic);
+        assert_eq!(
+            Http::new().get(&url).text().unwrap(),
+            "\u{1f}\u{fffd}\u{8}\0"
+        );
+        server.join().unwrap();
     }
 
     #[test]

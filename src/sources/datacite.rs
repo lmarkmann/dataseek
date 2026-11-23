@@ -46,32 +46,18 @@ const PAGE_CAP: usize = 1000;
 /// A query that is nearly all noise would otherwise be read page after page.
 const MAX_PAGES: usize = 5;
 
-/// Characters the query parser reads as operators, besides the words AND, OR
-/// and NOT in capitals.
-const SYNTAX: &[char] = &[
-    '+', '-', '=', '&', '|', '<', '>', '!', '(', ')', '{', '}', '[', ']', '^',
-    '"', '~', '*', '?', ':', '\\', '/',
-];
-
 pub fn search(
     ctx: &Ctx<'_>,
     query: &str,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
     let size = limit.saturating_mul(2).clamp(1, PAGE_CAP);
-    let (query, mut body) = first_page(ctx, query, size)?;
-    let mut found = parse(&body, limit)?;
-    for page in 2..=MAX_PAGES {
-        if found.len() >= limit || !has_next(&body) {
-            break;
-        }
-        if ctx.stopped() {
-            return Err(SourceError::Stopped);
-        }
-        body = fetch(ctx, &query, size, page)?;
-        found.extend(parse(&body, limit.saturating_sub(found.len()))?);
-    }
-    Ok(found)
+    let (query, first) = super::retry_without_syntax(query, |query| {
+        fetch(ctx, query, size, 1)
+    })?;
+    super::paginate_next(ctx, limit, MAX_PAGES, first, parse, |page| {
+        fetch(ctx, &query, size, page)
+    })
 }
 
 fn fetch(
@@ -92,59 +78,18 @@ fn fetch(
         .json()
 }
 
-/// The first page with the query that got it, which is the plain form when
-/// the source rejected the original.
-fn first_page(
-    ctx: &Ctx<'_>,
-    query: &str,
-    size: usize,
-) -> Result<(String, Value), SourceError> {
-    match fetch(ctx, query, size, 1) {
-        Ok(body) => Ok((query.to_owned(), body)),
-        Err(error) => {
-            let plain = plain(query, &error).ok_or(error)?;
-            let body = fetch(ctx, &plain, size, 1)?;
-            Ok((plain, body))
-        }
-    }
-}
-
-fn plain(query: &str, error: &SourceError) -> Option<String> {
-    let rejected = matches!(error, SourceError::Status(400 | 500));
-    let plain = query
-        .replace(SYNTAX, " ")
-        .split_whitespace()
-        .map(|word| match word {
-            "AND" | "OR" | "NOT" => word.to_lowercase(),
-            _ => word.to_owned(),
-        })
-        .collect::<Vec<_>>()
-        .join(" ");
-    (rejected && plain != query && !plain.is_empty()).then_some(plain)
-}
-
-fn has_next(body: &Value) -> bool {
-    body.pointer("/links/next").is_some()
-}
-
 pub(super) fn parse(
     body: &Value,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    if body.get("data").is_none() {
-        return Err(SourceError::shape("no data array"));
-    }
-    Ok(items(body, "/data")
-        .iter()
-        .filter(|row| {
-            let client = text(row, "/relationships/client/data/id");
-            let id = text(row, "/attributes/doi").unwrap_or_default();
-            client.is_none_or(|c| !NOISE_CLIENTS.contains(&c.as_str()))
-                && !id.to_lowercase().starts_with(GBIF_DOWNLOADS)
-        })
-        .filter_map(record)
-        .take(limit)
-        .collect())
+    super::parse_list(body, "/data", limit, |row| {
+        let client = text(row, "/relationships/client/data/id");
+        let id = text(row, "/attributes/doi").unwrap_or_default();
+        let noise = client
+            .is_some_and(|c| NOISE_CLIENTS.contains(&c.as_str()))
+            || id.to_lowercase().starts_with(GBIF_DOWNLOADS);
+        if noise { None } else { record(row) }
+    })
 }
 
 fn record(row: &Value) -> Option<Dataset> {
@@ -245,34 +190,9 @@ mod tests {
 
     #[test]
     fn only_a_page_with_a_next_link_is_followed() {
-        assert!(has_next(&fixture::json("datacite.json")));
-        assert!(!has_next(&serde_json::json!({ "data": [], "links": {} })));
-    }
-
-    #[test]
-    fn a_rejected_query_is_asked_again_without_its_operators() {
-        for status in [400, 500] {
-            assert_eq!(
-                plain("\"air quality", &SourceError::Status(status))
-                    .as_deref(),
-                Some("air quality")
-            );
-        }
-        assert_eq!(
-            plain("C++ (benchmark", &SourceError::Status(400)).as_deref(),
-            Some("C benchmark")
-        );
-        assert_eq!(
-            plain("air AND", &SourceError::Status(500)).as_deref(),
-            Some("air and")
-        );
-    }
-
-    #[test]
-    fn a_query_is_not_asked_again_when_that_would_change_nothing() {
-        assert_eq!(plain("air quality", &SourceError::Status(500)), None);
-        assert_eq!(plain("\"\"", &SourceError::Status(400)), None);
-        assert_eq!(plain("a:b", &SourceError::Status(404)), None);
-        assert_eq!(plain("a:b", &SourceError::RateLimited), None);
+        assert!(super::super::has_next(&fixture::json("datacite.json")));
+        assert!(!super::super::has_next(
+            &serde_json::json!({ "data": [], "links": {} })
+        ));
     }
 }

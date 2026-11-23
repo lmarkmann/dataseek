@@ -15,7 +15,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 
 ## Consequences
 
-- One query fans out to about 74 hosts. The search deadline (ADR 0007) bounds the cost of the slowest; the cache bounds repeats.
+- One query fans out to about 104 hosts. The search deadline (ADR 0007) bounds the cost of the slowest; the cache bounds repeats.
 - Adding a source is one registry row plus, at most, one module. Removing one is the reverse; nothing else refers to a source by id.
 - Overlap is low (ADR 0006 evidence: 96% of merged hits came from exactly one source), so dropping a source loses results rather than duplicates. Reverting to tiers would cut recall in proportion.
 
@@ -26,7 +26,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 
 ## The sources
 
-76 sources, grouped by `--category`. Each source's terms verdict and the sentence it rests on are in [`../synthesis/terms.md`](../synthesis/terms.md); what each offers for filters and file lists is in [`../synthesis/capabilities.md`](../synthesis/capabilities.md). Keys are read from the environment or `credentials.toml` ([`../reference/keys-and-cache.md`](../reference/keys-and-cache.md)); an optional key raises a rate limit or unlocks a better endpoint, a required one is the only way in.
+106 sources, grouped by `--category`. Each source's terms verdict and the sentence it rests on are in [`../synthesis/terms.md`](../synthesis/terms.md); what each offers for filters and file lists is in [`../synthesis/capabilities.md`](../synthesis/capabilities.md). Keys are read from the environment or `credentials.toml` ([`../reference/keys-and-cache.md`](../reference/keys-and-cache.md)); an optional key raises a rate limit or unlocks a better endpoint, a required one is the only way in.
 
 ### aggregator
 
@@ -47,14 +47,26 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `uci` | UCI Machine Learning Repository | list endpoint | local |  | [docs](https://github.com/uci-ml-repo/ucimlrepo) |
 | `roboflow` | Roboflow Universe | Universe API | live | `$ROBOFLOW_API_KEY` (required) | [docs](https://docs.roboflow.com/datasets/universe/universe/universe-search) |
 | `modelscope` | ModelScope | site API | live |  | [docs](https://www.modelscope.cn/docs) |
+| `mozilla` | Mozilla Data Collective | MDC REST | live |  | [docs](https://mozilladatacollective.com/api-reference/docs) |
+| `clarin` | CLARIN VLO | VLO API | live |  | [docs](https://vlo.clarin.eu/api/swagger-ui/index.html) |
+| `elg` | European Language Grid | ELG catalogue API | live |  | [docs](https://european-language-grid.readthedocs.io/en/stable/all/A1_PythonSDK/Catalog.html) |
 | `aws` | Registry of Open Data on AWS | registry page | local |  | [docs](https://github.com/awslabs/open-data-registry) |
 | `tfds` | TensorFlow Datasets | catalog page | local |  | [docs](https://www.tensorflow.org/datasets/catalog/overview) |
+| `openslr` | OpenSLR | resource index page | local |  | [docs](https://www.openslr.org/resources.php) |
+| `lila` | LILA BC | WordPress posts API, listed | local |  | [docs](https://lila.science/datasets) |
+| `polaris` | Polaris Hub | Hub API, listed | local |  | [docs](https://polaris-hub.github.io/polaris/stable/) |
+| `academictorrents` | Academic Torrents | RSS database file | local |  | [docs](https://academictorrents.com/docs/api.html) |
+| `googleresearch` | Google Research Datasets | dataset index pages | local |  | [docs](https://research.google/resources/datasets/) |
+| `opus` | OPUS | OPUS API corpus list | local |  | [docs](https://opus.nlpl.eu/opusapi) |
+| `neurips` | NeurIPS Datasets and Benchmarks | virtual site data files | local |  | [docs](https://neurips.cc/Conferences/2026/CallForEvaluationsDatasets) |
+| `pwc` | Papers with Code archive | archived JSON dump | local |  | [docs](https://huggingface.co/datasets/pwc-archive/files) |
 
 ### code
 
 | id | source | protocol | search | key | API docs |
 |---|---|---|---|---|---|
 | `github` | GitHub (topic:dataset) | GitHub search | live | `$GITHUB_TOKEN` (optional) | [docs](https://docs.github.com/en/rest/search/search) |
+| `gitlab` | GitLab (topic:dataset) | GitLab projects API | live |  | [docs](https://docs.gitlab.com/api/projects/) |
 
 ### research
 
@@ -67,6 +79,9 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `recherche-data-gouv` | Recherche Data Gouv (France) | Dataverse | live |  | [docs](https://guides.dataverse.org/en/latest/api/search.html) |
 | `dataverse-nl` | DataverseNL | Dataverse | live |  | [docs](https://guides.dataverse.org/en/latest/api/search.html) |
 | `dataverse-no` | DataverseNO | Dataverse | live |  | [docs](https://guides.dataverse.org/en/latest/api/search.html) |
+| `darus` | DaRUS Stuttgart | Dataverse | live |  | [docs](https://guides.dataverse.org/en/latest/api/search.html) |
+| `juelich` | Juelich DATA | Dataverse | live |  | [docs](https://guides.dataverse.org/en/latest/api/search.html) |
+| `cora` | CORA.RDR | Dataverse | live |  | [docs](https://guides.dataverse.org/en/latest/api/search.html) |
 | `osf` | OSF (via SHARE) | SHARE trove | live |  | [docs](https://share.osf.io/trove/docs) |
 | `mendeley` | Mendeley Data | site search API | live | opt-in | [docs](https://data.mendeley.com/api/docs/) |
 
@@ -81,6 +96,11 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `data-gov-au` | data.gov.au | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
 | `govdata` | GovData (Germany) | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
 | `hdx` | Humanitarian Data Exchange | CKAN | live |  | [docs](https://docs.humdata.org/build/hdx-apis/metadata-endpoints/package_search) |
+| `data-go-jp` | Japan e-Gov Data | CKAN | live |  | [docs](https://data.e-gov.go.jp/data/api_guide) |
+| `energydata` | World Bank EnergyData | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
+| `open-africa` | openAFRICA | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
+| `netl-edx` | DOE NETL EDX | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
+| `opendata-swiss` | opendata.swiss | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
 | `socrata` | Socrata portals (US) | Socrata Discovery | live |  | [docs](https://dev.socrata.com/docs/other/discovery) |
 | `socrata-eu` | Socrata portals (EU) | Socrata Discovery | live |  | [docs](https://dev.socrata.com/docs/other/discovery) |
 | `opendatasoft` | OpenDataSoft hub | OpenDataSoft Explore | live |  | [docs](https://help.huwise.com/apis/ods-explore-v2/) |
@@ -130,6 +150,8 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `earth-search` | Earth Search (AWS) | STAC | local |  | [docs](https://element84.com/earth-search/) |
 | `copernicus-dataspace` | Copernicus Data Space | STAC | local |  | [docs](https://documentation.dataspace.copernicus.eu/APIs/STAC.html) |
 | `copernicus-cds` | Copernicus Climate Data Store | STAC | local |  | [docs](https://cds.climate.copernicus.eu/how-to-api) |
+| `swisstopo` | Swisstopo STAC | STAC | local |  | [docs](https://www.geo.admin.ch/en/rest-interface-stac-api/) |
+| `usgs-landsat` | USGS LandsatLook (overlaps `planetary-computer` and `earth-search`) | STAC | local |  | [docs](https://www.usgs.gov/landsat-missions/spatiotemporal-asset-catalog-stac) |
 | `earth-engine` | Google Earth Engine catalog | catalog page | local |  | [docs](https://developers.google.com/earth-engine/datasets/catalog) |
 | `ncei` | NOAA NCEI | NCEI Search Service | live |  | [docs](https://www.ncei.noaa.gov/support/access-search-service-api-user-documentation) |
 | `pangaea` | PANGAEA | PANGAEA search | live |  | [docs](https://wiki.pangaea.de/wiki/PANGAEA_search) |
@@ -148,9 +170,14 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `geo` | NCBI GEO | E-utilities | live | `$NCBI_API_KEY` (optional) | [docs](https://www.ncbi.nlm.nih.gov/books/NBK25501/) |
 | `arrayexpress` | ArrayExpress (EBI) | EBI Search | live |  | [docs](https://www.ebi.ac.uk/ebisearch/documentation/rest-api) |
 | `biostudies` | BioStudies (EBI) | EBI Search | live |  | [docs](https://www.ebi.ac.uk/ebisearch/documentation/rest-api) |
+| `bioimages` | BioImage Archive | EBI Search | live |  | [docs](https://www.ebi.ac.uk/ebisearch/documentation/rest-api) |
+| `empiar` | EMPIAR | EBI Search | live |  | [docs](https://www.ebi.ac.uk/ebisearch/documentation/rest-api) |
 | `omicsdi` | OmicsDI | OmicsDI | live |  | [docs](https://www.omicsdi.org/ws/) |
 | `cellxgene` | CZ CELLxGENE | Curation API, listed | local |  | [docs](https://api.cellxgene.cziscience.com/curation/ui/) |
+| `grandchallenge` | Grand Challenge | REST API, listed | local |  | [docs](https://grand-challenge.org/documentation/grand-challenge-api/) |
+| `tcia` | The Cancer Imaging Archive | WordPress collections API, listed | local |  | [docs](https://www.cancerimagingarchive.net/tcia-api-guides/) |
 | `synapse` | Synapse | Synapse REST | live |  | [docs](https://rest-docs.synapse.org/) |
+| `encode` | ENCODE | ENCODE REST | live |  | [docs](https://www.encodeproject.org/help/rest-api/) |
 
 ### neuroscience
 
@@ -173,3 +200,6 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | id | source | protocol | search | key | API docs |
 |---|---|---|---|---|---|
 | `cessda` | CESSDA Data Catalogue | CESSDA | live |  | [docs](https://api.tech.cessda.eu/) |
+| `unicef` | UNICEF SDMX | SDMX | local |  | [docs](https://data.unicef.org/sdmx-api-documentation/) |
+| `aussda` | AUSSDA | Dataverse | live |  | [docs](https://guides.dataverse.org/en/latest/api/search.html) |
+| `qdr` | QDR Syracuse | Dataverse | live |  | [docs](https://guides.dataverse.org/en/latest/api/search.html) |

@@ -36,6 +36,16 @@ pub enum Sort {
     Newest,
 }
 
+/// Which of an item's neighbors `related` lists.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, ValueEnum)]
+pub enum By {
+    /// Everything the item's owner holds.
+    #[default]
+    Owner,
+    /// The forks of a GitHub repository, the most starred first.
+    Forks,
+}
+
 // A macro rather than a const, because `concat!` takes only literals and the
 // long help appends to the same block.
 macro_rules! examples {
@@ -370,10 +380,48 @@ pub enum Command {
         offline: bool,
     },
 
-    /// Serve search, sources and inspect to MCP clients over stdio.
+    /// List the datasets beside one item: its owner's, a paper's, a model's.
     #[command(
-        long_about = "Serve search, sources and inspect to MCP clients over \
-            stdio.\n\nAn MCP client starts `dsk mcp` and speaks JSON-RPC on \
+        long_about = "List the datasets beside one item: its owner's, a \
+            paper's, a model's.\n\nThe item's own host is asked once and \
+            the order is the host's. A Hugging Face dataset or owner page \
+            lists the owner's datasets, a paper page or an arXiv link the \
+            datasets that cite the paper, a model page the datasets its \
+            card names, a collection page its datasets. A GitHub repository \
+            or owner page lists the owner's repositories, or with --by \
+            forks the repository's forks. A GitLab project page lists the \
+            projects of its group or user. A list is one page of the host: \
+            at most 1,000 datasets from Hugging Face and 100 repositories \
+            from GitHub or GitLab. Under --json the list is .results, in \
+            the record shape of search.",
+        after_help = "Examples:
+  dsk related https://huggingface.co/datasets/nyu-mll/glue
+  dsk related https://arxiv.org/abs/1810.04805 --json
+  dsk related https://github.com/zalandoresearch/fashion-mnist --by forks"
+    )]
+    Related {
+        /// The item's page: a dataset, owner, paper, model, collection or
+        /// repository.
+        #[arg(value_name = "URL")]
+        url: String,
+
+        /// Which neighbors a GitHub repository lists (owner or forks).
+        #[arg(long, value_name = "RELATION", default_value = "owner")]
+        by: By,
+
+        /// How many datasets to print.
+        #[arg(short = 'n', long, value_name = "N", default_value_t = 100)]
+        limit: usize,
+
+        /// Fail at once instead of reaching for the network.
+        #[arg(long)]
+        offline: bool,
+    },
+
+    /// Serve search, sources, inspect and related to MCP clients over stdio.
+    #[command(
+        long_about = "Serve search, sources, inspect and related to MCP \
+            clients over stdio.\n\nAn MCP client starts `dsk mcp` and speaks JSON-RPC on \
             its stdin and stdout. Each tool returns the object its command's \
             --json prints. stdout carries protocol messages only; narration \
             goes to stderr."
@@ -441,6 +489,18 @@ pub enum Command {
         #[arg(value_name = "TOPIC", value_parser = crate::help::topics())]
         topic: Option<String>,
     },
+}
+
+impl Command {
+    /// Whether `--offline` was given: the command then sends no request.
+    pub fn offline(&self) -> bool {
+        matches!(
+            self,
+            Self::Search { offline: true, .. }
+                | Self::Inspect { offline: true, .. }
+                | Self::Related { offline: true, .. }
+        )
+    }
 }
 
 #[derive(Subcommand, Clone)]

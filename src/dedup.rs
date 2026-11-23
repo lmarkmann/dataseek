@@ -45,32 +45,8 @@ pub fn merge(lists: Vec<(&'static str, Vec<Dataset>)>) -> Vec<Hit> {
     for (source, datasets) in lists {
         for (rank, dataset) in datasets.into_iter().enumerate() {
             let keys = identity_keys(&dataset);
-            let mut targets: Vec<usize> = keys
-                .iter()
-                .filter_map(|k| {
-                    let index = owner.get(k).copied()?;
-                    let same_source = hits
-                        .get(index)
-                        .and_then(Option::as_ref)
-                        .is_some_and(|hit| hit.has(source));
-                    (!k.starts_with("title:") || !same_source).then_some(index)
-                })
-                .collect();
-            targets.sort_unstable();
-            targets.dedup();
-
-            let index = if let Some(&first) = targets.first() {
-                for &other in targets.iter().skip(1) {
-                    absorb(&mut hits, &mut owner, first, other);
-                }
-                if let Some(Some(hit)) = hits.get_mut(first) {
-                    hit.add(source, rank, dataset, &keys);
-                }
-                first
-            } else {
-                hits.push(Some(Building::new(source, rank, dataset, &keys)));
-                hits.len().saturating_sub(1)
-            };
+            let index =
+                place(&mut hits, &mut owner, source, rank, dataset, &keys);
             for key in keys {
                 owner.insert(key, index);
             }
@@ -78,6 +54,55 @@ pub fn merge(lists: Vec<(&'static str, Vec<Dataset>)>) -> Vec<Hit> {
     }
 
     rank(hits.into_iter().flatten().map(Building::finish).collect())
+}
+
+/// The hits that hold one of `keys`, in index order. A title key joins
+/// records of different sources only.
+fn holders(
+    hits: &[Option<Building>],
+    owner: &HashMap<String, usize>,
+    source: &str,
+    keys: &[String],
+) -> Vec<usize> {
+    let mut holders: Vec<usize> = keys
+        .iter()
+        .filter_map(|k| {
+            let index = owner.get(k).copied()?;
+            let same_source = hits
+                .get(index)
+                .and_then(Option::as_ref)
+                .is_some_and(|hit| hit.has(source));
+            (!k.starts_with("title:") || !same_source).then_some(index)
+        })
+        .collect();
+    holders.sort_unstable();
+    holders.dedup();
+    holders
+}
+
+/// Puts one record into the first hit that shares a key with it, after
+/// that hit absorbed every other one that does, or into a new hit. Returns
+/// the index of the hit.
+fn place(
+    hits: &mut Vec<Option<Building>>,
+    owner: &mut HashMap<String, usize>,
+    source: &'static str,
+    rank: usize,
+    dataset: Dataset,
+    keys: &[String],
+) -> usize {
+    let holders = holders(hits, owner, source, keys);
+    let Some((&first, others)) = holders.split_first() else {
+        hits.push(Some(Building::new(source, rank, dataset, keys)));
+        return hits.len().saturating_sub(1);
+    };
+    for &other in others {
+        absorb(hits, owner, first, other);
+    }
+    if let Some(Some(hit)) = hits.get_mut(first) {
+        hit.add(source, rank, dataset, keys);
+    }
+    first
 }
 
 /// Highest score first, more sources breaking a tie, then the input order.
@@ -117,6 +142,14 @@ impl Building {
         self.best_rank.iter().any(|(s, _)| *s == source)
     }
 
+    /// Within one source only its best rank counts.
+    fn record_rank(&mut self, source: &'static str, rank: usize) {
+        match self.best_rank.iter_mut().find(|(s, _)| *s == source) {
+            Some((_, best)) => *best = (*best).min(rank),
+            None => self.best_rank.push((source, rank)),
+        }
+    }
+
     fn add(
         &mut self,
         source: &'static str,
@@ -124,10 +157,7 @@ impl Building {
         dataset: Dataset,
         keys: &[String],
     ) {
-        match self.best_rank.iter_mut().find(|(s, _)| *s == source) {
-            Some((_, best)) => *best = (*best).min(rank),
-            None => self.best_rank.push((source, rank)),
-        }
+        self.record_rank(source, rank);
         fill(&mut self.dataset, dataset);
         for key in keys {
             if !self.keys.contains(key) {
@@ -138,10 +168,7 @@ impl Building {
 
     fn absorb(&mut self, other: Self) {
         for (source, rank) in other.best_rank {
-            match self.best_rank.iter_mut().find(|(s, _)| *s == source) {
-                Some((_, best)) => *best = (*best).min(rank),
-                None => self.best_rank.push((source, rank)),
-            }
+            self.record_rank(source, rank);
         }
         fill(&mut self.dataset, other.dataset);
         for key in other.keys {

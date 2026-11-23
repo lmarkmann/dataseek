@@ -1,0 +1,255 @@
+{
+  "data": [
+    {
+      "id": "7rBfNQ9XPKyAoPbZd3aea",
+      "createdAt": "2024-05-31T03:27:02.091Z",
+      "deletedAt": null,
+      "name": "drewry2014-pkis1-subset-v2",
+      "slug": "drewry2014-pkis1-subset-v2",
+      "description": "A subset of PKIS dataset only including EGFR, RET, KIT kinases. PKIS is a data set of 367 small-molecule ATP-competitive kinase inhibitors that was screened by the set in activity assays with 224 recombinant kinases and 24 G protein-coupled receptors and in cellular assays of cancer cell proliferation and angiogenesis.",
+      "tags": [
+        "kinase",
+        "hit-discovery",
+        "selectivity"
+      ],
+      "userAttributes": {
+        "year": "2014"
+      },
+      "isCertified": false,
+      "isFeatured": false,
+      "polarisVersion": "dev",
+      "readme": "![kinase](https://storage.googleapis.com/polaris-public/icons/icons8-fox-60-kinases.png)\n\n## Background:\n Kinases play a crucial role in cellular signalling, making them important targets for drug dev",
+      "ownerId": "9qGUtJxWQ5MDZrK5op9jn",
+      "creatorId": "NKnaHGybLqwSHcaMEHqfF",
+      "source": "https://pubmed.ncbi.nlm.nih.gov/24283969/",
+      "curationReference": "https://github.com/polaris-hub/polaris-recipes/org-Polaris/drewry2014_pkis1_subset/01_pkis1_kinase_data_curation.ipynb",
+      "license": "CC-BY-4.0",
+      "annotations": {
+        "KIT": {
+          "dtype": "float64",
+          "modality": "UNKNOWN",
+          "isPointer": false,
+          "description": "Percentage of inhibition on KIT with mutation NaN",
+          "userAttributes": {
+            "unit": "%",
+            "source": "PKIS1",
+            "target": "KIT",
+            "mutation": "NaN",
+            "organism": "Human",
+            "objective": "Higher value",
+            "concentration": "1uM"
+          }
+        },
+        "RET": {
+          "dtype": "float64",
+          "modality": "UNKNOWN",
+          "isPointer": false,
+          "description": "Percentage of inhibition on RET with mutation NaN",
+          "userAttributes": {
+            "unit": "%",
+            "source": "PKIS1",
+            "target": "RET",
+            "mutation": "NaN",
+            "organism": "Human",
+            "objective": "Higher value",
+            "concentration": "1uM"
+          }
+        }
+      },
+      "defaultAdapters": {},
+      "artifactVersion": 1,
+      "artifactChangelog": null,
+      "state": "ready",
+      "nRows": 366,
+      "nColumns": 18,
+      "parquetRootPath": "dataset/polaris/drewry2014-pkis1-subset-v2/table.parquet",
+      "zarrRootPath": null,
+      "zarrContent": {},
+      "md5Sum": "93fecdc56573c0442e5717bb0eb24efb",
+      "tableContent": {
+        "url": "https://874f02b9d981bd6c279e979c0d91c4b4.r2.cloudflarestorage.com/polaris/dataset/polaris/drewry2014-pkis1-subset-v2/table.parquet",
+        "size": 53165,
+        "fileType": "parquet"
+      },
+      "parentId": null,
+      "artifactId": "polaris/drewry2014-pkis1-subset-v2",
+      "previewMessage": null,
+      "creator": {
+        "slug": "lu-valencelabs",
+        "externalId": "user_2gtYwEALU6nz7YYhVOTrlJmkWtN",
+        "type": "user"
+      },
+      "owner": {
+        "slug": "polaris",
+        "externalId": "org_2gtoaJIVrgRqiIR8Qm5BnpFCbxu",
+        "type": "organization"
+      },
+      "benchmarks": []
+    },
+    {
+      "id": "n033w8WdejQftjoolDiU9",
+      "createdAt": "2024-07-24T18:03:42.618Z",
+      "deletedAt": null,
+      "name": "moleculeace-chembl287-ki",
+      "slug": "moleculeace-chembl287-ki",
+      "description": "Bioassay CHEMBL287 of protein Membrane receptor molecular machine learning with activity cliffs.",
+      "tags": [
+        "Activity Cliff",
+        "QSAR"
+      ],
+      "userAttributes": {},
+      "isCertified": false,
+      "isFeatured": false,
+      "polarisVersion": "dev",
+      "readme": "## Background\nThis dataset comprises collected and curated bioactivity data for the target Membrane receptorfrom ChEMBL assay CHEMBL287, utilized to evaluate the performance of various machine learnin",
+      "ownerId": "cD80WxCAFiWtNxeUDjAwt",
+      "creatorId": "NKnaHGybLqwSHcaMEHqfF",
+      "source": "https://pubs.acs.org/doi/10.1021/acs.jcim.2c01073",
+      "curationReference": null,
+      "license": "CC-BY-4.0",
+      "annotations": {
+        "y": {
+          "dtype": "float64",
+          "modality": "UNKNOWN",
+          "isPointer": false,
+          "description": "Negative of log transform of the bioactivity value Ki",
+          "userAttributes": {
+            "unit": "nM"
+          }
+        },
+        "split": {
+          "dtype": "object",
+          "modality": "UNKNOWN",
+          "isPointer": false,
+          "description": "Train-test split provided by MoleculeACE.",
+          "userAttributes": {}
+        }
+      },
+      "defaultAdapters": {},
+      "artifactVersion": 1,
+      "artifactChangelog": null,
+      "state": "ready",
+      "nRows": 1328,
+      "nColumns": 5,
+      "parquetRootPath": "dataset/molecularml/moleculeace-chembl287-ki/table.parquet",
+      "zarrRootPath": null,
+      "zarrContent": {},
+      "md5Sum": "0c5df8f7043d99ccccd4d95239079792",
+      "tableContent": {
+        "url": "https://874f02b9d981bd6c279e979c0d91c4b4.r2.cloudflarestorage.com/polaris/dataset/molecularml/moleculeace-chembl287-ki/table.parquet",
+        "size": 40337,
+        "md5Sum": "a54057a342007e9f1790a7bd172a5b69",
+        "fileType": "parquet"
+      },
+      "parentId": null,
+      "artifactId": "molecularml/moleculeace-chembl287-ki",
+      "previewMessage": null,
+      "creator": {
+        "slug": "lu-valencelabs",
+        "externalId": "user_2gtYwEALU6nz7YYhVOTrlJmkWtN",
+        "type": "user"
+      },
+      "owner": {
+        "slug": "molecularml",
+        "externalId": "org_2jhLN1ng2deVJa8zmHskzlaS0S4",
+        "type": "organization"
+      },
+      "benchmarks": [
+        {
+          "createdAt": "2024-07-24T18:03:43.909Z",
+          "description": "",
+          "name": "moleculeace-CHEMBL287-Ki",
+          "artifactId": "molecularml/moleculeace-chembl287-ki",
+          "owner": {
+            "slug": "molecularml"
+          }
+        }
+      ]
+    },
+    {
+      "id": "aSiQe8wUGySthL8cjMkWL",
+      "createdAt": "2024-07-24T18:03:45.924Z",
+      "deletedAt": null,
+      "name": "moleculeace-chembl3979-ec50",
+      "slug": "moleculeace-chembl3979-ec50",
+      "description": "Bioassay CHEMBL3979 of protein Nuclear hormone receptor subfamily 1 group C member 2 molecular machine learning with activity cliffs.",
+      "tags": [
+        "Activity Cliff",
+        "QSAR"
+      ],
+      "userAttributes": {},
+      "isCertified": false,
+      "isFeatured": false,
+      "polarisVersion": "dev",
+      "readme": "## Background\nThis dataset comprises collected and curated bioactivity data for the target Nuclear hormone receptor subfamily 1 group C member 2from ChEMBL assay CHEMBL3979, utilized to evaluate the p",
+      "ownerId": "cD80WxCAFiWtNxeUDjAwt",
+      "creatorId": "NKnaHGybLqwSHcaMEHqfF",
+      "source": "https://pubs.acs.org/doi/10.1021/acs.jcim.2c01073",
+      "curationReference": null,
+      "license": "CC-BY-4.0",
+      "annotations": {
+        "y": {
+          "dtype": "float64",
+          "modality": "UNKNOWN",
+          "isPointer": false,
+          "description": "Negative of log transform of the bioactivity value EC50",
+          "userAttributes": {
+            "unit": "nM"
+          }
+        },
+        "split": {
+          "dtype": "object",
+          "modality": "UNKNOWN",
+          "isPointer": false,
+          "description": "Train-test split provided by MoleculeACE.",
+          "userAttributes": {}
+        }
+      },
+      "defaultAdapters": {},
+      "artifactVersion": 1,
+      "artifactChangelog": null,
+      "state": "ready",
+      "nRows": 1125,
+      "nColumns": 5,
+      "parquetRootPath": "dataset/molecularml/moleculeace-chembl3979-ec50/table.parquet",
+      "zarrRootPath": null,
+      "zarrContent": {},
+      "md5Sum": "55d5943af68a250979bf8094edc13299",
+      "tableContent": {
+        "url": "https://874f02b9d981bd6c279e979c0d91c4b4.r2.cloudflarestorage.com/polaris/dataset/molecularml/moleculeace-chembl3979-ec50/table.parquet",
+        "size": 33279,
+        "md5Sum": "e544786feac9be5159bb93f2e9d91649",
+        "fileType": "parquet"
+      },
+      "parentId": null,
+      "artifactId": "molecularml/moleculeace-chembl3979-ec50",
+      "previewMessage": null,
+      "creator": {
+        "slug": "lu-valencelabs",
+        "externalId": "user_2gtYwEALU6nz7YYhVOTrlJmkWtN",
+        "type": "user"
+      },
+      "owner": {
+        "slug": "molecularml",
+        "externalId": "org_2jhLN1ng2deVJa8zmHskzlaS0S4",
+        "type": "organization"
+      },
+      "benchmarks": [
+        {
+          "createdAt": "2024-07-24T18:03:46.988Z",
+          "description": "",
+          "name": "moleculeace-CHEMBL3979-EC50",
+          "artifactId": "molecularml/moleculeace-chembl3979-ec50",
+          "owner": {
+            "slug": "molecularml"
+          }
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "total": 96,
+    "limit": 100,
+    "offset": 0
+  }
+}

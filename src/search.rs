@@ -123,85 +123,31 @@ pub fn run(
     deadline: Option<Duration>,
 ) -> Vec<Outcome> {
     let started = Instant::now();
-    let first_download: Vec<bool> = plan
-        .sources
-        .iter()
-        .map(|s| s.is_catalog() && !services.cache.has(Kind::Catalog, s.id))
-        .collect();
-    let in_background: Vec<bool> = plan
-        .sources
-        .iter()
-        .zip(&first_download)
-        .map(|(s, &first)| first && services.cache.warming(s.id))
-        .collect();
-    let waits_for_downloads =
-        deadline.is_none() || plan.forced || !first_download.contains(&false);
-    let waited_for = |index: usize| {
-        first_download.get(index) == Some(&false)
-            || (waits_for_downloads
-                && in_background.get(index) == Some(&false))
+    let downloads = Downloads::of(services, plan, deadline);
+    let (receiver, waiting) =
+        spawn(services, refresh, plan, progress, &downloads.in_background);
+    let asked =
+        (0..plan.sources.len()).filter(|&i| downloads.counted(i)).count();
+    let mut wait = Wait {
+        downloads: &downloads,
+        started,
+        tally: Tally { asked, answered: 0, failed: 0 },
+        others: downloads.first.iter().filter(|&&first| !first).count(),
+        quorum_applies: deadline.is_some() && !plan.forced,
+        stop: deadline,
+        slots: plan.sources.iter().map(|_| None).collect(),
+        waiting,
     };
-    let mut tally = Tally {
-        asked: (0..plan.sources.len()).filter(|&i| waited_for(i)).count(),
-        answered: 0,
-        failed: 0,
-    };
-    let mut others = first_download.iter().filter(|&&first| !first).count();
-    let mut quorum_applies = deadline.is_some() && !plan.forced;
-    // Measured from `started`, like the deadline, which it only shortens.
-    let mut stop = deadline;
-    let (receiver, mut waiting) =
-        spawn(services, refresh, plan, progress, &in_background);
-
-    let mut slots: Vec<Option<Outcome>> =
-        plan.sources.iter().map(|_| None).collect();
-    let mut gave_up = false;
-    while waiting > 0 {
-        if others == 0 && !waits_for_downloads {
-            gave_up = true;
-            break;
-        }
-        let next = match stop {
-            None => {
-                receiver.recv().map_err(|_| RecvTimeoutError::Disconnected)
-            }
-            Some(limit) => match limit.checked_sub(started.elapsed()) {
-                Some(left) => receiver.recv_timeout(left),
-                None => Err(RecvTimeoutError::Timeout),
-            },
-        };
-        match next {
-            Ok((index, outcome)) => {
-                if waited_for(index) {
-                    tally.count(&outcome.status);
-                }
-                if quorum_applies && tally.reached() {
-                    quorum_applies = false;
-                    let grace = started.elapsed().saturating_add(GRACE);
-                    stop = stop.map(|limit| limit.min(grace));
-                }
-                if let Some(slot) = slots.get_mut(index) {
-                    *slot = Some(outcome);
-                    waiting = waiting.saturating_sub(1);
-                    if first_download.get(index) == Some(&false) {
-                        others = others.saturating_sub(1);
-                    }
-                }
-            }
-            Err(RecvTimeoutError::Timeout) => {
-                gave_up = true;
-                break;
-            }
-            Err(RecvTimeoutError::Disconnected) => break,
-        }
-    }
+    let gave_up = wait.collect(&receiver);
     if gave_up {
         services.stop.store(true, Ordering::Relaxed);
     }
-    slots
+    wait.slots
         .into_iter()
         .zip(
-            plan.sources.iter().zip(first_download.iter().zip(&in_background)),
+            plan.sources
+                .iter()
+                .zip(downloads.first.iter().zip(&downloads.in_background)),
         )
         .map(|(slot, (&source, (&first, &background)))| {
             slot.unwrap_or_else(|| Outcome {
@@ -216,6 +162,123 @@ pub fn run(
             })
         })
         .collect()
+}
+
+/// Which sources of a plan download their catalog for the first time, by
+/// the plan's index.
+struct Downloads {
+    first: Vec<bool>,
+    /// The first downloads another search left running.
+    in_background: Vec<bool>,
+    /// A search waits for first downloads when it has no deadline, when
+    /// the sources were named, or when there is nothing else to wait for.
+    waited_for: bool,
+}
+
+impl Downloads {
+    fn of(
+        services: &Services,
+        plan: &Plan,
+        deadline: Option<Duration>,
+    ) -> Self {
+        let first: Vec<bool> = plan
+            .sources
+            .iter()
+            .map(|s| {
+                s.is_catalog() && !services.cache.has(Kind::Catalog, s.id)
+            })
+            .collect();
+        let in_background = plan
+            .sources
+            .iter()
+            .zip(&first)
+            .map(|(s, &first)| first && services.cache.warming(s.id))
+            .collect();
+        let waited_for =
+            deadline.is_none() || plan.forced || !first.contains(&false);
+        Self { first, in_background, waited_for }
+    }
+
+    /// A source that answers without a first download.
+    fn other(&self, index: usize) -> bool {
+        self.first.get(index) == Some(&false)
+    }
+
+    /// Whether the quorum is taken over the source.
+    fn counted(&self, index: usize) -> bool {
+        self.other(index)
+            || (self.waited_for
+                && self.in_background.get(index) == Some(&false))
+    }
+}
+
+/// The wait for the outcomes: those that arrived, and when to stop.
+struct Wait<'a> {
+    downloads: &'a Downloads,
+    started: Instant,
+    tally: Tally,
+    /// How many sources that are no first download are still out.
+    others: usize,
+    quorum_applies: bool,
+    /// Measured from `started`, like the deadline, which it only shortens.
+    stop: Option<Duration>,
+    slots: Vec<Option<Outcome>>,
+    waiting: usize,
+}
+
+impl Wait<'_> {
+    /// Takes outcomes until every source has ended. Returns whether the
+    /// wait gave up before that: at the deadline, at the grace after the
+    /// quorum, or with only first downloads left that it does not wait for.
+    fn collect(
+        &mut self,
+        receiver: &mpsc::Receiver<(usize, Outcome)>,
+    ) -> bool {
+        while self.waiting > 0 {
+            if self.others == 0 && !self.downloads.waited_for {
+                return true;
+            }
+            match self.next(receiver) {
+                Ok((index, outcome)) => self.take(index, outcome),
+                Err(RecvTimeoutError::Timeout) => return true,
+                Err(RecvTimeoutError::Disconnected) => return false,
+            }
+        }
+        false
+    }
+
+    fn next(
+        &self,
+        receiver: &mpsc::Receiver<(usize, Outcome)>,
+    ) -> Result<(usize, Outcome), RecvTimeoutError> {
+        let Some(limit) = self.stop else {
+            return receiver
+                .recv()
+                .map_err(|_| RecvTimeoutError::Disconnected);
+        };
+        match limit.checked_sub(self.started.elapsed()) {
+            Some(left) => receiver.recv_timeout(left),
+            None => Err(RecvTimeoutError::Timeout),
+        }
+    }
+
+    fn take(&mut self, index: usize, outcome: Outcome) {
+        if self.downloads.counted(index) {
+            self.tally.count(&outcome.status);
+        }
+        if self.quorum_applies && self.tally.reached() {
+            self.quorum_applies = false;
+            let grace = self.started.elapsed().saturating_add(GRACE);
+            self.stop = self.stop.map(|limit| limit.min(grace));
+        }
+        if let Some(slot) = self.slots.get_mut(index) {
+            *slot = Some(outcome);
+            self.waiting = self.waiting.saturating_sub(1);
+            if self.downloads.other(index) {
+                self.others = self.others.saturating_sub(1);
+            }
+        }
+    }
 }
 
 /// One thread per source not marked in `skip`; the channel their outcomes
@@ -332,30 +395,55 @@ fn one(ctx: &Ctx<'_>, plan: &Plan, source: &'static Source) -> Outcome {
         return done(Status::Cached, datasets.clone());
     }
 
-    match source.search(ctx, &plan.query, plan.per_source) {
-        Ok(Answer { datasets, expired: true }) => {
-            done(Status::Expired, datasets)
-        }
-        Ok(Answer { datasets, expired: false }) => {
-            if !http::is_offline() {
-                ctx.cache.clear_outage(source.id);
-            }
-            if cacheable {
-                ctx.cache.store(Kind::Query, &key, &datasets);
-            }
-            done(Status::Fetched, datasets)
-        }
-        Err(error) => {
-            // A source the deadline cut off is slow, not down: its next
-            // page may be another host's fault, or the client's own limit.
-            if error.is_outage() && !ctx.stopped() {
-                ctx.cache.mark_outage(source.id);
-            }
-            match cached {
-                Some((datasets, _)) => done(Status::Stale(error), datasets),
-                None => done(Status::Failed(error), Vec::new()),
-            }
-        }
+    let (status, datasets) =
+        match source.search(ctx, &plan.query, plan.per_source) {
+            Ok(answer) => answered(
+                ctx,
+                source,
+                cacheable.then_some(key.as_str()),
+                answer,
+            ),
+            Err(error) => failed(ctx, source, error, cached),
+        };
+    done(status, datasets)
+}
+
+/// A fresh answer ends the source's outage and is stored under `store_as`;
+/// the answer of an expired catalog does neither.
+fn answered(
+    ctx: &Ctx<'_>,
+    source: &Source,
+    store_as: Option<&str>,
+    answer: Answer,
+) -> (Status, Vec<Dataset>) {
+    if answer.expired {
+        return (Status::Expired, answer.datasets);
+    }
+    if !http::is_offline() {
+        ctx.cache.clear_outage(source.id);
+    }
+    if let Some(key) = store_as {
+        ctx.cache.store(Kind::Query, key, &answer.datasets);
+    }
+    (Status::Fetched, answer.datasets)
+}
+
+/// A failure marks an outage where it is one, and the search falls back on
+/// the expired cache entry where there is one.
+fn failed(
+    ctx: &Ctx<'_>,
+    source: &Source,
+    error: SourceError,
+    cached: Option<(Vec<Dataset>, Freshness)>,
+) -> (Status, Vec<Dataset>) {
+    // A source the deadline cut off is slow, not down: its next page may be
+    // another host's fault, or the client's own limit.
+    if error.is_outage() && !ctx.stopped() {
+        ctx.cache.mark_outage(source.id);
+    }
+    match cached {
+        Some((datasets, _)) => (Status::Stale(error), datasets),
+        None => (Status::Failed(error), Vec::new()),
     }
 }
 
@@ -671,16 +759,34 @@ mod tests {
         outcomes.iter().map(|o| &o.status).collect()
     }
 
-    #[test]
-    fn a_first_catalog_download_is_not_waited_for_once_the_rest_answered() {
-        let (outcomes, took) =
-            search(vec![&ANSWERS, &CATALOG_HANGS], false, DEADLINE, |_| {});
+    /// The search came back with the live source's answer and left the
+    /// catalog download running.
+    fn assert_download_left(outcomes: &[Outcome], took: Duration) {
         assert!(took < Duration::from_secs(5), "{took:?}");
-        let statuses = statuses(&outcomes);
+        let statuses = statuses(outcomes);
         assert!(
             matches!(statuses[..], [Status::Fetched, Status::Downloading]),
             "{statuses:?}"
         );
+    }
+
+    /// What `one` makes of a source once the deadline has passed, whether
+    /// it parked the source as down, and how many answers it cached.
+    fn past_the_deadline(source: &'static Source) -> (Outcome, bool, usize) {
+        let dir = tempfile::tempdir().unwrap();
+        let services = Services::scratch(dir.path());
+        services.stop.store(true, Ordering::Relaxed);
+        let ctx = services.ctx(false);
+        let outcome = one(&ctx, &plan(source, true), source);
+        let parked = ctx.cache.recent_outage(source.id).is_some();
+        (outcome, parked, ctx.cache.usage().files)
+    }
+
+    #[test]
+    fn a_first_catalog_download_is_not_waited_for_once_the_rest_answered() {
+        let (outcomes, took) =
+            search(vec![&ANSWERS, &CATALOG_HANGS], false, DEADLINE, |_| {});
+        assert_download_left(&outcomes, took);
     }
 
     #[test]
@@ -716,12 +822,7 @@ mod tests {
                     assert!(services.cache.claim_warming(CATALOG_WARMING.id));
                 },
             );
-            assert!(took < Duration::from_secs(5), "{took:?}");
-            let statuses = statuses(&outcomes);
-            assert!(
-                matches!(statuses[..], [Status::Fetched, Status::Downloading]),
-                "forced {forced}: {statuses:?}"
-            );
+            assert_download_left(&outcomes, took);
         }
     }
 
@@ -836,30 +937,19 @@ mod tests {
 
     #[test]
     fn a_failure_past_the_deadline_parks_no_source() {
-        let dir = tempfile::tempdir().unwrap();
-        let services = Services::scratch(dir.path());
-        services.stop.store(true, Ordering::Relaxed);
-        let ctx = services.ctx(false);
-        let outcome = one(&ctx, &plan(&TIMES_OUT, true), &TIMES_OUT);
+        let (outcome, parked, _) = past_the_deadline(&TIMES_OUT);
         assert!(matches!(
             outcome.status,
             Status::Failed(SourceError::Timeout)
         ));
-        assert!(
-            ctx.cache.recent_outage(TIMES_OUT.id).is_none(),
-            "a deadline-cut-off source was parked as down"
-        );
+        assert!(!parked, "a deadline-cut-off source was parked as down");
     }
 
     #[test]
     fn a_complete_answer_is_kept_even_past_the_deadline() {
-        let dir = tempfile::tempdir().unwrap();
-        let services = Services::scratch(dir.path());
-        services.stop.store(true, Ordering::Relaxed);
-        let ctx = services.ctx(false);
-        let outcome = one(&ctx, &plan(&ANSWERS, true), &ANSWERS);
+        let (outcome, _, cached) = past_the_deadline(&ANSWERS);
         assert!(matches!(outcome.status, Status::Fetched));
         assert_eq!(outcome.datasets, found());
-        assert_eq!(ctx.cache.usage().files, 1, "the full answer was not kept");
+        assert_eq!(cached, 1, "the full answer was not kept");
     }
 }

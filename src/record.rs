@@ -222,10 +222,8 @@ pub fn from_markdown(text: &str) -> String {
     let mut fence = None;
     let mut paragraph = false;
     for line in text.lines().map(str::trim) {
-        if let Some((mark, len)) = fence {
-            let rest = line.trim_start_matches(mark);
-            if line.len().saturating_sub(rest.len()) >= len && rest.is_empty()
-            {
+        if let Some(open) = fence {
+            if closes_fence(line, open) {
                 fence = None;
             } else {
                 plain.push_str(line);
@@ -239,17 +237,29 @@ pub fn from_markdown(text: &str) -> String {
         } else {
             let content;
             (content, paragraph) = block_content(line, paragraph);
-            if content.starts_with('|') || content.ends_with('|') {
-                inline(&content.replace('|', " "), &mut plain);
-            } else {
-                inline(content, &mut plain);
-            }
+            table_row(content, &mut plain);
         }
         plain.push(' ');
     }
     let mut shown = Spaced::with_capacity(plain.len());
     decode_entities(&plain, &mut shown);
     shown.text
+}
+
+/// A run of the fence's mark at least as long as the one that opened it,
+/// alone on its line.
+fn closes_fence(line: &str, (mark, len): (char, usize)) -> bool {
+    let rest = line.trim_start_matches(mark);
+    line.len().saturating_sub(rest.len()) >= len && rest.is_empty()
+}
+
+/// One line's text, with the bars of a table row as spaces.
+fn table_row(content: &str, out: &mut String) {
+    if content.starts_with('|') || content.ends_with('|') {
+        inline(&content.replace('|', " "), out);
+    } else {
+        inline(content, out);
+    }
 }
 
 /// A line that renders as no text: a thematic break, a setext heading's
@@ -354,18 +364,7 @@ fn heading(line: &str) -> Option<&str> {
 /// between marks is copied a run at a time, and a line without the byte a
 /// match starts from skips that match, so plain prose costs a few scans.
 fn inline(line: &str, out: &mut String) {
-    let code = if line.contains('`') { code_spans(line) } else { Vec::new() };
-    let closers = if line.contains('[') {
-        brackets(line, &code)
-    } else {
-        HashMap::new()
-    };
-    let mut marks = if line.contains(['*', '_', '~']) {
-        emphasis(line, &code)
-    } else {
-        Vec::new()
-    };
-    marks.sort_unstable();
+    let Matched { code, closers, marks } = Matched::of(line);
     let mut labels: Vec<(usize, usize)> = Vec::new();
     let mut at = 0;
     while let Some(c) = line.get(at..).and_then(|rest| rest.chars().next()) {
@@ -385,17 +384,7 @@ fn inline(line: &str, out: &mut String) {
             out.push_str(line.get(span.text.clone()).unwrap_or_default());
             at = span.end;
         } else if c == '\\' {
-            match line.get(next..).and_then(|rest| rest.chars().next()) {
-                Some(p) if p.is_ascii_punctuation() => {
-                    out.push(p);
-                    at = next.saturating_add(1);
-                }
-                Some(_) => {
-                    out.push(c);
-                    at = next;
-                }
-                None => at = next,
-            }
+            at = escape(line, next, out);
         } else if let Some(label) =
             (c == '[').then(|| link(line, &closers, at)).flatten()
         {
@@ -411,16 +400,67 @@ fn inline(line: &str, out: &mut String) {
             out.push_str(address);
             at = end;
         } else {
-            let marked = ['*', '_', '~', '`', '\\', '[', '!', '<', ']'];
-            let run = line.get(at..).unwrap_or_default();
-            let stop = run
-                .get(c.len_utf8()..)
-                .and_then(|rest| rest.find(marked))
-                .map_or(run.len(), |i| i.saturating_add(c.len_utf8()));
-            out.push_str(run.get(..stop).unwrap_or_default());
-            at = at.saturating_add(stop);
+            let run = text_run(line, at, c);
+            out.push_str(run);
+            at = at.saturating_add(run.len());
         }
     }
+}
+
+/// What is matched in a line before it is read: its code spans, the closer
+/// of each bracket and the emphasis marks in order. A line without the byte
+/// a match starts from skips that match.
+struct Matched {
+    code: Vec<CodeSpan>,
+    closers: HashMap<usize, usize>,
+    marks: Vec<(usize, usize)>,
+}
+
+impl Matched {
+    fn of(line: &str) -> Self {
+        let code =
+            if line.contains('`') { code_spans(line) } else { Vec::new() };
+        let closers = if line.contains('[') {
+            brackets(line, &code)
+        } else {
+            HashMap::new()
+        };
+        let mut marks = if line.contains(['*', '_', '~']) {
+            emphasis(line, &code)
+        } else {
+            Vec::new()
+        };
+        marks.sort_unstable();
+        Self { code, closers, marks }
+    }
+}
+
+/// What the backslash before byte `next` shows: the punctuation it
+/// escapes, or itself before anything else. Returns where reading goes on.
+fn escape(line: &str, next: usize, out: &mut String) -> usize {
+    match line.get(next..).and_then(|rest| rest.chars().next()) {
+        Some(p) if p.is_ascii_punctuation() => {
+            out.push(p);
+            next.saturating_add(1)
+        }
+        Some(_) => {
+            out.push('\\');
+            next
+        }
+        None => next,
+    }
+}
+
+/// The text from byte `at`, where `first` is, up to the next character a
+/// match can start from.
+fn text_run(line: &str, at: usize, first: char) -> &str {
+    const MARKED: [char; 9] = ['*', '_', '~', '`', '\\', '[', '!', '<', ']'];
+    let run = line.get(at..).unwrap_or_default();
+    let stop = run
+        .get(first.len_utf8()..)
+        .and_then(|rest| rest.find(MARKED))
+        .map_or(run.len(), |i| i.saturating_add(first.len_utf8()));
+    run.get(..stop).unwrap_or_default()
 }
 
 /// A code span: the bytes it covers and, inside them, its content.
@@ -588,16 +628,7 @@ fn emphasis(line: &str, code: &[CodeSpan]) -> Vec<(usize, usize)> {
         let body = run.trim_start_matches(c);
         let end = at.saturating_add(run.len().saturating_sub(body.len()));
         let after = body.chars().next().unwrap_or(' ');
-        let left = !after.is_whitespace();
-        let right = !prev.is_whitespace();
-        let (opens, closes) = match c {
-            '_' => (
-                left && !prev.is_alphanumeric(),
-                right && !after.is_alphanumeric(),
-            ),
-            '~' if end.saturating_sub(at) != 2 => (false, false),
-            _ => (left, right),
-        };
+        let (opens, closes) = flanking(c, end.saturating_sub(at), prev, after);
         let opener =
             open.iter().rposition(|&(d, ..)| d == c).filter(|_| closes);
         if let Some(i) = opener {
@@ -613,6 +644,22 @@ fn emphasis(line: &str, code: &[CodeSpan]) -> Vec<(usize, usize)> {
         prev = c;
     }
     paired
+}
+
+/// Whether a run of `len` marks between the characters `prev` and `after`
+/// can open emphasis and whether it can close it. A `_` beside a letter or
+/// digit does neither on that side, and only `~~` strikes through.
+fn flanking(mark: char, len: usize, prev: char, after: char) -> (bool, bool) {
+    let left = !after.is_whitespace();
+    let right = !prev.is_whitespace();
+    match mark {
+        '_' => (
+            left && !prev.is_alphanumeric(),
+            right && !after.is_alphanumeric(),
+        ),
+        '~' if len != 2 => (false, false),
+        _ => (left, right),
+    }
 }
 
 /// HTML entities decoded in one pass, so `&amp;lt;` stays the text `&lt;`.
@@ -644,80 +691,102 @@ fn decode_entities(text: &str, out: &mut Spaced) {
 }
 
 fn entity(name: &str) -> Option<char> {
-    let named = match name {
+    if let Some(code) = name.strip_prefix('#') {
+        return shown(numeric_entity(code)?);
+    }
+    // Nearly every entity in a description is one of these six, so they
+    // are answered before the table is searched.
+    Some(match name {
         "amp" => '&',
         "lt" => '<',
         "gt" => '>',
         "quot" => '"',
         "apos" => '\'',
-        "nbsp" | "thinsp" | "ensp" | "emsp" => ' ',
-        "lsquo" => '\u{2018}',
-        "rsquo" => '\u{2019}',
-        "ldquo" => '\u{201c}',
-        "rdquo" => '\u{201d}',
-        "ndash" => '\u{2013}',
-        "mdash" => '\u{2014}',
-        "hellip" => '\u{2026}',
-        "rarr" => '\u{2192}',
-        "bull" => '\u{2022}',
-        "minus" => '\u{2212}',
-        "euro" => '\u{20ac}',
-        "trade" => '\u{2122}',
-        "dagger" => '\u{2020}',
-        "Dagger" => '\u{2021}',
-        "permil" => '\u{2030}',
-        "prime" => '\u{2032}',
-        "Prime" => '\u{2033}',
-        "larr" => '\u{2190}',
-        "uarr" => '\u{2191}',
-        "darr" => '\u{2193}',
-        "harr" => '\u{2194}',
-        "rArr" => '\u{21d2}',
-        "hArr" => '\u{21d4}',
-        "forall" => '\u{2200}',
-        "part" => '\u{2202}',
-        "exist" => '\u{2203}',
-        "nabla" => '\u{2207}',
-        "isin" => '\u{2208}',
-        "notin" => '\u{2209}',
-        "prod" => '\u{220f}',
-        "sum" => '\u{2211}',
-        "lowast" => '\u{2217}',
-        "radic" => '\u{221a}',
-        "prop" => '\u{221d}',
-        "infin" => '\u{221e}',
-        "and" => '\u{2227}',
-        "or" => '\u{2228}',
-        "cap" => '\u{2229}',
-        "cup" => '\u{222a}',
-        "int" => '\u{222b}',
-        "sim" => '\u{223c}',
-        "asymp" => '\u{2248}',
-        "ne" => '\u{2260}',
-        "equiv" => '\u{2261}',
-        "le" => '\u{2264}',
-        "ge" => '\u{2265}',
-        "sub" => '\u{2282}',
-        "sup" => '\u{2283}',
-        _ => {
-            let number = match name.strip_prefix('#') {
-                Some(code) => match code.strip_prefix(['x', 'X']) {
-                    Some(hex) => u32::from_str_radix(hex, 16).ok()?,
-                    None => code.parse().ok()?,
-                },
-                None => greek(name).or_else(|| {
-                    LATIN1
-                        .iter()
-                        .position(|&n| n == name)
-                        .and_then(|i| u32::try_from(i).ok())?
-                        .checked_add(0xa0)
-                })?,
-            };
-            return char::from_u32(number).filter(|&c| !c.is_control());
-        }
-    };
-    Some(named)
+        "nbsp" => ' ',
+        _ => return rare_entity(name),
+    })
 }
+
+fn rare_entity(name: &str) -> Option<char> {
+    if let Ok(i) = NAMED_ENTITIES.binary_search_by_key(&name, |&(n, _)| n) {
+        return NAMED_ENTITIES.get(i).map(|&(_, c)| c);
+    }
+    shown(greek(name).or_else(|| latin1(name))?)
+}
+
+/// The character of a code point, unless it is a control character.
+fn shown(code_point: u32) -> Option<char> {
+    char::from_u32(code_point).filter(|&c| !c.is_control())
+}
+
+/// The code point of `#38` or `#x26`, given without the `#`.
+fn numeric_entity(code: &str) -> Option<u32> {
+    match code.strip_prefix(['x', 'X']) {
+        Some(hex) => u32::from_str_radix(hex, 16).ok(),
+        None => code.parse().ok(),
+    }
+}
+
+fn latin1(name: &str) -> Option<u32> {
+    let i = LATIN1.iter().position(|&n| n == name)?;
+    u32::try_from(i).ok()?.checked_add(0xa0)
+}
+
+/// The other entities with no rule to their code point, sorted by name
+/// for the binary search. Each space shows as a plain one.
+const NAMED_ENTITIES: [(&str, char); 51] = [
+    ("Dagger", '\u{2021}'),
+    ("Prime", '\u{2033}'),
+    ("and", '\u{2227}'),
+    ("asymp", '\u{2248}'),
+    ("bull", '\u{2022}'),
+    ("cap", '\u{2229}'),
+    ("cup", '\u{222a}'),
+    ("dagger", '\u{2020}'),
+    ("darr", '\u{2193}'),
+    ("emsp", ' '),
+    ("ensp", ' '),
+    ("equiv", '\u{2261}'),
+    ("euro", '\u{20ac}'),
+    ("exist", '\u{2203}'),
+    ("forall", '\u{2200}'),
+    ("ge", '\u{2265}'),
+    ("hArr", '\u{21d4}'),
+    ("harr", '\u{2194}'),
+    ("hellip", '\u{2026}'),
+    ("infin", '\u{221e}'),
+    ("int", '\u{222b}'),
+    ("isin", '\u{2208}'),
+    ("larr", '\u{2190}'),
+    ("ldquo", '\u{201c}'),
+    ("le", '\u{2264}'),
+    ("lowast", '\u{2217}'),
+    ("lsquo", '\u{2018}'),
+    ("mdash", '\u{2014}'),
+    ("minus", '\u{2212}'),
+    ("nabla", '\u{2207}'),
+    ("ndash", '\u{2013}'),
+    ("ne", '\u{2260}'),
+    ("notin", '\u{2209}'),
+    ("or", '\u{2228}'),
+    ("part", '\u{2202}'),
+    ("permil", '\u{2030}'),
+    ("prime", '\u{2032}'),
+    ("prod", '\u{220f}'),
+    ("prop", '\u{221d}'),
+    ("rArr", '\u{21d2}'),
+    ("radic", '\u{221a}'),
+    ("rarr", '\u{2192}'),
+    ("rdquo", '\u{201d}'),
+    ("rsquo", '\u{2019}'),
+    ("sim", '\u{223c}'),
+    ("sub", '\u{2282}'),
+    ("sum", '\u{2211}'),
+    ("sup", '\u{2283}'),
+    ("thinsp", ' '),
+    ("trade", '\u{2122}'),
+    ("uarr", '\u{2191}'),
+];
 
 /// `alpha` to `omega` from U+03B1, and capitalized, `Alpha` to `Omega` from
 /// U+0391, where there is no capital final sigma.
@@ -1211,6 +1280,20 @@ mod tests {
         assert_eq!(clean("&amp;lt; stays &lt;"), "&lt; stays <");
         assert_eq!(clean("R&D &unknown; &#xZZ;"), "R&D &unknown; &#xZZ;");
         assert!(!clean("&#27;[2J&#x9b;").chars().any(char::is_control));
+    }
+
+    #[test]
+    fn the_named_entities_are_sorted_for_the_binary_search() {
+        assert!(NAMED_ENTITIES.is_sorted_by(|a, b| a.0 < b.0));
+        for (name, shown) in NAMED_ENTITIES {
+            assert_eq!(entity(name), Some(shown), "{name}");
+        }
+        assert_eq!(entity("nbsp"), Some(' '));
+        assert_eq!(entity("apos"), Some('\''));
+        assert_eq!(entity("eacute"), Some('\u{e9}'));
+        assert_eq!(entity("Omega"), Some('\u{3a9}'));
+        assert_eq!(entity("#x41"), Some('A'));
+        assert_eq!(entity("#65"), Some('A'));
     }
 
     #[test]

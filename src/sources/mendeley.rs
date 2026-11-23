@@ -16,7 +16,7 @@ use serde_json::Value;
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::{Dataset, day, items, text};
+use crate::record::{Dataset, day, text};
 
 const QUERY_CHARS: usize = 255;
 
@@ -50,10 +50,7 @@ pub(super) fn parse(
     body: &Value,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    if body.get("records").is_none() {
-        return Err(SourceError::shape("no records array"));
-    }
-    Ok(items(body, "/records").iter().filter_map(record).take(limit).collect())
+    super::parse_list(body, "/records", limit, record)
 }
 
 fn record(row: &Value) -> Option<Dataset> {

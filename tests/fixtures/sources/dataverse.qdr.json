@@ -1,0 +1,257 @@
+{
+  "status": "OK",
+  "data": {
+    "q": "interview",
+    "total_count": 155,
+    "start": 0,
+    "spelling_alternatives": {},
+    "items": [
+      {
+        "name": "Demand for Modern Contraception in Sub-Saharan Africa: New Methods, New Evidence",
+        "type": "dataset",
+        "url": "https://doi.org/10.5064/F600CMLO",
+        "global_id": "doi:10.5064/F600CMLO",
+        "description": "Project Overview West and Central Africa have the highest fertility rates in the world. These high birthrates are largely a function of desired fertility and continued allegiance to large families.",
+        "published_at": "2024-08-01T02:36:06Z",
+        "publisher": "QDR Main Collection",
+        "citationHtml": "Ibitoye, Mobolaji; OlaOlorun, Funmilola; Casterline, John. 2025. \"Demand for Modern Contraception in Sub-Saharan Africa: New Methods, New Evidence\". Qualitative Data Repository. <a href=\"https://doi.org/10.5064/F600CMLO\" target=\"_blank\">https://doi.org/10.5064/F600CMLO</a>. QDR Main Collection. V1",
+        "identifier_of_dataverse": "main",
+        "name_of_dataverse": "QDR Main Collection",
+        "citation": "Ibitoye, Mobolaji; OlaOlorun, Funmilola; Casterline, John. 2025. \"Demand for Modern Contraception in Sub-Saharan Africa: New Methods, New Evidence\". Qualitative Data Repository. https://doi.org/10.5064/F600CMLO. QDR Main Collection. V1",
+        "publicationStatuses": [
+          "Published"
+        ],
+        "storageIdentifier": "s3://10.5064/F600CMLO",
+        "keywords": [
+          "fertility",
+          "birth control",
+          "parents",
+          "children"
+        ],
+        "subjects": [
+          "Medicine, Health and Life Sciences",
+          "Social Sciences"
+        ],
+        "fileCount": 241,
+        "versionId": 776,
+        "versionState": "RELEASED",
+        "majorVersion": 1,
+        "minorVersion": 0,
+        "createdAt": "2023-01-06T15:13:21Z",
+        "updatedAt": "2026-04-09T14:55:58Z",
+        "contacts": [
+          {
+            "name": "Ibitoye, Mobolaji",
+            "affiliation": "Rutgers"
+          }
+        ],
+        "geographicCoverage": [
+          {
+            "country": "Nigeria",
+            "state": "Lagos",
+            "city": "Èkó/Lagos City"
+          },
+          {
+            "country": "Nigeria",
+            "state": "Akwa Ibom"
+          },
+          {
+            "country": "Nigeria",
+            "state": "Anambra"
+          },
+          {
+            "country": "Nigeria",
+            "state": "Gombe"
+          }
+        ],
+        "authors": [
+          "Ibitoye, Mobolaji",
+          "Ibitoye, Mobolaji",
+          "OlaOlorun, Funmilola",
+          "OlaOlorun, Funmilola"
+        ]
+      },
+      {
+        "name": "Data For: Building a 4E Interview-Grounded Theory Model: A Case Study of Demand Factors for Customized Furniture",
+        "type": "dataset",
+        "url": "https://doi.org/10.5064/F6MJXLBJ",
+        "image_url": "https://data.qdr.syr.edu/api/datasets/40028/logo",
+        "global_id": "doi:10.5064/F6MJXLBJ",
+        "description": "Project Summary This project examined factors that influence the demand for customized furniture among consumers in different regions across China.",
+        "published_at": "2023-04-26T13:59:28Z",
+        "publisher": "QDR Main Collection",
+        "citationHtml": "Zhou, Chengmin; Gu, Wenhui. 2023. \"Data For: Building a 4E Interview-Grounded Theory Model: A Case Study of Demand Factors for Customized Furniture\". Qualitative Data Repository. <a href=\"https://doi.org/10.5064/F6MJXLBJ\" target=\"_blank\">https://doi.org/10.5064/F6MJXLBJ</a>. QDR Main Collection. V1",
+        "identifier_of_dataverse": "main",
+        "name_of_dataverse": "QDR Main Collection",
+        "citation": "Zhou, Chengmin; Gu, Wenhui. 2023. \"Data For: Building a 4E Interview-Grounded Theory Model: A Case Study of Demand Factors for Customized Furniture\". Qualitative Data Repository. https://doi.org/10.5064/F6MJXLBJ. QDR Main Collection. V1",
+        "publicationStatuses": [
+          "Published"
+        ],
+        "storageIdentifier": "s3://10.5064/F6MJXLBJ",
+        "keywords": [
+          "furniture",
+          "Furniture--China",
+          "customized furniture",
+          "furniture purchase"
+        ],
+        "subjects": [
+          "Social Sciences"
+        ],
+        "fileCount": 39,
+        "versionId": 804,
+        "versionState": "RELEASED",
+        "majorVersion": 1,
+        "minorVersion": 0,
+        "createdAt": "2023-03-16T03:15:18Z",
+        "updatedAt": "2026-04-08T20:20:22Z",
+        "contacts": [
+          {
+            "name": "Gu, Wenhui",
+            "affiliation": "Nanjing Forestry University"
+          }
+        ],
+        "publications": [
+          {
+            "citation": "<p>Zhou, Cheng, Wei Gu, Xiaoming Luo, and Jonathan Kaner. 2023. “Building a 4E Interview-Grounded Theory Model: A Case Study of Demand Factors for Customized Furniture.” <i>PLoS ONE 18</i> (4): e0282956.</p>",
+            "url": "https://doi.org/10.1371/journal.pone.0282956"
+          }
+        ],
+        "geographicCoverage": [
+          {
+            "country": "China"
+          }
+        ],
+        "authors": [
+          "Zhou, Chengmin",
+          "Zhou, Chengmin",
+          "Gu, Wenhui"
+        ]
+      },
+      {
+        "name": "Capacity Building Assistance and Quality Improvement for HIV Care in New Orleans, LA",
+        "type": "dataset",
+        "url": "https://doi.org/10.5064/F6MPV4TO",
+        "image_url": "https://data.qdr.syr.edu/api/datasets/53174/logo",
+        "global_id": "doi:10.5064/F6MPV4TO",
+        "description": "Project Overview Facilities, employees, and patients in health care systems related to human immunodeficiency virus (HIV) care face difficulties when extreme weather events, such as hurricanes in New Orleans, Louisiana (NOLA), become more severe and frequent.",
+        "published_at": "2025-03-27T22:58:20Z",
+        "publisher": "QDR Main Collection",
+        "citationHtml": "Arnold, Emily; Koester, Kimberly. 2025. \"Capacity Building Assistance and Quality Improvement for HIV Care in New Orleans, LA\". Qualitative Data Repository. <a href=\"https://doi.org/10.5064/F6MPV4TO\" target=\"_blank\">https://doi.org/10.5064/F6MPV4TO</a>. QDR Main Collection. V1",
+        "identifier_of_dataverse": "main",
+        "name_of_dataverse": "QDR Main Collection",
+        "citation": "Arnold, Emily; Koester, Kimberly. 2025. \"Capacity Building Assistance and Quality Improvement for HIV Care in New Orleans, LA\". Qualitative Data Repository. https://doi.org/10.5064/F6MPV4TO. QDR Main Collection. V1",
+        "publicationStatuses": [
+          "Published"
+        ],
+        "storageIdentifier": "s3://10.5064/F6MPV4TO",
+        "keywords": [
+          "HIV care",
+          "extreme weather events",
+          "learning collaborative"
+        ],
+        "subjects": [
+          "Medicine, Health and Life Sciences",
+          "Social Sciences"
+        ],
+        "fileCount": 13,
+        "versionId": 1358,
+        "versionState": "RELEASED",
+        "majorVersion": 1,
+        "minorVersion": 0,
+        "createdAt": "2025-01-31T18:37:15Z",
+        "updatedAt": "2026-04-09T22:54:17Z",
+        "contacts": [
+          {
+            "name": "Arnold, Emily",
+            "affiliation": "University of California San Francisco"
+          }
+        ],
+        "publications": [
+          {
+            "citation": "Arnold, Emily A., Shannon Fuller, Bruce D. Agins, Lauren Fidelak, Jessica Xavier, Wayne T. Steward, Greg M. Rebchook, and Kimberly A. Koester. 2025. “Sheltering from the Storm: The Role of a Quality Improvement Collaborative Focused on Improving HIV Care Retention in New Orleans during and Following Hurricane Ida.” <i>PLOS ONE 20</i> (5): e0323026.",
+            "url": "https://doi.org/10.1371/journal.pone.0323026"
+          }
+        ],
+        "geographicCoverage": [
+          {
+            "country": "United States",
+            "state": "Louisiana",
+            "city": "New Orleans"
+          }
+        ],
+        "authors": [
+          "Arnold, Emily",
+          "Arnold, Emily",
+          "Koester, Kimberly",
+          "Koester, Kimberly"
+        ]
+      },
+      {
+        "name": "Data for: A Comparative Case Study of Enhanced Geothermal Systems: Interacting Imaginaries of Place and Energy in Renewable Energy Transitions",
+        "type": "dataset",
+        "url": "https://doi.org/10.5064/F6JDKEU0",
+        "image_url": "https://data.qdr.syr.edu/api/datasets/29696/logo",
+        "global_id": "doi:10.5064/F6JDKEU0",
+        "description": "Project Overview This data is part of a multiple case study of enhanced geothermal systems (EGS), a form of geothermal energy used for heating and power generation.",
+        "published_at": "2024-12-11T19:48:21Z",
+        "publisher": "QDR Main Collection",
+        "citationHtml": "Lambert, Catherine. 2024. \"Data for: A Comparative Case Study of Enhanced Geothermal Systems: Interacting Imaginaries of Place and Energy in Renewable Energy Transitions\". Qualitative Data Repository. <a href=\"https://doi.org/10.5064/F6JDKEU0\" target=\"_blank\">https://doi.org/10.5064/F6JDKEU0</a>. QDR Main Collection. V1",
+        "identifier_of_dataverse": "main",
+        "name_of_dataverse": "QDR Main Collection",
+        "citation": "Lambert, Catherine. 2024. \"Data for: A Comparative Case Study of Enhanced Geothermal Systems: Interacting Imaginaries of Place and Energy in Renewable Energy Transitions\". Qualitative Data Repository. https://doi.org/10.5064/F6JDKEU0. QDR Main Collection. V1",
+        "publicationStatuses": [
+          "Published"
+        ],
+        "storageIdentifier": "s3://10.5064/F6JDKEU0",
+        "keywords": [
+          "geothermal resources",
+          "energy acceptance",
+          "risk communication",
+          "place theory"
+        ],
+        "subjects": [
+          "Social Sciences"
+        ],
+        "fileCount": 53,
+        "versionId": 591,
+        "versionState": "RELEASED",
+        "majorVersion": 1,
+        "minorVersion": 0,
+        "createdAt": "2022-07-19T16:38:37Z",
+        "updatedAt": "2026-04-09T17:33:18Z",
+        "contacts": [
+          {
+            "name": "Lambert, Catherine",
+            "affiliation": "Cornell University"
+          }
+        ],
+        "publications": [
+          {
+            "citation": "Lambert, Catherine. (2023). \"A Comparative Case Study of Enhanced Geothermal Systems: Interacting Imaginaries of Place and Energy in Renewable Energy Transitions\" [Doctoral dissertation, Cornell University]. Cornell Theses and Dissertations. https://doi.org/10.7298/6h6v-th21",
+            "url": "https://doi.org/10.7298/6h6v-th21"
+          },
+          {
+            "citation": "Lambert, C. E. (2022). \"Beneath your feet and in your place: Multi-scalar imaginaries of energy, place, and local geothermal development.\" <i>Energy Research and Social Science</i> 94 (November), 102856. https://doi.org/10.1016/j.erss.2022.102856"
+          }
+        ],
+        "geographicCoverage": [
+          {
+            "country": "United States",
+            "state": "New York",
+            "city": "Ithaca"
+          },
+          {
+            "country": "United Kingdom",
+            "state": "Cornwall",
+            "city": "Redruth"
+          }
+        ],
+        "authors": [
+          "Lambert, Catherine",
+          "Lambert, Catherine"
+        ]
+      }
+    ],
+    "count_in_response": 4
+  }
+}

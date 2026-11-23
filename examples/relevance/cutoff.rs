@@ -174,8 +174,13 @@ pub fn run(queries: &[Query], latencies: &Path) -> Result<()> {
         .iter()
         .map(|&rule| replay(rule, &cases, &full, &by_query))
         .collect();
+    table(&cases, &outcomes, searches.len())
+}
+
+/// One row per rule, its deltas against the first, which waits for every
+/// source.
+fn table(cases: &[Case], outcomes: &[Outcome], rounds: usize) -> Result<()> {
     let Some(all) = outcomes.first() else { return Ok(()) };
-    let rounds = searches.len();
     let mut out = io::stdout().lock();
     writeln!(
         out,
@@ -196,7 +201,7 @@ pub fn run(queries: &[Query], latencies: &Path) -> Result<()> {
         "nDCG@10 held",
         "known-item MRR"
     )?;
-    for o in &outcomes {
+    for o in outcomes {
         writeln!(
             out,
             "{:<16} {:>7.2} {:>7.2} {:>7.2} {:>7.2} {:>6.1}%  {:<24} {:<24} {:<24}",
@@ -206,9 +211,9 @@ pub fn run(queries: &[Query], latencies: &Path) -> Result<()> {
             seconds(percentile(&o.waits, 1.0)),
             mean(&o.dropped.iter().map(|&d| real(d)).collect::<Vec<_>>()),
             mean(&o.kept) * 100.0,
-            delta(&cases, all, o, Some(Half::Tune), |s| s.ndcg),
-            delta(&cases, all, o, Some(Half::Held), |s| s.ndcg),
-            delta(&cases, all, o, None, |s| s.rr),
+            delta(cases, all, o, Some(Half::Tune), |s| s.ndcg),
+            delta(cases, all, o, Some(Half::Held), |s| s.ndcg),
+            delta(cases, all, o, None, |s| s.rr),
         )?;
     }
     writeln!(
@@ -252,38 +257,7 @@ fn replay(
         let mut kept = Vec::new();
         let mut scores = Vec::new();
         for timed in searches {
-            let mut arrivals: Vec<Arrival> = timed
-                .iter()
-                .filter(|t| t.asked())
-                .map(|t| Arrival { ms: t.ms(), answered: t.answered() })
-                .collect();
-            arrivals.sort_by_key(|a| a.ms);
-            let stop = rule.stop(&arrivals);
-            let late: HashSet<&str> = timed
-                .iter()
-                .filter(|t| t.asked() && t.ms() > stop)
-                .map(|t| t.id.as_str())
-                .collect();
-            let lists: Vec<_> = case
-                .lists
-                .iter()
-                .map(|(id, list)| {
-                    (
-                        *id,
-                        if late.contains(id) {
-                            Vec::new()
-                        } else {
-                            list.clone()
-                        },
-                    )
-                })
-                .collect();
-            let left = case
-                .lists
-                .iter()
-                .filter(|(id, list)| late.contains(id) && !list.is_empty())
-                .count();
-            let ranked = weigh(merge(lists), &case.query.text);
+            let (stop, left, ranked) = cut(rule, case, timed);
             kept.push(overlap(full, &ranked));
             scores.push(score(case, &ranked));
             outcome.waits.push(stop);
@@ -300,6 +274,37 @@ fn replay(
         });
     }
     outcome
+}
+
+/// One recorded search under `rule`: when the rule stops waiting, in
+/// milliseconds, how many answering sources that leaves out, and the
+/// ranking of the lists that came in time.
+fn cut(rule: Rule, case: &Case, timed: &[Timed]) -> (u64, usize, Vec<Hit>) {
+    let mut arrivals: Vec<Arrival> = timed
+        .iter()
+        .filter(|t| t.asked())
+        .map(|t| Arrival { ms: t.ms(), answered: t.answered() })
+        .collect();
+    arrivals.sort_by_key(|a| a.ms);
+    let stop = rule.stop(&arrivals);
+    let late: HashSet<&str> = timed
+        .iter()
+        .filter(|t| t.asked() && t.ms() > stop)
+        .map(|t| t.id.as_str())
+        .collect();
+    let lists: Vec<_> = case
+        .lists
+        .iter()
+        .map(|(id, list)| {
+            (*id, if late.contains(id) { Vec::new() } else { list.clone() })
+        })
+        .collect();
+    let left = case
+        .lists
+        .iter()
+        .filter(|(id, list)| late.contains(id) && !list.is_empty())
+        .count();
+    (stop, left, weigh(merge(lists), &case.query.text))
 }
 
 /// The share of `full`'s top 10 links that `ranked`'s top 10 still shows.

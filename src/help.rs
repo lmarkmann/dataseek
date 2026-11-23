@@ -20,10 +20,11 @@ use crate::palette;
 /// Every subcommand, as the `help` topic parser and the overview know them.
 /// The parser runs while clap builds `Cli`, so it cannot ask `Cli` itself;
 /// a test holds this list to the real one.
-const COMMANDS: [&str; 10] = [
+const COMMANDS: [&str; 11] = [
     "search",
     "sources",
     "inspect",
+    "related",
     "mcp",
     "bench",
     "cache",
@@ -38,7 +39,7 @@ const TOPICS: [&str; 2] = ["environment", "exit-codes"];
 /// The overview's groups. What each command does comes from its `about`, the
 /// line `-h` shows, so the two cannot drift.
 const GROUPS: [(&str, &[&str]); 3] = [
-    ("Search", &["search", "sources", "inspect", "mcp"]),
+    ("Search", &["search", "sources", "inspect", "related", "mcp"]),
     ("Upkeep", &["bench", "cache", "doctor"]),
     ("Shell", &["completion", "help"]),
 ];
@@ -212,7 +213,7 @@ pub fn man_page() -> String {
     cmd.build();
     let name = cmd.get_name();
     let version = env!("CARGO_PKG_VERSION");
-    let about = cmd.get_about().map(ToString::to_string).unwrap_or_default();
+    let about = cmd.get_about().map_or_default(ToString::to_string);
     let mut page = format!(
         ".ie \\n(.g .ds Aq \\(aq\n.el .ds Aq '\n\
          .TH {name} 1 \"\" \"{name} {version}\"\n\
@@ -237,42 +238,7 @@ pub fn man_page() -> String {
     page.push_str(&lines(&description.unwrap_or(about), ".PP"));
     page.push_str(".SH OPTIONS\n");
     for arg in &options {
-        let _ = write!(page, ".TP\n{}", flags(arg, ", "));
-        if arg.get_action().takes_values() {
-            for value in arg.get_value_names().unwrap_or_default() {
-                let _ = write!(page, " \\fI<{}>\\fR", roff(value.as_str()));
-            }
-            let defaults: Vec<_> = arg
-                .get_default_values()
-                .iter()
-                .map(|value| value.to_string_lossy())
-                .collect();
-            if !defaults.is_empty() && !arg.is_hide_default_value_set() {
-                let _ =
-                    write!(page, " [default: {}]", roff(&defaults.join(",")));
-            }
-        }
-        let help = arg.get_long_help().or_else(|| arg.get_help());
-        let help = help.map(ToString::to_string).unwrap_or_default();
-        let _ = write!(page, "\n{}", lines(&help, ".br"));
-        let values: Vec<_> = arg
-            .get_possible_values()
-            .into_iter()
-            .filter(|value| !value.is_hide_set())
-            .collect();
-        if !values.is_empty() && !arg.is_hide_possible_values_set() {
-            page.push_str(".br\n\\fIPossible values:\\fR\n.RS 14\n");
-            for value in values {
-                let meaning = value.get_help().map(|help| format!(": {help}"));
-                let item = format!(
-                    "{}{}",
-                    value.get_name(),
-                    meaning.unwrap_or_default()
-                );
-                let _ = writeln!(page, ".IP \\(bu 2\n{}", roff(&item));
-            }
-            page.push_str(".RE\n");
-        }
+        option_entry(&mut page, arg);
     }
     page.push_str(".SH COMMANDS\n");
     for sub in cmd.get_subcommands().filter(|sub| !sub.is_hide_set()) {
@@ -296,6 +262,45 @@ pub fn man_page() -> String {
     let _ = writeln!(page, ".SH \"REPORTING BUGS\"\n{}", roff(issues));
     let _ = writeln!(page, ".SH VERSION\nv{version}");
     page
+}
+
+/// One entry of OPTIONS: the flags, the value names and default, the help,
+/// and the values the option takes.
+fn option_entry(page: &mut String, arg: &Arg) {
+    use std::fmt::Write as _;
+
+    let _ = write!(page, ".TP\n{}", flags(arg, ", "));
+    if arg.get_action().takes_values() {
+        for value in arg.get_value_names().unwrap_or_default() {
+            let _ = write!(page, " \\fI<{}>\\fR", roff(value.as_str()));
+        }
+        let defaults: Vec<_> = arg
+            .get_default_values()
+            .iter()
+            .map(|value| value.to_string_lossy())
+            .collect();
+        if !defaults.is_empty() && !arg.is_hide_default_value_set() {
+            let _ = write!(page, " [default: {}]", roff(&defaults.join(",")));
+        }
+    }
+    let help = arg.get_long_help().or_else(|| arg.get_help());
+    let help = help.map_or_default(ToString::to_string);
+    let _ = write!(page, "\n{}", lines(&help, ".br"));
+    let values: Vec<_> = arg
+        .get_possible_values()
+        .into_iter()
+        .filter(|value| !value.is_hide_set())
+        .collect();
+    if !values.is_empty() && !arg.is_hide_possible_values_set() {
+        page.push_str(".br\n\\fIPossible values:\\fR\n.RS 14\n");
+        for value in values {
+            let meaning = value.get_help().map(|help| format!(": {help}"));
+            let item =
+                format!("{}{}", value.get_name(), meaning.unwrap_or_default());
+            let _ = writeln!(page, ".IP \\(bu 2\n{}", roff(&item));
+        }
+        page.push_str(".RE\n");
+    }
 }
 
 /// An option's flags in bold, `-q` before `--quiet`, joined by `separator`.

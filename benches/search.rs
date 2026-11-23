@@ -47,9 +47,9 @@ const QUERY: &str = "sea surface temperature";
 /// and tables, the SDMX agencies hundreds to a few thousand.
 const CATALOG_SIZES: [usize; 3] = [1_000, 4_000, 16_000];
 
-/// 76 sources answering with this many records each.
+/// 106 sources answering with this many records each.
 const RECORDS_PER_SOURCE: [usize; 3] = [5, 20, 80];
-const SOURCES: usize = 76;
+const SOURCES: usize = 106;
 
 fn word(i: usize) -> &'static str {
     WORDS[i % WORDS.len()]
@@ -301,43 +301,28 @@ fn fusion(c: &mut Criterion) {
 }
 
 fn sanitize(c: &mut Criterion) {
-    let mut group = c.benchmark_group("clean");
-    for bytes in [200, 2_000, 20_000] {
-        let text = html(bytes);
-        group.throughput(Throughput::Bytes(text.len() as u64));
-        group.bench_with_input(
-            BenchmarkId::from_parameter(bytes),
-            &text,
-            |b, text| {
-                b.iter(|| clean(black_box(text)));
-            },
-        );
-    }
-    group.finish();
+    bench_text(c, "clean", &[200, 2_000, 20_000], html, clean);
+    bench_text(c, "markdown", &[200, 2_000, 20_000], markdown, from_markdown);
+    bench_text(c, "clean/ampersands", &[2_000, 20_000], ampersands, clean);
+}
 
-    let mut group = c.benchmark_group("markdown");
-    for bytes in [200, 2_000, 20_000] {
-        let text = markdown(bytes);
+/// `run` over the text `sample` makes for each size, by bytes of input.
+fn bench_text(
+    c: &mut Criterion,
+    name: &str,
+    sizes: &[usize],
+    sample: impl Fn(usize) -> String,
+    run: impl Fn(&str) -> String,
+) {
+    let mut group = c.benchmark_group(name);
+    for &bytes in sizes {
+        let text = sample(bytes);
         group.throughput(Throughput::Bytes(text.len() as u64));
         group.bench_with_input(
             BenchmarkId::from_parameter(bytes),
             &text,
             |b, text| {
-                b.iter(|| from_markdown(black_box(text)));
-            },
-        );
-    }
-    group.finish();
-
-    let mut group = c.benchmark_group("clean/ampersands");
-    for bytes in [2_000, 20_000] {
-        let text = ampersands(bytes);
-        group.throughput(Throughput::Bytes(text.len() as u64));
-        group.bench_with_input(
-            BenchmarkId::from_parameter(bytes),
-            &text,
-            |b, text| {
-                b.iter(|| clean(black_box(text)));
+                b.iter(|| run(black_box(text)));
             },
         );
     }

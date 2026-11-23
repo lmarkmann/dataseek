@@ -1,0 +1,294 @@
+[
+  {
+    "url": "https://paperswithcode.com/dataset/mnist",
+    "name": "MNIST",
+    "full_name": "",
+    "homepage": "http://yann.lecun.com/exdb/mnist/",
+    "description": "The **MNIST** database (**Modified National Institute of Standards and Technology** database) is a large collection of handwritten digits. It has a training set of 60,000 examples, and a test set of 10,000 examples. It is a subset of a larger NIST Special Database 3 (digits written by employees of t",
+    "short_description": "The MNIST database (Modified National Institute of Standards and Technology database) is a large collection of handwritten digits. It has a training set of 60,000 examples, and a test set of 10,000 ex",
+    "parent_dataset": null,
+    "image": "https://production-media.paperswithcode.com/datasets/MNIST-0000000001-2e09631a_09liOmx.jpg",
+    "audio": null,
+    "thumbnail": "https://production-media.paperswithcode.com/thumbnails/dataset/dataset-0000000001-f66c5dc9_UOPLOsj.jpg",
+    "default_image": null,
+    "verified_image": "https://production-media.paperswithcode.com/thumbnails/dataset-small/dataset-0000000001-4f9356c7.jpg",
+    "default_youtube_link": null,
+    "paper": {
+      "title": "Gradient-based learning applied to document recognition",
+      "url": "https://paperswithcode.com/paper/gradient-based-learning-applied-to-document"
+    },
+    "mention_count": 0,
+    "introduced_date": "1998-11-01",
+    "license_name": "Unknown",
+    "license_url": null,
+    "verified_name": "MNIST",
+    "verified_paper": {
+      "title": "Gradient-based learning applied to document recognition",
+      "url": "https://paperswithcode.com/paper/gradient-based-learning-applied-to-document"
+    },
+    "warning": null,
+    "modalities": [
+      "Images"
+    ],
+    "tasks": [
+      {
+        "task": "Image Classification",
+        "url": "https://paperswithcode.com/task/image-classification"
+      },
+      {
+        "task": "Speech Recognition",
+        "url": "https://paperswithcode.com/task/speech-recognition"
+      },
+      {
+        "task": "Question Answering",
+        "url": "https://paperswithcode.com/task/question-answering"
+      },
+      {
+        "task": "Image Generation",
+        "url": "https://paperswithcode.com/task/image-generation"
+      }
+    ],
+    "languages": [
+      "English"
+    ],
+    "variants": [
+      "USPS-to-MNIST",
+      "MNIST-to-USPS",
+      "Rotating MNIST",
+      "Noisy MNIST (Motion)"
+    ],
+    "num_papers": 7651,
+    "data_loaders": [
+      {
+        "url": "https://huggingface.co/datasets/severo/mnist",
+        "repo": "https://github.com/huggingface/datasets",
+        "frameworks": [
+          "tf",
+          "pytorch",
+          "jax"
+        ]
+      },
+      {
+        "url": "https://huggingface.co/datasets/mnist",
+        "repo": "https://github.com/huggingface/datasets",
+        "frameworks": [
+          "tf",
+          "pytorch",
+          "jax"
+        ]
+      }
+    ]
+  },
+  {
+    "url": "https://paperswithcode.com/dataset/celeba",
+    "name": "CelebA",
+    "full_name": "CelebFaces Attributes Dataset",
+    "homepage": "http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html",
+    "description": "CelebFaces Attributes dataset contains 202,599 face images of the size 178×218 from 10,177 celebrities, each annotated with 40 binary labels indicating facial attributes like hair color, gender and age.\r\n\r\nSource: [Show, Attend and Translate: Unpaired Multi-Domain Image-to-Image Translation with Vis",
+    "short_description": "CelebFaces Attributes dataset contains 202,599 face images of the size 178×218 from 10,177 celebrities, each annotated with 40 binary labels indicating facial attributes like hair color, gender and ag",
+    "parent_dataset": null,
+    "image": "https://production-media.paperswithcode.com/datasets/CelebA-0000000002-eeb5e196_D0ltvot.jpg",
+    "audio": null,
+    "thumbnail": "https://production-media.paperswithcode.com/thumbnails/dataset/dataset-0000000002-c0f35985_jbUNXZ4.jpg",
+    "default_image": null,
+    "verified_image": "https://production-media.paperswithcode.com/thumbnails/dataset-small/dataset-0000000002-cc6c3ce0.jpg",
+    "default_youtube_link": null,
+    "paper": {
+      "title": "Deep Learning Face Attributes in the Wild",
+      "url": "https://paperswithcode.com/paper/deep-learning-face-attributes-in-the-wild"
+    },
+    "mention_count": 0,
+    "introduced_date": "2015-01-01",
+    "license_name": null,
+    "license_url": "http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html",
+    "verified_name": "CelebA",
+    "verified_paper": {
+      "title": "Deep Learning Face Attributes in the Wild",
+      "url": "https://paperswithcode.com/paper/deep-learning-face-attributes-in-the-wild"
+    },
+    "warning": null,
+    "modalities": [
+      "Images"
+    ],
+    "tasks": [
+      {
+        "task": "Image Classification",
+        "url": "https://paperswithcode.com/task/image-classification"
+      },
+      {
+        "task": "Image Generation",
+        "url": "https://paperswithcode.com/task/image-generation"
+      },
+      {
+        "task": "Image Super-Resolution",
+        "url": "https://paperswithcode.com/task/image-super-resolution"
+      },
+      {
+        "task": "Face Alignment",
+        "url": "https://paperswithcode.com/task/face-alignment"
+      }
+    ],
+    "languages": [
+      "Chinese"
+    ],
+    "variants": [
+      "CelebA-wild",
+      "CelebA Unaligned",
+      "CelebA-Test",
+      "CelebA-faces"
+    ],
+    "num_papers": 3477,
+    "data_loaders": [
+      {
+        "url": "https://pytorch.org/vision/stable/generated/torchvision.datasets.CelebA.html",
+        "repo": "https://github.com/pytorch/vision",
+        "frameworks": [
+          "pytorch"
+        ]
+      },
+      {
+        "url": "https://docs.activeloop.ai/datasets/celeba-dataset",
+        "repo": "https://github.com/activeloopai/Hub",
+        "frameworks": [
+          "tf",
+          "pytorch"
+        ]
+      }
+    ]
+  },
+  {
+    "url": "https://paperswithcode.com/dataset/jft-300m",
+    "name": "JFT-300M",
+    "full_name": "JFT-300M",
+    "homepage": "",
+    "description": "**JFT-300M** is an internal Google dataset used for training image classification models. Images are labeled using an algorithm that uses complex mixture of raw web signals, connections between web-pages and user feedback. This results in over one billion labels for the 300M images (a single image c",
+    "short_description": "JFT-300M is an internal Google dataset used for training image classification models. Images are labeled using an algorithm that uses complex mixture of raw web signals, connections between web-pages ",
+    "parent_dataset": null,
+    "image": "https://production-media.paperswithcode.com/datasets/Screen_Shot_2021-02-14_at_5.06.38_PM.png",
+    "audio": null,
+    "thumbnail": "https://production-media.paperswithcode.com/thumbnails/dataset/dataset-0000000003-b4e2f013_DyJWymg.jpg",
+    "default_image": null,
+    "verified_image": "https://production-media.paperswithcode.com/thumbnails/dataset-small/dataset-0000000003-4b92f30e.jpg",
+    "default_youtube_link": null,
+    "paper": {
+      "title": "Revisiting Unreasonable Effectiveness of Data in Deep Learning Era",
+      "url": "https://paperswithcode.com/paper/revisiting-unreasonable-effectiveness-of-data"
+    },
+    "mention_count": 0,
+    "introduced_date": "2017-07-10",
+    "license_name": "Private (not publicly available)",
+    "license_url": null,
+    "verified_name": "JFT-300M",
+    "verified_paper": {
+      "title": "Revisiting Unreasonable Effectiveness of Data in Deep Learning Era",
+      "url": "https://paperswithcode.com/paper/revisiting-unreasonable-effectiveness-of-data"
+    },
+    "warning": null,
+    "modalities": [
+      "Images"
+    ],
+    "tasks": [
+      {
+        "task": "Image Classification",
+        "url": "https://paperswithcode.com/task/image-classification"
+      }
+    ],
+    "languages": [
+      "Chinese"
+    ],
+    "variants": [
+      "JFT-300M"
+    ],
+    "num_papers": 123,
+    "data_loaders": [
+      {
+        "url": "https://github.com/tensorflow/models",
+        "repo": "https://github.com/tensorflow/models",
+        "frameworks": [
+          "tf",
+          "pytorch"
+        ]
+      }
+    ]
+  },
+  {
+    "url": "https://paperswithcode.com/dataset/glue",
+    "name": "GLUE",
+    "full_name": "General Language Understanding Evaluation benchmark",
+    "homepage": "https://gluebenchmark.com/",
+    "description": "General Language Understanding Evaluation (**GLUE**) benchmark is a collection of nine natural language understanding tasks, including single-sentence tasks CoLA and SST-2, similarity and paraphrasing tasks MRPC, STS-B and QQP, and natural language inference tasks MNLI, QNLI, RTE and WNLI.\r\n\r\nSource",
+    "short_description": "General Language Understanding Evaluation (GLUE) benchmark is a collection of nine natural language understanding tasks, including single-sentence tasks CoLA and SST-2, similarity and paraphrasing tas",
+    "parent_dataset": null,
+    "image": "https://production-media.paperswithcode.com/datasets/d4ec20f1-a6a0-44ff-8940-32a0bcc4710a.png",
+    "audio": null,
+    "thumbnail": "https://production-media.paperswithcode.com/thumbnails/dataset/a80fc6bc-fdbb-4db1-a458-c4c422dedd9e.jpg",
+    "default_image": null,
+    "verified_image": "https://production-media.paperswithcode.com/thumbnails/dataset-small/dataset-0000000005-81d2fbb4.jpg",
+    "default_youtube_link": null,
+    "paper": {
+      "title": "GLUE: A Multi-Task Benchmark and Analysis Platform for Natural Language Understanding",
+      "url": "https://paperswithcode.com/paper/glue-a-multi-task-benchmark-and-analysis"
+    },
+    "mention_count": 0,
+    "introduced_date": "2019-01-01",
+    "license_name": "Custom (various)",
+    "license_url": "https://gluebenchmark.com/faq",
+    "verified_name": "GLUE",
+    "verified_paper": {
+      "title": "GLUE: A Multi-Task Benchmark and Analysis Platform for Natural Language Understanding",
+      "url": "https://paperswithcode.com/paper/glue-a-multi-task-benchmark-and-analysis"
+    },
+    "warning": null,
+    "modalities": [
+      "Texts"
+    ],
+    "tasks": [
+      {
+        "task": "Classification",
+        "url": "https://paperswithcode.com/task/classification-1"
+      },
+      {
+        "task": "Text Classification",
+        "url": "https://paperswithcode.com/task/text-classification"
+      },
+      {
+        "task": "Text Generation",
+        "url": "https://paperswithcode.com/task/text-generation"
+      },
+      {
+        "task": "Few-Shot Learning",
+        "url": "https://paperswithcode.com/task/few-shot-learning"
+      }
+    ],
+    "languages": [
+      "English"
+    ],
+    "variants": [
+      "WNLI",
+      "RTE",
+      "QNLI",
+      "MNLI-mm"
+    ],
+    "num_papers": 3197,
+    "data_loaders": [
+      {
+        "url": "https://huggingface.co/datasets/nyu-mll/glue",
+        "repo": "https://github.com/huggingface/datasets",
+        "frameworks": [
+          "tf",
+          "pytorch",
+          "jax"
+        ]
+      },
+      {
+        "url": "https://huggingface.co/datasets/glue",
+        "repo": "https://github.com/huggingface/datasets",
+        "frameworks": [
+          "tf",
+          "pytorch",
+          "jax"
+        ]
+      }
+    ]
+  }
+]

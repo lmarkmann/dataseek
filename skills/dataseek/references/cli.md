@@ -1,6 +1,8 @@
 # CLI and scripts
 
-Verified against `docs/reference/contract.md`, `dsk help --json`, `dsk help environment`, `dsk help exit-codes` and live runs on 2026-10-20. Every `jq` recipe below was run against real output that day.
+Verified against `docs/reference/contract.md`, `dsk help --json`, `dsk help environment`, `dsk help exit-codes` and live runs on 2026-10-20; every `jq` recipe below was run against real output that day. The command list and the shape of `dsk help --json` were checked again on 2026-11-23.
+
+This is the fallback surface and the one for scripts. How a tool call becomes a command: `references/mcp.md`, The CLI fallback.
 
 ## Contents
 
@@ -18,6 +20,7 @@ Verified against `docs/reference/contract.md`, `dsk help --json`, `dsk help envi
 | `dsk search <words>` (alias `dsk s`) | the merged, ranked search | the query cache |
 | `dsk sources` | every source: id, category, protocol, key status, docs | none |
 | `dsk inspect <url>` | one page's metadata and file list | none |
+| `dsk related <url>` | the datasets beside one item, from its own host | none |
 | `dsk doctor` | config, cache and state paths, color, every key's status | none |
 | `dsk cache info` | cache path, size and budget | none |
 | `dsk cache warm [-s ids] [--dry-run]` | download the catalogs now, with no deadline | the catalog cache |
@@ -48,7 +51,7 @@ A script that must not inherit a user's `DATASEEK_TIMEOUT=0` or `DATASEEK_EXCLUD
 
 ## Streams and schemas
 
-- **stdout is data.** With `--json`, one object, indented on a terminal and one line in a pipe, tagged with `schema`: `dataseek-search/1`, `dataseek-sources/1`, `dataseek-inspect/1`, `dataseek-doctor/1`, `dataseek-cache-info/1`, `dataseek-cache-warm/1`, `dataseek-surface/1` (from `help --json`). A new key may appear without notice; a changed or removed one bumps the number, so a script can assert the tag.
+- **stdout is data.** With `--json`, one object, indented on a terminal and one line in a pipe, tagged with `schema`: `dataseek-search/1`, `dataseek-sources/1`, `dataseek-inspect/1`, `dataseek-related/1`, `dataseek-doctor/1`, `dataseek-cache-info/1`, `dataseek-cache-warm/1`, `dataseek-surface/1` (from `help --json`). A new key may appear without notice; a changed or removed one bumps the number, so a script can assert the tag.
 - **stderr is status.** With `--json`, each line is an event `{"schema": "dataseek-events/1", "event": ..., "message": ...}`: `stage` (what it is doing), `warning` (a source that failed, a stale catalog), `ok` (the summary line), and `error` (with `causes` and `try`). `-q` leaves only the error.
 - **A failed run prints nothing on stdout.** `jq` exits 0 on empty input, so run pipelines under `set -o pipefail` in bash and zsh, or check `$pipestatus[1]` in fish.
 - **An empty search is success** (exit 0, `results: []`) when any source answered. Exit codes: `references/troubleshoot.md`.
@@ -99,7 +102,7 @@ for q in "sea surface temperature" "ERSST"; do
 done | jq -s 'unique_by(.url)'
 ```
 
-For a batch larger than a few dozen queries, set `HF_TOKEN` and `GITHUB_TOKEN` first: Hugging Face allows 500 requests per 5 minutes per address without a key, GitHub 10 searches a minute.
+For a batch larger than a few dozen queries, set `HF_TOKEN` and `GITHUB_TOKEN` first: Hugging Face allows 500 requests per 5 minutes per address without a key, GitHub 10 searches a minute. Hugging Face also allows 50 full-text searches per 5 minutes, one for each multi-word query, with or without a key; past that, `huggingface` reports `rate limited by the source` and rests for a few minutes. GitLab allows 60 requests per address in each clock hour and dataseek reads no GitLab key; past that, `gitlab` reports the same status until the next full hour.
 
 ## Discovering the surface
 

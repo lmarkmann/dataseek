@@ -1,0 +1,8 @@
+{
+  "corpora": [
+    "ELRC-784-Coimisineir_Teanga_R",
+    "ELRC-801-Coimisineir_Teanga_R",
+    "OpenSubtitles",
+    "Europarl"
+  ]
+}

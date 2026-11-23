@@ -62,9 +62,11 @@ Every `--json` output is one object with a `schema` tag naming its shape and ver
 
 `inspect --json` (`dataseek-inspect/1`) prints `dataset`, the page's own JSON-LD node as the page wrote it, and beside it `files`, dataseek's reading of the file list, so a `files` key on the page is never overwritten. Every string of the page's metadata, keys included, has its control characters (C0 other than newline and tab, DEL, and C1) replaced by a space before it is printed, as text or as JSON, so a page cannot drive the terminal that shows it.
 
+`related --json` (`dataseek-related/1`) prints `url`, `source` (the registry id of the host that answered), `relation` (`owner`, `paper`, `model`, `collection` or `forks`) and `results`. Each result has the keys of a `search` result without `sources` and `score`: one host answered and nothing was ranked ([ADR 0021](../adr/0021-related-reads-one-items-neighbors.md)). An item with no neighbors is an empty `results` list and exit code 0.
+
 ## MCP mode
 
-`dataseek mcp` serves `search`, `sources` and `inspect` to MCP clients over stdio ([ADR 0015](../adr/0015-mcp-server-over-stdio.md)). A client registers it as command `dsk` with arguments `["mcp"]`.
+`dataseek mcp` serves `search`, `sources`, `inspect` and `related` to MCP clients over stdio ([ADR 0015](../adr/0015-mcp-server-over-stdio.md)). A client registers it as command `dsk` with arguments `["mcp"]`.
 
 - **Protocol.** Requests naming revision `2026-07-28` in `_meta` are served statelessly, with `server/discover`; clients that open with `initialize` get revision `2025-11-25` or `2025-06-18`. A request naming any other revision gets `-32022` with the supported list.
 - **stdout** carries one JSON-RPC message per line and nothing else. stderr carries the server's own status line, as plain text, and its calls' narration, as `dataseek-events/1` lines. `-q`, `-v`, `--cache-dir` and `--connect-timeout` given to `dataseek mcp` reach every call.

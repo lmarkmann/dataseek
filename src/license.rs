@@ -221,35 +221,52 @@ fn from_name(slug: &str) -> Option<String> {
 /// order (`CC-BY-NC-SA`), with its version when one is named and a
 /// national port after it.
 fn creative_commons(words: &[&str]) -> Option<String> {
-    let has = |word: &str| words.contains(&word);
-    let named = has("cc")
-        || has("cc0")
-        || (has("creative") && has("commons"))
+    let named = says(words, &["cc", "cc0"], ["creative", "commons"])
         || words.first() == Some(&"attribution");
     if !named {
         return None;
     }
-    if has("cc0")
+    if cc_zero(words) {
+        return Some("CC0-1.0".to_owned());
+    }
+    let mut id = cc_conditions(words)?;
+    if let Some(version) = words.iter().find_map(|w| cc_version(w)) {
+        id = format!("{id}-{version}");
+        if let Some(port) = words.iter().find_map(|w| cc_port(w)) {
+            id = format!("{id}-{port}");
+        }
+    }
+    Some(id)
+}
+
+/// Whether one of `single` is among the words, or both words of `pair`.
+fn says(words: &[&str], single: &[&str], pair: [&str; 2]) -> bool {
+    single.iter().any(|word| words.contains(word))
+        || pair.iter().all(|word| words.contains(word))
+}
+
+/// The public domain dedication.
+fn cc_zero(words: &[&str]) -> bool {
+    let has = |word: &str| words.contains(&word);
+    has("cc0")
         || has("zero")
         || words == ["cc", "0"]
         || (has("public") && has("domain") && has("dedication"))
-    {
-        return Some("CC0-1.0".to_owned());
-    }
+}
+
+/// `CC-BY` with the conditions the words name, in SPDX order. Words that
+/// name neither attribution nor a condition name no license.
+fn cc_conditions(words: &[&str]) -> Option<String> {
     let noncommercial =
-        has("nc") || has("noncommercial") || (has("non") && has("commercial"));
-    let no_derivatives = has("nd")
-        || has("noderivatives")
-        || has("noderivs")
-        || (has("no") && has("derivatives"));
-    let share_alike =
-        has("sa") || has("sharealike") || (has("share") && has("alike"));
-    if !(has("by")
-        || has("attribution")
-        || noncommercial
-        || no_derivatives
-        || share_alike)
-    {
+        says(words, &["nc", "noncommercial"], ["non", "commercial"]);
+    let no_derivatives = says(
+        words,
+        &["nd", "noderivatives", "noderivs"],
+        ["no", "derivatives"],
+    );
+    let share_alike = says(words, &["sa", "sharealike"], ["share", "alike"]);
+    let attribution = words.contains(&"by") || words.contains(&"attribution");
+    if !(attribution || noncommercial || no_derivatives || share_alike) {
         return None;
     }
     let mut id = String::from("CC-BY");
@@ -260,12 +277,6 @@ fn creative_commons(words: &[&str]) -> Option<String> {
         id.push_str("-ND");
     } else if share_alike {
         id.push_str("-SA");
-    }
-    if let Some(version) = words.iter().find_map(|w| cc_version(w)) {
-        id = format!("{id}-{version}");
-        if let Some(port) = words.iter().find_map(|w| cc_port(w)) {
-            id = format!("{id}-{port}");
-        }
     }
     Some(id)
 }

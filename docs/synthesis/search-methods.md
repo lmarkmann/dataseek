@@ -1,6 +1,6 @@
 # Search methods across the sources
 
-dataseek asks every source for `--per-source` results (default 10, at most 100), so a page cap below that matters: Zenodo (25), Kaggle (20), CERN (10 a request) and Roboflow (12) are paged until the count is met, Hugging Face asks once per anchor word of a multi-word query, and the others answer in one request.
+dataseek asks every source for `--per-source` results (default 10, at most 100), so a page cap below that matters: Zenodo (25), Kaggle (20), CERN (10 a request) and Roboflow (12) are paged until the count is met, Hugging Face asks once per anchor word of a multi-word query and once more for the full text of the dataset cards, and the others answer in one request.
 
 How each search interface takes a query, pages, ranks and limits, as found when the adapters were written (2026-10-06). The adapter for each row lives in `src/sources/`. What dataseek does with the differences is decided in ADRs 0005 to 0007 and 0013.
 
@@ -9,6 +9,7 @@ How each search interface takes a query, pages, ranks and limits, as found when 
 | interface | method and endpoint | query parameter | matching | ranking | documented page cap |
 |---|---|---|---|---|---|
 | Hugging Face Hub | GET `/api/datasets` | `search` | substring of the repo id only | `sort=downloads` (no relevance) | 1,000 (observed); `Link` cursor, as `skip` answers HTTP 400 from 4,000 |
+| Hugging Face Hub, full text | GET `/api/search/full-text` | `q` (at most 250 characters), `type=dataset` | the text of the dataset card, the id and the tags (2026-11-23) | the Hub's own order, not documented | 100 (`limit`, OpenAPI); `skip` pages |
 | Kaggle | GET `/api/v1/datasets/list` | `search` | title, subtitle, tags | Kaggle "hottest" by default | 20, fixed (observed); `page` reaches page 100 at least |
 | DataCite | GET `/dois` | `query` (Elasticsearch query string) | all metadata fields | `sort=relevance` (the API's default returns newest updated first) | 1,000 per page, 10,000 deep |
 | OpenAIRE Graph | GET `/graph/v3/research-products` | `search` | title, abstract, subjects | relevance | 100 per page, 10,000 deep; `cursor` beyond |
@@ -16,7 +17,7 @@ How each search interface takes a query, pages, ranks and limits, as found when 
 | Zenodo (InvenioRDM) | GET `/api/records` | `q` (Elasticsearch syntax) | all fields | `bestmatch` | 25 anonymous, 100 with token; `page` reaches 10,000 results |
 | Figshare | POST `/v2/articles/search` | `search_for` in a JSON body | all fields, field operators like `:title:` | `created_date`, newest first (no relevance order) | 1,000; offset capped at 1,000 |
 | Dataverse | GET `/api/search` | `q` (Solr syntax) | all fields | Solr relevance | 1,000 |
-| CKAN | GET `/api/3/action/package_search` | `q` (Solr syntax), `fq=dataset_type:dataset` | all fields | Solr relevance | 1,000 (a site may lower it); all six registered portals served 100 |
+| CKAN | GET `/api/3/action/package_search` | `q` (Solr syntax), `fq=dataset_type:dataset` | all fields | Solr relevance | 1,000 (a site may lower it); all six registered portals served 100. NETL EDX answers HTTP 500 to every `fq`, so its row sends none (2026-11-23) |
 | data.europa.eu | GET `/api/hub/search/search` | `q`, `filters=dataset`, `includes`, `aggregation=false` | stemmed, multilingual | relevance | 1,000 |
 | Data.gov | GET `/search` or `api.gsa.gov/.../v4/search` | `q` | OpenSearch full text | relevance; cursor `after` | 1,000 (`per_page`, OpenAPI) |
 | Socrata Discovery | GET `/api/catalog/v1` | `q`, `only=dataset` | name, description, category, tags, column names and descriptions, attribution; with 3 terms or fewer all must match, otherwise 60% | relevance | 10,000 per request (`limit`); `offset + limit` <= 10,000, `scroll_id` beyond |
@@ -30,9 +31,10 @@ How each search interface takes a query, pages, ranks and limits, as found when 
 | GBIF | GET `/v1/dataset/search` | `q` | full text | relevance | 1,000 |
 | DataONE | GET `/cn/v2/query/solr/` | Solr `q`, `fq` | Solr fields | Solr relevance | 10,000 (observed) |
 | NCBI GEO | GET `esearch.fcgi` then `esummary.fcgi` | `term` (Entrez syntax) | indexed fields, `[ETYP]` filters | Entrez default order, not an explicit relevance rank | 10,000 (`retmax`); `retstart` pages |
-| EBI Search | GET `/ebisearch/ws/rest/{domain}` | `query` | domain fields | relevance | 1,000 |
+| EBI Search | GET `/ebisearch/ws/rest/{domain}` | `query` | domain fields | relevance | 1,000; every domain took 25 to 60 seconds on 2026-11-23 |
 | OmicsDI | GET `/ws/dataset/search` | `query` (plus `NOT repository:"biostudies-literature"`) | full text | default order (docs: relevance) | 100 (docs; the server answers more) |
 | Synapse | POST `/repo/v1/search` | `queryTerm` list, `booleanQuery` | any word, ranked | relevance | 1,000 per page (observed) |
+| ENCODE | GET `/search/` | `searchTerm`, `type=Experiment`, `status=released`, `field=` per property | every word, across the experiment metadata | relevance | `limit` (dataseek asks 100 at most); no hit answers 404 with a JSON body; `from` answered 403 (2026-11-23) |
 | DANDI | GET `/api/dandisets/` | `search`, `ordering`, `empty=false` | every word as a substring of the version metadata, ignoring case; a `key:value` word is a filter | none; oldest first, `ordering=-stars` sorts by stars | 1,000 |
 | CERN Open Data | GET `/api/records/` | `q`, `type=Dataset` | Invenio | relevance | 10,000 results (observed, HTTP 400 beyond) |
 | CESSDA | GET `/api/DataSets/v2/search` | `q`, mandatory `metadataLanguage` | full text, every word must match | relevance | 200 per request; `offset + limit` <= 10,000 |
@@ -41,8 +43,12 @@ How each search interface takes a query, pages, ranks and limits, as found when 
 | Data Commons | GET `/v2/resolve` | `nodes`, `resolver=indicator` | semantic match to statistical variables | similarity score | all matches in one response, no paging (docs) |
 | Our World in Data | GET `/api/search` | `q`, `hitsPerPage` | charts and explorer views (`type=charts`; `type=pages` is articles) | relevance | 100 |
 | FRED | GET `/fred/series/search` | `search_text` | full text | relevance or popularity | 1,000 |
-| GitHub | GET `/search/repositories` | `q` with `topic:dataset` | name, description, topics | best match | 100; first 1,000 results only (page 11 answers 422) |
+| GitHub | GET `/search/repositories` | `q` with `in:name,description,topics,readme topic:dataset` | name, description, topics, readme (2026-11-23) | best match | 100; first 1,000 results only (page 11 answers 422) |
+| GitLab | GET `/api/v4/projects` | `search`, `topic=dataset` | every word as a substring of the path, name or description, ignoring case (2026-11-23) | `order_by=star_count`; a relevance order exists only for a signed-in member's own projects | 100 (`per_page`); `page` reaches 50,000 projects, `pagination=keyset` beyond |
 | ModelScope | GET `/api/v1/dolphin/datasets` | `Query` | names, authors and descriptions, every word must match | site default | 100 per page, larger values capped (October 2026) |
+| Mozilla Data Collective | GET `/api/datasets` | `q`, `pricing=free` | loose: a query of several words, or of no real word, still answers datasets that share a part of it (2026-11-23) | relevance (`sort` also takes `newest`, `size`) | 100 (`limit`; 101 answers 400) |
+| CLARIN VLO | GET `/api/records` | `q` (Solr), `fq=resourceClass:corpus` | metadata full text; a word with a colon is a field query | relevance | `size`; `from` reached 9,990 with an empty page past the end (2026-11-23) |
+| European Language Grid | GET `/catalogue_backend/api/registry/search/` | `search`, `entity_type__term=LanguageResource` (`keyword` matches one keyword value exactly) | metadata full text, any word | relevance | 20 a page, fixed; `page` walks on while `next` is set |
 | Roboflow Universe | GET `/universe/search` | `q`, inline filters (`images>100`) | names, classes | site default | 12 a page by the SDK default; `page` from 1 |
 
 ## Catalogs searched locally
@@ -54,14 +60,24 @@ These publish a complete list but no search endpoint, so dataseek downloads the 
 | OpenML | `POST /es/data/data/_search`, `status: active`, sorted by `data_id` (latest version per name); the index the openml.org site queries, since the REST list carries no description, licence or date | 6,668 (2026-10-20) |
 | UCI | `/api/datasets/list` | 689 |
 | World Bank indicators | `/v2/indicator?per_page=40000` | 29,533 |
-| SDMX agencies | `/dataflow` as SDMX-ML 2.1 | IMF 222 (101 with a portal page), OECD 1,548, ECB 215, BIS 32, ILO 1,216, UNdata 15, Bundesbank 94 |
+| SDMX agencies | `/dataflow` as SDMX-ML 2.1 | IMF 222 (101 with a portal page), OECD 1,548, ECB 215, BIS 32, ILO 1,216, UNdata 15, Bundesbank 94; UNICEF 56 (2026-11-23) |
 | Eurostat | catalogue table of contents (`toc/txt`) | 7,563 |
 | WHO GHO | OData `/api/Indicator` | 3,099 |
-| STAC catalogs | `/collections?limit=1000`, following `next` | Planetary Computer 138, Earth Search 9, Copernicus Data Space 427, CDS 144 |
+| STAC catalogs | `/collections?limit=1000`, following `next` | Planetary Computer 138, Earth Search 9, Copernicus Data Space 427, CDS 144; Swisstopo 515 on 6 pages of 100 and LandsatLook 14 (2026-11-23) |
 | Earth Engine | catalog HTML page | 867 |
 | AWS Open Data | registry index HTML page | 1,215 |
 | TensorFlow Datasets | catalog overview page: names and category headings | 446 |
+| OpenSLR | `resources.php` HTML table, from the openslr.trmal.net mirror; Software rows dropped | 152 (2026-11-23) |
+| LILA BC | WordPress `/wp-json/wp/v2/posts?per_page=100`, posts under `/datasets/` | 59 (2026-11-23) |
+| Polaris Hub | `polarishub.io/api/v1/dataset?limit=100` (6 MB: every row carries its README) | 96 (2026-11-23) |
+| Academic Torrents | `database.xml` (RSS 2.0, 3.2 MB, rebuilt nightly), category Dataset | 1,724 (2026-11-23) |
+| Google Research Datasets | `/resources/datasets/?page=N`, 15 cards a page, until a page brings no new link | 169 (2026-11-23) |
+| OPUS | `opusapi?corpora=True`, names only, so matching is on the name | 1,215 (2026-11-23) |
+| NeurIPS Datasets and Benchmarks | `/static/virtual/data/neurips-<year>-orals-posters.json` for 2022 to 2026 (12 to 27 MB each), rows of the track only, each title once | 2,411 (2026-11-23) |
+| Papers with Code archive | `pwc-archive/files` `jul-28-datasets.json.gz` on Hugging Face (8.4 MB, 47 MB inflated, frozen 2025-07-28), rows with a homepage | 11,265 (2026-11-23) |
 | CELLxGENE | Curation API `/collections` | 397 |
+| Grand Challenge | `/api/v1/challenges/?limit=100`, following `next` | 264 (2026-11-23) |
+| The Cancer Imaging Archive | `/api/v1/collections/?per_page=100` with `_fields`, three pages | 241 (2026-11-23) |
 | OpenNeuro | GraphQL `datasets`, cursor pages of 100 | 1,905 |
 | PhysioNet | `/api/v1/projects/published/` | 477 |
 | MPContribs | `/projects/` | 72 |
@@ -74,6 +90,7 @@ These publish a complete list but no search endpoint, so dataseek downloads the 
 | source | limit without a key | with a key |
 |---|---|---|
 | Hugging Face | 500 requests per 5 minutes per IP | 1,000 (free), 2,500 (PRO) |
+| Hugging Face full-text search | 50 requests per 5 minutes per IP (response header, 2026-11-23) | the same 50 with a free token |
 | Kaggle | dynamic, 429 on abuse | same, attributed to the account |
 | DataCite | 500 per 5 minutes; 1,000 with a contact address | 3,000 for members |
 | Zenodo | 30 searches per minute | 30 per minute, larger pages |
@@ -82,8 +99,14 @@ These publish a complete list but no search endpoint, so dataseek downloads the 
 | api.data.gov | `DEMO_KEY`: 30 per hour, 50 per day | 1,000 per hour |
 | NCBI E-utilities | 3 per second, with `tool` and `email` | 10 per second |
 | GitHub search | 10 per minute | 30 per minute |
+| GitLab | 60 requests per clock hour per IP, then 429 with `Retry-After` to the next full hour (observed 2026-11-23); the docs also give 400 project-list requests per 10 minutes | 2,000 project-list requests per 10 minutes (dataseek reads no GitLab key) |
 | CERN Open Data | 60 per minute, 429 with `Retry-After: 60` (headers) | none |
+| Mozilla Data Collective | 120 requests a window, the window under a minute (`x-ratelimit-*` headers, 2026-11-23) | the same for search; downloads have their own quota |
+| CLARIN VLO | none published; `robots.txt` sets `Crawl-delay: 5` | none |
+| ENCODE | 10 GET requests per second per user, group, company or lab (terms); an IP block on abuse | none |
+| OpenSLR | 5 simultaneous connections per host, then a firewall rule drops them (home page) | none |
 | OpenDataSoft | 10,000 calls a day, shared by every anonymous caller | none |
+| Swisstopo (STAC) | 40 requests a minute, 21 million a year, for every geo.admin.ch REST service (FSDI terms) | none |
 | OSF (trove) | unstated; 17 requests in 3 minutes drew an hour-long 429 | none |
 | OpenAlex (not used) | $0.10 per day of search credit | $1 per day free, then paid |
 

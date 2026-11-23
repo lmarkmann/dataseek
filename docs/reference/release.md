@@ -52,7 +52,7 @@ Auto-merge needs squash merges titled by the PR, auto-merge allowed, branches de
 just release-preview
 ```
 
-No release-plz subcommand has a dry-run flag, so the recipe runs the real `release-plz update`, prints the diff and restores the tree on every exit path. It refuses to start on a dirty tree, untracked files included, because the restore ends in `git clean`.
+No release-plz subcommand has a dry-run flag, so the recipe runs the real `release-plz update`, prints its diff, and does so inside a throwaway clone of the repository. The working tree is never touched, which makes the preview safe on a dirty tree and inside a linked worktree, where release-plz's own checkout of `main` fails. The clone puts `main` on HEAD, so a branch is previewed as if it had already landed; uncommitted changes are not covered and the recipe says so. When nothing since the last tag is release-worthy, it says that instead of printing an empty diff. A `release-plz` older or newer than the version `release-plz.yml` pins draws a warning, because it can render a different changelog than the release PR will.
 
 ## Publishing to crates.io
 

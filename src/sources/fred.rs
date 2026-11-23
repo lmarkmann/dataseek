@@ -18,7 +18,7 @@ use serde_json::Value;
 use super::Ctx;
 use crate::credentials::Key;
 use crate::http::SourceError;
-use crate::record::{Dataset, day, items, number, text};
+use crate::record::{Dataset, day, number, text};
 
 pub fn search(
     ctx: &Ctx<'_>,
@@ -42,10 +42,7 @@ pub(super) fn parse(
     body: &Value,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    if body.get("seriess").is_none() {
-        return Err(SourceError::shape("no seriess array"));
-    }
-    Ok(items(body, "/seriess").iter().filter_map(record).take(limit).collect())
+    super::parse_list(body, "/seriess", limit, record)
 }
 
 fn record(row: &Value) -> Option<Dataset> {

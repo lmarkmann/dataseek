@@ -2,6 +2,14 @@
 //! allows 10 requests a minute; a token raises that to 30 (GitHub, October
 //! 2026).
 //!
+//! The query words are matched in the name, the description, the topics and
+//! the readme. Without the `in:` qualifier GitHub leaves the readme out, and
+//! most dataset repositories name their subject only there: "sea surface
+//! temperature" found 0 repositories without the readme and 16 with it, "air
+//! quality" 10 and 139. `topics` is a real member of the `in:` list:
+//! "climate" found 37 repositories without it and 58 with it. GitHub ignores
+//! a word it does not know there (probed 2026-11-23).
+//!
 //! A page holds up to 100 repositories, which is the most `--per-source`
 //! asks for, so one request answers every search. No query reaches past the
 //! first 1,000 results: page 11 of 100 answers 422 (probed October 2026; the
@@ -18,7 +26,9 @@ use serde_json::Value;
 use super::Ctx;
 use crate::credentials::Key;
 use crate::http::SourceError;
-use crate::record::{Dataset, day, items, number, text};
+use crate::record::{Dataset, day, number, text};
+
+const FIELDS: &str = "in:name,description,topics,readme";
 
 pub fn search(
     ctx: &Ctx<'_>,
@@ -28,7 +38,7 @@ pub fn search(
     let mut call = ctx
         .http
         .get("https://api.github.com/search/repositories")
-        .query("q", format!("{query} topic:dataset"))
+        .query("q", format!("{query} {FIELDS} topic:dataset"))
         .query("per_page", limit.clamp(1, 100))
         .header("X-GitHub-Api-Version", "2022-11-28");
     if let Some(secret) = ctx.creds.get(Key::GitHub) {
@@ -42,13 +52,10 @@ pub(super) fn parse(
     body: &Value,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    if body.get("items").is_none() {
-        return Err(SourceError::shape("no items array"));
-    }
-    Ok(items(body, "/items").iter().filter_map(record).take(limit).collect())
+    super::parse_list(body, "/items", limit, record)
 }
 
-fn record(repo: &Value) -> Option<Dataset> {
+pub(super) fn record(repo: &Value) -> Option<Dataset> {
     let mut dataset =
         Dataset::new(&text(repo, "/full_name")?, &text(repo, "/html_url")?)
             .describe(text(repo, "/description"));

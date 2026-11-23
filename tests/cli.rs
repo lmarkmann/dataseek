@@ -115,6 +115,26 @@ fn json_of(args: &[&str]) -> Value {
     serde_json::from_str(&stdout_text(args)).unwrap()
 }
 
+/// The stderr of a run that failed with exit code 1.
+fn failure(out: std::process::Output) -> String {
+    assert_eq!(out.status.code(), Some(1), "{out:?}");
+    String::from_utf8(out.stderr).unwrap()
+}
+
+/// The exit code of a run that failed, and the one event on its stderr.
+fn error_event(args: &[&str]) -> (Option<i32>, Value) {
+    let out = bin().args(args).output().unwrap();
+    (out.status.code(), serde_json::from_slice(&out.stderr).unwrap())
+}
+
+/// A host that accepts a connection and never answers, and its address as
+/// a proxy.
+fn silent_proxy() -> (std::net::TcpListener, String) {
+    let silent = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let proxy = format!("http://{}", silent.local_addr().unwrap());
+    (silent, proxy)
+}
+
 fn result_titles(stdout: &[u8]) -> Vec<String> {
     let report: Value = serde_json::from_slice(stdout).unwrap();
     report
@@ -366,15 +386,11 @@ fn errors_under_json_are_events_on_stderr() {
 
     // clap's own usage errors take the same shape, with clap's details as
     // causes.
-    let out = bin().args(["--json", "no-such-command"]).output().unwrap();
-    assert_eq!(out.status.code(), Some(2));
-    let event: Value = serde_json::from_slice(&out.stderr).unwrap();
+    let (code, event) = error_event(&["--json", "no-such-command"]);
+    assert_eq!(code, Some(2));
     assert_eq!(event["event"], "error");
-    let out = bin()
-        .args(["--json", "search", "x", "--sort", "oldest"])
-        .output()
-        .unwrap();
-    let event: Value = serde_json::from_slice(&out.stderr).unwrap();
+    let (_, event) =
+        error_event(&["--json", "search", "x", "--sort", "oldest"]);
     assert_eq!(
         event["message"],
         "invalid value 'oldest' for '--sort <ORDER>'"
@@ -383,8 +399,7 @@ fn errors_under_json_are_events_on_stderr() {
         event["causes"],
         json!(["[possible values: relevance, newest]"])
     );
-    let out = bin().args(["--json", "search"]).output().unwrap();
-    let event: Value = serde_json::from_slice(&out.stderr).unwrap();
+    let (_, event) = error_event(&["--json", "search"]);
     assert_eq!(event["causes"], json!(["<QUERY>..."]));
 }
 
@@ -399,12 +414,9 @@ fn an_unknown_flag_is_never_read_as_query_words() {
     assert_eq!(out.status.code(), Some(2));
     assert_eq!(out.stdout, b"");
 
-    let out = bin()
-        .args(["--json", "sources", "--jq", ".sources"])
-        .output()
-        .unwrap();
-    assert_eq!(out.status.code(), Some(2));
-    let event: Value = serde_json::from_slice(&out.stderr).unwrap();
+    let (code, event) =
+        error_event(&["--json", "sources", "--jq", ".sources"]);
+    assert_eq!(code, Some(2));
     assert_eq!(event["event"], "error");
 }
 
@@ -459,8 +471,7 @@ fn offline_with_nothing_cached_says_so_and_marks_no_outage() {
         .args(["search", "climate", "-s", "datacite,zenodo", "--offline"])
         .output()
         .unwrap();
-    assert_eq!(out.status.code(), Some(1));
-    let stderr = String::from_utf8(out.stderr).unwrap();
+    let stderr = failure(out);
     assert!(stderr.contains("nothing cached answers"), "{stderr}");
     let outages =
         std::fs::read_dir(cache.join("outages")).map_or(0, Iterator::count);
@@ -557,8 +568,7 @@ fn every_source_resting_says_so_and_how_to_ask_anyway() {
         .args(["-x", "openaire,google,b2find"])
         .output()
         .unwrap();
-    assert_eq!(out.status.code(), Some(1));
-    let stderr = String::from_utf8(out.stderr).unwrap();
+    let stderr = failure(out);
     assert!(stderr.contains("resting"), "{stderr}");
     assert!(stderr.contains("-s"), "{stderr}");
 }
@@ -569,8 +579,7 @@ fn excluding_every_chosen_source_names_the_exclusion() {
     cmd.env("DATASEEK_EXCLUDE", "zenodo");
     let out =
         cmd.args(["search", "climate", "-s", "zenodo"]).output().unwrap();
-    assert_eq!(out.status.code(), Some(1));
-    let stderr = String::from_utf8(out.stderr).unwrap();
+    let stderr = failure(out);
     assert!(stderr.contains("DATASEEK_EXCLUDE"), "{stderr}");
 }
 
@@ -606,37 +615,29 @@ fn opt_in_sources_are_marked_in_the_listing_and_doctor() {
 // keeps the source out of the run.
 #[test]
 fn include_asks_an_opt_in_source_beside_the_others() {
-    let mut with = bin();
-    seed_rainfall(&with.cache());
-    let out = with
-        .args([
-            "search",
-            "rainfall",
-            "--offline",
-            "--json",
-            "--include",
-            "google,mendeley",
-        ])
-        .output()
-        .unwrap();
-    assert!(out.status.success(), "{out:?}");
-    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
-    let ids = source_ids(&report);
-    assert!(ids.contains(&"google"), "{ids:?}");
-    assert!(ids.contains(&"mendeley"), "{ids:?}");
+    let has = |ids: &[String], id: &str| ids.iter().any(|i| i == id);
+    let ids = rainfall_sources(&["--include", "google,mendeley"]);
+    assert!(has(&ids, "google"), "{ids:?}");
+    assert!(has(&ids, "mendeley"), "{ids:?}");
 
-    let mut without = bin();
-    seed_rainfall(&without.cache());
-    let out = without
+    let ids = rainfall_sources(&[]);
+    assert!(!has(&ids, "google"), "{ids:?}");
+    assert!(!has(&ids, "mendeley"), "{ids:?}");
+    assert!(has(&ids, "openml"), "{ids:?}");
+}
+
+/// The sources an offline search of the seeded rainfall cache asks.
+fn rainfall_sources(extra: &[&str]) -> Vec<String> {
+    let mut cmd = bin();
+    seed_rainfall(&cmd.cache());
+    let out = cmd
         .args(["search", "rainfall", "--offline", "--json"])
+        .args(extra)
         .output()
         .unwrap();
     assert!(out.status.success(), "{out:?}");
     let report: Value = serde_json::from_slice(&out.stdout).unwrap();
-    let ids = source_ids(&report);
-    assert!(!ids.contains(&"google"), "{ids:?}");
-    assert!(!ids.contains(&"mendeley"), "{ids:?}");
-    assert!(ids.contains(&"openml"), "{ids:?}");
+    source_ids(&report).into_iter().map(str::to_owned).collect()
 }
 
 #[test]
@@ -874,8 +875,7 @@ fn cache_warm_into_an_unwritable_dir_fails_before_downloading() {
         .arg(&file)
         .output()
         .unwrap();
-    assert_eq!(out.status.code(), Some(1));
-    let stderr = String::from_utf8(out.stderr).unwrap();
+    let stderr = failure(out);
     assert!(stderr.contains("cannot write the cache"), "{stderr}");
     assert!(!stderr.contains("downloading"), "{stderr}");
 }
@@ -895,6 +895,119 @@ fn inspect_reports_an_unreachable_page() {
         stderr.find("  Try: ").expect(&stderr),
     );
     assert!(error < cause && cause < hint, "{stderr}");
+}
+
+/// `related` with every request it sends answered by `body`.
+fn related_of(body: &'static str, args: &[&str]) -> std::process::Output {
+    let proxy = serving(body);
+    bin()
+        .env("HTTPS_PROXY", &proxy)
+        .env("HTTP_PROXY", &proxy)
+        .arg("related")
+        .args(args)
+        .output()
+        .unwrap()
+}
+
+/// `related --json` of a Hub dataset page, answered from a recorded listing
+/// of its owner.
+fn related_json(limit: &str) -> (Value, String) {
+    let out = related_of(
+        include_str!("fixtures/related/hub-owner.json"),
+        &[
+            "http://huggingface.co/datasets/nyu-mll/glue",
+            "--json",
+            "-n",
+            limit,
+        ],
+    );
+    assert!(out.status.success(), "{out:?}");
+    (
+        serde_json::from_slice(&out.stdout).unwrap(),
+        String::from_utf8(out.stderr).unwrap(),
+    )
+}
+
+#[test]
+fn related_lists_what_the_owner_of_a_dataset_holds() {
+    let (report, stderr) = related_json("2");
+    assert_eq!(report["schema"], "dataseek-related/1");
+    assert_eq!(report["url"], "http://huggingface.co/datasets/nyu-mll/glue");
+    assert_eq!(report["source"], "huggingface");
+    assert_eq!(report["relation"], "owner");
+    let titles: Vec<&str> = report["results"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|r| r["title"].as_str().unwrap())
+        .collect();
+    assert_eq!(titles, ["nyu-mll/blimp", "nyu-mll/multi_nli"]);
+    assert!(stderr.contains("2 of 4 datasets; -n 4 shows all"), "{stderr}");
+}
+
+#[test]
+fn related_lists_the_forks_of_a_repository_one_per_line() {
+    let out = related_of(
+        include_str!("fixtures/related/github-forks.json"),
+        &[
+            "http://github.com/zalandoresearch/fashion-mnist",
+            "--by",
+            "forks",
+            "--plain",
+        ],
+    );
+    assert!(out.status.success(), "{out:?}");
+    let stdout = String::from_utf8(out.stdout).unwrap();
+    assert_eq!(stdout.lines().count(), 3, "{stdout}");
+    assert_eq!(
+        stdout.lines().next(),
+        Some(
+            "HaidaQuant/fashion-mnist\t\
+             https://github.com/HaidaQuant/fashion-mnist\tgithub\t\t2022-06-13"
+        )
+    );
+}
+
+/// `related` failing before any request, as its stderr.
+fn related_refusal(args: &[&str]) -> String {
+    let out = bin().arg("related").args(args).output().unwrap();
+    assert_eq!(out.status.code(), Some(1), "{out:?}");
+    assert_eq!(out.stdout.len(), 0);
+    String::from_utf8(out.stderr).unwrap()
+}
+
+#[test]
+fn related_refuses_a_page_it_reads_no_neighbors_of() {
+    let stderr = related_refusal(&["https://zenodo.org/records/13135140"]);
+    assert!(
+        stderr.starts_with(
+            "Error: https://zenodo.org/records/13135140 is not a page \
+             `related` reads\n  Try: "
+        ),
+        "{stderr}"
+    );
+}
+
+#[test]
+fn related_says_which_pages_have_forks() {
+    let stderr = related_refusal(&[
+        "https://huggingface.co/datasets/nyu-mll/glue",
+        "--by",
+        "forks",
+    ]);
+    assert!(
+        stderr.starts_with(
+            "Error: only a GitHub repository has forks to list\n  Try: "
+        ),
+        "{stderr}"
+    );
+}
+
+#[test]
+fn related_offline_fails_at_once() {
+    let stderr =
+        related_refusal(&["https://github.com/zalandoresearch", "--offline"]);
+    assert!(stderr.contains("needs the network\n  Try: "), "{stderr}");
 }
 
 /// A page whose JSON-LD describes one dataset and the file it offers.
@@ -986,6 +1099,19 @@ fn inspect_page(page: &'static str, args: &[&str]) -> std::process::Output {
         .unwrap()
 }
 
+/// `inspect --json` of an address on a local server, with no proxy in the
+/// way.
+fn inspect_address(address: &str) -> Value {
+    let out = bin()
+        .env_remove("HTTPS_PROXY")
+        .env_remove("HTTP_PROXY")
+        .args(["inspect", address, "--json"])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    serde_json::from_slice(&out.stdout).unwrap()
+}
+
 /// `inspect --json` of a local page.
 fn inspect_json(page: &'static str) -> Value {
     let out = inspect_page(page, &["--json"]);
@@ -1024,14 +1150,7 @@ fn inspect_reads_a_dataverse_page_through_its_export() {
         "{}citation?persistentId=doi:10.7910/DVN/X",
         serve_page(export)
     );
-    let out = bin()
-        .env_remove("HTTPS_PROXY")
-        .env_remove("HTTP_PROXY")
-        .args(["inspect", &page, "--json"])
-        .output()
-        .unwrap();
-    assert!(out.status.success(), "{out:?}");
-    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    let report = inspect_address(&page);
     assert_eq!(report["files"].as_array().map(Vec::len), Some(2));
 }
 
@@ -1043,14 +1162,7 @@ fn inspect_reads_the_page_when_the_dataverse_export_refuses() {
         "{}dataset.xhtml?persistentId=doi:10.7910/DVN/X&version=1.0",
         serve_page(include_str!("fixtures/inspect/zenodo.html"))
     );
-    let out = bin()
-        .env_remove("HTTPS_PROXY")
-        .env_remove("HTTP_PROXY")
-        .args(["inspect", &page, "--json"])
-        .output()
-        .unwrap();
-    assert!(out.status.success(), "{out:?}");
-    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+    let report = inspect_address(&page);
     assert!(report["dataset"]["name"].is_string(), "{report}");
 }
 
@@ -1568,8 +1680,7 @@ fn help_for_one_command_matches_its_entry_in_the_surface() {
 fn assert_ctrl_c_interrupts() {
     use std::os::unix::process::ExitStatusExt;
 
-    let silent = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let proxy = format!("http://{}", silent.local_addr().unwrap());
+    let (_silent, proxy) = silent_proxy();
     let dir = tempfile::tempdir().unwrap();
     let mut child =
         sandboxed(Path::new(env!("CARGO_BIN_EXE_dataseek")), dir.path())
@@ -1650,9 +1761,13 @@ fn example_command(line: &str) -> Option<Vec<String>> {
 #[test]
 fn every_example_in_help_and_readme_parses() {
     let mut examples = Vec::new();
-    for args in
-        [&["-h"][..], &["search", "-h"], &["bench", "-h"], &["inspect", "-h"]]
-    {
+    for args in [
+        &["-h"][..],
+        &["search", "-h"],
+        &["bench", "-h"],
+        &["inspect", "-h"],
+        &["related", "-h"],
+    ] {
         let help = stdout_text(args);
         let block = help.split("Examples:\n").nth(1).unwrap_or_default();
         examples.extend(block.lines().filter_map(example_command));
@@ -1777,6 +1892,7 @@ fn json_shapes_snapshot() {
         },
         "search": seeded_search_json(),
         "inspect": inspect_json(DATASET_PAGE),
+        "related": related_json("1").0,
     });
     filters::with_snapshot_filters(|| {
         insta::assert_snapshot!(
@@ -2001,7 +2117,7 @@ fn an_mcp_client_drives_a_whole_session_over_stdio() {
         .iter()
         .map(|t| t["name"].as_str().unwrap())
         .collect();
-    assert_eq!(names, ["search", "sources", "inspect"]);
+    assert_eq!(names, ["search", "sources", "inspect", "related"]);
 
     let sources = mcp.call(3, "sources", json!({}));
     assert_eq!(sources["isError"], false);
@@ -2053,6 +2169,16 @@ fn an_mcp_client_drives_a_whole_session_over_stdio() {
         "{text}"
     );
     assert_eq!(failed["structuredContent"]["event"], "error");
+
+    let refused = mcp.call(7, "related", json!({ "url": url, "by": "forks" }));
+    assert_eq!(refused["isError"], true);
+    let text = refused["content"][0]["text"].as_str().unwrap();
+    assert!(
+        text.starts_with(
+            "Error: http://zenodo.org/records/13135140 is not a page"
+        ) && text.contains("\n  Try:"),
+        "{text}"
+    );
 
     let stderr = mcp.close();
     assert!(stderr.contains("searching 1 source"), "{stderr}");
@@ -2125,7 +2251,10 @@ fn an_mcp_client_on_the_current_revision_needs_no_handshake() {
     assert_eq!(refused["error"]["data"]["requested"], "1900-01-01");
 
     let stderr = mcp.close();
-    assert!(stderr.contains("serving search, sources, inspect"), "{stderr}");
+    assert!(
+        stderr.contains("serving search, sources, inspect, related"),
+        "{stderr}"
+    );
 }
 
 // A line that is not UTF-8 is a parse error like any other, and the session
@@ -2152,8 +2281,7 @@ fn an_mcp_server_whose_client_stops_reading_ends_its_calls() {
     use std::io::{Read, Write};
     use std::os::unix::process::ExitStatusExt;
 
-    let silent = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let proxy = format!("http://{}", silent.local_addr().unwrap());
+    let (silent, proxy) = silent_proxy();
     let dir = tempfile::tempdir().unwrap();
     let mut mcp = Mcp::start(dir.path(), &proxy);
     waiting_search(&mut mcp, 1);
@@ -2226,8 +2354,7 @@ fn an_mcp_server_keeps_working_after_its_binary_is_replaced() {
 // and closing stdin ends the calls still running.
 #[test]
 fn an_mcp_session_keeps_answering_while_calls_run() {
-    let silent = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let proxy = format!("http://{}", silent.local_addr().unwrap());
+    let (_silent, proxy) = silent_proxy();
     let dir = tempfile::tempdir().unwrap();
     let mut mcp = Mcp::start(dir.path(), &proxy);
     for id in 1..=4 {

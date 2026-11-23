@@ -22,7 +22,7 @@ use serde::Serialize;
 use serde_json::Value;
 
 use crate::find::human_bytes;
-use crate::http::{Http, SourceError};
+use crate::http::{Http, SourceError, Unreached};
 use crate::output::{self, Out};
 use crate::record::{clean, doi, number, scrub_controls, summary, text};
 use crate::ui;
@@ -33,22 +33,8 @@ pub enum Error {
         "{url} carries no schema.org Dataset markup\n  Try:   inspect the repository's landing page rather than a file or search page"
     )]
     NoMarkup { url: String },
-    #[error(
-        "cannot reach {url}\n  Try:   check the address and the connection, then run it again"
-    )]
-    Unreachable {
-        url: String,
-        #[source]
-        source: SourceError,
-    },
-    #[error("cannot verify the certificate of {url}\n  Try:   {hint}")]
-    Certificate {
-        url: String,
-        /// From [`crate::http::certificate_hint`].
-        hint: String,
-        #[source]
-        source: SourceError,
-    },
+    #[error(transparent)]
+    Unreached(#[from] Unreached),
     #[error(
         "inspect reads the page itself, so it needs the network\n  Try:   run it again without --offline"
     )]
@@ -65,17 +51,10 @@ pub enum Error {
 
 pub fn run(url: &str, out: &Out) -> Result<()> {
     let http = Http::new();
-    let fetch_error = |e: SourceError| match e {
-        SourceError::Offline => Error::Offline,
-        SourceError::Unreachable(_) => {
-            Error::Unreachable { url: url.to_owned(), source: e }
-        }
-        SourceError::Certificate(_) => Error::Certificate {
-            url: url.to_owned(),
-            hint: crate::http::certificate_hint(),
-            source: e,
-        },
-        _ => Error::Fetch { url: url.to_owned(), source: e },
+    let fetch_error = |e: SourceError| match Unreached::of(url, e) {
+        Ok(unreached) => Error::Unreached(unreached),
+        Err(SourceError::Offline) => Error::Offline,
+        Err(source) => Error::Fetch { url: url.to_owned(), source },
     };
     let no_markup = || Error::NoMarkup { url: url.to_owned() };
     let read_page = |address: &str| {

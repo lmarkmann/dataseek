@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:academictorrents="https://academictorrents.com" version="2.0">
+<channel>
+<title>Academic Torrents</title>
+<description>All Torrents</description>
+<link>https://academictorrents.com/</link>
+<item>
+<title>ACOUSLIC-AI : Abdominal Circumference Operator-agnostic UltraSound measurement in Low-Income Countries using Artificial Intelligence</title>
+<category>Dataset</category>
+<infohash>ca0ddd6c34161c83afceb997f9bf14494b1e5215</infohash>
+<guid>https://academictorrents.com/details/ca0ddd6c34161c83afceb997f9bf14494b1e5215</guid>
+<link>https://academictorrents.com/details/ca0ddd6c34161c83afceb997f9bf14494b1e5215</link>
+<description>Prenatal Ultrasound Frames acquired by novice operators using a pre-specified blind-sweep protocol. Annotations of fetal abdominal circumference in frames where it could be measured. Reference abdominal circumference measurements (in mm) per sweep. A detailed description of the imaging data and annotations can be found here . Update notes: Version 1.1 includes updated circumference measurements. In version 1.0, these measurements were incorrectly computed and were too large by a factor of 2, as the minor and major axes were used instead of the semi-minor and semi-major axes. **License:** https://creativecommons.org/licenses/by-nc-sa/4.0/. **Source:** https://zenodo.org/records/12697994 **Related papers:** - Sappia, M.S., et al. ACOUSLIC-AI challenge report: Fetal abdominal circumference measurement on blind-sweep ultrasound data from low-income countries. Medical Image Analysis 105, 103640 (2025). [doi:10.1016/j.media.2025.103640](https://doi.org/10.1016/j.media.2025.103640) · [Semantic Scholar](https://www.semanticscholar.org/paper/25e55285f4f4a32485aebada3dfcc1856d01890f)</description>
+<size>38034134378</size>
+</item><item>
+<title>Tor 解剖 - Simplified Chinese Edition (EPUB)</title>
+<category>Paper</category>
+<infohash>9c11420afbbb9000229d77ee0e1e6b128b94e20a</infohash>
+<guid>https://academictorrents.com/details/9c11420afbbb9000229d77ee0e1e6b128b94e20a</guid>
+<link>https://academictorrents.com/details/9c11420afbbb9000229d77ee0e1e6b128b94e20a</link>
+<description>《Tor 解剖》是一本免费、开源的技术书籍，旨在深入介绍 Tor 匿名网络的内部架构、通信协议及其安全机制。 本书系统探讨应用密码学、洋葱路由（Onion Routing）协议、Tor 信元结构、电路构建、洋葱服务（Onion Services）、流量分析、反审查技术，以及匿名通信面临的主要安全挑战。 全书包含 31 章、20 个基于私有 Tor 网络的可复现实验、176 道练习题以及 39 幅技术插图。 本书为简体中文版，版本号为 1.0.0，依据 GNU GPL-3.0-or-later 许可证免费发布。 本项目在人工编辑指导和监督下，使用了大量人工智能辅助技术。简体中文翻译由人工智能辅助完成，目前尚未经过独立的母语专家审校。技术内容也尚未经过相关领域专家的独立评审。 DOI: https://doi.org/10.5281/zenodo.24207976 官方代码仓库：https://github.com/aleff-github/onion-routing-anatomy</description>
+<size>1047867</size>
+</item><item>
+<title>The National Disaster &amp; Emergency Management University</title>
+<category>Dataset</category>
+<infohash>fa3b767d4491b9fc705cdecdf46965bdb5f683de</infohash>
+<guid>https://academictorrents.com/details/fa3b767d4491b9fc705cdecdf46965bdb5f683de</guid>
+<link>https://academictorrents.com/details/fa3b767d4491b9fc705cdecdf46965bdb5f683de</link>
+<description/>
+<size>2760383469</size>
+</item><item>
+<title>Smithsonian - National Musem of African American History and Culture (si-nmaahc-tif-2024)</title>
+<category>Dataset</category>
+<infohash>7a1b0e3de563f31f4f770ca99a02598783fe8868</infohash>
+<guid>https://academictorrents.com/details/7a1b0e3de563f31f4f770ca99a02598783fe8868</guid>
+<link>https://academictorrents.com/details/7a1b0e3de563f31f4f770ca99a02598783fe8868</link>
+<description/>
+<size>156262989824</size>
+</item>
+</channel>
+</rss>

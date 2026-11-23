@@ -1,0 +1,127 @@
+{
+  "slug": "AnPrudentia/datasets-6a9dd08674b2a9ed59176852",
+  "title": "Datasets",
+  "owner": {
+    "name": "AnPrudentia",
+    "type": "user"
+  },
+  "items": [
+    {
+      "author": "spatialverse",
+      "downloads": 14856,
+      "gated": false,
+      "id": "spatialverse/UniPhys-Bench",
+      "lastModified": "2026-09-04T07:05:38.000Z",
+      "private": false,
+      "repoType": "dataset",
+      "likes": 26,
+      "isLikedByUser": false,
+      "isBenchmark": false,
+      "isTraces": false,
+      "isEnvironment": false,
+      "type": "dataset",
+      "position": 0,
+      "_id": "6a9dd08674b2a9ed59176853"
+    },
+    {
+      "author": "edzhuang",
+      "authorData": {
+        "_id": "621398eda82164d119812c39",
+        "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/621398eda82164d119812c39/byCkkdIV_C9J4g5cN6PSs.jpeg",
+        "fullname": "Eddie Zhuang",
+        "name": "edzhuang",
+        "type": "user",
+        "isPro": false,
+        "isHf": false,
+        "isHfAdmin": false,
+        "isMod": false,
+        "followerCount": 2,
+        "isUserFollowing": false
+      },
+      "downloads": 20,
+      "gated": false,
+      "id": "edzhuang/aura-1",
+      "availableInferenceProviders": [],
+      "openRouterProviders": [],
+      "lastModified": "2026-04-26T15:35:56.000Z",
+      "likes": 1,
+      "pipeline_tag": "image-text-to-text",
+      "private": false,
+      "repoType": "model",
+      "isLikedByUser": false,
+      "widgetOutputUrls": [],
+      "numParameters": 8292166656,
+      "type": "model",
+      "position": 1,
+      "_id": "6a9dd179a26f068ce9cfde7a"
+    },
+    {
+      "author": "openbmb",
+      "downloads": 6801,
+      "gated": false,
+      "id": "openbmb/Ultra-FineWeb-L1",
+      "lastModified": "2026-08-20T07:36:30.000Z",
+      "datasetsServerInfo": {
+        "viewer": "viewer",
+        "numRows": 1144984860,
+        "libraries": [
+          "datasets",
+          "dask",
+          "polars",
+          "mlcroissant"
+        ],
+        "formats": [
+          "parquet"
+        ],
+        "modalities": [
+          "text"
+        ]
+      },
+      "private": false,
+      "repoType": "dataset",
+      "likes": 203,
+      "isLikedByUser": false,
+      "isBenchmark": false,
+      "isTraces": false,
+      "isEnvironment": false,
+      "type": "dataset",
+      "position": 2,
+      "_id": "6a9dd1d4df94552edf11cefd"
+    },
+    {
+      "author": "markov-ai",
+      "downloads": 8421,
+      "gated": false,
+      "id": "markov-ai/gaming-500-hours",
+      "lastModified": "2026-11-08T20:07:45.000Z",
+      "datasetsServerInfo": {
+        "viewer": "viewer",
+        "numRows": 776,
+        "libraries": [
+          "datasets",
+          "pandas",
+          "polars",
+          "mlcroissant"
+        ],
+        "formats": [
+          "json"
+        ],
+        "modalities": [
+          "tabular",
+          "text",
+          "video"
+        ]
+      },
+      "private": false,
+      "repoType": "dataset",
+      "likes": 269,
+      "isLikedByUser": false,
+      "isBenchmark": false,
+      "isTraces": false,
+      "isEnvironment": false,
+      "type": "dataset",
+      "position": 3,
+      "_id": "6a9dd261c5eb07b11ae28eb6"
+    }
+  ]
+}

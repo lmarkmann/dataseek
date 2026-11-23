@@ -15,7 +15,14 @@
 //! drop records without a title or link ([`Dataset::valid`]), map a changed
 //! response to [`SourceError::Shape`] rather than an empty list, and never put
 //! a credential into a URL or message that could be printed.
+//!
+//! What adapters share lives in this module too: `parse_list`
+//! for a body that holds its records in one list, `retry_plain` for a
+//! source that answers an error to a query its parser cannot read,
+//! `paginate_next` for pages that link the next one, and `wordpress_rows`
+//! for a site that lists its datasets through the WordPress REST API.
 
+mod academictorrents;
 mod arcgis;
 mod aws;
 mod cellxgene;
@@ -23,6 +30,7 @@ mod census;
 mod cern;
 mod cessda;
 mod ckan;
+mod clarin;
 mod cmr;
 mod dandi;
 mod datacite;
@@ -32,6 +40,8 @@ mod dataone;
 mod dataverse;
 mod dbnomics;
 mod ebi;
+mod elg;
+mod encode;
 mod europa;
 pub(crate) mod eurostat;
 mod figshare;
@@ -40,30 +50,41 @@ mod fred;
 mod gbif;
 mod gee;
 mod github;
+mod gitlab;
 mod google;
+mod googleresearch;
+mod grandchallenge;
 mod huggingface;
 mod kaggle;
+mod lila;
 mod materials;
 mod mendeley;
 mod modelscope;
+mod mozilla;
 mod nada;
 mod ncbi;
 mod ncei;
+mod neurips;
 mod nomad;
 mod omicsdi;
 mod openaire;
 mod opendatasoft;
 mod openml;
 mod openneuro;
+mod openslr;
+mod opus;
 mod osf;
 mod owid;
 mod pangaea;
 mod physionet;
+mod polaris;
+mod pwc;
 mod roboflow;
 pub(crate) mod sdmx;
 mod socrata;
 mod stac;
 mod synapse;
+mod tcia;
 mod tfds;
 mod uci;
 mod who;
@@ -73,11 +94,175 @@ mod zenodo;
 use std::fmt;
 use std::sync::atomic::{AtomicBool, Ordering};
 
+use serde_json::Value;
+
+pub(crate) use self::huggingface::FIELDS as HUB_FIELDS;
 use crate::cache::{CATALOG_TTL, Cache, Freshness, Kind};
 use crate::credentials::{Credentials, Key};
 use crate::http::{Http, SourceError};
 use crate::license;
-use crate::record::{Dataset, file_formats};
+use crate::record::{Dataset, file_formats, items};
+
+/// A Hub listing row as the record `search` returns for it. `related` reads
+/// its rows through these three functions, so one JSON row is one record
+/// whichever command read it.
+pub(crate) fn hub_record(row: &Value) -> Option<Dataset> {
+    huggingface::record(row).map(spelled)
+}
+
+/// A GitHub repository as the record `search` returns for it.
+pub(crate) fn github_record(repo: &Value) -> Option<Dataset> {
+    github::record(repo).map(spelled)
+}
+
+/// A GitLab project as the record `search` returns for it.
+pub(crate) fn gitlab_record(project: &Value) -> Option<Dataset> {
+    gitlab::record(project).map(spelled)
+}
+
+/// `dataset` with its license as [`license::normalized`] gives it and its
+/// formats as [`file_formats`] does, so every source spells them alike.
+fn spelled(mut dataset: Dataset) -> Dataset {
+    dataset.license = dataset.license.as_deref().and_then(license::normalized);
+    dataset.formats = file_formats(&dataset.formats);
+    dataset
+}
+
+/// Characters the query parsers of CERN Open Data and DataCite read as
+/// operators, besides the words AND, OR and NOT in capitals.
+const QUERY_SYNTAX: &[char] = &[
+    '+', '-', '=', '&', '|', '<', '>', '!', '(', ')', '{', '}', '[', ']', '^',
+    '"', '~', '*', '?', ':', '\\', '/',
+];
+
+/// The words of a query without the characters in `syntax`, and with a bare
+/// AND, OR or NOT in lower case, where a parser reads it as a word.
+fn plain_query(query: &str, syntax: &[char]) -> String {
+    query
+        .replace(syntax, " ")
+        .split_whitespace()
+        .map(|word| match word {
+            "AND" | "OR" | "NOT" => word.to_lowercase(),
+            _ => word.to_owned(),
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+/// Asks with the query as typed. A status in `rejected` is how the source
+/// answers a query its parser cannot read, so the query is then asked once
+/// more in its `plain` form, unless that form is empty or the same query.
+/// Returns the answer with the query that got it.
+fn retry_plain<T>(
+    query: &str,
+    rejected: &[u16],
+    plain: impl Fn(&str) -> String,
+    mut ask: impl FnMut(&str) -> Result<T, SourceError>,
+) -> Result<(String, T), SourceError> {
+    let error = match ask(query) {
+        Ok(answer) => return Ok((query.to_owned(), answer)),
+        Err(error) => error,
+    };
+    let SourceError::Status(status) = error else { return Err(error) };
+    let plain = plain(query);
+    if !rejected.contains(&status) || plain.is_empty() || plain == query {
+        return Err(error);
+    }
+    let answer = ask(&plain)?;
+    Ok((plain, answer))
+}
+
+/// [`retry_plain`] for the sources whose parser reads [`QUERY_SYNTAX`] and
+/// answers 400 or 500 to a query it cannot read.
+fn retry_without_syntax<T>(
+    query: &str,
+    ask: impl FnMut(&str) -> Result<T, SourceError>,
+) -> Result<(String, T), SourceError> {
+    let plain = |query: &str| plain_query(query, QUERY_SYNTAX);
+    retry_plain(query, &[400, 500], plain, ask)
+}
+
+/// Whether a page links the one after it: as `links.next`, or as a `next`
+/// address that is `null` on the last page.
+fn has_next(body: &Value) -> bool {
+    body.pointer("/links/next").is_some()
+        || body.pointer("/next").is_some_and(Value::is_string)
+}
+
+/// Every row of a WordPress REST list at `url`, with only the `fields`
+/// named: pages of 100 until one is not full, and ten pages at most.
+fn wordpress_rows(
+    ctx: &Ctx<'_>,
+    url: &str,
+    fields: &str,
+) -> Result<Vec<Value>, SourceError> {
+    const PAGE: usize = 100;
+    let mut rows = Vec::new();
+    for page in 1..=10 {
+        if ctx.stopped() {
+            return Err(SourceError::Stopped);
+        }
+        let body = ctx
+            .http
+            .get(url)
+            .query("per_page", PAGE)
+            .query("page", page)
+            .query("_fields", fields)
+            .slow()
+            .json()?;
+        let Value::Array(listed) = body else {
+            return Err(SourceError::shape("expected a list of rows"));
+        };
+        let full = listed.len() >= PAGE;
+        rows.extend(listed);
+        if !full {
+            break;
+        }
+    }
+    Ok(rows)
+}
+
+/// The records of the `first` page and of the pages after it, up to page
+/// `last`, until `limit` records are in hand or a page links no next one.
+/// A failed page fails the search, so a list cut short is never cached as
+/// the answer for this `limit`.
+fn paginate_next(
+    ctx: &Ctx<'_>,
+    limit: usize,
+    last: usize,
+    first: Value,
+    parse: impl Fn(&Value, usize) -> Result<Vec<Dataset>, SourceError>,
+    fetch: impl Fn(usize) -> Result<Value, SourceError>,
+) -> Result<Vec<Dataset>, SourceError> {
+    let mut body = first;
+    let mut found = parse(&body, limit)?;
+    for page in 2..=last {
+        if found.len() >= limit || !has_next(&body) {
+            break;
+        }
+        if ctx.stopped() {
+            return Err(SourceError::Stopped);
+        }
+        body = fetch(page)?;
+        found.extend(parse(&body, limit.saturating_sub(found.len()))?);
+    }
+    Ok(found)
+}
+
+/// The records of the list at `pointer`, at most `limit`. A body with
+/// nothing at `pointer` is a changed response, never an empty list.
+fn parse_list(
+    body: &Value,
+    pointer: &str,
+    limit: usize,
+    record: impl Fn(&Value) -> Option<Dataset>,
+) -> Result<Vec<Dataset>, SourceError> {
+    if body.pointer(pointer).is_none() {
+        let path = pointer.trim_start_matches('/').replace('/', ".");
+        return Err(SourceError::shape(format!("no {path} array")));
+    }
+    Ok(items(body, pointer).iter().filter_map(record).take(limit).collect())
+}
 
 pub type Live = fn(&Ctx<'_>, &str, usize) -> Result<Vec<Dataset>, SourceError>;
 pub type Listing = fn(&Ctx<'_>) -> Result<Vec<Dataset>, SourceError>;
@@ -212,9 +397,7 @@ impl Source {
         }
     }
 
-    /// The source's answer, each record's license as [`license::normalized`]
-    /// gives it and its formats as [`file_formats`] does, so every source
-    /// spells them alike.
+    /// The source's answer, each record [`spelled`] alike.
     pub fn search(
         &self,
         ctx: &Ctx<'_>,
@@ -222,11 +405,7 @@ impl Source {
         limit: usize,
     ) -> Result<Answer, SourceError> {
         let mut answer = self.ask(ctx, query, limit)?;
-        for dataset in &mut answer.datasets {
-            dataset.license =
-                dataset.license.as_deref().and_then(license::normalized);
-            dataset.formats = file_formats(&dataset.formats);
-        }
+        answer.datasets = answer.datasets.into_iter().map(spelled).collect();
         Ok(answer)
     }
 
@@ -579,6 +758,30 @@ pub static SOURCES: &[Source] = &[
         "https://www.modelscope.cn/docs",
         modelscope::search,
     ),
+    live(
+        "mozilla",
+        "Mozilla Data Collective",
+        MachineLearning,
+        "MDC REST",
+        "https://mozilladatacollective.com/api-reference/docs",
+        mozilla::search,
+    ),
+    live(
+        "clarin",
+        "CLARIN VLO",
+        MachineLearning,
+        "VLO API",
+        "https://vlo.clarin.eu/api/swagger-ui/index.html",
+        clarin::search,
+    ),
+    live(
+        "elg",
+        "European Language Grid",
+        MachineLearning,
+        "ELG catalogue API",
+        "https://european-language-grid.readthedocs.io/en/stable/all/A1_PythonSDK/Catalog.html",
+        elg::search,
+    ),
     listed(
         "aws",
         "Registry of Open Data on AWS",
@@ -595,6 +798,70 @@ pub static SOURCES: &[Source] = &[
         "https://www.tensorflow.org/datasets/catalog/overview",
         tfds::list,
     ),
+    listed(
+        "openslr",
+        "OpenSLR",
+        MachineLearning,
+        "resource index page",
+        "https://www.openslr.org/resources.php",
+        openslr::list,
+    ),
+    listed(
+        "lila",
+        "LILA BC",
+        MachineLearning,
+        "WordPress posts API, listed",
+        "https://lila.science/datasets",
+        lila::list,
+    ),
+    listed(
+        "polaris",
+        "Polaris Hub",
+        MachineLearning,
+        "Hub API, listed",
+        "https://polaris-hub.github.io/polaris/stable/",
+        polaris::list,
+    ),
+    listed(
+        "academictorrents",
+        "Academic Torrents",
+        MachineLearning,
+        "RSS database file",
+        "https://academictorrents.com/docs/api.html",
+        academictorrents::list,
+    ),
+    listed(
+        "googleresearch",
+        "Google Research Datasets",
+        MachineLearning,
+        "dataset index pages",
+        "https://research.google/resources/datasets/",
+        googleresearch::list,
+    ),
+    listed(
+        "opus",
+        "OPUS",
+        MachineLearning,
+        "OPUS API corpus list",
+        "https://opus.nlpl.eu/opusapi",
+        opus::list,
+    ),
+    listed(
+        "neurips",
+        "NeurIPS Datasets and Benchmarks",
+        MachineLearning,
+        "virtual site data files",
+        "https://neurips.cc/Conferences/2026/CallForEvaluationsDatasets",
+        neurips::list,
+    ),
+    listed(
+        "pwc",
+        "Papers with Code archive",
+        MachineLearning,
+        "archived JSON dump",
+        "https://huggingface.co/datasets/pwc-archive/files",
+        pwc::list,
+    ),
     keyed(
         live(
             "github",
@@ -606,6 +873,14 @@ pub static SOURCES: &[Source] = &[
         ),
         Key::GitHub,
         Need::Optional,
+    ),
+    live(
+        "gitlab",
+        "GitLab (topic:dataset)",
+        Code,
+        "GitLab projects API",
+        "https://docs.gitlab.com/api/projects/",
+        gitlab::search,
     ),
     // Research repositories.
     live(
@@ -663,6 +938,30 @@ pub static SOURCES: &[Source] = &[
         "Dataverse",
         DATAVERSE_DOCS,
         Adapter::Dataverse("https://dataverse.no"),
+    ),
+    via(
+        "darus",
+        "DaRUS Stuttgart",
+        Research,
+        "Dataverse",
+        DATAVERSE_DOCS,
+        Adapter::Dataverse("https://darus.uni-stuttgart.de"),
+    ),
+    via(
+        "juelich",
+        "Juelich DATA",
+        Research,
+        "Dataverse",
+        DATAVERSE_DOCS,
+        Adapter::Dataverse("https://data.fz-juelich.de"),
+    ),
+    via(
+        "cora",
+        "CORA.RDR",
+        Research,
+        "Dataverse",
+        DATAVERSE_DOCS,
+        Adapter::Dataverse("https://dataverse.csuc.cat"),
     ),
     live(
         "osf",
@@ -743,6 +1042,46 @@ pub static SOURCES: &[Source] = &[
         "CKAN",
         "https://docs.humdata.org/build/hdx-apis/metadata-endpoints/package_search",
         Adapter::Ckan(&ckan::HDX),
+    ),
+    via(
+        "data-go-jp",
+        "Japan e-Gov Data",
+        Government,
+        "CKAN",
+        "https://data.e-gov.go.jp/data/api_guide",
+        Adapter::Ckan(&ckan::DATA_GO_JP),
+    ),
+    via(
+        "energydata",
+        "World Bank EnergyData",
+        Government,
+        "CKAN",
+        CKAN_DOCS,
+        Adapter::Ckan(&ckan::ENERGYDATA),
+    ),
+    via(
+        "open-africa",
+        "openAFRICA",
+        Government,
+        "CKAN",
+        CKAN_DOCS,
+        Adapter::Ckan(&ckan::OPEN_AFRICA),
+    ),
+    via(
+        "netl-edx",
+        "DOE NETL EDX",
+        Government,
+        "CKAN",
+        CKAN_DOCS,
+        Adapter::Ckan(&ckan::NETL_EDX),
+    ),
+    via(
+        "opendata-swiss",
+        "opendata.swiss",
+        Government,
+        "CKAN",
+        CKAN_DOCS,
+        Adapter::Ckan(&ckan::OPENDATA_SWISS),
     ),
     via(
         "socrata",
@@ -996,6 +1335,22 @@ pub static SOURCES: &[Source] = &[
         "https://cds.climate.copernicus.eu/how-to-api",
         Adapter::Stac(&stac::COPERNICUS_CDS),
     ),
+    via(
+        "swisstopo",
+        "Swisstopo STAC",
+        Geospatial,
+        "STAC",
+        "https://www.geo.admin.ch/en/rest-interface-stac-api/",
+        Adapter::Stac(&stac::SWISSTOPO),
+    ),
+    via(
+        "usgs-landsat",
+        "USGS LandsatLook",
+        Geospatial,
+        "STAC",
+        "https://www.usgs.gov/landsat-missions/spatiotemporal-asset-catalog-stac",
+        Adapter::Stac(&stac::USGS_LANDSAT),
+    ),
     listed(
         "earth-engine",
         "Google Earth Engine catalog",
@@ -1066,6 +1421,22 @@ pub static SOURCES: &[Source] = &[
         EBI_DOCS,
         Adapter::Ebi(&ebi::BIOSTUDIES),
     ),
+    via(
+        "bioimages",
+        "BioImage Archive",
+        LifeSciences,
+        "EBI Search",
+        EBI_DOCS,
+        Adapter::Ebi(&ebi::BIOIMAGES),
+    ),
+    via(
+        "empiar",
+        "EMPIAR",
+        LifeSciences,
+        "EBI Search",
+        EBI_DOCS,
+        Adapter::Ebi(&ebi::EMPIAR),
+    ),
     live(
         "omicsdi",
         "OmicsDI",
@@ -1082,6 +1453,22 @@ pub static SOURCES: &[Source] = &[
         "https://api.cellxgene.cziscience.com/curation/ui/",
         cellxgene::list,
     ),
+    listed(
+        "grandchallenge",
+        "Grand Challenge",
+        LifeSciences,
+        "REST API, listed",
+        "https://grand-challenge.org/documentation/grand-challenge-api/",
+        grandchallenge::list,
+    ),
+    listed(
+        "tcia",
+        "The Cancer Imaging Archive",
+        LifeSciences,
+        "WordPress collections API, listed",
+        "https://www.cancerimagingarchive.net/tcia-api-guides/",
+        tcia::list,
+    ),
     live(
         "synapse",
         "Synapse",
@@ -1089,6 +1476,14 @@ pub static SOURCES: &[Source] = &[
         "Synapse REST",
         "https://rest-docs.synapse.org/",
         synapse::search,
+    ),
+    live(
+        "encode",
+        "ENCODE",
+        LifeSciences,
+        "ENCODE REST",
+        "https://www.encodeproject.org/help/rest-api/",
+        encode::search,
     ),
     // Neuroscience and clinical.
     listed(
@@ -1148,6 +1543,30 @@ pub static SOURCES: &[Source] = &[
         "CESSDA",
         "https://api.tech.cessda.eu/",
         cessda::search,
+    ),
+    via(
+        "unicef",
+        "UNICEF SDMX",
+        SocialScience,
+        "SDMX",
+        "https://data.unicef.org/sdmx-api-documentation/",
+        Adapter::Sdmx(&sdmx::UNICEF),
+    ),
+    via(
+        "aussda",
+        "AUSSDA",
+        SocialScience,
+        "Dataverse",
+        DATAVERSE_DOCS,
+        Adapter::Dataverse("https://data.aussda.at"),
+    ),
+    via(
+        "qdr",
+        "QDR Syracuse",
+        SocialScience,
+        "Dataverse",
+        DATAVERSE_DOCS,
+        Adapter::Dataverse("https://data.qdr.syr.edu"),
     ),
 ];
 
@@ -1370,6 +1789,7 @@ mod tests {
             ("arcgis", |b, n| arcgis::parse(b, n)),
             ("cern", |b, n| cern::parse(b, n)),
             ("cessda", |b, n| cessda::parse(b, n)),
+            ("clarin", |b, n| clarin::parse(b, n)),
             ("cmr", |b, n| cmr::parse(b, n)),
             ("dandi", |b, n| dandi::parse(b, n)),
             ("datacite", |b, n| datacite::parse(b, n)),
@@ -1378,14 +1798,18 @@ mod tests {
             ("dataone", |b, n| dataone::parse(b, n)),
             ("dataverse", |b, n| dataverse::parse(b, n)),
             ("dbnomics", |b, n| dbnomics::parse(b, n)),
+            ("elg", |b, n| elg::parse(b, n)),
+            ("encode", |b, n| encode::parse(b, n)),
             ("europa", |b, n| europa::parse(b, n)),
             ("figshare", |b, n| figshare::parse(b, n)),
             ("fred", |b, n| fred::parse(b, n)),
             ("gbif", |b, n| gbif::parse(b, n)),
             ("github", |b, n| github::parse(b, n)),
+            ("gitlab", |b, n| gitlab::parse(b, n)),
             ("kaggle", |b, n| kaggle::parse(b, n)),
             ("mendeley", |b, n| mendeley::parse(b, n)),
             ("modelscope", |b, n| modelscope::parse(b, n)),
+            ("mozilla", |b, n| mozilla::parse(b, n)),
             ("ncei", |b, n| ncei::parse(b, n)),
             ("omicsdi", |b, n| omicsdi::parse(b, n)),
             ("openaire", |b, n| openaire::parse(b, n)),
@@ -1405,12 +1829,87 @@ mod tests {
             ("huggingface", |b, n| {
                 huggingface::parse(b, &["temperature".to_owned()], n)
             }),
+            ("huggingface.fulltext", |b, n| {
+                let terms = ["sea", "surface"].map(String::from);
+                huggingface::parse_hits(b, &terms, n)
+            }),
             ("ncbi", |b, n| {
                 let ids = ["200304969", "200279746", "200279384", "5662"]
                     .map(String::from);
                 ncbi::parse(&ids, b, n)
             }),
         ]
+    }
+
+    #[test]
+    fn a_plain_query_has_no_syntax_and_no_operator_word() {
+        for (query, plain) in [
+            ("\"unbalanced muon", "unbalanced muon"),
+            ("C++ (benchmark", "C benchmark"),
+            ("muon AND", "muon and"),
+            ("NOT a:b OR c/d", "not a b or c d"),
+            ("muon neutrino", "muon neutrino"),
+            ("\"\"", ""),
+        ] {
+            assert_eq!(plain_query(query, QUERY_SYNTAX), plain, "{query}");
+        }
+    }
+
+    /// The queries `retry_plain` asks, and what it returns, for a source
+    /// that answers `status` to any query that holds a quote.
+    fn asked(
+        query: &str,
+        status: u16,
+    ) -> (Vec<String>, Result<String, SourceError>) {
+        let mut asked = Vec::new();
+        let plain = |query: &str| plain_query(query, QUERY_SYNTAX);
+        let answer = retry_plain(query, &[400, 500], plain, |query| {
+            asked.push(query.to_owned());
+            if query.contains('"') {
+                Err(SourceError::Status(status))
+            } else {
+                Ok(())
+            }
+        });
+        (asked, answer.map(|(query, ())| query))
+    }
+
+    #[test]
+    fn a_rejected_query_is_asked_once_more_in_its_plain_form() {
+        for status in [400, 500] {
+            let (queries, answer) = asked("\"sea ice", status);
+            assert_eq!(queries, ["\"sea ice", "sea ice"]);
+            assert_eq!(answer.unwrap(), "sea ice");
+        }
+        let (queries, answer) = asked("sea ice", 500);
+        assert_eq!(queries, ["sea ice"]);
+        assert_eq!(answer.unwrap(), "sea ice");
+    }
+
+    #[test]
+    fn a_query_is_not_asked_again_when_that_would_change_nothing() {
+        let (queries, answer) = asked("\"\"", 400);
+        assert_eq!(queries, ["\"\""], "no word is left to ask with");
+        assert!(matches!(answer, Err(SourceError::Status(400))));
+
+        let (queries, answer) = asked("\"sea ice", 404);
+        assert_eq!(queries, ["\"sea ice"], "404 is not a rejected query");
+        assert!(matches!(answer, Err(SourceError::Status(404))));
+
+        let mut count = 0_u32;
+        let limited = retry_plain("a:b", &[400], str::to_lowercase, |_| {
+            count = count.saturating_add(1);
+            Err::<(), _>(SourceError::RateLimited)
+        });
+        assert!(matches!(limited, Err(SourceError::RateLimited)));
+        assert_eq!(count, 1);
+
+        let same = retry_plain("a:b", &[400], str::to_owned, |_| {
+            count = count.saturating_add(1);
+            Err::<(), _>(SourceError::Status(400))
+        });
+        assert!(matches!(same, Err(SourceError::Status(400))));
+        assert_eq!(count, 2, "the plain form is the query itself");
     }
 
     #[test]

@@ -73,10 +73,7 @@ pub(super) fn parse(
     body: &Value,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    if body.get("items").is_none() {
-        return Err(SourceError::shape("no items"));
-    }
-    Ok(items(body, "/items").iter().filter_map(record).take(limit).collect())
+    super::parse_list(body, "/items", limit, record)
 }
 
 fn record(item: &Value) -> Option<Dataset> {

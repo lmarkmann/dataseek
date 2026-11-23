@@ -1,0 +1,892 @@
+{
+  "count": 2167,
+  "next": "https://live.european-language-grid.eu/catalogue_backend/api/registry/search/?entity_type__term=LanguageResource&page=2&search=parliament+speech",
+  "previous": null,
+  "facets": {
+    "_filter_language_eu": {
+      "doc_count": 2167,
+      "language_eu": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": "Bulgarian",
+            "doc_count": 94
+          },
+          {
+            "key": "Croatian",
+            "doc_count": 94
+          },
+          {
+            "key": "Czech",
+            "doc_count": 176
+          },
+          {
+            "key": "Danish",
+            "doc_count": 101
+          }
+        ]
+      }
+    },
+    "_filter_licence": {
+      "doc_count": 2167,
+      "licence": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": "AGPL-1.0-or-later",
+            "doc_count": 2
+          },
+          {
+            "key": "AGPL-3.0-only",
+            "doc_count": 1
+          },
+          {
+            "key": "AGPL-3.0-or-later",
+            "doc_count": 5
+          },
+          {
+            "key": "ARCTIC",
+            "doc_count": 3
+          }
+        ]
+      }
+    },
+    "_filter_pair_function_function_category": {
+      "doc_count": 2167,
+      "pair_function_function_category": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": "Speech Recognition + Speech Processing Collection",
+            "doc_count": 119
+          },
+          {
+            "key": "Speech Synthesis + Natural Language Generation Collection//Speech Processing Collection",
+            "doc_count": 79
+          },
+          {
+            "key": "Part-of-Speech Tagging + Text Processing Collection",
+            "doc_count": 56
+          },
+          {
+            "key": "Speech analytics + Information Extraction and Information Retrieval Collection//Speech Processing Collection",
+            "doc_count": 40
+          }
+        ]
+      }
+    },
+    "_filter_language_dependent": {
+      "doc_count": 2167,
+      "language_dependent": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": 1,
+            "key_as_string": "true",
+            "doc_count": 437
+          },
+          {
+            "key": 0,
+            "key_as_string": "false",
+            "doc_count": 54
+          }
+        ]
+      }
+    },
+    "_filter_entity_type": {
+      "doc_count": 2167,
+      "entity_type": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": "LanguageResource",
+            "doc_count": 2167
+          }
+        ]
+      }
+    },
+    "_filter_source": {
+      "doc_count": 2167,
+      "source": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": "ELG / ELE",
+            "doc_count": 983
+          },
+          {
+            "key": "ELRA Catalogue of Language Resources",
+            "doc_count": 573
+          },
+          {
+            "key": "CLARIN.SI",
+            "doc_count": 165
+          },
+          {
+            "key": "LINDAT/CLARIAH-CZ",
+            "doc_count": 126
+          }
+        ]
+      }
+    },
+    "_filter_elg_integrated_services_and_data": {
+      "doc_count": 2167,
+      "elg_integrated_services_and_data": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": "ELG compatible services",
+            "doc_count": 95
+          },
+          {
+            "key": "ELG hosted data",
+            "doc_count": 42
+          }
+        ]
+      }
+    },
+    "_filter_function": {
+      "doc_count": 2167,
+      "function": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": "Speech Recognition",
+            "doc_count": 124
+          },
+          {
+            "key": "Speech Synthesis",
+            "doc_count": 79
+          },
+          {
+            "key": "Part-of-Speech Tagging",
+            "doc_count": 56
+          },
+          {
+            "key": "Speech analytics",
+            "doc_count": 40
+          }
+        ]
+      }
+    },
+    "_filter_linguality_type": {
+      "doc_count": 2167,
+      "linguality_type": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": "bilingual",
+            "doc_count": 221
+          },
+          {
+            "key": "monolingual",
+            "doc_count": 1276
+          },
+          {
+            "key": "multilingual",
+            "doc_count": 179
+          }
+        ]
+      }
+    },
+    "_filter_condition_of_use": {
+      "doc_count": 2167,
+      "condition_of_use": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": "attribution required",
+            "doc_count": 1313
+          },
+          {
+            "key": "commercial uses not allowed",
+            "doc_count": 764
+          },
+          {
+            "key": "derivatives not allowed",
+            "doc_count": 84
+          },
+          {
+            "key": "no conditions",
+            "doc_count": 169
+          }
+        ]
+      }
+    },
+    "_filter_language": {
+      "doc_count": 2167,
+      "language": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": "English",
+            "doc_count": 634
+          },
+          {
+            "key": "Spanish",
+            "doc_count": 377
+          },
+          {
+            "key": "German",
+            "doc_count": 341
+          },
+          {
+            "key": "French",
+            "doc_count": 338
+          }
+        ]
+      }
+    },
+    "_filter_pair_intended_application_with_category": {
+      "doc_count": 2167,
+      "pair_intended_application_with_category": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": "Speech Recognition + Speech Processing Collection",
+            "doc_count": 75
+          },
+          {
+            "key": "Text-to-Speech Synthesis + Natural Language Generation Collection//Speech Processing Collection",
+            "doc_count": 29
+          },
+          {
+            "key": "Term extraction + Information Extraction and Information Retrieval Collection",
+            "doc_count": 23
+          },
+          {
+            "key": "Part-of-Speech Tagging + Text Processing Collection",
+            "doc_count": 16
+          }
+        ]
+      }
+    },
+    "_filter_language_rest": {
+      "doc_count": 2167,
+      "language_rest": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": "Abaza",
+            "doc_count": 8
+          },
+          {
+            "key": "Abkhazian",
+            "doc_count": 6
+          },
+          {
+            "key": "Afar",
+            "doc_count": 1
+          },
+          {
+            "key": "Afrikaans",
+            "doc_count": 26
+          }
+        ]
+      }
+    },
+    "_filter_intended_application_categories": {
+      "doc_count": 2167,
+      "intended_application_categories": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": "Speech Processing Collection",
+            "doc_count": 117,
+            "intended_application": [
+              {
+                "key": "Speech Recognition",
+                "doc_count": 75
+              },
+              {
+                "key": "Text-to-Speech Synthesis",
+                "doc_count": 29
+              },
+              {
+                "key": "Speech Synthesis",
+                "doc_count": 7
+              },
+              {
+                "key": "Audio processing",
+                "doc_count": 6
+              }
+            ]
+          },
+          {
+            "key": "Other",
+            "doc_count": 61,
+            "intended_application": [
+              {
+                "key": "speech processing",
+                "doc_count": 8
+              },
+              {
+                "key": "Natural Language Processing",
+                "doc_count": 6
+              },
+              {
+                "key": "Speech Translation",
+                "doc_count": 4
+              },
+              {
+                "key": "memes classification",
+                "doc_count": 4
+              }
+            ]
+          },
+          {
+            "key": "Natural Language Generation Collection",
+            "doc_count": 40,
+            "intended_application": [
+              {
+                "key": "Text-to-Speech Synthesis",
+                "doc_count": 29
+              },
+              {
+                "key": "Speech Synthesis",
+                "doc_count": 7
+              },
+              {
+                "key": "Text generation",
+                "doc_count": 3
+              },
+              {
+                "key": "Sign language generation",
+                "doc_count": 2
+              }
+            ]
+          },
+          {
+            "key": "Text Processing Collection",
+            "doc_count": 37,
+            "intended_application": [
+              {
+                "key": "Part-of-Speech Tagging",
+                "doc_count": 16
+              },
+              {
+                "key": "Text categorization",
+                "doc_count": 14
+              },
+              {
+                "key": "Sentiment analysis",
+                "doc_count": 5
+              },
+              {
+                "key": "Lemmatization",
+                "doc_count": 3
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "_filter_intended_application": {
+      "doc_count": 2167,
+      "intended_application": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": "Speech Recognition",
+            "doc_count": 75
+          },
+          {
+            "key": "Text-to-Speech Synthesis",
+            "doc_count": 29
+          },
+          {
+            "key": "Term extraction",
+            "doc_count": 23
+          },
+          {
+            "key": "Part-of-Speech Tagging",
+            "doc_count": 16
+          }
+        ]
+      }
+    },
+    "_filter_function_categories": {
+      "doc_count": 2167,
+      "function_categories": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": "Speech Processing Collection",
+            "doc_count": 283,
+            "function": [
+              {
+                "key": "Speech Recognition",
+                "doc_count": 119
+              },
+              {
+                "key": "Speech Synthesis",
+                "doc_count": 79
+              },
+              {
+                "key": "Speech analytics",
+                "doc_count": 40
+              },
+              {
+                "key": "Speech understanding",
+                "doc_count": 31
+              }
+            ]
+          },
+          {
+            "key": "Text Processing Collection",
+            "doc_count": 133,
+            "function": [
+              {
+                "key": "Part-of-Speech Tagging",
+                "doc_count": 56
+              },
+              {
+                "key": "Lemmatization",
+                "doc_count": 22
+              },
+              {
+                "key": "Parsing",
+                "doc_count": 17
+              },
+              {
+                "key": "Morphological annotation",
+                "doc_count": 16
+              }
+            ]
+          },
+          {
+            "key": "Natural Language Generation Collection",
+            "doc_count": 116,
+            "function": [
+              {
+                "key": "Speech Synthesis",
+                "doc_count": 79
+              },
+              {
+                "key": "Text-to-Speech Synthesis",
+                "doc_count": 31
+              },
+              {
+                "key": "Natural Language Generation",
+                "doc_count": 9
+              },
+              {
+                "key": "Summarization",
+                "doc_count": 2
+              }
+            ]
+          },
+          {
+            "key": "Other",
+            "doc_count": 102,
+            "function": [
+              {
+                "key": "undefined",
+                "doc_count": 31
+              },
+              {
+                "key": "Annotation",
+                "doc_count": 24
+              },
+              {
+                "key": "http://w3id.org/meta-share/meta-share/unspecified",
+                "doc_count": 21
+              },
+              {
+                "key": "unspecified",
+                "doc_count": 13
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "_filter_country_of_registration": {
+      "doc_count": 2167,
+      "country_of_registration": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": []
+      }
+    },
+    "_filter_featured": {
+      "doc_count": 2167,
+      "featured": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": 0,
+            "key_as_string": "false",
+            "doc_count": 2165
+          },
+          {
+            "key": 1,
+            "key_as_string": "true",
+            "doc_count": 2
+          }
+        ]
+      }
+    },
+    "_filter_resource_type": {
+      "doc_count": 2167,
+      "resource_type": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": "Corpus",
+            "doc_count": 1421
+          },
+          {
+            "key": "Tool/Service",
+            "doc_count": 491
+          },
+          {
+            "key": "Lexical/Conceptual resource",
+            "doc_count": 221
+          },
+          {
+            "key": "Model",
+            "doc_count": 31
+          }
+        ]
+      }
+    },
+    "_filter_multilinguality_type": {
+      "doc_count": 2167,
+      "multilinguality_type": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": "comparable",
+            "doc_count": 19
+          },
+          {
+            "key": "multilingual",
+            "doc_count": 25
+          },
+          {
+            "key": "other",
+            "doc_count": 5
+          },
+          {
+            "key": "parallel",
+            "doc_count": 132
+          }
+        ]
+      }
+    },
+    "_filter_media_type": {
+      "doc_count": 2167,
+      "media_type": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": "audio",
+            "doc_count": 880
+          },
+          {
+            "key": "image",
+            "doc_count": 12
+          },
+          {
+            "key": "numerical text",
+            "doc_count": 5
+          },
+          {
+            "key": "text",
+            "doc_count": 900
+          }
+        ]
+      }
+    }
+  },
+  "results": [
+    {
+      "id": 8684,
+      "resource_name": "EU Parliament Speech corpus",
+      "resource_short_name": [],
+      "resource_type": "Corpus",
+      "version": "unspecified",
+      "is_active_version": true,
+      "other_versions_count": null,
+      "harvested_versions_exceeding_limit": false,
+      "entity_type": "LanguageResource",
+      "description": "A collection of 1040 EU parliament speeches with transcription and annotations. Includes original speeches and PL/EN translations.",
+      "keywords": [
+        "speech corpus",
+        "speech alignment"
+      ],
+      "detail": "https://live.european-language-grid.eu/catalogue_backend/api/registry/metadatarecord/8684/",
+      "licences": [
+        "Creative Commons Attribution 4.0 International"
+      ],
+      "licence_short_name": [
+        "CC-BY-4.0"
+      ],
+      "condition_of_use": [
+        "attribution required"
+      ],
+      "access_rights": [],
+      "media_type": [
+        "audio"
+      ],
+      "languages": [
+        "Polish",
+        "English"
+      ],
+      "language_variety": [],
+      "linguality_type": [
+        "bilingual"
+      ],
+      "multilinguality_type": [
+        "unspecified"
+      ],
+      "country_of_registration": [],
+      "creation_date": "2021-09-30",
+      "last_date_updated": "2021-09-30",
+      "elg_compatible_service": null,
+      "elg_compatible_data_resource": null,
+      "elg_integrated_services_and_data": null,
+      "duplicate": [],
+      "potential_duplicate": [],
+      "proxied": null,
+      "featured": false,
+      "functions": [],
+      "pair_function_function_category": [],
+      "function_categories": [],
+      "language_dependent": null,
+      "intended_applications": [],
+      "intended_application_categories": [],
+      "pair_intended_application_with_category": [],
+      "model_type": [],
+      "model_function": [],
+      "views": 86,
+      "downloads": null,
+      "has_data": false,
+      "service_execution_count": null,
+      "under_construction": false,
+      "for_information_only": false,
+      "is_division_of": [],
+      "source": "CLARIN-PL"
+    },
+    {
+      "id": 11989,
+      "resource_name": "Aalto Finnish Parliament ASR Corpus 2008-2020",
+      "resource_short_name": [
+        "fi-parliament-asr"
+      ],
+      "resource_type": "Corpus",
+      "version": "1.0.0 (automatically assigned)",
+      "is_active_version": true,
+      "other_versions_count": null,
+      "harvested_versions_exceeding_limit": null,
+      "entity_type": "LanguageResource",
+      "description": "This corpus is extracted from the Finnish parliament plenary session transcripts and videos by the Aalto Speech Recognition group. The original session transcripts and videos are available at the web portals of the Parliament of Finland (avoindata.eduskunta.fi and verkkolahetys.eduskunta.fi). The corpus is split into three parts: 1. 2015-2020 set 2. 2008-2016 set 3. Development and evaluation sets",
+      "keywords": [
+        "Corpus"
+      ],
+      "detail": "https://live.european-language-grid.eu/catalogue_backend/api/registry/metadatarecord/11989/",
+      "licences": [],
+      "licence_short_name": [],
+      "condition_of_use": [
+        "no conditions"
+      ],
+      "access_rights": [
+        "CLARIN_PUB"
+      ],
+      "media_type": [
+        "audio",
+        "text"
+      ],
+      "languages": [
+        "Finnish"
+      ],
+      "language_variety": [],
+      "linguality_type": [
+        "monolingual"
+      ],
+      "multilinguality_type": [
+        "unspecified"
+      ],
+      "country_of_registration": [],
+      "creation_date": "2022-01-12",
+      "last_date_updated": "2022-01-12",
+      "elg_compatible_service": null,
+      "elg_compatible_data_resource": null,
+      "elg_integrated_services_and_data": null,
+      "duplicate": [],
+      "potential_duplicate": [],
+      "proxied": null,
+      "featured": false,
+      "functions": [],
+      "pair_function_function_category": [],
+      "function_categories": [],
+      "language_dependent": null,
+      "intended_applications": [],
+      "intended_application_categories": [],
+      "pair_intended_application_with_category": [],
+      "model_type": [],
+      "model_function": [],
+      "views": 196,
+      "downloads": null,
+      "has_data": false,
+      "service_execution_count": null,
+      "under_construction": false,
+      "for_information_only": true,
+      "is_division_of": [],
+      "source": "ELG / ELE"
+    },
+    {
+      "id": 15133,
+      "resource_name": "Austrian Parliament Abkürzungsverzeichnis",
+      "resource_short_name": [],
+      "resource_type": "Lexical/Conceptual resource",
+      "version": "1.0.0 (automatically assigned)",
+      "is_active_version": true,
+      "other_versions_count": null,
+      "harvested_versions_exceeding_limit": null,
+      "entity_type": "LanguageResource",
+      "description": "Glossary of abbreviations by the Austrian Parliament",
+      "keywords": [
+        "Standard Austrian German"
+      ],
+      "detail": "https://live.european-language-grid.eu/catalogue_backend/api/registry/metadatarecord/15133/",
+      "licences": [],
+      "licence_short_name": [],
+      "condition_of_use": [
+        "other specific restrictions"
+      ],
+      "access_rights": [
+        "Licensed without a fee for specific uses"
+      ],
+      "media_type": [
+        "text"
+      ],
+      "languages": [
+        "German"
+      ],
+      "language_variety": [],
+      "linguality_type": [
+        "monolingual"
+      ],
+      "multilinguality_type": [
+        "unspecified"
+      ],
+      "country_of_registration": [],
+      "creation_date": "2022-01-12",
+      "last_date_updated": "2022-01-12",
+      "elg_compatible_service": null,
+      "elg_compatible_data_resource": null,
+      "elg_integrated_services_and_data": null,
+      "duplicate": [],
+      "potential_duplicate": [],
+      "proxied": null,
+      "featured": false,
+      "functions": [],
+      "pair_function_function_category": [],
+      "function_categories": [],
+      "language_dependent": null,
+      "intended_applications": [],
+      "intended_application_categories": [],
+      "pair_intended_application_with_category": [],
+      "model_type": [],
+      "model_function": [],
+      "views": 42,
+      "downloads": null,
+      "has_data": false,
+      "service_execution_count": null,
+      "under_construction": false,
+      "for_information_only": true,
+      "is_division_of": [],
+      "source": "ELG / ELE"
+    },
+    {
+      "id": 17298,
+      "resource_name": "iTranslate Speech Translation",
+      "resource_short_name": [],
+      "resource_type": "Tool/Service",
+      "version": "1.0.0 (automatically assigned)",
+      "is_active_version": true,
+      "other_versions_count": null,
+      "harvested_versions_exceeding_limit": null,
+      "entity_type": "LanguageResource",
+      "description": "Machine translation system for speech translation.",
+      "keywords": [
+        "Speech to Speech translation"
+      ],
+      "detail": "https://live.european-language-grid.eu/catalogue_backend/api/registry/metadatarecord/17298/",
+      "licences": [],
+      "licence_short_name": [],
+      "condition_of_use": [
+        "other specific restrictions"
+      ],
+      "access_rights": [
+        "Licensed with a fee"
+      ],
+      "media_type": [],
+      "languages": [
+        "Polish",
+        "Korean",
+        "Thai",
+        "Czech"
+      ],
+      "language_variety": [],
+      "linguality_type": [],
+      "multilinguality_type": [],
+      "country_of_registration": [],
+      "creation_date": "2022-01-12",
+      "last_date_updated": "2022-01-12",
+      "elg_compatible_service": false,
+      "elg_compatible_data_resource": null,
+      "elg_integrated_services_and_data": null,
+      "duplicate": [],
+      "potential_duplicate": [],
+      "proxied": null,
+      "featured": false,
+      "functions": [
+        "Speech-to-Speech translation"
+      ],
+      "pair_function_function_category": [
+        "Speech-to-Speech translation + Speech Processing Collection//Translation Technologies Collection"
+      ],
+      "function_categories": [
+        "Speech Processing Collection",
+        "Translation Technologies Collection"
+      ],
+      "language_dependent": true,
+      "intended_applications": [],
+      "intended_application_categories": [],
+      "pair_intended_application_with_category": [],
+      "model_type": [],
+      "model_function": [],
+      "views": 46,
+      "downloads": null,
+      "has_data": false,
+      "service_execution_count": null,
+      "under_construction": false,
+      "for_information_only": true,
+      "is_division_of": [],
+      "source": "ELG / ELE"
+    }
+  ]
+}

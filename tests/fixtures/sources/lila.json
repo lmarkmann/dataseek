@@ -1,0 +1,35 @@
+[
+  {
+    "modified": "2026-11-18T18:28:03",
+    "link": "https://lila.science/datasets/indiana-small-animals/",
+    "title": {
+      "rendered": "Indiana Small Animals"
+    },
+    "excerpt": {
+      "rendered": "<p>Overview This dataset contains 1.6 million images containing 302,582 unique detections (sequences) of small-bodied wildlife. Images were collected from 102 sites throughout Indiana, USA using the AHDriFT camera trap system (a drift fence between inverted buckets containing downward-facing camera traps). Labels are provided for 73 taxa. All wildlife within images were identified to the lowest&#8230;</p>\n",
+      "protected": false
+    }
+  },
+  {
+    "modified": "2026-08-31T16:54:05",
+    "link": "https://lila.science/datasets/duck-pictures-in-wetlands/",
+    "title": {
+      "rendered": "Duck Pictures in Wetlands"
+    },
+    "excerpt": {
+      "rendered": "<p>Overview This dataset contains 674,426 camera trap images of birds and mammals captured across a variety of wetland environments in Finland. The images were collected from multiple wetland sites and represent a diverse range of species, habitats, and environmental conditions. When possible, birds are labeled with adult/juvenile labels and counts. The most common categories are&#8230;</p>\n",
+      "protected": false
+    }
+  },
+  {
+    "modified": "2026-10-11T23:08:21",
+    "link": "https://lila.science/otherdatasets",
+    "title": {
+      "rendered": "List of other conservation data sets"
+    },
+    "excerpt": {
+      "rendered": "<p>There are lots of labeled data sets relevant to conservation that are not on LILA, of course, and rather than copying them all to LILA, this pagetracks other data sets we know about. This page complements the list of LILA datasets; the union of these two list is every conservation-related labeled dataset we&#8217;re aware of&#8230;.</p>\n",
+      "protected": false
+    }
+  }
+]

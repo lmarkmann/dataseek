@@ -28,7 +28,7 @@ bless:
     cargo insta test --accept --unreferenced=reject
 
 run *args:
-    cargo run -- {{ args }}
+    cargo run --bin dataseek -- {{ args }}
 
 build:
     cargo build --release
@@ -176,21 +176,48 @@ zizmor:
 
 audit: deny zizmor
 
-# Show the diff the next release PR would make, then restore the tree.
+# Show the diff the next release PR would make, rendered in a throwaway clone.
 release-preview:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    if [[ -n $(git status --porcelain) ]]; then
-      echo "Error: the working tree is dirty, so the preview could not be undone." >&2
-      echo "  Try:   commit, stash, or remove untracked files first" >&2
+    if ! command -v release-plz >/dev/null; then
+      echo "Error: release-plz is not installed, so the preview cannot run." >&2
+      echo "  Try:   cargo binstall release-plz" >&2
       exit 1
     fi
 
-    trap 'git reset --quiet && git checkout --quiet -- . && git clean --quiet -fd' EXIT
+    pinned=$(grep -oE 'version: [0-9]+(\.[0-9]+)*' .github/workflows/release-plz.yml | head -n 1 | awk '{print $2}')
+    running=$(release-plz --version | awk '{print $NF}')
+    if [[ -n $pinned && $running != "$pinned" ]]; then
+      echo "Warning: release-plz $running is not the $pinned the workflow pins." >&2
+      echo "  Try:   cargo binstall release-plz@$pinned" >&2
+    fi
+
+    if [[ -n $(git status --porcelain) ]]; then
+      echo "Note: the preview covers HEAD only, so uncommitted changes are left out." >&2
+    fi
+
+    echo "Previewing $(git rev-parse --abbrev-ref HEAD) at $(git rev-parse --short HEAD)." >&2
+
+    # The shared git directory rather than the worktree path, so the clone
+    # holds every branch and a real origin/main, which release-plz checks out.
+    root=$(git rev-parse --show-toplevel)
+    head=$(git rev-parse HEAD)
+    preview=$(mktemp -d)
+    trap 'rm -rf "$preview"' EXIT
+    git clone --quiet "$(git rev-parse --path-format=absolute --git-common-dir)" "$preview/repo"
+    cd "$preview/repo"
+    git remote set-url origin "$(git -C "$root" remote get-url origin)"
+    git checkout --quiet -B main "$head"
+    git branch --quiet --set-upstream-to=origin/main main
 
     release-plz update --config .github/release-plz.toml
     git add --intent-to-add .
+    if git diff --quiet; then
+      echo "No commit since the last tag matches release_commits, so no release is due." >&2
+      exit 0
+    fi
     git --no-pager diff
 
 # Keep package metadata, CLI help, README, and GitHub in step.

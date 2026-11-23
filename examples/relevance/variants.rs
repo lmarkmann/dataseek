@@ -129,6 +129,15 @@ fn depth(value: f64) -> usize {
 /// Every setting the benchmark tries, by family. A family's settings are
 /// alternatives; settings from different families can stack.
 pub fn settings() -> Vec<Setting> {
+    let mut all = fusion_settings();
+    all.extend(rescoring_settings());
+    all.extend(query_settings());
+    all
+}
+
+/// How the per-source lists become one: the fusion, its constant, how deep
+/// each list is read, and the source priors.
+fn fusion_settings() -> Vec<Setting> {
     let mut all = Vec::new();
     for k in [1.0, 10.0, 20.0, 40.0, 100.0, 200.0] {
         all.push(setting("rrf-k", &format!("k = {k}"), k, |c, v| {
@@ -159,6 +168,12 @@ pub fn settings() -> Vec<Setting> {
         c.fusion = Fusion::RoundRobin;
     }));
     all.push(setting("priors", "source priors", 0.0, |c, _| c.priors = true));
+    all
+}
+
+/// How the query coverage rescores the fused list.
+fn rescoring_settings() -> Vec<Setting> {
+    let mut all = Vec::new();
     for floor in [0.0, 0.1, 0.5] {
         all.push(setting(
             "floor",
@@ -183,6 +198,12 @@ pub fn settings() -> Vec<Setting> {
     all.push(setting("drop", "keep unmatched", 0.0, |c, _| {
         c.drop_unmatched = false;
     }));
+    all
+}
+
+/// How the query is read, and what a thin record is worth.
+fn query_settings() -> Vec<Setting> {
+    let mut all = Vec::new();
     all.push(setting("stopwords", "ignore function words", 0.0, |c, _| {
         c.stopwords = true;
     }));
@@ -298,50 +319,21 @@ pub fn rank(
         .collect();
     let either: Vec<u64> = bits.iter().map(|(t, b)| t | b).collect();
     let idf = idf(&either, needles.len());
-    let has = |bits: u64| -> Vec<bool> {
-        (0..needles.len()).map(|i| bits >> i & 1 == 1).collect()
-    };
+    let fused_only = query_terms.is_empty() || config.matching == Match::Off;
+    let asked = Asked { needles, idf, phrase };
 
     let mut scored: Vec<(f64, usize, usize)> = hits
         .iter()
         .zip(&bits)
         .enumerate()
-        .filter_map(|(i, (hit, &(title, body)))| {
+        .filter_map(|(i, (hit, &found))| {
             let fused =
                 fuse(hit, config.fusion, &lengths, priors, config.priors);
-            if query_terms.is_empty() || config.matching == Match::Off {
-                return Some((fused, hit.sources.len(), i));
-            }
-            let in_title = has(title);
-            let in_body = has(body);
-            let found = in_title
-                .iter()
-                .zip(&in_body)
-                .filter(|(t, b)| **t || **b)
-                .count();
-            let described = hit.dataset.description.is_some();
-            if found == 0 && config.drop_unmatched && described {
-                return None;
-            }
-            let thin = !described && hit.dataset.publisher.is_none();
-            if found == 0 && thin && config.thin == Thin::DropUnmatched {
-                return None;
-            }
-            let coverage =
-                coverage(config.matching, &needles, &in_title, &in_body, &idf);
-            let mut score = fused
-                * (config.floor
-                    + (1.0 - config.floor) * coverage.powf(config.power));
-            if config.phrase > 1.0
-                && words(&hit.dataset.title).contains(&phrase)
-            {
-                score *= config.phrase;
-            }
-            if let Thin::Scale(scale) = config.thin
-                && thin
-            {
-                score *= scale;
-            }
+            let score = if fused_only {
+                fused
+            } else {
+                asked.rescore(config, hit, fused, found)?
+            };
             Some((score, hit.sources.len(), i))
         })
         .collect();
@@ -351,6 +343,64 @@ pub fn rank(
             .then_with(|| a.2.cmp(&b.2))
     });
     scored.into_iter().map(|(_, _, i)| i).collect()
+}
+
+/// What a query is matched with: its needles, their weights among the hits
+/// being ranked, and the whole query as a phrase.
+struct Asked {
+    needles: Vec<String>,
+    idf: Vec<f64>,
+    phrase: String,
+}
+
+impl Asked {
+    /// The fused score of a hit scaled by how much of the query it covers,
+    /// or `None` when `config` drops the hit. `title` and `body` hold one
+    /// bit for each needle found there.
+    fn rescore(
+        &self,
+        config: &Config,
+        hit: &Hit,
+        fused: f64,
+        (title, body): (u64, u64),
+    ) -> Option<f64> {
+        let has = |bits: u64| -> Vec<bool> {
+            (0..self.needles.len()).map(|i| bits >> i & 1 == 1).collect()
+        };
+        let in_title = has(title);
+        let in_body = has(body);
+        let found =
+            in_title.iter().zip(&in_body).filter(|(t, b)| **t || **b).count();
+        let described = hit.dataset.description.is_some();
+        if found == 0 && config.drop_unmatched && described {
+            return None;
+        }
+        let thin = !described && hit.dataset.publisher.is_none();
+        if found == 0 && thin && config.thin == Thin::DropUnmatched {
+            return None;
+        }
+        let coverage = coverage(
+            config.matching,
+            &self.needles,
+            &in_title,
+            &in_body,
+            &self.idf,
+        );
+        let mut score = fused
+            * (config.floor
+                + (1.0 - config.floor) * coverage.powf(config.power));
+        if config.phrase > 1.0
+            && words(&hit.dataset.title).contains(&self.phrase)
+        {
+            score *= config.phrase;
+        }
+        if let Thin::Scale(scale) = config.thin
+            && thin
+        {
+            score *= scale;
+        }
+        Some(score)
+    }
 }
 
 /// The share of the query a hit covers, as `matching` measures it.

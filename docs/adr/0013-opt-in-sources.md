@@ -21,7 +21,7 @@ Everything else ADR 0008 decided for Google stands, restated here because that A
 
 ## Consequences
 
-- A default search asks 74 of the 76 registered sources. Google's results no longer appear unless asked for; the other sources' overlap is unchanged.
+- A default search asks 104 of the 106 registered sources. Google's results no longer appear unless asked for; the other sources' overlap is unchanged.
 - `dsk search climate -s google` is the way to ask for it, and `-s google,zenodo` combines it with others.
 - A source whose terms need written permission is marked opt-in, not removed, so the day permission arrives the change is one line in the registry.
 - The plain `sources` output gained a seventh column, the opt-in reason, empty for every other row.

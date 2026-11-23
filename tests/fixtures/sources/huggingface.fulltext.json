@@ -1,0 +1,496 @@
+{
+  "estimatedTotalHits": 1145,
+  "hits": [
+    {
+      "repoId": "6699295cc7b418d6f3074339",
+      "repoOwnerId": "6459fa0f5b3111fbe83286e1",
+      "name": "louisbrulenaudet/obis",
+      "isPrivate": false,
+      "repoOwner": "louisbrulenaudet",
+      "repoName": "obis",
+      "type": "dataset",
+      "likes": 0,
+      "isReadmeFile": true,
+      "readmeStartLine": 24,
+      "tags": "task_categories:time-series-forecasting, task_categories:tabular-regression, task_categories:tabular-classification, language:en, language:la, license:cc-by-nd-4.0, size_categories:100M<n<1B, format:parquet, modality:tabular, modality:text, library:datasets, library:pandas, library:mlcroissant, library:polars, region:us, OBIS, biology, marine, sealife, sea",
+      "fileName": "README.md",
+      "updatedAt": 1765224169324,
+      "formatted": {
+        "repoName": [
+          {
+            "text": "obis",
+            "type": "text"
+          }
+        ],
+        "repoOwner": [
+          {
+            "text": "louisbrulenaudet",
+            "type": "text"
+          }
+        ],
+        "fileContent": [
+          {
+            "text": "## Dataset Description\n- **Repository:** https://huggingface.co/datasets/louisbrulenaudet/obis\n- **Leaderboard:** N/A\n- **Point of Contact:** [Louis Brulé Naudet](mailto:contact@example.org)\n\n<img src=\"assets/thumbnail.jpg\">\n\n# OBIS Marine Species Observation Dataset\n\nMore than 20 OBIS (Ocean Biodiversity Information System) nodes around the world connect 500 institutions from 56 countries. Collectively, they have provided over 45 million observations of nearly 120,000 marine species, ranging from bacteria to whales, from the ",
+            "type": "text"
+          },
+          {
+            "text": "surface",
+            "type": "highlight"
+          },
+          {
+            "text": " to 10,900 meters depth, and from the tropics to the",
+            "type": "text"
+          }
+        ],
+        "tags": [
+          {
+            "text": "task_categories:time-series-forecasting, task_categories:tabular-regression, task_categories:tabular-classification, language:en, language:la, license:cc-by-nd-4.0, size_categories:100M<n<1B, format:parquet, modality:tabular, modality:text, library:datasets, library:pandas, library:mlcroissant, library:polars, region:us, OBIS, biology, marine, sealife, ",
+            "type": "text"
+          },
+          {
+            "text": "sea",
+            "type": "highlight"
+          }
+        ],
+        "name": [
+          {
+            "text": "louisbrulenaudet/obis",
+            "type": "text"
+          }
+        ],
+        "fileName": [
+          {
+            "text": "README.md",
+            "type": "text"
+          }
+        ]
+      },
+      "authorData": {
+        "_id": "6459fa0f5b3111fbe83286e1",
+        "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6459fa0f5b3111fbe83286e1/E6Buqu8Wd9WmIHKOCZXCc.jpeg",
+        "fullname": "Louis Brulé Naudet",
+        "name": "louisbrulenaudet",
+        "type": "user",
+        "isPro": false,
+        "isHf": false,
+        "isHfAdmin": false,
+        "isMod": false,
+        "followerCount": 292,
+        "isUserFollowing": false
+      }
+    },
+    {
+      "repoId": "6978d68782c4ca8e52c92a55",
+      "repoOwnerId": "6978821eb9dd0f7c52fcbfa4",
+      "name": "edilia12380/era5-daily-weather-western-europe",
+      "isPrivate": false,
+      "repoOwner": "edilia12380",
+      "repoName": "era5-daily-weather-western-europe",
+      "type": "dataset",
+      "likes": 0,
+      "isReadmeFile": true,
+      "readmeStartLine": 17,
+      "tags": "task_categories:time-series-forecasting, license:cc-by-4.0, size_categories:n<1K, format:imagefolder, modality:image, library:datasets, library:mlcroissant, region:us, climate, weather, ERA5, Copernicus, netcdf, meteorology, temperature, pressure, wind",
+      "fileName": "README.md",
+      "updatedAt": 1769536553689,
+      "formatted": {
+        "repoName": [
+          {
+            "text": "era5-daily-weather-western-europe",
+            "type": "text"
+          }
+        ],
+        "repoOwner": [
+          {
+            "text": "edilia12380",
+            "type": "text"
+          }
+        ],
+        "fileContent": [
+          {
+            "text": "\n# ERA5 Daily Weather Data - Western Europe\n\nThis dataset contains 630 NetCDF files of ERA5 reanalysis data covering Western Europe, curated for climate research and weather forecasting applications.\n\nThis work uses ERA5 reanalysis data from the Copernicus Climate Change Service (C3S), accessed via the Climate Data Store. We acknowledge the European Commission and ECMWF for producing and making available this dataset.\n\n## 📄 Associated Research\n\n> **This dataset was curated for and used in the following article:**\n>\n> **Spatial Predictor Selection for Next-Day Minimum ",
+            "type": "text"
+          },
+          {
+            "text": "Temperature",
+            "type": "highlight"
+          },
+          {
+            "text": " Forecasting:",
+            "type": "text"
+          }
+        ],
+        "tags": [
+          {
+            "text": "task_categories:time-series-forecasting, license:cc-by-4.0, size_categories:n<1K, format:imagefolder, modality:image, library:datasets, library:mlcroissant, region:us, climate, weather, ERA5, Copernicus, netcdf, meteorology, ",
+            "type": "text"
+          },
+          {
+            "text": "temperature",
+            "type": "highlight"
+          },
+          {
+            "text": ", pressure, wind",
+            "type": "text"
+          }
+        ],
+        "name": [
+          {
+            "text": "edilia12380/era5-daily-weather-western-europe",
+            "type": "text"
+          }
+        ],
+        "fileName": [
+          {
+            "text": "README.md",
+            "type": "text"
+          }
+        ]
+      },
+      "authorData": {
+        "_id": "6978821eb9dd0f7c52fcbfa4",
+        "avatarUrl": "/avatars/9c07647f25ad7f4e1bd5216982c1fd43.svg",
+        "fullname": "Eric Duhamel",
+        "name": "edilia12380",
+        "type": "user",
+        "isPro": false,
+        "isHf": false,
+        "isHfAdmin": false,
+        "isMod": false,
+        "isUserFollowing": false
+      }
+    },
+    {
+      "repoId": "6a6bf757d300f471ce65c005",
+      "repoOwnerId": "6a6bf4bce6f03f53086d8432",
+      "name": "PranavKonijeti/viirs-sst-daily-nonNRT",
+      "isPrivate": false,
+      "repoOwner": "PranavKonijeti",
+      "repoName": "viirs-sst-daily-nonNRT",
+      "type": "dataset",
+      "likes": 0,
+      "isReadmeFile": true,
+      "readmeStartLine": 16,
+      "tags": "license:other, size_categories:1K<n<10K, modality:geospatial, region:us, earth-observation, remote-sensing, oceanography, sea-surface-temperature, climate, viirs, netcdf",
+      "fileName": "README.md",
+      "updatedAt": 1785540809113,
+      "formatted": {
+        "repoName": [
+          {
+            "text": "viirs-sst-daily-nonNRT",
+            "type": "text"
+          }
+        ],
+        "repoOwner": [
+          {
+            "text": "PranavKonijeti",
+            "type": "text"
+          }
+        ],
+        "fileContent": [
+          {
+            "text": "\n# VIIRS/SNPP Daily ",
+            "type": "text"
+          },
+          {
+            "text": "Sea",
+            "type": "highlight"
+          },
+          {
+            "text": " ",
+            "type": "text"
+          },
+          {
+            "text": "Surface",
+            "type": "highlight"
+          },
+          {
+            "text": " ",
+            "type": "text"
+          },
+          {
+            "text": "Temperature",
+            "type": "highlight"
+          },
+          {
+            "text": " — 4 km, Science Quality\n\nDaily global ",
+            "type": "text"
+          },
+          {
+            "text": "sea",
+            "type": "highlight"
+          },
+          {
+            "text": " ",
+            "type": "text"
+          },
+          {
+            "text": "surface",
+            "type": "highlight"
+          },
+          {
+            "text": " ",
+            "type": "text"
+          },
+          {
+            "text": "temperature",
+            "type": "highlight"
+          },
+          {
+            "text": " from the VIIRS instrument aboard Suomi-NPP,\nLevel-3 Standard Mapped Image at 4 km, as distributed by the NASA Ocean Biology\nProcessing Group. This is the **science-quality (refined) feed** — fully calibrated\nand reprocessed.\n\nA companion repository, [`PranavKonijeti/viirs-sst-daily-nrt`](https://huggingface.co/datasets/PranavKonijeti/viirs-sst-daily-nrt),\nholds the **near-real-time (NRT)** feed of the same product. See\n[Which feed should I use?](#which-feed-should-i-use) below.\n\n## At a",
+            "type": "text"
+          }
+        ],
+        "tags": [
+          {
+            "text": "license:other, size_categories:1K<n<10K, modality:geospatial, region:us, earth-observation, remote-sensing, oceanography, sea-surface-temperature, climate, viirs, netcdf",
+            "type": "text"
+          }
+        ],
+        "name": [
+          {
+            "text": "PranavKonijeti/viirs-sst-daily-nonNRT",
+            "type": "text"
+          }
+        ],
+        "fileName": [
+          {
+            "text": "README.md",
+            "type": "text"
+          }
+        ]
+      },
+      "authorData": {
+        "_id": "6a6bf4bce6f03f53086d8432",
+        "avatarUrl": "/avatars/27ae0fa5781903d1592447cd3f17a7f5.svg",
+        "fullname": "Pranav",
+        "name": "PranavKonijeti",
+        "type": "user",
+        "isPro": false,
+        "isHf": false,
+        "isHfAdmin": false,
+        "isMod": false,
+        "isUserFollowing": false
+      }
+    },
+    {
+      "repoId": "6a6d1c09a0eaa570abf4cf3c",
+      "repoOwnerId": "6a6bf4bce6f03f53086d8432",
+      "name": "PranavKonijeti/viirs-sst-daily-nrt",
+      "isPrivate": false,
+      "repoOwner": "PranavKonijeti",
+      "repoName": "viirs-sst-daily-nrt",
+      "type": "dataset",
+      "likes": 0,
+      "isReadmeFile": true,
+      "readmeStartLine": 17,
+      "tags": "license:other, size_categories:1K<n<10K, modality:geospatial, region:us, earth-observation, remote-sensing, oceanography, sea-surface-temperature, climate, viirs, netcdf, near-real-time",
+      "fileName": "README.md",
+      "updatedAt": 1785540810687,
+      "formatted": {
+        "repoName": [
+          {
+            "text": "viirs-sst-daily-nrt",
+            "type": "text"
+          }
+        ],
+        "repoOwner": [
+          {
+            "text": "PranavKonijeti",
+            "type": "text"
+          }
+        ],
+        "fileContent": [
+          {
+            "text": "\n# VIIRS/SNPP Daily ",
+            "type": "text"
+          },
+          {
+            "text": "Sea",
+            "type": "highlight"
+          },
+          {
+            "text": " ",
+            "type": "text"
+          },
+          {
+            "text": "Surface",
+            "type": "highlight"
+          },
+          {
+            "text": " ",
+            "type": "text"
+          },
+          {
+            "text": "Temperature",
+            "type": "highlight"
+          },
+          {
+            "text": " — 4 km, Near-Real-Time\n\nDaily global ",
+            "type": "text"
+          },
+          {
+            "text": "sea",
+            "type": "highlight"
+          },
+          {
+            "text": " ",
+            "type": "text"
+          },
+          {
+            "text": "surface",
+            "type": "highlight"
+          },
+          {
+            "text": " ",
+            "type": "text"
+          },
+          {
+            "text": "temperature",
+            "type": "highlight"
+          },
+          {
+            "text": " from the VIIRS instrument aboard Suomi-NPP,\nLevel-3 Standard Mapped Image at 4 km, as distributed by the NASA Ocean Biology\nProcessing Group. This is the **near-real-time (NRT)** feed — produced within hours\nof acquisition, with preliminary calibration.\n\n> **If you are training a model or computing a trend, use the science-quality feed\n> instead:** [`PranavKonijeti/viirs-sst-daily-nonNRT`](https://huggingface.co/datasets/PranavKonijeti/viirs-sst-daily-nonNRT).\n> See [Which feed should I",
+            "type": "text"
+          }
+        ],
+        "tags": [
+          {
+            "text": "license:other, size_categories:1K<n<10K, modality:geospatial, region:us, earth-observation, remote-sensing, oceanography, sea-surface-temperature, climate, viirs, netcdf, near-real-time",
+            "type": "text"
+          }
+        ],
+        "name": [
+          {
+            "text": "PranavKonijeti/viirs-sst-daily-nrt",
+            "type": "text"
+          }
+        ],
+        "fileName": [
+          {
+            "text": "README.md",
+            "type": "text"
+          }
+        ]
+      },
+      "authorData": {
+        "_id": "6a6bf4bce6f03f53086d8432",
+        "avatarUrl": "/avatars/27ae0fa5781903d1592447cd3f17a7f5.svg",
+        "fullname": "Pranav",
+        "name": "PranavKonijeti",
+        "type": "user",
+        "isPro": false,
+        "isHf": false,
+        "isHfAdmin": false,
+        "isMod": false,
+        "isUserFollowing": false
+      }
+    },
+    {
+      "repoId": "69149e8a00a807e08f586462",
+      "repoOwnerId": "63c97c2fbedad7e2bf16959c",
+      "name": "nilsleh/OceanTACO",
+      "isPrivate": false,
+      "repoOwner": "nilsleh",
+      "repoName": "OceanTACO",
+      "type": "dataset",
+      "likes": 0,
+      "isReadmeFile": true,
+      "readmeStartLine": 6,
+      "tags": "license:cc-by-4.0, doi:10.57967/hf/8171, region:us, ocean, machine_learning",
+      "fileName": "README.md",
+      "updatedAt": 1788856647285,
+      "formatted": {
+        "repoName": [
+          {
+            "text": "OceanTACO",
+            "type": "text"
+          }
+        ],
+        "repoOwner": [
+          {
+            "text": "nilsleh",
+            "type": "text"
+          }
+        ],
+        "fileContent": [
+          {
+            "text": "# Dataset Card: OceanTACO\n\n## Dataset Summary\n\nThis dataset is a multi-source collection of global ocean ",
+            "type": "text"
+          },
+          {
+            "text": "sea",
+            "type": "highlight"
+          },
+          {
+            "text": " ",
+            "type": "text"
+          },
+          {
+            "text": "surface",
+            "type": "highlight"
+          },
+          {
+            "text": " measurements, integrating numerical model reanalysis, L4 gap-filled products, L3 satellite observations, and in-situ data. The collection includes ",
+            "type": "text"
+          },
+          {
+            "text": "sea",
+            "type": "highlight"
+          },
+          {
+            "text": " ",
+            "type": "text"
+          },
+          {
+            "text": "surface",
+            "type": "highlight"
+          },
+          {
+            "text": " height (SSH), ",
+            "type": "text"
+          },
+          {
+            "text": "temperature",
+            "type": "highlight"
+          },
+          {
+            "text": " (SST), salinity (SSS), wind speed, and other variables.\n\nThe L3 SWOT data has been processed onto a consistent regular grid through irreversible interpolation and coordinate transformation, constituting a **Derivative Work** from the original AVISO+ source products. This processing removes the",
+            "type": "text"
+          }
+        ],
+        "tags": [
+          {
+            "text": "license:cc-by-4.0, doi:10.57967/hf/8171, region:us, ocean, machine_learning",
+            "type": "text"
+          }
+        ],
+        "name": [
+          {
+            "text": "nilsleh/OceanTACO",
+            "type": "text"
+          }
+        ],
+        "fileName": [
+          {
+            "text": "README.md",
+            "type": "text"
+          }
+        ]
+      },
+      "authorData": {
+        "_id": "63c97c2fbedad7e2bf16959c",
+        "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/63c97c2fbedad7e2bf16959c/kVocFA4aDlMIJRjlO0OUk.jpeg",
+        "fullname": "Nils Lehmann",
+        "name": "nilsleh",
+        "type": "user",
+        "isPro": false,
+        "isHf": false,
+        "isHfAdmin": false,
+        "isMod": false,
+        "followerCount": 6,
+        "isUserFollowing": false
+      }
+    }
+  ]
+}

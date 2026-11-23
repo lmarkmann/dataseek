@@ -1,0 +1,248 @@
+[
+  {
+    "id": 19243333,
+    "description": "REST Countries is a country data API: 250+ countries, 80 fields each with 99.995% uptime.\r\n",
+    "name": "restcountries",
+    "name_with_namespace": "restcountries / restcountries",
+    "path": "restcountries",
+    "path_with_namespace": "restcountries/restcountries",
+    "created_at": "2020-06-07T19:33:20.573Z",
+    "default_branch": "master",
+    "tag_list": [
+      "country",
+      "country-data",
+      "dataset"
+    ],
+    "topics": [
+      "country",
+      "country-data",
+      "dataset"
+    ],
+    "ssh_url_to_repo": "git@gitlab.com:restcountries/restcountries.git",
+    "http_url_to_repo": "https://gitlab.com/restcountries/restcountries.git",
+    "web_url": "https://gitlab.com/restcountries/restcountries",
+    "readme_url": "https://gitlab.com/restcountries/restcountries/-/blob/master/README.md",
+    "forks_count": 226,
+    "avatar_url": "https://gitlab.com/uploads/-/system/project/avatar/19243333/flat.w512.png?v=1781976500",
+    "star_count": 156,
+    "last_activity_at": "2026-06-20T17:28:20.663Z",
+    "visibility": "public",
+    "namespace": {
+      "id": 64551110,
+      "name": "restcountries",
+      "path": "restcountries",
+      "kind": "group",
+      "full_path": "restcountries",
+      "parent_id": null,
+      "avatar_url": "/uploads/-/system/group/avatar/64551110/flat.w512.png?v=1781479896",
+      "web_url": "https://gitlab.com/groups/restcountries"
+    }
+  },
+  {
+    "id": 61333269,
+    "description": "OpenML dataset: GDP-per-capita-all-countries https://www.openml.org/d/43809",
+    "name": "openml-43809",
+    "name_with_namespace": "data / d / openml / openml-43809",
+    "path": "43809",
+    "path_with_namespace": "data/d/openml/43809",
+    "created_at": "2024-09-02T09:21:31.958Z",
+    "default_branch": "master",
+    "tag_list": [
+      "datagit",
+      "dataset",
+      "openml",
+      "parquet",
+      "tabular"
+    ],
+    "topics": [
+      "datagit",
+      "dataset",
+      "openml",
+      "parquet",
+      "tabular"
+    ],
+    "ssh_url_to_repo": "git@gitlab.com:data/d/openml/43809.git",
+    "http_url_to_repo": "https://gitlab.com/data/d/openml/43809.git",
+    "web_url": "https://gitlab.com/data/d/openml/43809",
+    "readme_url": "https://gitlab.com/data/d/openml/43809/-/blob/master/README.md",
+    "forks_count": 0,
+    "avatar_url": null,
+    "star_count": 0,
+    "last_activity_at": "2025-12-11T05:59:22.376Z",
+    "visibility": "public",
+    "namespace": {
+      "id": 6669610,
+      "name": "openml",
+      "path": "openml",
+      "kind": "group",
+      "full_path": "data/d/openml",
+      "parent_id": 6655953,
+      "avatar_url": null,
+      "web_url": "https://gitlab.com/groups/data/d/openml"
+    }
+  },
+  {
+    "id": 61332794,
+    "description": "OpenML dataset: Countries-of-the-World https://www.openml.org/d/43711",
+    "name": "openml-43711",
+    "name_with_namespace": "data / d / openml / openml-43711",
+    "path": "43711",
+    "path_with_namespace": "data/d/openml/43711",
+    "created_at": "2024-09-02T09:16:48.318Z",
+    "default_branch": "master",
+    "tag_list": [
+      "datagit",
+      "dataset",
+      "openml",
+      "parquet",
+      "tabular"
+    ],
+    "topics": [
+      "datagit",
+      "dataset",
+      "openml",
+      "parquet",
+      "tabular"
+    ],
+    "ssh_url_to_repo": "git@gitlab.com:data/d/openml/43711.git",
+    "http_url_to_repo": "https://gitlab.com/data/d/openml/43711.git",
+    "web_url": "https://gitlab.com/data/d/openml/43711",
+    "readme_url": "https://gitlab.com/data/d/openml/43711/-/blob/master/README.md",
+    "forks_count": 0,
+    "avatar_url": null,
+    "star_count": 0,
+    "last_activity_at": "2025-12-11T05:48:04.073Z",
+    "visibility": "public",
+    "namespace": {
+      "id": 6669610,
+      "name": "openml",
+      "path": "openml",
+      "kind": "group",
+      "full_path": "data/d/openml",
+      "parent_id": 6655953,
+      "avatar_url": null,
+      "web_url": "https://gitlab.com/groups/data/d/openml"
+    }
+  },
+  {
+    "id": 61332734,
+    "description": "OpenML dataset: New-Cases-of-COVID-19-In-World-Countries https://www.openml.org/d/43371",
+    "name": "openml-43371",
+    "name_with_namespace": "data / d / openml / openml-43371",
+    "path": "43371",
+    "path_with_namespace": "data/d/openml/43371",
+    "created_at": "2024-09-02T09:16:30.175Z",
+    "default_branch": "master",
+    "tag_list": [
+      "datagit",
+      "dataset",
+      "openml",
+      "parquet",
+      "tabular"
+    ],
+    "topics": [
+      "datagit",
+      "dataset",
+      "openml",
+      "parquet",
+      "tabular"
+    ],
+    "ssh_url_to_repo": "git@gitlab.com:data/d/openml/43371.git",
+    "http_url_to_repo": "https://gitlab.com/data/d/openml/43371.git",
+    "web_url": "https://gitlab.com/data/d/openml/43371",
+    "readme_url": "https://gitlab.com/data/d/openml/43371/-/blob/master/README.md",
+    "forks_count": 0,
+    "avatar_url": null,
+    "star_count": 0,
+    "last_activity_at": "2025-12-11T05:40:40.864Z",
+    "visibility": "public",
+    "namespace": {
+      "id": 6669610,
+      "name": "openml",
+      "path": "openml",
+      "kind": "group",
+      "full_path": "data/d/openml",
+      "parent_id": 6655953,
+      "avatar_url": null,
+      "web_url": "https://gitlab.com/groups/data/d/openml"
+    }
+  },
+  {
+    "id": 61332511,
+    "description": "OpenML dataset: COVID19-Dataset-with-100-World-Countries https://www.openml.org/d/43457",
+    "name": "openml-43457",
+    "name_with_namespace": "data / d / openml / openml-43457",
+    "path": "43457",
+    "path_with_namespace": "data/d/openml/43457",
+    "created_at": "2024-09-02T09:15:17.197Z",
+    "default_branch": "master",
+    "tag_list": [
+      "datagit",
+      "dataset",
+      "openml",
+      "parquet",
+      "tabular"
+    ],
+    "topics": [
+      "datagit",
+      "dataset",
+      "openml",
+      "parquet",
+      "tabular"
+    ],
+    "ssh_url_to_repo": "git@gitlab.com:data/d/openml/43457.git",
+    "http_url_to_repo": "https://gitlab.com/data/d/openml/43457.git",
+    "web_url": "https://gitlab.com/data/d/openml/43457",
+    "readme_url": "https://gitlab.com/data/d/openml/43457/-/blob/master/README.md",
+    "forks_count": 0,
+    "avatar_url": null,
+    "star_count": 0,
+    "last_activity_at": "2025-12-11T06:01:35.844Z",
+    "visibility": "public",
+    "namespace": {
+      "id": 6669610,
+      "name": "openml",
+      "path": "openml",
+      "kind": "group",
+      "full_path": "data/d/openml",
+      "parent_id": 6655953,
+      "avatar_url": null,
+      "web_url": "https://gitlab.com/groups/data/d/openml"
+    }
+  },
+  {
+    "id": 55532537,
+    "description": "Between 1000 and 1900 text sources from various Central European and, in particular, German-speaking countries were analysed at great expense for this data set. The dataset is being continuously expanded, whereby the years for which no or only little data is available are of particular interest. ",
+    "name": "hist_thunderstorm_hail_central_Europe",
+    "name_with_namespace": "Franck Schätz / hist_thunderstorm_hail_central_Europe",
+    "path": "hist_thunderstorm_hail_central_europe",
+    "path_with_namespace": "reservoirdog/hist_thunderstorm_hail_central_europe",
+    "created_at": "2024-03-04T15:59:35.796Z",
+    "default_branch": "main",
+    "tag_list": [
+      "dataset"
+    ],
+    "topics": [
+      "dataset"
+    ],
+    "ssh_url_to_repo": "git@gitlab.com:reservoirdog/hist_thunderstorm_hail_central_europe.git",
+    "http_url_to_repo": "https://gitlab.com/reservoirdog/hist_thunderstorm_hail_central_europe.git",
+    "web_url": "https://gitlab.com/reservoirdog/hist_thunderstorm_hail_central_europe",
+    "readme_url": "https://gitlab.com/reservoirdog/hist_thunderstorm_hail_central_europe/-/blob/main/README.md",
+    "forks_count": 0,
+    "avatar_url": "https://gitlab.com/uploads/-/system/project/avatar/55532537/storm_732332.png?v=1784097788",
+    "star_count": 0,
+    "last_activity_at": "2026-07-15T06:43:08.885Z",
+    "visibility": "public",
+    "namespace": {
+      "id": 3204049,
+      "name": "Franck Schätz",
+      "path": "reservoirdog",
+      "kind": "user",
+      "full_path": "reservoirdog",
+      "parent_id": null,
+      "avatar_url": "/uploads/-/system/user/avatar/2560823/avatar.png?v=1795420791",
+      "web_url": "https://gitlab.com/reservoirdog"
+    }
+  }
+]

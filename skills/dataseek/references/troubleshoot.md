@@ -1,11 +1,12 @@
 # Troubleshoot
 
-Verified against `docs/reference/contract.md`, `src/mcp/tools.rs`, `src/search.rs`, `src/http.rs` and live calls on 2026-10-20.
+Verified against `docs/reference/contract.md`, `src/mcp/tools.rs`, `src/search.rs`, `src/http.rs` on 2026-10-20, and the tool refusals against live calls on 2026-11-23.
 
 ## Contents
 
 - **Read the failure**: where the message, cause and hint sit on each surface
 - **Tool refusals**: the argument errors a call can fix by itself
+- **A missing tool or source**: a server older than this skill
 - **Protocol errors**: JSON-RPC codes, which mean the client or the server, not the call
 - **Exit codes**: what the CLI returns and what counts as success
 - **Whole-search failures**: offline, deadline, certificates, nothing could run
@@ -27,7 +28,7 @@ A bad argument is refused before anything runs, naming the argument. Fix the cal
 
 | Message | Fix |
 |---|---|
-| `` search has no argument `<key>` `` | use a name from the tool's input schema; the names are the CLI's long flags without dashes |
+| `` search has no argument `<key>` `` | use a name from the tool's input schema; the names are the CLI's long flags without the leading dashes, so `updated-since` and never `updated_since` |
 | `` `<key>` takes a list of strings `` (or an integer, true or false) | send the schema's type; `source`, `exclude` and `category` are arrays |
 | `` search needs `query` `` | pass `query` |
 | `invalid value '<x>' for '--source <IDS>'`, with the possible values as its cause | use an id from that list or from the `sources` tool |
@@ -35,6 +36,14 @@ A bad argument is refused before anything runs, naming the argument. Fix the cal
 | `timeout <n> is past the 300 second deadline a search over MCP may have` | 300 at most |
 | `` `<key>` holds a NUL character `` | strip it |
 | `4 calls are already running, the most dsk mcp runs at once` | wait for one to answer, then call again |
+
+## A missing tool or source
+
+| Sign | Cause | Fix |
+|---|---|---|
+| the tool list holds `search`, `sources` and `inspect`, and no `related` | the running server is a release from before `related` | search for the owner's name or the item's title; the upgrade is in `references/setup.md`, Upgrade |
+| `sources` returns fewer than 106 rows, or an id from this skill is refused as an invalid value | the running server is an older release with fewer sources | use the ids the refusal lists; the upgrade is the same |
+| no dataseek tool at all | the server is not registered, or did not start | `dsk ... --json` for this task (`references/mcp.md`, The CLI fallback), then `references/setup.md` |
 
 ## Protocol errors
 
@@ -45,7 +54,7 @@ A JSON-RPC error instead of a tool result is the client's or the server's fault,
 | Code | Meaning |
 |---|---|
 | 0 | success; for `search`, at least one source answered, even with no results |
-| 1 | failure: every attempted source failed, none could run, an `inspect` failed, or a `cache warm` catalog failed |
+| 1 | failure: every attempted source failed, none could run, an `inspect` or `related` failed, or a `cache warm` catalog failed |
 | 2 | usage error: an unknown command, flag or value |
 | 130 | interrupted |
 
@@ -71,11 +80,11 @@ The search succeeded but one source is missing. Act only when that source matter
 |---|---|---|
 | `needs $VAR` | its required key is not set | the user sets the key (`references/setup.md`, Keys); then search again |
 | `skipped, outage N s ago` | it failed within the last ten minutes | `source` set to it asks it anyway, or wait out the ten minutes |
-| `not waited for after N s` | slower than the deadline, or than one second past the 90% quorum | `source` set to it gets the whole `timeout`; raise `timeout` for a slow one |
+| `not waited for after N s` | slower than the deadline, or than one second past the 90% quorum | `source` set to it gets the whole `timeout`; raise `timeout` for a slow one. The EBI archives (`arrayexpress`, `biostudies`, `bioimages`, `empiar`) needed about 60 seconds on 2026-11-23: `timeout: 150` |
 | `downloading its catalog` | a first download is running in the background | search again in a minute, or `dsk cache warm -s <id>` |
 | `expired catalog` | answered from a copy over 7 days old | nothing urgent; `dsk cache warm` refreshes it |
 | `stale cache (<reason>)` | the fetch failed and an older answer was used | say the answer may be dated; `refresh: true` once the source is back |
-| `rate limited by the source` | too many requests from this address | wait; for `huggingface` or `github`, a key raises the limit |
+| `rate limited by the source` | too many requests from this address | wait; for `huggingface` or `github`, a key raises the limit, except the 50 multi-word searches per 5 minutes on `huggingface` |
 | `refused the request (HTTP 401)` or `(HTTP 403)` without a key | the source wants authentication or blocks the request | for a source that takes a key, the key may lift it |
 | `rejected the credentials (HTTP <n>)` | the key that was sent is wrong or expired | the user replaces the key |
 | `sent a challenge page instead of results` | a bot wall; counted as an outage | retry after ten minutes |

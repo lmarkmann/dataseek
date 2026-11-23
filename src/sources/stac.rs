@@ -20,6 +20,15 @@
 //! - Copernicus Data Space documents its STAC browser as the page for a
 //!   collection (Copernicus Data Space documentation, October 2026). Earth
 //!   Search has no collection page, so its link stays the collection's JSON.
+//! - Swisstopo and LandsatLook show a collection only in a STAC Browser
+//!   whose route follows a `#`. Dedup drops the fragment of a link, so every
+//!   collection would merge into one hit; their links stay the collection's
+//!   JSON too.
+//! - Swisstopo answers at most 100 collections a page and pages with a
+//!   `cursor` in its `next` link: 515 collections on 6 pages. Its fair-use
+//!   limit is 40 requests a minute for the REST services (FSDI terms of use,
+//!   November 2026). LandsatLook lists its 14 collections on one page and
+//!   fills no `sci:doi` (November 2026).
 
 use std::collections::HashSet;
 
@@ -56,6 +65,16 @@ pub static COPERNICUS_CDS: Catalog = Catalog {
     collections: "https://cds.climate.copernicus.eu/api/catalogue/v1/collections",
     page: Some("https://cds.climate.copernicus.eu/datasets/"),
     publisher: "Copernicus Climate Change Service",
+};
+pub static SWISSTOPO: Catalog = Catalog {
+    collections: "https://data.geo.admin.ch/api/stac/v1/collections",
+    page: None,
+    publisher: "Federal Office of Topography swisstopo",
+};
+pub static USGS_LANDSAT: Catalog = Catalog {
+    collections: "https://landsatlook.usgs.gov/stac-server/collections",
+    page: None,
+    publisher: "U.S. Geological Survey",
 };
 
 pub fn list(
@@ -248,6 +267,88 @@ mod tests {
         assert_eq!(era5.updated.as_deref(), Some("2026-10-06"));
         assert_eq!(entries[0].license, None, "\"other\" is not a license");
         assert_eq!(entries[0].doi.as_deref(), Some("10.24381/cds.c14d9324"));
+    }
+
+    #[test]
+    fn a_swisstopo_page_links_its_collections_and_the_next_cursor() {
+        let (entries, next) =
+            parse(&SWISSTOPO, &fixture::json("stac.swisstopo.json")).unwrap();
+        assert_eq!(entries.len(), 3);
+        assert_eq!(
+            next.as_deref(),
+            Some(
+                "https://data.geo.admin.ch/api/stac/v1/collections?cursor=cD1jaC5iYWZ1Lmdlb2NoZW1pc2NoZXItYm9kZW5hdGxhc19zY2h3ZWl6X21vbHliZGFlbg%3D%3D&limit=1000"
+            )
+        );
+        assert_eq!(
+            entries[0],
+            Dataset {
+                title: "Distribution of organic soils in Switzerland \
+                        (Agroscope 2025)"
+                    .into(),
+                url: "https://data.geo.admin.ch/api/stac/v1/collections/\
+                      ch.agroscope.abschaetzung-organische_boeden"
+                    .into(),
+                description: Some(
+                    "The map of organic soils in Switzerland is an update of \
+                     the first map published in 2015. It provides an \
+                     estimate of the distribution of (former) moorland soils \
+                     that still exist today and are sufficiently humus-rich \
+                     and deep to meet the criteria for organic soil."
+                        .into()
+                ),
+                publisher: Some(
+                    "Federal Office of Topography swisstopo".into()
+                ),
+                doi: None,
+                license: Some("CC-BY".into()),
+                updated: Some("2026-03-04".into()),
+                size_bytes: None,
+                popularity: None,
+                formats: vec![],
+                aliases: vec![],
+            }
+        );
+        assert_eq!(entries[1].license, None, "\"proprietary\" is no license");
+        assert_eq!(entries[1].updated.as_deref(), Some("2026-05-11"));
+    }
+
+    #[test]
+    fn a_landsat_collection_keeps_the_data_policy_as_its_license() {
+        let (entries, next) =
+            parse(&USGS_LANDSAT, &fixture::json("stac.landsat.json")).unwrap();
+        assert_eq!(entries.len(), 3);
+        assert_eq!(next, None);
+        assert_eq!(
+            entries[0],
+            Dataset {
+                title: "Landsat Collection 2 Level-2 UTM Surface Reflectance \
+                        (SR) Product"
+                    .into(),
+                url: "https://landsatlook.usgs.gov/stac-server/collections/\
+                      landsat-c2l2-sr"
+                    .into(),
+                description: Some(
+                    "The Landsat Surface Reflectance (SR) product measures \
+                     the fraction of incoming solar radiation that is \
+                     reflected from Earth's surface to the Landsat sensor."
+                        .into()
+                ),
+                publisher: Some("U.S. Geological Survey".into()),
+                doi: None,
+                license: Some(
+                    "https://d9-wret.s3.us-west-2.amazonaws.com/assets/\
+                     palladium/production/s3fs-public/atoms/files/\
+                     Landsat_Data_Policy.pdf"
+                        .into()
+                ),
+                updated: None,
+                size_bytes: None,
+                popularity: None,
+                formats: vec![],
+                aliases: vec![],
+            }
+        );
     }
 
     #[test]

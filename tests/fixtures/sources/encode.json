@@ -1,0 +1,391 @@
+{
+  "@context": "/terms/",
+  "@graph": [
+    {
+      "@id": "/experiments/ENCSR092LZV/",
+      "@type": [
+        "Experiment",
+        "Dataset",
+        "Item"
+      ],
+      "accession": "ENCSR092LZV",
+      "assay_title": "siRNA RNA-seq",
+      "biosample_ontology": {
+        "term_name": "K562"
+      },
+      "biosample_summary": "Homo sapiens K562 expressing RNAi targeting H. sapiens CTCF and expressing RNAi targeting H. sapiens RAD21",
+      "date_released": "2016-10-09",
+      "dbxrefs": [
+        "GEO:GSE88020"
+      ],
+      "description": "RNA-seq on K562 cells treated with siRNA targeting both CTCF and RAD21 together.",
+      "doi": "10.17989/ENCSR092LZV",
+      "lab": {
+        "title": "Michael Snyder, Stanford"
+      },
+      "target": {
+        "label": "CTCF+RAD21"
+      }
+    },
+    {
+      "@id": "/experiments/ENCSR597AKG/",
+      "@type": [
+        "Experiment",
+        "Dataset",
+        "Item"
+      ],
+      "accession": "ENCSR597AKG",
+      "assay_title": "ChIA-PET",
+      "biosample_ontology": {
+        "term_name": "K562"
+      },
+      "biosample_summary": "Homo sapiens K562",
+      "date_released": "2021-03-12",
+      "dbxrefs": [
+        "GEO:GSE177471"
+      ],
+      "description": "CTCF ChIA-PET in K562",
+      "doi": "10.17989/ENCSR597AKG",
+      "lab": {
+        "title": "Yijun Ruan, JAX"
+      },
+      "target": {
+        "label": "CTCF"
+      }
+    },
+    {
+      "@id": "/experiments/ENCSR613LSQ/",
+      "@type": [
+        "Experiment",
+        "Dataset",
+        "Item"
+      ],
+      "accession": "ENCSR613LSQ",
+      "assay_title": "CRISPR RNA-seq",
+      "biosample_ontology": {
+        "term_name": "K562"
+      },
+      "biosample_summary": "Homo sapiens K562 genetically modified (deletion) using CRISPR targeting H. sapiens CTCF",
+      "date_released": "2020-11-30",
+      "dbxrefs": [
+        "GEO:GSE177542"
+      ],
+      "description": "RNA-seq on K562 cells treated with a CRISPR gRNA against CTCF. (CTCF-BGKcLV17)",
+      "doi": "10.17989/ENCSR613LSQ",
+      "lab": {
+        "title": "Brenton Graveley, UConn"
+      },
+      "target": {
+        "label": "CTCF"
+      }
+    },
+    {
+      "@id": "/experiments/ENCSR000AKO/",
+      "@type": [
+        "Experiment",
+        "Dataset",
+        "Item"
+      ],
+      "accession": "ENCSR000AKO",
+      "assay_title": "TF ChIP-seq",
+      "biosample_ontology": {
+        "term_name": "K562"
+      },
+      "biosample_summary": "Homo sapiens K562",
+      "date_released": "2011-02-10",
+      "dbxrefs": [
+        "UCSC-ENCODE-hg19:wgEncodeEH000042",
+        "FactorBook:ENCSR000AKO",
+        "SCREEN-GRCh38:K562",
+        "GEO:GSM733719"
+      ],
+      "description": "CTCF ChIP-seq on human K562",
+      "doi": "10.17989/ENCSR000AKO",
+      "lab": {
+        "title": "Bradley Bernstein, Broad"
+      },
+      "target": {
+        "label": "CTCF"
+      }
+    }
+  ],
+  "@id": "/search/?type=Experiment&status=released&format=json&searchTerm=CTCF%20K562&limit=100&field=accession&field=assay_title&field=target.label&field=biosample_ontology.term_name&field=description&field=biosample_summary&field=date_released&field=lab.title&field=dbxrefs&field=doi",
+  "@type": [
+    "Search"
+  ],
+  "clear_filters": "/search/?searchTerm=CTCF+K562",
+  "columns": {
+    "@id": {
+      "title": "ID"
+    },
+    "accession": {
+      "title": "Accession"
+    },
+    "assay_term_name": {
+      "title": "Assay name"
+    },
+    "assay_title": {
+      "title": "Assay title"
+    },
+    "biosample_ontology.classification": {
+      "title": "Biosample classification"
+    },
+    "target.@id": {
+      "title": "Target"
+    },
+    "target.label": {
+      "title": "Target of assay"
+    },
+    "target.genes.symbol": {
+      "title": "Target gene symbol"
+    },
+    "biosample_summary": {
+      "title": "Biosample summary"
+    },
+    "biosample_ontology.term_name": {
+      "title": "Biosample term name"
+    },
+    "dbxrefs": {
+      "title": "Dbxrefs"
+    },
+    "description": {
+      "title": "Description"
+    },
+    "lab.title": {
+      "title": "Lab"
+    },
+    "award.project": {
+      "title": "Project"
+    },
+    "status": {
+      "title": "Status"
+    },
+    "files.@id": {
+      "title": "Files"
+    },
+    "related_series": {
+      "title": "Related series"
+    },
+    "replicates.library.biosample.accession": {
+      "title": "Biosample accession"
+    },
+    "replicates.biological_replicate_number": {
+      "title": "Biological replicate"
+    },
+    "replicates.technical_replicate_number": {
+      "title": "Technical replicate"
+    },
+    "replicates.antibody.accession": {
+      "title": "Linked antibody"
+    },
+    "replicates.library.biosample.organism.scientific_name": {
+      "title": "Organism"
+    },
+    "replicates.library.biosample.life_stage": {
+      "title": "Life stage"
+    },
+    "replicates.library.biosample.age_display": {
+      "title": "Biosample age"
+    },
+    "replicates.library.biosample.treatments.treatment_term_name": {
+      "title": "Biosample treatment"
+    },
+    "replicates.library.biosample.treatments.treatment_term_id": {
+      "title": "Biosample treatment ontology ID"
+    },
+    "replicates.library.biosample.treatments.amount": {
+      "title": "Biosample treatment amount"
+    },
+    "replicates.library.biosample.treatments.amount_units": {
+      "title": "Biosample treatment amount units"
+    },
+    "replicates.library.biosample.treatments.duration": {
+      "title": "Biosample treatment duration"
+    },
+    "replicates.library.biosample.treatments.duration_units": {
+      "title": "Biosample treatment duration units"
+    },
+    "replicates.library.biosample.synchronization": {
+      "title": "Synchronization"
+    },
+    "replicates.library.biosample.post_synchronization_time": {
+      "title": "Post-synchronization time"
+    },
+    "replicates.library.biosample.post_synchronization_time_units": {
+      "title": "Post-synchronization time units"
+    },
+    "replicates.library.biosample.applied_modifications.modified_site_by_target_id.organism": {
+      "title": "Biosample modification site target organism"
+    },
+    "replicates.library.biosample.applied_modifications.introduced_gene.organism": {
+      "title": "Biosample modification site introduced gene organism"
+    },
+    "replicates.@id": {
+      "title": "Replicates"
+    },
+    "replicates.library.mixed_biosamples": {
+      "title": "Mixed biosamples"
+    },
+    "replicates.library.biosample.subcellular_fraction_term_name": {
+      "title": "Cellular component"
+    },
+    "replicates.library.construction_platform.term_name": {
+      "title": "Library construction platform"
+    },
+    "replicates.library.construction_method": {
+      "title": "Library construction method"
+    }
+  },
+  "facet_groups": [
+    {
+      "name": "Experiment",
+      "title": "Assay",
+      "facet_fields": [
+        "assay_slims",
+        "assay_title",
+        "target.investigated_as",
+        "target.label"
+      ]
+    },
+    {
+      "name": "Experiment",
+      "title": "Biosample",
+      "facet_fields": [
+        "replicates.library.biosample.donor.organism.scientific_name",
+        "biosample_ontology.classification",
+        "biosample_ontology.term_name",
+        "biosample_ontology.organ_slims"
+      ]
+    },
+    {
+      "name": "Experiment",
+      "title": "Library",
+      "facet_fields": [
+        "files.platform.term_name",
+        "files.run_type",
+        "replicates.library.size_range",
+        "replicates.library.nucleic_acid_term_name"
+      ]
+    },
+    {
+      "name": "Experiment",
+      "title": "Analysis",
+      "facet_fields": [
+        "assembly",
+        "files.file_type",
+        "files.read_length",
+        "files.mapped_read_length"
+      ]
+    }
+  ],
+  "facets": [
+    {
+      "field": "type",
+      "title": "Data Type",
+      "terms": [
+        {
+          "key": "Dataset",
+          "doc_count": 12
+        },
+        {
+          "key": "Experiment",
+          "doc_count": 12
+        }
+      ],
+      "total": 12,
+      "type": "terms",
+      "appended": false,
+      "open_on_load": false
+    },
+    {
+      "field": "assay_slims",
+      "title": "Assay type",
+      "terms": [
+        {
+          "key": "DNA binding",
+          "doc_count": 6
+        },
+        {
+          "key": "Transcription",
+          "doc_count": 3
+        },
+        {
+          "key": "3D chromatin structure",
+          "doc_count": 2
+        },
+        {
+          "key": "RNA binding",
+          "doc_count": 1
+        }
+      ],
+      "total": 12,
+      "type": "terms",
+      "appended": false,
+      "open_on_load": false
+    },
+    {
+      "field": "assay_title",
+      "title": "Assay title",
+      "terms": [
+        {
+          "key": "TF ChIP-seq",
+          "doc_count": 6
+        },
+        {
+          "key": "ChIA-PET",
+          "doc_count": 2
+        },
+        {
+          "key": "siRNA RNA-seq",
+          "doc_count": 2
+        },
+        {
+          "key": "CRISPR RNA-seq",
+          "doc_count": 1
+        }
+      ],
+      "total": 12,
+      "type": "typeahead",
+      "appended": false,
+      "open_on_load": true
+    },
+    {
+      "field": "status",
+      "title": "Status",
+      "terms": [
+        {
+          "key": "released",
+          "doc_count": 12
+        },
+        {
+          "key": "archived",
+          "doc_count": 1
+        }
+      ],
+      "total": 13,
+      "type": "terms",
+      "appended": false,
+      "open_on_load": true
+    }
+  ],
+  "filters": [
+    {
+      "field": "status",
+      "term": "released",
+      "remove": "/search/?type=Experiment&format=json&searchTerm=CTCF+K562&limit=100&field=accession&field=assay_title&field=target.label&field=biosample_ontology.term_name&field=description&field=biosample_summary&field=date_released&field=lab.title&field=dbxrefs&field=doi"
+    },
+    {
+      "field": "type",
+      "term": "Experiment",
+      "remove": "/search/?status=released&format=json&searchTerm=CTCF+K562&limit=100&field=accession&field=assay_title&field=target.label&field=biosample_ontology.term_name&field=description&field=biosample_summary&field=date_released&field=lab.title&field=dbxrefs&field=doi"
+    },
+    {
+      "field": "searchTerm",
+      "term": "CTCF K562",
+      "remove": "/search/?type=Experiment&status=released&format=json&limit=100&field=accession&field=assay_title&field=target.label&field=biosample_ontology.term_name&field=description&field=biosample_summary&field=date_released&field=lab.title&field=dbxrefs&field=doi"
+    }
+  ],
+  "notification": "Success",
+  "title": "Search",
+  "total": 12
+}

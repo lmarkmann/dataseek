@@ -1,0 +1,13 @@
+{
+  "path_with_namespace": "restcountries/restcountries",
+  "namespace": {
+    "id": 64551110,
+    "name": "restcountries",
+    "path": "restcountries",
+    "kind": "group",
+    "full_path": "restcountries",
+    "parent_id": null,
+    "avatar_url": "/uploads/-/system/group/avatar/64551110/flat.w512.png?v=1781479896",
+    "web_url": "https://gitlab.com/groups/restcountries"
+  }
+}

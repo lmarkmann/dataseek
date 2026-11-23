@@ -25,7 +25,7 @@ use serde_json::Value;
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::{Dataset, day, items, text};
+use crate::record::{Dataset, day, text};
 
 /// Each source id OmicsDI answers with, and the repository it stands for
 /// (`/ws/database/all`, October 2026).
@@ -83,14 +83,7 @@ pub(super) fn parse(
     body: &Value,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    if body.get("datasets").is_none() {
-        return Err(SourceError::shape("no datasets array"));
-    }
-    Ok(items(body, "/datasets")
-        .iter()
-        .filter_map(record)
-        .take(limit)
-        .collect())
+    super::parse_list(body, "/datasets", limit, record)
 }
 
 fn record(row: &Value) -> Option<Dataset> {

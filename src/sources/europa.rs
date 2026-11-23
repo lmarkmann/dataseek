@@ -86,14 +86,7 @@ pub(super) fn parse(
     body: &Value,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    if body.pointer("/result/results").is_none() {
-        return Err(SourceError::shape("no result.results"));
-    }
-    Ok(items(body, "/result/results")
-        .iter()
-        .filter_map(record)
-        .take(limit)
-        .collect())
+    super::parse_list(body, "/result/results", limit, record)
 }
 
 fn record(row: &Value) -> Option<Dataset> {

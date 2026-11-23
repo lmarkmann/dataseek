@@ -1,10 +1,11 @@
 # Setup
 
-Verified against `README.md`, `docs/reference/contract.md`, `docs/reference/keys-and-cache.md` and a live `dsk mcp` session on 2026-10-20.
+Verified against `README.md`, `docs/reference/contract.md`, `docs/reference/keys-and-cache.md` and a live `dsk mcp` session on 2026-11-23.
 
 ## Contents
 
 - **Install**: which command, and how to tell it worked
+- **Upgrade**: when the server is older than this skill
 - **Register the MCP server**: the entry every client takes, and the three variants that fix a server that will not start
 - **Verify**: the one call that proves the tools work, and the probe for when they do not appear
 - **Keys**: which sources a key unlocks or speeds up, and where a key may live
@@ -23,6 +24,18 @@ uvx dataseek search sea surface temperature   # run once, install nothing
 ```
 
 Every method but `uvx` installs two names for one program, `dsk` and `dataseek`; `uvx` runs it once and installs neither. Installing changes the user's machine: ask before running one, and let the user pick the package manager they already use.
+
+## Upgrade
+
+A server that lists no `related` tool, or whose `sources` tool returns fewer than 106 rows, is an older release. `dsk -V` prints the installed version. Upgrade with the package manager that installed it, then restart the server in the client:
+
+```sh
+brew upgrade dataseek
+cargo binstall dataseek
+uv tool upgrade dataseek
+```
+
+An upgrade changes the user's machine: ask first. Until it is done, work with the tools and the source ids the running server lists.
 
 ## Register the MCP server
 
@@ -45,13 +58,13 @@ Variants, each for one failure:
 - **A cache directory or connect timeout.** Global flags go after `mcp` and reach every call: `"args": ["mcp", "--cache-dir", "/path/to/cache", "--connect-timeout", "5"]`. `-q` and `-v` work the same way.
 - **An extra source on every search.** `"args": ["mcp", "--include", "google"]` adds Google Dataset Search to every search that sets neither `source` nor `include`. Only on the user's request: Google and Mendeley are opt-in because neither permits automated searches.
 
-The server speaks JSON-RPC on stdin and stdout and writes its own status line, `serving search, sources, inspect over MCP on stdio`, plus each call's narration on stderr, which clients usually show in their MCP logs. It serves protocol revisions 2025-06-18 and 2025-11-25 through `initialize`, and 2026-07-28 statelessly.
+The server speaks JSON-RPC on stdin and stdout and writes its own status line, `serving search, sources, inspect, related over MCP on stdio`, plus each call's narration on stderr, which clients usually show in their MCP logs. It serves protocol revisions 2025-06-18 and 2025-11-25 through `initialize`, and 2026-07-28 statelessly.
 
 After upgrading dataseek, restart the server in the client: a running server keeps the binary and the tool list it started with.
 
 ## Verify
 
-Call the `sources` tool once with no arguments. It answers with 76 rows; count them and note any `key` of `missing`. That count is the Setup lane's **Verified** part.
+Call the `sources` tool once with no arguments. It answers with one row per source, 106 in the current release; count them and note any `key` of `missing`. That count is the Setup lane's **Verified** part. Fewer rows mean an older release (Upgrade above), not a fault.
 
 When the tools do not appear at all, probe the server from a shell. This sends the handshake and a tool list request, holding stdin open for three seconds because closing it ends the server and every call still running:
 
@@ -62,24 +75,24 @@ When the tools do not appear at all, probe the server from a shell. This sends t
   '{"jsonrpc":"2.0","id":2,"method":"tools/list"}'; sleep 3 ) | dsk mcp
 ```
 
-Two JSON lines back, the second naming `search`, `sources` and `inspect`, means the server works and the fault is in the client's entry: the command path, the JSON, or a client that needs restarting. No output, or `command not found`, is the install.
+Two JSON lines back, the second naming `search`, `sources`, `inspect` and `related`, means the server works and the fault is in the client's entry: the command path, the JSON, or a client that needs restarting. No output, or `command not found`, is the install.
 
 ## Keys
 
-73 of the 76 sources need no key. A key unlocks three, raises the limits of four, and Kaggle reads one but answers the same without:
+98 of the 106 sources take no key, and 103 answer without one. A key unlocks three, raises the limits of four, and Kaggle reads one but answers the same without:
 
 | Source | Variable | Without it |
 |---|---|---|
 | FRED | `FRED_API_KEY` | skipped (`needs $FRED_API_KEY`) |
 | Roboflow Universe | `ROBOFLOW_API_KEY` | skipped |
 | Data Commons | `DATACOMMONS_API_KEY` | skipped |
-| Hugging Face | `HF_TOKEN` | 500 requests per 5 minutes per IP |
+| Hugging Face | `HF_TOKEN` | 500 requests per 5 minutes per IP; 50 multi-word searches per 5 minutes with or without it |
 | GitHub | `GITHUB_TOKEN` | 10 searches per minute |
 | NCBI (GEO) | `NCBI_API_KEY` | 3 requests per second |
 | Data.gov | `DATAGOV_API_KEY` | the keyless catalog search |
 | Kaggle | `KAGGLE_API_TOKEN`, or the Kaggle CLI's `~/.kaggle/access_token` or `~/.kaggle/kaggle.json` | anonymous requests work |
 
-Each source's `key` in the `sources` result reads `none` (takes no key), `optional` (takes one, none set, works without), `set` (found) or `missing` (needs one, none set, skipped). `dsk doctor` says where each key was found and never prints one.
+Each source's `key` in the `sources` result reads `none` (takes no key), `optional` (takes one, none set, works without), `set` (found) or `missing` (needs one, none set, skipped); `key_env` names the variable. `dsk doctor` says where each key was found and never prints one.
 
 Where a key lives, in order of preference:
 
@@ -91,7 +104,7 @@ No tool and no flag takes a key, so a key never belongs in a tool argument or on
 
 ## Cache
 
-Query answers are cached 6 hours, catalogs (the `*` sources in `references/search.md`) 7 days, and a failed source rests 10 minutes. A first search, or a search after a week, reports catalogs as `expired catalog` or `downloading its catalog`; one warm-up fixes both:
+Query answers are cached 6 hours, catalogs (the 39 sources whose `search` is `local`) 7 days, and a failed source rests 10 minutes. A first search, or a search after a week, reports catalogs as `expired catalog` or `downloading its catalog`; one warm-up fixes both:
 
 ```sh
 dsk cache warm                  # download every catalog now, no deadline

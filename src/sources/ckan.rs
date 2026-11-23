@@ -86,37 +86,89 @@ pub struct Portal {
     pub page: &'static str,
     /// Organization titles read "English | French".
     pub bilingual_orgs: bool,
+    /// The portal understands `fq=dataset_type:dataset`. NETL EDX answers
+    /// HTTP 500 to every `fq` value, so that row carries `false` and the
+    /// request leaves the filter out (November 2026).
+    pub dataset_type: bool,
 }
 
 pub static DATA_GOV_UK: Portal = Portal {
     api: "https://ckan.publishing.service.gov.uk/api/action",
     page: "https://www.data.gov.uk/dataset/",
     bilingual_orgs: false,
+    dataset_type: true,
 };
 pub static OPEN_CANADA: Portal = Portal {
     api: "https://open.canada.ca/data/api/action",
     page: "https://open.canada.ca/data/en/dataset/",
     bilingual_orgs: true,
+    dataset_type: true,
 };
 pub static DATA_GOV_AU: Portal = Portal {
     api: "https://data.gov.au/data/api/3/action",
     page: "https://data.gov.au/data/dataset/",
     bilingual_orgs: false,
+    dataset_type: true,
 };
 pub static GOVDATA: Portal = Portal {
     api: "https://ckan.govdata.de/api/3/action",
     page: "https://www.govdata.de/suche/daten/",
     bilingual_orgs: false,
+    dataset_type: true,
 };
 pub static HDX: Portal = Portal {
     api: "https://data.humdata.org/api/3/action",
     page: "https://data.humdata.org/dataset/",
     bilingual_orgs: false,
+    dataset_type: true,
 };
 pub static B2FIND: Portal = Portal {
     api: "https://b2find.eudat.eu/api/3/action",
     page: "https://b2find.eudat.eu/dataset/",
     bilingual_orgs: false,
+    dataset_type: true,
+};
+/// The e-Gov data portal moved from data.go.jp, which no longer resolves.
+/// Its metadata is in Japanese: "climate" matches 467 records and 気候 1,282.
+/// Resource sizes are rounded to the kilobyte (November 2026).
+pub static DATA_GO_JP: Portal = Portal {
+    api: "https://data.e-gov.go.jp/data/api/3/action",
+    page: "https://data.e-gov.go.jp/data/dataset/",
+    bilingual_orgs: false,
+    dataset_type: true,
+};
+/// The World Bank's energy portal. Its `url` field sometimes names a
+/// provider ("KTH") instead of a page (November 2026).
+pub static ENERGYDATA: Portal = Portal {
+    api: "https://energydata.info/api/3/action",
+    page: "https://energydata.info/dataset/",
+    bilingual_orgs: false,
+    dataset_type: true,
+};
+/// The US Department of Energy's subsurface and energy portal. Its counts
+/// lead with the products it hosts, and its metadata carries an `aiml_info`
+/// block naming the ML tasks a dataset suits (November 2026).
+pub static NETL_EDX: Portal = Portal {
+    api: "https://edx.netl.doe.gov/api/3/action",
+    page: "https://edx.netl.doe.gov/dataset/",
+    bilingual_orgs: false,
+    dataset_type: false,
+};
+/// The Swiss open-data portal. Its titles, descriptions and organization
+/// names are maps from language code to text rather than strings, and it
+/// answers `fq` as usual (November 2026).
+pub static OPENDATA_SWISS: Portal = Portal {
+    api: "https://ckan.opendata.swiss/api/3/action",
+    page: "https://opendata.swiss/en/dataset/",
+    bilingual_orgs: false,
+    dataset_type: true,
+};
+
+pub static OPEN_AFRICA: Portal = Portal {
+    api: "https://open.africa/api/3/action",
+    page: "https://open.africa/dataset/",
+    bilingual_orgs: false,
+    dataset_type: true,
 };
 
 pub fn search(
@@ -125,13 +177,15 @@ pub fn search(
     query: &str,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    let body = ctx
+    let mut call = ctx
         .http
         .get(&format!("{}/package_search", portal.api))
         .query("q", query.replace(':', " "))
-        .query("fq", filter_query(ctx.since))
-        .query("rows", limit)
-        .json()?;
+        .query("rows", limit);
+    if portal.dataset_type {
+        call = call.query("fq", filter_query(ctx.since));
+    }
+    let body = call.json()?;
     parse(portal, &body, limit)
 }
 
@@ -162,14 +216,8 @@ pub(super) fn parse(
 
 fn record(portal: &Portal, row: &Value) -> Option<Dataset> {
     let name = text(row, "/name")?;
-    let title = text(row, "/title").unwrap_or_else(|| name.clone());
-    let extra = |key: &str| {
-        items(row, "/extras").iter().find_map(|e| {
-            (e.get("key").and_then(Value::as_str) == Some(key))
-                .then(|| text(e, "/value"))
-                .flatten()
-        })
-    };
+    let title = label(row, "/title").unwrap_or_else(|| name.clone());
+    let extra = |key: &str| extra(row, key);
     let doi = extra("DOI")
         .or_else(|| text(row, "/digital_object_identifier"))
         .or_else(|| {
@@ -177,30 +225,10 @@ fn record(portal: &Portal, row: &Value) -> Option<Dataset> {
                 .filter(|id| id.starts_with("10.") || id.contains("doi.org/"))
         });
     let mut dataset = Dataset::new(&title, &format!("{}{name}", portal.page))
-        .describe(text(row, "/notes").map(|notes| from_markdown(&notes)))
+        .describe(label(row, "/notes").map(|notes| from_markdown(&notes)))
         .doi_from(doi);
-    dataset.publisher = extra("publisher_name")
-        .or_else(|| extra("Publisher"))
-        .or_else(|| {
-            text(row, "/organization/title").map(|title| {
-                match title.split_once(" | ") {
-                    Some((english, _)) if portal.bilingual_orgs => {
-                        english.to_owned()
-                    }
-                    _ => title,
-                }
-            })
-        })
-        .or_else(|| text(row, "/author"));
-    dataset.license = text(row, "/license_title")
-        .or_else(|| {
-            items(row, "/resources").iter().find_map(|r| text(r, "/license"))
-        })
-        .or_else(|| extra("Rights").and_then(|rights| named_license(&rights)))
-        .filter(|license| license.chars().count() <= LONGEST_LICENSE)
-        .filter(|_| {
-            text(row, "/license_id").as_deref() != Some("notspecified")
-        });
+    dataset.publisher = publisher(portal, row);
+    dataset.license = license(row);
     dataset.updated = [
         text(row, "/last_modified"),
         extra("modified"),
@@ -223,6 +251,65 @@ fn record(portal: &Portal, row: &Value) -> Option<Dataset> {
         dataset.aliases.push(source_page);
     }
     dataset.valid()
+}
+
+/// The value of the harvested extra named `key`.
+fn extra(row: &Value, key: &str) -> Option<String> {
+    items(row, "/extras").iter().find_map(|e| {
+        (e.get("key").and_then(Value::as_str) == Some(key))
+            .then(|| text(e, "/value"))
+            .flatten()
+    })
+}
+
+/// A field that a portal sends either as text or as a map from language code
+/// to text, which opendata.swiss does. English wins over German, both over
+/// French and Italian, and an empty string never wins.
+fn label(row: &Value, path: &str) -> Option<String> {
+    if let Some(value) = text(row, path) {
+        return Some(value);
+    }
+    let map = row.pointer(path)?.as_object()?;
+    ["en", "de", "fr", "it"].into_iter().find_map(|language| {
+        map.get(language)
+            .and_then(Value::as_str)
+            .filter(|value| !value.trim().is_empty())
+            .map(str::to_owned)
+    })
+}
+
+/// The publisher a harvested record names, else the organization, in
+/// English where the portal writes two languages, else the author.
+fn publisher(portal: &Portal, row: &Value) -> Option<String> {
+    extra(row, "publisher_name")
+        .or_else(|| extra(row, "Publisher"))
+        .or_else(|| {
+            label(row, "/organization/title").map(|title| {
+                match title.split_once(" | ") {
+                    Some((english, _)) if portal.bilingual_orgs => {
+                        english.to_owned()
+                    }
+                    _ => title,
+                }
+            })
+        })
+        .or_else(|| text(row, "/author"))
+}
+
+/// The license of the dataset, of its first resource that names one, or of
+/// the harvested rights statement.
+fn license(row: &Value) -> Option<String> {
+    text(row, "/license_title")
+        .or_else(|| {
+            items(row, "/resources").iter().find_map(|r| text(r, "/license"))
+        })
+        .or_else(|| {
+            extra(row, "Rights").and_then(|rights| named_license(&rights))
+        })
+        .filter(|license| license.chars().count() <= LONGEST_LICENSE)
+        .filter(|_| {
+            text(row, "/license_id").as_deref() != Some("notspecified")
+        })
 }
 
 fn resource_bytes(row: &Value) -> Option<u64> {
@@ -675,6 +762,216 @@ mod tests {
                 "https://b2share.fz-juelich.de/records/\
                  be5cde68c6ba4ab08b6687b17adbb3b6"
             ]
+        );
+    }
+
+    #[test]
+    fn data_go_jp_names_the_ministry_and_sums_rounded_sizes() {
+        let hits =
+            parse(&DATA_GO_JP, &fixture::json("ckan.data-go-jp.json"), 10)
+                .unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "\u{6c17}\u{5019}\u{30fb}\u{6d77}\u{6d0b}\u{30fb}\
+                        \u{5730}\u{7403}\u{74b0}\u{5883}_\u{520a}\u{884c}\
+                        \u{7269}\u{3001}\u{305d}\u{306e}\u{4ed6}"
+                    .into(),
+                url: "https://data.e-gov.go.jp/data/dataset/\
+                      mlit_20140919_0739"
+                    .into(),
+                description: Some(
+                    "\u{6c17}\u{5019}\u{30fb}\u{6d77}\u{6d0b}\u{3084}\
+                     \u{5730}\u{7403}\u{74b0}\u{5883}\u{5206}\u{91ce}\
+                     \u{306e}\u{520a}\u{884c}\u{7269}\u{3067}\u{3059}\
+                     \u{3002}"
+                        .into()
+                ),
+                publisher: Some(
+                    "\u{56fd}\u{571f}\u{4ea4}\u{901a}\u{7701}".into()
+                ),
+                doi: None,
+                license: None,
+                updated: Some("2025-06-20".into()),
+                size_bytes: Some(
+                    8000 + 5000
+                        + 4000
+                        + 6000
+                        + 7000
+                        + 6000
+                        + 5000
+                        + 7_600_000
+                        + 7000
+                        + 4000
+                        + 5000
+                        + 8000
+                ),
+                popularity: None,
+                formats: [
+                    "HTML", "HTML", "HTML", "HTML", "HTML", "HTML", "HTML",
+                    "PDF", "HTML", "HTML", "HTML", "HTML",
+                ]
+                .map(String::from)
+                .to_vec(),
+                aliases: vec![],
+            }
+        );
+        assert_eq!(hits[1].description, None, "its notes are one space");
+    }
+
+    #[test]
+    fn energydata_keeps_only_a_url_that_is_a_link() {
+        let hits =
+            parse(&ENERGYDATA, &fixture::json("ckan.energydata.json"), 10)
+                .unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Solar Potential".into(),
+                url: "https://energydata.info/dataset/solar-potential".into(),
+                description: Some(
+                    "Global Horizontal Irradiance in Kwh / m2 for Nigeria, \
+                     Tanzania and Zambia. The original data was provided by \
+                     KTH."
+                        .into()
+                ),
+                publisher: Some("Offgrid Market Opportunities".into()),
+                doi: None,
+                license: Some("Creative Commons Attribution 4.0".into()),
+                updated: Some("2021-05-05".into()),
+                size_bytes: None,
+                popularity: None,
+                formats: vec!["GeoJSON".into(), "TILE".into()],
+                aliases: vec![],
+            },
+            "`url` is \"KTH\", not a page"
+        );
+        assert_eq!(hits[1].aliases, vec!["https://esmap.org/node/3058"]);
+    }
+
+    #[test]
+    fn open_africa_drops_an_unspecified_license() {
+        let hits =
+            parse(&OPEN_AFRICA, &fixture::json("ckan.open-africa.json"), 10)
+                .unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Water Dashboard".into(),
+                url: "https://open.africa/dataset/water-dashboard".into(),
+                description: Some(
+                    "This dataset contains data which are used to create \
+                     water dashboard"
+                        .into()
+                ),
+                publisher: Some(
+                    "Tanzania National Bureau of Statistics".into()
+                ),
+                doi: None,
+                license: None,
+                updated: Some("2019-08-17".into()),
+                size_bytes: None,
+                popularity: None,
+                formats: vec!["CSV".into(); 5],
+                aliases: vec![],
+            },
+            "`notspecified` is no license"
+        );
+    }
+
+    #[test]
+    fn netl_edx_reads_a_portal_without_the_dataset_filter() {
+        let hits = parse(&NETL_EDX, &fixture::json("ckan.netl-edx.json"), 10)
+            .unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Oklahoma Seismicity Story Map".into(),
+                url: "https://edx.netl.doe.gov/dataset/\
+                      oklahoma-seismicity-story-map"
+                    .into(),
+                description: Some(
+                    "Overview of story map entitled \"Evaluating the \
+                     Mysteries of Seismicity in Oklahoma\""
+                        .into()
+                ),
+                publisher: None,
+                doi: None,
+                license: None,
+                updated: Some("2019-03-25".into()),
+                size_bytes: None,
+                popularity: None,
+                formats: vec!["HTML".into()],
+                aliases: vec![],
+            },
+            "one resource of size 0 has no size"
+        );
+        assert_eq!(
+            hits[1].size_bytes,
+            Some(
+                799 + 239_239_844
+                    + 817_430_513
+                    + 16_538_098_319
+                    + 55_999_995_907
+            ),
+            "the sizes add up across the resources"
+        );
+    }
+
+    #[test]
+    fn opendata_swiss_reads_the_language_maps() {
+        let hits = parse(
+            &OPENDATA_SWISS,
+            &fixture::json("ckan.opendata-swiss.json"),
+            10,
+        )
+        .unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Smart Climate Schallpegelmessungen".into(),
+                url: "https://opendata.swiss/en/dataset/\
+                      smart-climate-schallpegelmessungen"
+                    .into(),
+                description: None,
+                publisher: Some("Canton of Basel-City".into()),
+                doi: None,
+                license: Some(
+                    "https://opendata.swiss/terms-of-use#terms_by".into()
+                ),
+                updated: Some("2026-11-23".into()),
+                size_bytes: None,
+                popularity: None,
+                formats: [
+                    "CSV",
+                    "JSON",
+                    "OCTET",
+                    "JSON",
+                    "GPX",
+                    "JSON",
+                    "KML",
+                    "TXT",
+                    "PARQUET",
+                    "RDF XML",
+                    "JSON-LD",
+                    "RDF Turtle",
+                    "N3",
+                    "ZIP",
+                    "XLS",
+                ]
+                .map(String::from)
+                .to_vec(),
+                aliases: vec![
+                    "https://data.bs.ch/explore/dataset/100087/".into()
+                ],
+            },
+            "an empty English title falls back to German, and the \
+             organization name is English"
         );
     }
 

@@ -1,4 +1,4 @@
-//! The three tools. Each one's input schema is generated from the object
+//! The four tools. Each one's input schema is generated from the object
 //! `help <command> --json` prints, and a call's arguments become that
 //! command's flags through the same object, so a tool and its command cannot
 //! drift apart: a flag added to `search` is a `search` argument at once, and
@@ -22,7 +22,7 @@ use crate::ui::EVENTS_SCHEMA;
 use crate::{Failure, help, ui};
 
 /// The tools, in the order `tools/list` returns them.
-pub const TOOLS: [&str; 3] = ["search", "sources", "inspect"];
+pub const TOOLS: [&str; 4] = ["search", "sources", "inspect", "related"];
 
 /// How many calls run at once; one more is refused.
 pub const MAX_CALLS: usize = 4;

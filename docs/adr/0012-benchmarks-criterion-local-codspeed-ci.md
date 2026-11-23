@@ -20,6 +20,7 @@ A search spends seconds on the network and milliseconds on the CPU, so a CPU reg
 - CI gains a second workflow: one job, Linux only, OIDC upload, no secret. Pull requests trigger it only when `src/`, `benches/` or the manifests change; every push to main runs it so each commit there is a baseline. This is the one exception to ADR 0002's single job, kept apart so its path filter does not touch the required `linux` check.
 - CodSpeed is an external service: the repository has to stay imported at codspeed.io, on the free plan (CPU simulation, up to five users).
 - `cargo-codspeed` in the workflow is pinned to the version of the `codspeed` crate in `Cargo.lock`; bumping one without the other breaks the job.
+- CodSpeed 6 runs each benchmark in its own process. A chart therefore steps where the harness moved from 5 to 6, not where the code changed; `CODSPEED_PROCESS_ISOLATION=false` restores the old behaviour for one run.
 - The per-adapter JSON mappers are not benchmarked: each reads at most one API page, microseconds next to its request. An adapter that pages through results, or a profile that shows a mapper hot, is the trigger to add one.
 - `cargo codspeed run` measures only on Linux; on a Mac, the local numbers are Criterion's wall time.
 
