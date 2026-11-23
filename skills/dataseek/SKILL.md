@@ -6,10 +6,11 @@ description: >
   own code or source adapters. Finds datasets across 77 archives at once
   (Hugging Face, Kaggle, Zenodo, Dataverse, data.gov, data.europa.eu, IMF,
   OECD, ECB, NASA, Copernicus, GEO and more) through dataseek: its MCP
-  server's search, sources and inspect tools, or the dsk CLI with --json.
+  server's search, sources, inspect and related tools, or the dsk CLI with
+  --json.
   Use on "find a dataset on", "is there open data about", "where can I get
   data for", "search Kaggle and Hugging Face for", "what files and license
-  does this dataset have", "add dataseek to my MCP client", "which API keys
+  does this dataset have", "what else does this owner publish", "add dataseek to my MCP client", "which API keys
   does dataseek need", and when a dsk command or dataseek tool call fails,
   skips a source or returns nothing.
 compatibility: needs the dataseek binary (dsk) and network access
@@ -17,11 +18,11 @@ compatibility: needs the dataseek binary (dsk) and network access
 
 # dataseek
 
-dataseek sends one query to every default dataset source (the opt-in ones only when named), merges the records that are one dataset (a shared DOI, landing URL, or title and publisher) and ranks them by how many sources agree and how much of the query each covers. It runs as an MCP server (`dsk mcp`, three tools) and as a CLI (`dsk`, also installed as `dataseek`). They are one program: a tool returns, byte for byte, the object `dsk <command> --json` prints, so every reference here holds for both.
+dataseek sends one query to every default dataset source (the opt-in ones only when named), merges the records that are one dataset (a shared DOI, landing URL, or title and publisher) and ranks them by how many sources agree and how much of the query each covers. It runs as an MCP server (`dsk mcp`, four tools) and as a CLI (`dsk`, also installed as `dataseek`). They are one program: a tool returns, byte for byte, the object `dsk <command> --json` prints, so every reference here holds for both.
 
 **MCP first; the CLI is the fallback.** dataseek is built to be called as an MCP server, so every procedure here is written in tool arguments.
 
-1. The tool list holds the dataseek server's `search`, `sources` and `inspect` tools: call them. Clients name them differently (`search`, `dataseek.search`, `mcp__dataseek__search`); the server is `dataseek`.
+1. The tool list holds the dataseek server's `search`, `sources`, `inspect` and `related` tools: call them. Clients name them differently (`search`, `dataseek.search`, `mcp__dataseek__search`); the server is `dataseek`.
 2. No dataseek tools, but a shell with `dsk`: finish this task with `dsk <command> --json`, using the CLI column of `references/search.md`, and tell the user once that registering the server (Setup lane) turns this into tool calls.
 3. Neither: go to the Setup lane first.
 
@@ -41,6 +42,10 @@ Inspect lane:
 Leaves behind: the final message, in three parts in this order
 Sections: Metadata, Files, Not stated
 
+Related lane:
+Leaves behind: the final message, in two parts in this order
+Sections: Neighbors, Source
+
 Setup lane:
 Leaves behind: the client's MCP entry for dataseek, and the count of sources one `sources` call returned
 Sections: Config, Verified
@@ -51,7 +56,7 @@ Sections: Diagnosis, Fix, Result
 
 Forbidden: [A-Z_]*(TOKEN|API_KEY)=[^\s$"'{]
 Forbidden: (-s |--source[ =]|--include[ =]|"(source|include)"\s*:\s*\[)[^\]\n]*\b(google|mendeley)\b
-Forbidden: \bdsk (s|search|sources|inspect)\b(?:(?!--json)[^|\n])*\|
+Forbidden: \bdsk (s|search|sources|inspect|related)\b(?:(?!--json)[^|\n])*\|
 
 The exemptions are under Iron rules.
 
@@ -61,6 +66,7 @@ The exemptions are under Iron rules.
 |---|---|---|
 | "find a dataset on", "is there data about", "on Hugging Face or Kaggle", a topic with no dataset named yet (default) | Search | `references/search.md` |
 | a dataset URL handed over, "what files does it have", "what license", "how big", "what format" | Inspect | `references/inspect.md` |
+| a dataset, owner, paper, model or repository URL with "what else did they publish", "which datasets use this paper or model", "its forks" | Related | `references/related.md` |
 | install dataseek, add it to an MCP client, "the tools do not show up", API keys, credentials | Setup | `references/setup.md` |
 | an `Error:` with a `Try:` line, `isError: true`, a source skipped or not waited for, no results, offline, certificate errors | Troubleshoot | `references/troubleshoot.md` |
 | a shell script, a pipeline, `jq`, exit codes, CI, many queries in a loop | Script | `references/cli.md` |
@@ -79,6 +85,10 @@ Default when ambiguous: **Search**. A search the user will choose from runs Sear
 
 Call `inspect` with the result's landing page URL. It reads the page's schema.org Dataset markup (Croissant for Hugging Face) and lists the files the page declares; it downloads nothing. When it answers `carries no schema.org Dataset markup` and the result has a DOI, try `https://doi.org/<doi>` once, then say the page publishes no metadata and give its URL. Which archives publish markup, the JSON shape, and the answer shape: `references/inspect.md`.
 
+## Related
+
+Call `related` with the page of an item already in hand: a Hugging Face dataset, owner, paper, model or collection page, an arXiv link, a GitHub repository or owner page, or a GitLab project page. It asks that one host for the item's neighbors and returns them as search records, in the host's order. Set `by` to `forks` for the forks of a GitHub repository. The pages, the relations, the limits and the answer shape: `references/related.md`.
+
 ## Setup
 
 Check `dsk -V` first, then register `{"command": "dsk", "args": ["mcp"]}` under the client's MCP servers and verify with one `sources` call. Install commands, the absolute-path and `uvx` variants, the stdin handshake probe, keys and `credentials.toml`: `references/setup.md`.
@@ -93,7 +103,7 @@ Quote the `Error:`, `Cause:` and `Try:` lines (or the source's `status`) exactly
 
 ## Boundaries
 
-- Owns: finding datasets with dataseek, reading one dataset page's metadata and file list with `inspect`, installing and registering dataseek, its keys and cache, and reading its errors.
+- Owns: finding datasets with dataseek, reading one dataset page's metadata and file list with `inspect`, listing the datasets beside one item with `related`, installing and registering dataseek, its keys and cache, and reading its errors.
 - Does not own: papers, citations and authors (a scholarly search tool); rows, columns or statistics inside one dataset (the archive's own API, such as the Hugging Face Dataset Viewer); downloading, converting or loading files; changing dataseek's code or a source adapter (the repository's `CONTRIBUTING.md` and `docs/`).
 - `dsk bench` sends queries x sources requests and skips the cache. It is a maintainer's tool: run it only when the user asks for it by name.
 
@@ -103,6 +113,7 @@ Quote the `Error:`, `Cause:` and `Try:` lines (or the source's `status`) exactly
 |---|---|
 | `references/search.md` | Arguments on both surfaces, source ids and categories, writing queries, reading results and statuses, opt-in sources, more results |
 | `references/inspect.md` | What `inspect` reads, its JSON shape, which archives publish markup, the DOI fallback, the answer shape |
+| `references/related.md` | The pages `related` reads, its relations, its JSON shape, its limits, the answer shape |
 | `references/setup.md` | Install, MCP registration, the handshake probe, keys and `credentials.toml`, cache warm-up |
 | `references/troubleshoot.md` | Tool refusals, protocol errors, exit codes, whole-search failures, per-source statuses and their fixes |
 | `references/cli.md` | Commands, global flags, variables, JSON schemas, stderr events, `jq` recipes, batches |

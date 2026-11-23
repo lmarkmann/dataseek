@@ -430,7 +430,8 @@ fn instructions() -> String {
         "dataseek searches {} dataset sources with one query. `search` \
         returns one merged, deduplicated, ranked list; `sources` lists the \
         sources and whether their keys are set; `inspect` reads one dataset \
-        page's schema.org or Croissant metadata.",
+        page's schema.org or Croissant metadata; `related` lists the \
+        datasets beside one item: its owner's, a paper's, a model's.",
         SOURCES.len()
     )
 }

@@ -71,7 +71,7 @@ pub(super) fn parse(
         .collect())
 }
 
-fn record(project: &Value) -> Option<Dataset> {
+pub(super) fn record(project: &Value) -> Option<Dataset> {
     let mut dataset = Dataset::new(
         &text(project, "/path_with_namespace")?,
         &text(project, "/web_url")?,

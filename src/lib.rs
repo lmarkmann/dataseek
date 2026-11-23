@@ -40,6 +40,7 @@ mod output;
 mod palette;
 mod paths;
 mod record;
+mod related;
 mod search;
 mod sources;
 mod ui;
@@ -265,6 +266,12 @@ fn run(cli: Cli, out: &Out) -> anyhow::Result<()> {
                 http::go_offline();
             }
             inspect::run(&url, out)?;
+        }
+        Command::Related { url, by, limit, offline } => {
+            if offline {
+                http::go_offline();
+            }
+            related::run(&url, by, limit, out)?;
         }
         Command::Mcp { include } => mcp::run(
             &mcp::Globals {

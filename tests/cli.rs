@@ -897,6 +897,119 @@ fn inspect_reports_an_unreachable_page() {
     assert!(error < cause && cause < hint, "{stderr}");
 }
 
+/// `related` with every request it sends answered by `body`.
+fn related_of(body: &'static str, args: &[&str]) -> std::process::Output {
+    let proxy = serving(body);
+    bin()
+        .env("HTTPS_PROXY", &proxy)
+        .env("HTTP_PROXY", &proxy)
+        .arg("related")
+        .args(args)
+        .output()
+        .unwrap()
+}
+
+/// `related --json` of a Hub dataset page, answered from a recorded listing
+/// of its owner.
+fn related_json(limit: &str) -> (Value, String) {
+    let out = related_of(
+        include_str!("fixtures/related/hub-owner.json"),
+        &[
+            "http://huggingface.co/datasets/nyu-mll/glue",
+            "--json",
+            "-n",
+            limit,
+        ],
+    );
+    assert!(out.status.success(), "{out:?}");
+    (
+        serde_json::from_slice(&out.stdout).unwrap(),
+        String::from_utf8(out.stderr).unwrap(),
+    )
+}
+
+#[test]
+fn related_lists_what_the_owner_of_a_dataset_holds() {
+    let (report, stderr) = related_json("2");
+    assert_eq!(report["schema"], "dataseek-related/1");
+    assert_eq!(report["url"], "http://huggingface.co/datasets/nyu-mll/glue");
+    assert_eq!(report["source"], "huggingface");
+    assert_eq!(report["relation"], "owner");
+    let titles: Vec<&str> = report["results"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|r| r["title"].as_str().unwrap())
+        .collect();
+    assert_eq!(titles, ["nyu-mll/blimp", "nyu-mll/multi_nli"]);
+    assert!(stderr.contains("2 of 4 datasets; -n 4 shows all"), "{stderr}");
+}
+
+#[test]
+fn related_lists_the_forks_of_a_repository_one_per_line() {
+    let out = related_of(
+        include_str!("fixtures/related/github-forks.json"),
+        &[
+            "http://github.com/zalandoresearch/fashion-mnist",
+            "--by",
+            "forks",
+            "--plain",
+        ],
+    );
+    assert!(out.status.success(), "{out:?}");
+    let stdout = String::from_utf8(out.stdout).unwrap();
+    assert_eq!(stdout.lines().count(), 3, "{stdout}");
+    assert_eq!(
+        stdout.lines().next(),
+        Some(
+            "HaidaQuant/fashion-mnist\t\
+             https://github.com/HaidaQuant/fashion-mnist\tgithub\t\t2022-06-13"
+        )
+    );
+}
+
+/// `related` failing before any request, as its stderr.
+fn related_refusal(args: &[&str]) -> String {
+    let out = bin().arg("related").args(args).output().unwrap();
+    assert_eq!(out.status.code(), Some(1), "{out:?}");
+    assert_eq!(out.stdout.len(), 0);
+    String::from_utf8(out.stderr).unwrap()
+}
+
+#[test]
+fn related_refuses_a_page_it_reads_no_neighbors_of() {
+    let stderr = related_refusal(&["https://zenodo.org/records/13135140"]);
+    assert!(
+        stderr.starts_with(
+            "Error: https://zenodo.org/records/13135140 is not a page \
+             `related` reads\n  Try: "
+        ),
+        "{stderr}"
+    );
+}
+
+#[test]
+fn related_says_which_pages_have_forks() {
+    let stderr = related_refusal(&[
+        "https://huggingface.co/datasets/nyu-mll/glue",
+        "--by",
+        "forks",
+    ]);
+    assert!(
+        stderr.starts_with(
+            "Error: only a GitHub repository has forks to list\n  Try: "
+        ),
+        "{stderr}"
+    );
+}
+
+#[test]
+fn related_offline_fails_at_once() {
+    let stderr =
+        related_refusal(&["https://github.com/zalandoresearch", "--offline"]);
+    assert!(stderr.contains("needs the network\n  Try: "), "{stderr}");
+}
+
 /// A page whose JSON-LD describes one dataset and the file it offers.
 const DATASET_PAGE: &str = r#"<html><head>
 <script type="application/ld+json">
@@ -1650,9 +1763,13 @@ fn example_command(line: &str) -> Option<Vec<String>> {
 #[test]
 fn every_example_in_help_and_readme_parses() {
     let mut examples = Vec::new();
-    for args in
-        [&["-h"][..], &["search", "-h"], &["bench", "-h"], &["inspect", "-h"]]
-    {
+    for args in [
+        &["-h"][..],
+        &["search", "-h"],
+        &["bench", "-h"],
+        &["inspect", "-h"],
+        &["related", "-h"],
+    ] {
         let help = stdout_text(args);
         let block = help.split("Examples:\n").nth(1).unwrap_or_default();
         examples.extend(block.lines().filter_map(example_command));
@@ -1777,6 +1894,7 @@ fn json_shapes_snapshot() {
         },
         "search": seeded_search_json(),
         "inspect": inspect_json(DATASET_PAGE),
+        "related": related_json("1").0,
     });
     filters::with_snapshot_filters(|| {
         insta::assert_snapshot!(
@@ -2001,7 +2119,7 @@ fn an_mcp_client_drives_a_whole_session_over_stdio() {
         .iter()
         .map(|t| t["name"].as_str().unwrap())
         .collect();
-    assert_eq!(names, ["search", "sources", "inspect"]);
+    assert_eq!(names, ["search", "sources", "inspect", "related"]);
 
     let sources = mcp.call(3, "sources", json!({}));
     assert_eq!(sources["isError"], false);
@@ -2053,6 +2171,16 @@ fn an_mcp_client_drives_a_whole_session_over_stdio() {
         "{text}"
     );
     assert_eq!(failed["structuredContent"]["event"], "error");
+
+    let refused = mcp.call(7, "related", json!({ "url": url, "by": "forks" }));
+    assert_eq!(refused["isError"], true);
+    let text = refused["content"][0]["text"].as_str().unwrap();
+    assert!(
+        text.starts_with(
+            "Error: http://zenodo.org/records/13135140 is not a page"
+        ) && text.contains("\n  Try:"),
+        "{text}"
+    );
 
     let stderr = mcp.close();
     assert!(stderr.contains("searching 1 source"), "{stderr}");
@@ -2125,7 +2253,10 @@ fn an_mcp_client_on_the_current_revision_needs_no_handshake() {
     assert_eq!(refused["error"]["data"]["requested"], "1900-01-01");
 
     let stderr = mcp.close();
-    assert!(stderr.contains("serving search, sources, inspect"), "{stderr}");
+    assert!(
+        stderr.contains("serving search, sources, inspect, related"),
+        "{stderr}"
+    );
 }
 
 // A line that is not UTF-8 is a parse error like any other, and the session

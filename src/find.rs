@@ -25,6 +25,7 @@ use crate::dedup::{Hit, merge, weigh};
 use crate::filter::Wanted;
 use crate::http::SourceError;
 use crate::output::{self, Out, fit};
+use crate::record::Dataset;
 use crate::search::{Outcome, Plan, Status, run};
 use crate::sources::{Services, select};
 use crate::{palette, ui};
@@ -486,16 +487,24 @@ fn print(
             sources,
         });
     }
+    let shown: Vec<_> =
+        hits.iter().map(|hit| (&hit.dataset, &hit.sources[..])).collect();
+    list(out, &shown)
+}
+
+/// Datasets as the result list shows them, each with the sources that hold
+/// it: one tab-separated line each under `--plain`, numbered blocks
+/// otherwise.
+pub fn list(out: &Out, shown: &[(&Dataset, &[&'static str])]) -> Result<()> {
     let mut w = out.stdout();
     if out.plain {
-        for hit in hits {
-            let d = &hit.dataset;
+        for (d, sources) in shown {
             writeln!(
                 w,
                 "{}\t{}\t{}\t{}\t{}",
                 tabless(&d.title),
                 d.url,
-                hit.sources.join(","),
+                sources.join(","),
                 d.doi.as_deref().unwrap_or(""),
                 d.updated.as_deref().unwrap_or("")
             )?;
@@ -504,12 +513,11 @@ fn print(
     }
     let (number, title, muted) =
         (palette::accent(), Style::new().bold(), palette::muted());
-    let width = hits.len().to_string().len();
+    let width = shown.len().to_string().len();
     let indent = width.saturating_add(2);
     let pad = " ".repeat(indent);
     let line = output::width().map(|w| w.saturating_sub(indent));
-    for (i, hit) in hits.iter().enumerate() {
-        let d = &hit.dataset;
+    for (i, (d, sources)) in shown.iter().enumerate() {
         writeln!(
             w,
             "{number}{:>width$}{number:#}  {title}{}{title:#}",
@@ -517,7 +525,7 @@ fn print(
             fit(&d.title, line)
         )?;
         writeln!(w, "{pad}{}", out.link(&d.url))?;
-        writeln!(w, "{pad}{muted}{}{muted:#}", fit(&facts(hit), line))?;
+        writeln!(w, "{pad}{muted}{}{muted:#}", fit(&facts(d, sources), line))?;
         if let Some(text) = &d.description {
             writeln!(w, "{pad}{}", fit(text, output::prose_width(line)))?;
         }
@@ -529,9 +537,8 @@ fn print(
 /// The one-line provenance under a title: sources, publisher, date, size,
 /// formats, license, whichever are known. Past [`FORMATS_SHOWN`] formats,
 /// the rest are counted.
-fn facts(hit: &Hit) -> String {
-    let d = &hit.dataset;
-    let mut parts = vec![hit.sources.join(", ")];
+fn facts(d: &Dataset, sources: &[&'static str]) -> String {
+    let mut parts = vec![sources.join(", ")];
     parts.extend(d.publisher.clone());
     parts.extend(d.updated.clone());
     parts.extend(d.size_bytes.map(human_bytes));

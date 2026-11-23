@@ -70,7 +70,8 @@ const LONGEST_QUERY: usize = 250;
 const CARD_START: usize = 4000;
 const CUT_NOTICE: &str = " See the full description on the dataset page:";
 
-const FIELDS: [&str; 6] =
+/// The fields a listing row is asked to carry.
+pub const FIELDS: [&str; 6] =
     ["author", "description", "downloads", "lastModified", "mainSize", "tags"];
 
 type Fetched = Result<Value, SourceError>;
@@ -321,7 +322,7 @@ fn card_start(hit: &Value) -> Option<String> {
     (!card.is_empty()).then(|| from_markdown(&card))
 }
 
-fn record(row: &Value) -> Option<Dataset> {
+pub(super) fn record(row: &Value) -> Option<Dataset> {
     let id = text(row, "/id")?;
     let mut dataset =
         Dataset::new(&id, &format!("https://huggingface.co/datasets/{id}"))

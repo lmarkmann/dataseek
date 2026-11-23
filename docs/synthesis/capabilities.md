@@ -4,6 +4,8 @@ The filter and file-list features planned for dataseek (server-side filters by l
 
 Columns: **license**, **date** and **format** filters; **type** is a resource-type filter; **manifest** is a file list with names, sizes, checksums or download URLs; **paging** is the parameter and the deepest reachable result; **total** is a hit count; **related** is papers or datasets linked to a record; **machine** is Croissant, schema.org JSON-LD, DCAT or another structured record. Rows of one protocol module (CKAN, Dataverse, NADA, SDMX, STAC, Socrata, EBI) repeat the protocol's cells; a difference between portals is named in the cell.
 
+The **related** column is what a record links to. The neighbors of an item (its owner's other datasets, the datasets that cite a paper, a repository's forks) come from other calls: `dsk related` reads them for `huggingface`, `github` and `gitlab` ([ADR 0021](../adr/0021-related-reads-one-items-neighbors.md)).
+
 | id | license | date | format | type | manifest | paging | total | related | machine |
 |---|---|---|---|---|---|---|---|---|---|
 | `datacite` | `license=<rightsIdentifier>` | `published=`, `created=`, `registered=` (years); `query=updated:[...]` | `query=formats:csv` (no parameter) | `resource-type-id=dataset` | none (`contentUrl` is null) | `page[number]` and `page[size]` (to 1000), 10,000 deep; `page[cursor]=1` unlimited | `meta.total` | `attributes.relatedIdentifiers[]`; `relationships.citations`, `references`, `parts`, `versions` | `Accept: application/vnd.schemaorg.ld+json` on `/dois/{doi}` |

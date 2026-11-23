@@ -18,6 +18,7 @@ Verified against `docs/reference/contract.md`, `dsk help --json`, `dsk help envi
 | `dsk search <words>` (alias `dsk s`) | the merged, ranked search | the query cache |
 | `dsk sources` | every source: id, category, protocol, key status, docs | none |
 | `dsk inspect <url>` | one page's metadata and file list | none |
+| `dsk related <url>` | the datasets beside one item, from its own host | none |
 | `dsk doctor` | config, cache and state paths, color, every key's status | none |
 | `dsk cache info` | cache path, size and budget | none |
 | `dsk cache warm [-s ids] [--dry-run]` | download the catalogs now, with no deadline | the catalog cache |
@@ -48,7 +49,7 @@ A script that must not inherit a user's `DATASEEK_TIMEOUT=0` or `DATASEEK_EXCLUD
 
 ## Streams and schemas
 
-- **stdout is data.** With `--json`, one object, indented on a terminal and one line in a pipe, tagged with `schema`: `dataseek-search/1`, `dataseek-sources/1`, `dataseek-inspect/1`, `dataseek-doctor/1`, `dataseek-cache-info/1`, `dataseek-cache-warm/1`, `dataseek-surface/1` (from `help --json`). A new key may appear without notice; a changed or removed one bumps the number, so a script can assert the tag.
+- **stdout is data.** With `--json`, one object, indented on a terminal and one line in a pipe, tagged with `schema`: `dataseek-search/1`, `dataseek-sources/1`, `dataseek-inspect/1`, `dataseek-related/1`, `dataseek-doctor/1`, `dataseek-cache-info/1`, `dataseek-cache-warm/1`, `dataseek-surface/1` (from `help --json`). A new key may appear without notice; a changed or removed one bumps the number, so a script can assert the tag.
 - **stderr is status.** With `--json`, each line is an event `{"schema": "dataseek-events/1", "event": ..., "message": ...}`: `stage` (what it is doing), `warning` (a source that failed, a stale catalog), `ok` (the summary line), and `error` (with `causes` and `try`). `-q` leaves only the error.
 - **A failed run prints nothing on stdout.** `jq` exits 0 on empty input, so run pipelines under `set -o pipefail` in bash and zsh, or check `$pipestatus[1]` in fish.
 - **An empty search is success** (exit 0, `results: []`) when any source answered. Exit codes: `references/troubleshoot.md`.

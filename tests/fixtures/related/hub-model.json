@@ -1,0 +1,37 @@
+{
+  "_id": "621ffdc036468d709f174346",
+  "id": "distilbert/distilbert-base-uncased-finetuned-sst-2-english",
+  "author": "distilbert",
+  "pipeline_tag": "text-classification",
+  "library_name": "transformers",
+  "tags": [
+    "transformers",
+    "pytorch",
+    "tf",
+    "rust",
+    "onnx",
+    "safetensors",
+    "distilbert",
+    "text-classification",
+    "en",
+    "dataset:sst2",
+    "dataset:glue",
+    "arxiv:1910.01108",
+    "doi:10.57967/hf/0181",
+    "license:apache-2.0",
+    "model-index",
+    "endpoints_compatible",
+    "deploy:azure",
+    "region:us"
+  ],
+  "downloads": 3137001,
+  "likes": 1017,
+  "lastModified": "2023-12-19T16:29:37.000Z",
+  "cardData": {
+    "datasets": [
+      "sst2",
+      "glue"
+    ],
+    "license": "apache-2.0"
+  }
+}

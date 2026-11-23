@@ -32,6 +32,7 @@ dsk search rainfall --license cc-by --format csv   # only CC BY datasets offered
 dsk search census --json | jq -r '.results[].url'  # one URL per line, for scripts
 dsk sources                                        # every source, its protocol, key and docs
 dsk inspect https://zenodo.org/records/13135140    # a page's metadata and the files it lists
+dsk related https://huggingface.co/datasets/nyu-mll/glue   # what else its owner publishes
 ```
 
 `dsk search air quality -n 3` on a terminal:

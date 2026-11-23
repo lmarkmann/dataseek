@@ -28,7 +28,7 @@ A search answers a query. A hunt for every dataset on a subject also walks from 
 - A model's tags carry dataset ids and nothing else, so those records hold the id and the link. `inspect` reads the rest of one of them.
 - Nothing is cached. As with `inspect`, the call is made once, on demand, for one item.
 - A GitHub owner listing is not narrowed to repositories tagged `dataset`. The user named the item, and many data repositories carry no topic.
-- `HF_TOKEN` and `GITHUB_TOKEN` are sent where they are set, as in `search`.
+- `HF_TOKEN` and `GITHUB_TOKEN` are sent where they are set, as in `search`. The API is asked on the scheme the URL names, and a key travels only over `https`.
 - `--json` prints `schema` (`dataseek-related/1`), `url`, `source`, `relation` and `results`.
 - The MCP server gets a fourth tool, `related`, with its schema generated from the command's help as for the other three ([ADR 0015](0015-mcp-server-over-stdio.md)).
 
@@ -38,7 +38,7 @@ A search answers a query. A hunt for every dataset on a subject also walks from 
 - A new relation is one resolver: one URL pattern, one call, one mapping function that mostly exists already.
 - The lists are not complete past one page. An owner with more than 1,000 Hub datasets or 100 repositories is cut at that number, in the host's order.
 - A listing shows whatever the owner holds, so a GitHub owner listing contains code repositories beside the data.
-- Without a cache a repeated call is a repeated request. GitHub allows 60 anonymous requests an hour on these endpoints, which is enough for a walk by hand and little for a loop.
+- Without a cache a repeated call is a repeated request. GitHub and GitLab each allow 60 anonymous requests an hour, which is enough for a walk by hand and little for a loop.
 
 ## Evidence
 

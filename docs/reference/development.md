@@ -42,6 +42,8 @@ Every adapter splits its request (`search` or `list`) from a pure `parse`, and e
 
 To re-record a fixture after a source changes, repeat the adapter's request with `xh` and the dataseek User-Agent (`dataseek/<version> (+https://github.com/lmarkmann/dataseek; mailto:user@dataseek.dev)`), never with a key, trim arrays to a few rows with `jq 'walk(if type=="array" then .[:4] else . end)'` (except arrays a record's own fields sum over, such as CKAN `resources` and `extras`, which stay whole while the list of results is trimmed), shorten long descriptions to a real prefix, replace any individual's e-mail address with `contact@example.org`, and then re-derive the expected record by reading the new file. Sources that need a key (FRED, Roboflow) use the example response from their API docs, linked above the test.
 
+`related` maps recorded answers in `tests/fixtures/related/`, one per resolver, recorded under the same rules; `tests/cli.rs` serves two of them through the proxy helper, so `related` runs end to end on an `http://` URL.
+
 `inspect` reads its file lists from recorded pages in `tests/fixtures/inspect/`, recorded under the same rules. Its `--json` shape is part of `json_shapes_snapshot` in `tests/cli.rs`, read from a page served on a random local port that a snapshot filter replaces with `[LOCAL_ADDR]`.
 
 proptest writes the inputs that once failed to `proptest-regressions/`; they are committed so every run replays them first.

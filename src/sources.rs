@@ -74,11 +74,39 @@ mod zenodo;
 use std::fmt;
 use std::sync::atomic::{AtomicBool, Ordering};
 
+use serde_json::Value;
+
+pub(crate) use self::huggingface::FIELDS as HUB_FIELDS;
 use crate::cache::{CATALOG_TTL, Cache, Freshness, Kind};
 use crate::credentials::{Credentials, Key};
 use crate::http::{Http, SourceError};
 use crate::license;
 use crate::record::{Dataset, file_formats};
+
+/// A Hub listing row as the record `search` returns for it. `related` reads
+/// its rows through these three functions, so one JSON row is one record
+/// whichever command read it.
+pub(crate) fn hub_record(row: &Value) -> Option<Dataset> {
+    huggingface::record(row).map(spelled)
+}
+
+/// A GitHub repository as the record `search` returns for it.
+pub(crate) fn github_record(repo: &Value) -> Option<Dataset> {
+    github::record(repo).map(spelled)
+}
+
+/// A GitLab project as the record `search` returns for it.
+pub(crate) fn gitlab_record(project: &Value) -> Option<Dataset> {
+    gitlab::record(project).map(spelled)
+}
+
+/// `dataset` with its license as [`license::normalized`] gives it and its
+/// formats as [`file_formats`] does, so every source spells them alike.
+fn spelled(mut dataset: Dataset) -> Dataset {
+    dataset.license = dataset.license.as_deref().and_then(license::normalized);
+    dataset.formats = file_formats(&dataset.formats);
+    dataset
+}
 
 pub type Live = fn(&Ctx<'_>, &str, usize) -> Result<Vec<Dataset>, SourceError>;
 pub type Listing = fn(&Ctx<'_>) -> Result<Vec<Dataset>, SourceError>;
@@ -213,9 +241,7 @@ impl Source {
         }
     }
 
-    /// The source's answer, each record's license as [`license::normalized`]
-    /// gives it and its formats as [`file_formats`] does, so every source
-    /// spells them alike.
+    /// The source's answer, each record [`spelled`] alike.
     pub fn search(
         &self,
         ctx: &Ctx<'_>,
@@ -223,11 +249,7 @@ impl Source {
         limit: usize,
     ) -> Result<Answer, SourceError> {
         let mut answer = self.ask(ctx, query, limit)?;
-        for dataset in &mut answer.datasets {
-            dataset.license =
-                dataset.license.as_deref().and_then(license::normalized);
-            dataset.formats = file_formats(&dataset.formats);
-        }
+        answer.datasets = answer.datasets.into_iter().map(spelled).collect();
         Ok(answer)
     }
 

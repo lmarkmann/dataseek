@@ -157,6 +157,24 @@ expression: "serde_json::to_string_pretty(&shapes).unwrap()"
     "schema": "dataseek-inspect/1",
     "url": "http://[LOCAL_ADDR]/"
   },
+  "related": {
+    "relation": "owner",
+    "results": [
+      {
+        "description": "BLiMP is a challenge set for evaluating what language models (LMs) know about major grammatical phenomena in English. BLiMP consists of 67 sub-datasets, each containing 1000 minimal pairs isolating specific contrasts in syntax, morphology, or semantics. The data is automatically generated according to expert-crafted...",
+        "license": "CC-BY-4.0",
+        "popularity": 46432,
+        "publisher": "nyu-mll",
+        "size_bytes": 3955316,
+        "title": "nyu-mll/blimp",
+        "updated": "2024-01-23",
+        "url": "https://huggingface.co/datasets/nyu-mll/blimp"
+      }
+    ],
+    "schema": "dataseek-related/1",
+    "source": "huggingface",
+    "url": "http://huggingface.co/datasets/nyu-mll/glue"
+  },
   "search": {
     "complete": true,
     "filtered_out": 0,

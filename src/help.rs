@@ -20,10 +20,11 @@ use crate::palette;
 /// Every subcommand, as the `help` topic parser and the overview know them.
 /// The parser runs while clap builds `Cli`, so it cannot ask `Cli` itself;
 /// a test holds this list to the real one.
-const COMMANDS: [&str; 10] = [
+const COMMANDS: [&str; 11] = [
     "search",
     "sources",
     "inspect",
+    "related",
     "mcp",
     "bench",
     "cache",
@@ -38,7 +39,7 @@ const TOPICS: [&str; 2] = ["environment", "exit-codes"];
 /// The overview's groups. What each command does comes from its `about`, the
 /// line `-h` shows, so the two cannot drift.
 const GROUPS: [(&str, &[&str]); 3] = [
-    ("Search", &["search", "sources", "inspect", "mcp"]),
+    ("Search", &["search", "sources", "inspect", "related", "mcp"]),
     ("Upkeep", &["bench", "cache", "doctor"]),
     ("Shell", &["completion", "help"]),
 ];

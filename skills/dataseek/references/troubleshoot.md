@@ -45,7 +45,7 @@ A JSON-RPC error instead of a tool result is the client's or the server's fault,
 | Code | Meaning |
 |---|---|
 | 0 | success; for `search`, at least one source answered, even with no results |
-| 1 | failure: every attempted source failed, none could run, an `inspect` failed, or a `cache warm` catalog failed |
+| 1 | failure: every attempted source failed, none could run, an `inspect` or `related` failed, or a `cache warm` catalog failed |
 | 2 | usage error: an unknown command, flag or value |
 | 130 | interrupted |
 

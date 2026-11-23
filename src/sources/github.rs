@@ -58,7 +58,7 @@ pub(super) fn parse(
     Ok(items(body, "/items").iter().filter_map(record).take(limit).collect())
 }
 
-fn record(repo: &Value) -> Option<Dataset> {
+pub(super) fn record(repo: &Value) -> Option<Dataset> {
     let mut dataset =
         Dataset::new(&text(repo, "/full_name")?, &text(repo, "/html_url")?)
             .describe(text(repo, "/description"));
