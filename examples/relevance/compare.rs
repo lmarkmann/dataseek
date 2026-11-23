@@ -320,8 +320,7 @@ fn flips(
         for &(ci, case) in &held {
             for (index, grade, title) in labels(case, base.top(ci), f.top(ci))
             {
-                let flipped = if grade == 0 { 2 } else { 0 };
-                let judged = case.judged.with(index, flipped);
+                let judged = case.judged.with(index, opposite(grade));
                 let after =
                     regraded(cases, base, f, ci, &judged, mrr_tolerance);
                 if after.adopt != decision.adopt {
@@ -339,6 +338,11 @@ fn flips(
         writeln!(out, "  none")?;
     }
     Ok(())
+}
+
+/// The grade a flip gives a label: 0 becomes 2, 1 and 2 become 0.
+fn opposite(grade: Grade) -> Grade {
+    if grade == 0 { 2 } else { 0 }
 }
 
 /// The verdict on `finalist` when query `ci` is scored against `judged`,
