@@ -41,7 +41,7 @@ How each search interface takes a query, pages, ranks and limits, as found when 
 | Data Commons | GET `/v2/resolve` | `nodes`, `resolver=indicator` | semantic match to statistical variables | similarity score | all matches in one response, no paging (docs) |
 | Our World in Data | GET `/api/search` | `q`, `hitsPerPage` | charts and explorer views (`type=charts`; `type=pages` is articles) | relevance | 100 |
 | FRED | GET `/fred/series/search` | `search_text` | full text | relevance or popularity | 1,000 |
-| GitHub | GET `/search/repositories` | `q` with `topic:dataset` | name, description, topics | best match | 100; first 1,000 results only (page 11 answers 422) |
+| GitHub | GET `/search/repositories` | `q` with `in:name,description,topics,readme topic:dataset` | name, description, topics, readme (2026-11-23) | best match | 100; first 1,000 results only (page 11 answers 422) |
 | ModelScope | GET `/api/v1/dolphin/datasets` | `Query` | names, authors and descriptions, every word must match | site default | 100 per page, larger values capped (October 2026) |
 | Roboflow Universe | GET `/universe/search` | `q`, inline filters (`images>100`) | names, classes | site default | 12 a page by the SDK default; `page` from 1 |
 
