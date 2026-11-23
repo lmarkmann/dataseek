@@ -2,6 +2,65 @@
 
 What shipped, newest first. release-plz writes each section from the conventional commits merged since the previous tag; see [`reference/release.md`](reference/release.md).
 
+## 0.11.0 - 2026-11-23
+
+### Added
+
+- Search EMPIAR, DOE NETL EDX and opendata.swiss
+- Search the BioImage Archive through EBI Search
+- Search the Japan e-Gov, World Bank EnergyData and openAFRICA CKAN portals
+- Search five more Dataverse installations: DaRUS, Juelich DATA, CORA.RDR, AUSSDA and QDR
+- Search UNICEF's SDMX dataflows
+- Search the Swisstopo and USGS LandsatLook STAC catalogs
+- Search the Papers with Code dataset archive
+- Search The Cancer Imaging Archive collections
+- Search NeurIPS Datasets and Benchmarks track papers
+- Search OPUS parallel corpora by name
+- Search the Google Research dataset index
+- Search Academic Torrents datasets
+- Search Grand Challenge medical-imaging challenges
+- Search Polaris Hub drug-discovery benchmark datasets
+- Search LILA BC conservation imagery datasets
+- Search OpenSLR speech and language resources
+- Search the European Language Grid catalogue
+- Search CLARIN VLO language corpora
+- Search Mozilla Data Collective, the home of Common Voice
+- Search ENCODE functional genomics experiments
+- List the datasets beside one item with dsk related
+- Search GitLab projects tagged dataset
+- Find Hugging Face datasets by the text of their card
+- Find GitHub datasets by the words in their readme
+
+### Changed
+
+- Page WordPress listings and the ELG search through the shared helpers
+- Share paging and connection errors across adapters and commands
+- Split long command and CKAN record functions
+- Answer numeric and common entities before the table search
+- Split search, bench, help, and UI orchestration
+- Simplify license and credentials helpers
+- Split XML and parser loops in source adapters
+- Split markdown and entity helpers in record
+- Share HTTP request setup and rank updates
+- Share plain-query retry and list parsing across adapters
+- Register the SIGPIPE switch as a static flag
+
+### Docs
+
+- Say in the README that dataseek searches 106 sources, and what kinds
+- Count the 106 sources and the columns they offer
+- Name the helpers adapters share
+
+### Other
+
+- Require ureq 3.5.2, whose body limit counts decoded bytes
+- Update dependencies, action pins and pinned tool versions
+- Fix the two lints clippy 1.100 adds
+
+### Uncategorized
+
+- Update README.md
+
 ## 0.10.1 - 2026-10-26
 
 ### Docs
