@@ -53,6 +53,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `aws` | Registry of Open Data on AWS | registry page | local |  | [docs](https://github.com/awslabs/open-data-registry) |
 | `tfds` | TensorFlow Datasets | catalog page | local |  | [docs](https://www.tensorflow.org/datasets/catalog/overview) |
 | `openslr` | OpenSLR | resource index page | local |  | [docs](https://www.openslr.org/resources.php) |
+| `lila` | LILA BC | WordPress posts API, listed | local |  | [docs](https://lila.science/datasets) |
 
 ### code
 

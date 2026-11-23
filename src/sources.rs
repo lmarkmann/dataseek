@@ -52,6 +52,7 @@ mod gitlab;
 mod google;
 mod huggingface;
 mod kaggle;
+mod lila;
 mod materials;
 mod mendeley;
 mod modelscope;
@@ -760,6 +761,14 @@ pub static SOURCES: &[Source] = &[
         "resource index page",
         "https://www.openslr.org/resources.php",
         openslr::list,
+    ),
+    listed(
+        "lila",
+        "LILA BC",
+        MachineLearning,
+        "WordPress posts API, listed",
+        "https://lila.science/datasets",
+        lila::list,
     ),
     keyed(
         live(
