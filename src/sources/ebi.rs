@@ -8,6 +8,8 @@
 //! request is repeated once with the operator characters escaped. BioStudies
 //! entries carry an abstract and no description, and `modified_date` was empty
 //! on every entry sampled, so `updated` is the release date (October 2026).
+//! The service took 25 to 60 seconds to answer every domain on 2026-11-23, so
+//! the request uses the long timeout.
 
 use serde_json::Value;
 
@@ -36,6 +38,10 @@ pub static BIOIMAGES: Domain = Domain {
     name: "bioimages",
     page: "https://www.ebi.ac.uk/biostudies/bioimages/studies/",
 };
+/// EMPIAR names an entry by `id` alone, without the `acc` field the other
+/// domains carry, and sends no description (November 2026).
+pub static EMPIAR: Domain =
+    Domain { name: "empiar", page: "https://www.ebi.ac.uk/empiar/" };
 
 const OPERATORS: &str = r#"+-!(){}[]^"~*?:\/&|"#;
 
@@ -66,6 +72,7 @@ fn request(
         .query("format", "json")
         .query("size", limit.clamp(1, 1000))
         .query("fields", "name,description,abstract,release_date")
+        .slow()
         .json()
 }
 
@@ -108,7 +115,7 @@ pub(super) fn parse(
 }
 
 fn record(domain: &Domain, entry: &Value) -> Option<Dataset> {
-    let accession = text(entry, "/acc")?;
+    let accession = first_text(entry, &["/acc", "/id"])?;
     let mut dataset = Dataset::new(
         &text(entry, "/fields/name/0")?,
         &format!("{}{accession}", domain.page),
@@ -215,6 +222,24 @@ mod tests {
                 updated: Some("2011-01-03".into()),
                 ..Dataset::default()
             }
+        );
+    }
+
+    #[test]
+    fn an_empiar_entry_is_named_by_its_id() {
+        let hits =
+            parse(&EMPIAR, &fixture::json("ebi.empiar.json"), 10).unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Cryo-EM structure of a lipid embedded MspA nanopore"
+                    .into(),
+                url: "https://www.ebi.ac.uk/empiar/EMPIAR-13060".into(),
+                updated: Some("2026-11-20".into()),
+                ..Dataset::default()
+            },
+            "EMPIAR sends `id` where the other domains send `acc`"
         );
     }
 

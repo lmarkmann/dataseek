@@ -17,7 +17,7 @@ How each search interface takes a query, pages, ranks and limits, as found when 
 | Zenodo (InvenioRDM) | GET `/api/records` | `q` (Elasticsearch syntax) | all fields | `bestmatch` | 25 anonymous, 100 with token; `page` reaches 10,000 results |
 | Figshare | POST `/v2/articles/search` | `search_for` in a JSON body | all fields, field operators like `:title:` | `created_date`, newest first (no relevance order) | 1,000; offset capped at 1,000 |
 | Dataverse | GET `/api/search` | `q` (Solr syntax) | all fields | Solr relevance | 1,000 |
-| CKAN | GET `/api/3/action/package_search` | `q` (Solr syntax), `fq=dataset_type:dataset` | all fields | Solr relevance | 1,000 (a site may lower it); all six registered portals served 100 |
+| CKAN | GET `/api/3/action/package_search` | `q` (Solr syntax), `fq=dataset_type:dataset` | all fields | Solr relevance | 1,000 (a site may lower it); all six registered portals served 100. NETL EDX answers HTTP 500 to every `fq`, so its row sends none (2026-11-23) |
 | data.europa.eu | GET `/api/hub/search/search` | `q`, `filters=dataset`, `includes`, `aggregation=false` | stemmed, multilingual | relevance | 1,000 |
 | Data.gov | GET `/search` or `api.gsa.gov/.../v4/search` | `q` | OpenSearch full text | relevance; cursor `after` | 1,000 (`per_page`, OpenAPI) |
 | Socrata Discovery | GET `/api/catalog/v1` | `q`, `only=dataset` | name, description, category, tags, column names and descriptions, attribution; with 3 terms or fewer all must match, otherwise 60% | relevance | 10,000 per request (`limit`); `offset + limit` <= 10,000, `scroll_id` beyond |

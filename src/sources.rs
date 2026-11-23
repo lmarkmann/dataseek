@@ -1032,6 +1032,22 @@ pub static SOURCES: &[Source] = &[
         Adapter::Ckan(&ckan::OPEN_AFRICA),
     ),
     via(
+        "netl-edx",
+        "DOE NETL EDX",
+        Government,
+        "CKAN",
+        CKAN_DOCS,
+        Adapter::Ckan(&ckan::NETL_EDX),
+    ),
+    via(
+        "opendata-swiss",
+        "opendata.swiss",
+        Government,
+        "CKAN",
+        CKAN_DOCS,
+        Adapter::Ckan(&ckan::OPENDATA_SWISS),
+    ),
+    via(
         "socrata",
         "Socrata portals (US)",
         Government,
@@ -1376,6 +1392,14 @@ pub static SOURCES: &[Source] = &[
         "EBI Search",
         EBI_DOCS,
         Adapter::Ebi(&ebi::BIOIMAGES),
+    ),
+    via(
+        "empiar",
+        "EMPIAR",
+        LifeSciences,
+        "EBI Search",
+        EBI_DOCS,
+        Adapter::Ebi(&ebi::EMPIAR),
     ),
     live(
         "omicsdi",

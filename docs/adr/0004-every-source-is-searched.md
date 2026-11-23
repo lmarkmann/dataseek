@@ -99,6 +99,8 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `data-go-jp` | Japan e-Gov Data | CKAN | live |  | [docs](https://data.e-gov.go.jp/data/api_guide) |
 | `energydata` | World Bank EnergyData | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
 | `open-africa` | openAFRICA | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
+| `netl-edx` | DOE NETL EDX | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
+| `opendata-swiss` | opendata.swiss | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
 | `socrata` | Socrata portals (US) | Socrata Discovery | live |  | [docs](https://dev.socrata.com/docs/other/discovery) |
 | `socrata-eu` | Socrata portals (EU) | Socrata Discovery | live |  | [docs](https://dev.socrata.com/docs/other/discovery) |
 | `opendatasoft` | OpenDataSoft hub | OpenDataSoft Explore | live |  | [docs](https://help.huwise.com/apis/ods-explore-v2/) |
@@ -169,6 +171,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `arrayexpress` | ArrayExpress (EBI) | EBI Search | live |  | [docs](https://www.ebi.ac.uk/ebisearch/documentation/rest-api) |
 | `biostudies` | BioStudies (EBI) | EBI Search | live |  | [docs](https://www.ebi.ac.uk/ebisearch/documentation/rest-api) |
 | `bioimages` | BioImage Archive | EBI Search | live |  | [docs](https://www.ebi.ac.uk/ebisearch/documentation/rest-api) |
+| `empiar` | EMPIAR | EBI Search | live |  | [docs](https://www.ebi.ac.uk/ebisearch/documentation/rest-api) |
 | `omicsdi` | OmicsDI | OmicsDI | live |  | [docs](https://www.omicsdi.org/ws/) |
 | `cellxgene` | CZ CELLxGENE | Curation API, listed | local |  | [docs](https://api.cellxgene.cziscience.com/curation/ui/) |
 | `grandchallenge` | Grand Challenge | REST API, listed | local |  | [docs](https://grand-challenge.org/documentation/grand-challenge-api/) |

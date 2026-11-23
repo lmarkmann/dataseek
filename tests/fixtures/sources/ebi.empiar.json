@@ -1,0 +1,54 @@
+{
+ "hitCount": 1696,
+ "entries": [
+  {
+   "id": "EMPIAR-13060",
+   "source": "empiar",
+   "fields": {
+    "name": [
+     "Cryo-EM structure of a lipid embedded MspA nanopore"
+    ],
+    "release_date": [
+     "20261120"
+    ]
+   }
+  },
+  {
+   "id": "EMPIAR-13857",
+   "source": "empiar",
+   "fields": {
+    "name": [
+     "Doc2b-Munc13 complex with designed binder"
+    ],
+    "release_date": [
+     "20261120"
+    ]
+   }
+  },
+  {
+   "id": "EMPIAR-13547",
+   "source": "empiar",
+   "fields": {
+    "name": [
+     "Cryo-EM structure of the large serine recombinase Dn29 in complex with attP and attB"
+    ],
+    "release_date": [
+     "20261119"
+    ]
+   }
+  },
+  {
+   "id": "EMPIAR-13596",
+   "source": "empiar",
+   "fields": {
+    "name": [
+     "Cryo-EM structure of \u03b1-Synuclein Fibrils Harboring the Dementia with Lewy Bodies\u2013Associated E83Q Mutation"
+    ],
+    "release_date": [
+     "20261119"
+    ]
+   }
+  }
+ ],
+ "facets": []
+}

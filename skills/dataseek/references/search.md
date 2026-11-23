@@ -47,7 +47,7 @@ Over MCP, `source`, `include`, `exclude` and `category` are JSON arrays, `["zeno
 Measured 2026-10-20 on "sea surface temperature", 328 matches unfiltered: `license: ["cc-by"]` kept 160, `updated-since: "2024"` 488, `format: ["netcdf"]` 37, `min-sources: 2` 10.
 
 - **Licenses are sparse.** About three results in ten name one (315 of 978 over three queries, 2026-10-20), so a license filter drops most of a search. A dropped dataset may still be openly licensed on its page; say so when the filtered list is short, and offer `inspect` on a promising unfiltered result.
-- **Formats come from five kinds of source only:** CKAN portals (`data-gov-uk`, `open-canada`, `data-gov-au`, `govdata`, `hdx`, `data-go-jp`, `energydata`, `open-africa`), `europa`, `arcgis`, `cmr` and `datagov`. A `format` filter leaves out every research repository; for those, `inspect` the result to read its files.
+- **Formats come from five kinds of source only:** CKAN portals (`data-gov-uk`, `open-canada`, `data-gov-au`, `govdata`, `hdx`, `data-go-jp`, `energydata`, `open-africa`, `netl-edx`, `opendata-swiss`), `europa`, `arcgis`, `cmr` and `datagov`. A `format` filter leaves out every research repository; for those, `inspect` the result to read its files.
 - **An empty filtered result** says how many matched without the filters (`filtered_out` in the result). Report that number and which filter was strictest rather than "nothing found".
 - **`min-sources: 2`** keeps datasets independent archives agree on; it suits a "which datasets are well established" question, not a search for something specific.
 
@@ -63,8 +63,8 @@ The `sources` tool (or `dsk sources --json`) is the live list: id, name, categor
 | `economics` | `dbnomics`, `worldbank`*, `worldbank-microdata`, `imf`*, `oecd`*, `ilo`* |
 | `finance` | `ecb`*, `bis`*, `fred`, `bundesbank`*, `fiscal-data`* |
 | `geospatial` | `cmr`, `planetary-computer`*, `earth-search`*, `copernicus-dataspace`*, `copernicus-cds`*, `swisstopo`*, `usgs-landsat`*, `earth-engine`*, `ncei`, `pangaea` |
-| `government` | `europa`, `datagov`, `data-gov-uk`, `open-canada`, `data-gov-au`, `govdata`, `hdx`, `data-go-jp`, `energydata`, `open-africa`, `socrata`, `socrata-eu`, `opendatasoft`, `arcgis` |
-| `life-sciences` | `geo`, `arrayexpress`, `biostudies`, `omicsdi`, `cellxgene`*, `synapse`, `encode`, `grandchallenge`, `tcia`, `bioimages`|
+| `government` | `europa`, `datagov`, `data-gov-uk`, `open-canada`, `data-gov-au`, `govdata`, `hdx`, `data-go-jp`, `energydata`, `open-africa`, `netl-edx`, `opendata-swiss`, `socrata`, `socrata-eu`, `opendatasoft`, `arcgis` |
+| `life-sciences` | `geo`, `arrayexpress`, `biostudies`, `omicsdi`, `cellxgene`*, `synapse`, `encode`, `grandchallenge`, `tcia`, `bioimages`, `empiar` |
 | `machine-learning` | `huggingface`, `kaggle`, `openml`*, `uci`*, `roboflow`, `modelscope`, `mozilla`, `clarin`, `elg`, `aws`*, `tfds`*, `openslr`*, `lila`*, `polaris`*, `academictorrents`*, `googleresearch`*, `opus`*, `neurips`*, `pwc`* |
 | `neuroscience` | `openneuro`*, `dandi`, `physionet`* |
 | `physics` | `cern`, `materials-project`*, `nomad`* |

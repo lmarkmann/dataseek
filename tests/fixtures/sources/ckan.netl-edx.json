@@ -1,0 +1,459 @@
+{
+ "success": true,
+ "result": {
+  "count": 731,
+  "facets": {
+   "products": {
+    "DOI": 48,
+    "AI/ML": 0,
+    "NETL": 712,
+    "Geospatial": 10
+   }
+  },
+  "results": [
+   {
+    "aiml_info": {
+     "aiml_types": []
+    },
+    "aiml_product": false,
+    "citation": "Justman, D., Rose, K., Bauer, J., Miller, R., Vasylkivska, V. (2015). Evaluating the Mysteries of Seismicity in Oklahoma. Available at: https://edx.netl.doe.gov/dataset/edit/oklahoma-seismicity-story-map. Date submitted 2015-12-17.",
+    "creator_user_id": "38c8b62c-82ba-4ab0-b35d-4bc6c5ae7ae9",
+    "geospatial_product": false,
+    "id": "055b363f-e0ab-4706-a39e-6554df207e2d",
+    "issued": null,
+    "metadata_created": "2015-11-13T20:17:44.318593",
+    "metadata_modified": "2019-03-25T12:46:18.682560",
+    "name": "oklahoma-seismicity-story-map",
+    "netl_info": {
+     "listed_reviewer_email": "",
+     "listed_reviewer_id": "",
+     "listed_reviewer_name": "",
+     "program_or_project": "",
+     "project_number": ""
+    },
+    "netl_product": true,
+    "notes": "Overview of story map entitled \"Evaluating the Mysteries of Seismicity in Oklahoma\"",
+    "num_resources": 1,
+    "num_tags": 2,
+    "osti_info": {},
+    "osti_product": true,
+    "owner_org": null,
+    "package_reviewed": true,
+    "private": false,
+    "spatial_info": {
+     "extent_geometry": "",
+     "spatial_extent": ""
+    },
+    "state": "active",
+    "tags": [
+     "oklahoma",
+     "seismicity"
+    ],
+    "title": "Oklahoma Seismicity Story Map",
+    "type": "presentation",
+    "version": null,
+    "workspace": null,
+    "groups": [
+     {
+      "description": "The Department of Energy's GIS group is a catalog of open data created by DOE GIS users. It is intended as a public resource to collect, share, and add valuable resources, links, and other information.",
+      "display_name": "DOE GIS Users Group",
+      "id": "4cb767e7-605c-46d4-9184-7d2f75e3e832",
+      "image_display_url": "https://edx.netl.doe.gov/groups/doe-gis-group/2019-01-30T10:30:36.509675.png",
+      "name": "doe-gis-group",
+      "title": "DOE GIS Users Group"
+     }
+    ],
+    "resources": [
+     {
+      "description": "#\"Evaluating the Mysteries of Seismicity in Oklahoma\"\r\n\r\nThis project is a part of a broader research effort investigating the relationships between spatiotemporal systems & seismicity, and is funded by the Department of Energy's SubTER(Subsurface Technology and Engineering Research, Development, and Demonstration) Crosscut Initiative.\r\n\r\nThe goal of this project is to provide a better understanding of the recent increase in seismicity in Oklahoma. This was accomplished by reviewing literature, exploring, and performing analyses on key datasets to explain:\r\n\r\n<ol>\r\n<li>The onset of the increase of seismic activity after 2008</li>\r\n\r\n<li>Earthquake history (before 2008)</li>\r\n\r\n<li>The risk to the population</li>\r\n\r\n<li>How earthquakes happen</li>\r\n\r\n<li>What natural and anthropogenic earthquake factors have been known to cause earthquakes within and outside of Oklahoma</li>\r\n\r\n<li>If any of the earthquake factors have any spatial correlation with the earthquake data, individually or cumulatively</li>\r\n</ol>\r\n\r\n##Citation:\r\n\r\nJustman, D., Rose, K., Bauer, J., Miller, R., Vasylkivska, V. (2015). Evaluating the Mysteries of Seismicity in Oklahoma. Retrieved   from http://netl-doe.maps.arcgis.com/apps/MapSeries/index.html?appid=a04cfc36e6d74c769241bcbcb034071b&edit=true\r\n",
+      "format": "HTML",
+      "id": "250ded85-64b4-434d-a4f9-11798a6b2b45",
+      "last_modified": null,
+      "mimetype": null,
+      "name": "Link to Oklahoma story map",
+      "package_id": "055b363f-e0ab-4706-a39e-6554df207e2d",
+      "position": 1,
+      "resource_type": null,
+      "revision_id": "2c669144-dd62-8bc2-1043-0ab8db129c7b",
+      "size": 0,
+      "state": null,
+      "url": "http://netl-doe.maps.arcgis.com/apps/MapSeries/index.html?appid=a04cfc36e6d74c769241bcbcb034071b"
+     }
+    ]
+   },
+   {
+    "aiml_info": {
+     "aiml_types": []
+    },
+    "aiml_product": false,
+    "citation": "Zan Wang, Robert Dilmore, William Harbert, Lianjie Huang, Youzuo Lin, Shihang Feng, Kimberlina 1.2 Velocity Models, 11/26/2021, https://edx.netl.doe.gov/dataset/kimberlina-1-2-velocity-models, DOI: 10.18141/1832899",
+    "creator_user_id": "18dddd20-5e08-427d-96d0-c9ed6cc81d05",
+    "geospatial_product": false,
+    "id": "fd3542de-47a3-4f6b-b988-c034b1032ab7",
+    "issued": null,
+    "metadata_created": "2021-11-26T21:56:04.548058",
+    "metadata_modified": "2021-12-06T19:28:08.990073",
+    "name": "kimberlina-1-2-velocity-models",
+    "netl_info": {
+     "listed_reviewer_email": "",
+     "listed_reviewer_id": "",
+     "listed_reviewer_name": "",
+     "program_or_project": "",
+     "project_number": ""
+    },
+    "netl_product": true,
+    "notes": "Kimberlina 1.2 Velocity model and synthetic seismic data, produced in collaboration of teams at the National Energy Technology Laboratory, Los Alamos National Laboratory, and Lawrence Livermore National Laboratory through the National Risk Assessment Partnership. \r\n\r\nData is associated with the following publication:\r\nZheng Zhou, Youzuo Lin, Zhongping Zhang, Yue Wu, Zan Wang, Robert Dilmore, and George Guthrie, \"A Data-Driven CO2 Leakage Detection Using Seismic Data and Spatial-Temporal Densely Connected Convolutional Neural Networks,\" International Journal of Greenhouse Gas Control, Vol 90, 2019.\r\n\r\nThe Kimberlina 1.2 Velocity models were produced by Zan Wang, Robert Dilmore, William Harbert, and Lianjie Huang at NETL. The following citations are directly related to the creation of the velocity models:\r\n\r\nWang, Z.  Harbert, W., Dilmore, R., Huang, L. Modeling of time-lapse seismic monitoring using CO2 leakage simulations for a model CO2 storage site with realistic geology: Application in assessment of early leak-detection capabilities.  International Journal of Greenhouse Gas Control. V. 76, September 2018, Pages 39-52. https://doi.org/10.1016/j.ijggc.2018.06.011\r\nWang, Z., Dilmore, R., Harbert, W. Inferring CO2 saturation from synthetic surface seismic and downhole monitoring data using machine learning for leakage detection at CO2 sequestration sites. International Journal of Greenhouse Gas Control, V. 100, September 2020. https://doi.org/10.1016/j.ijggc.2020.103115\r\n\r\nThe velocity models were built based on the Kimberlina 1.2 aquifer impact data which is associated with the following publications:\r\n\r\nBuscheck, T.A., Mansoor, K., Yang, X., Wainwright, H., and Carroll, S. (2019). Downhole pressure and chemical monitoring for CO2 and brine leak detection in aquifers above a CO2 storage reservoir. International Journal of Greenhouse Gas Control. 91. 102812. 10.1016/j.ijggc.2019.102812. \r\nXianjin Yang, Thomas A. Buscheck, Kayyum Mansoor, Zan Wang, Kai Gao, Lianjie Huang, Delphine Appriou, Susan A. Carroll, Assessment of geophysical monitoring methods for detection of brine and CO2 leakage in drinking water aquifers, International Journal of Greenhouse Gas Control, Volume 90, 2019, 102803, ISSN 1750-5836, https://doi.org/10.1016/j.ijggc.2019.102803\r\n\r\nThe synthetic seismic data was produced by Youzuo Lin and team at LANL, and are associated with the following citations:\r\n\r\nJordan, P. D., and J. L. Wagoner. Characterizing Construction of Existing Wells to a CO2 Storage Target: The Kimberlina Site, California.\r\nZheng Zhou, Youzuo Lin, Zhongping Zhang, Yue Wu, Zan Wang, Robert Dilmore, and George Guthrie, \"A Data-Driven CO2 Leakage Detection Using Seismic Data and Spatial-Temporal Densely Connected Convolutional Neural Networks,\" International Journal of Greenhouse Gas Control, Vol 90, 2019.",
+    "num_resources": 5,
+    "num_tags": 8,
+    "osti_info": {},
+    "osti_product": true,
+    "owner_org": null,
+    "package_reviewed": true,
+    "private": false,
+    "spatial_info": {
+     "extent_geometry": "",
+     "spatial_extent": ""
+    },
+    "state": "active",
+    "tags": [
+     "model",
+     "Kimberlina",
+     "seismic",
+     "Kimberlina 1.2",
+     "synthetic seismic",
+     "velocity model",
+     "CO2 Leakage",
+     "Reservoir Modeling"
+    ],
+    "title": "Kimberlina 1.2 Velocity Models and Seismic Data",
+    "type": "dataset",
+    "version": null,
+    "workspace": null,
+    "groups": [
+     {
+      "description": "This group is to bring together resources on EDX specific to the Kimberlina field site in the San Joaquin Valley in  southern California, including field data, basin-scale data, surface data, modeling and simulation data.  The Kimberlina field site was part of the WESTCARB RCSP data collection effort and has been included as a site of focus of NRAP modeling efforts. ",
+      "display_name": "Kimberlina Data ",
+      "id": "d6701454-07c2-4bcb-9129-d122bc31570a",
+      "image_display_url": "",
+      "name": "kimberlina-data",
+      "title": "Kimberlina Data "
+     },
+     {
+      "description": "NETL is leading a multi-laboratory effort that leverages broad technical capabilities across the DOE complex into a mission-focused platform that will develop the integrated science base that can be applied to risk assessment for long-term storage of CO2: the National Risk Assessment Partnership (NRAP). NRAP involves five DOE national laboratories: NETL, Los Alamos National Laboratory, Lawrence Berkeley National Laboratory, Lawrence Livermore National Laboratory, and Pacific Northwest National Laboratory.  The motivating goal of NRAP is to build methods and tools and improve the science base to quantify key environmental risks at geologic carbon storage sites, in the context of system uncertainty, particularly those associated with potential release of CO2 or brine from the storage reservoir, and potential ground-motion impacts due to large volume injection of CO2.\r\n\r\nMore information about NRAP including tool descriptions and publications can be found at: https://edx.netl.doe.gov/nrap/\r\n\r\nThis group is a location to bring NRAP publicly available EDX resources together. ",
+      "display_name": "NRAP Community Datasets",
+      "id": "7457bc42-4df8-4c22-9286-91ff5cfd991d",
+      "image_display_url": "https://edx.netl.doe.gov/groups/nrap/2020-01-24T15:36:58.138044.png",
+      "name": "nrap-community-datasets",
+      "title": "NRAP Community Datasets"
+     },
+     {
+      "description": "This is a group to bring together data resources related to all onshore storage.",
+      "display_name": "Onshore Storage",
+      "id": "f316636f-1bd3-4713-b2e2-308d915490de",
+      "image_display_url": "",
+      "name": "onshore-storage",
+      "title": "Onshore Storage"
+     }
+    ],
+    "resources": [
+     {
+      "description": "",
+      "format": "TXT",
+      "id": "c7d619c3-4287-4a5b-af33-14bc2f462618",
+      "last_modified": null,
+      "mimetype": null,
+      "name": "readme.txt",
+      "package_id": "fd3542de-47a3-4f6b-b988-c034b1032ab7",
+      "resource_type": null,
+      "revision_id": "ebba68e4-4ed8-4909-9cba-7c3cf4b3541d",
+      "size": 799,
+      "state": null,
+      "url": "https://edx.netl.doe.gov/storage/f/edx/2021/11/2021-11-19T20:11:35.108Z/ddd96a60-8cac-45b3-8ccb-7989f629497e/readme.txt"
+     },
+     {
+      "description": "",
+      "format": "ZIP",
+      "id": "d5c98480-2f7a-4d34-b296-ea3ffe966e1d",
+      "last_modified": null,
+      "mimetype": null,
+      "name": "kimberlina_co2_test_label.zip",
+      "package_id": "fd3542de-47a3-4f6b-b988-c034b1032ab7",
+      "resource_type": null,
+      "revision_id": "257ea2f2-8a13-41e6-baae-78d0f41e3891",
+      "size": 239239844,
+      "state": null,
+      "url": "https://edx.netl.doe.gov/storage/f/edx/2021/11/2021-11-19T20:31:09.500Z/50bf1d18-aa3c-406a-81a5-c4109fd72abc/kimberlina_co2_test_label.zip"
+     },
+     {
+      "description": "",
+      "format": "ZIP",
+      "id": "13e99489-db9a-468f-b330-d14bcca73ea5",
+      "last_modified": null,
+      "mimetype": null,
+      "name": "kimberlina_co2_train_label.zip",
+      "package_id": "fd3542de-47a3-4f6b-b988-c034b1032ab7",
+      "resource_type": null,
+      "revision_id": "4449300f-8a17-4867-8ec6-e9b8e751e1d9",
+      "size": 817430513,
+      "state": null,
+      "url": "https://edx.netl.doe.gov/storage/f/edx/2021/11/2021-11-19T20:38:50.018Z/81963868-9a89-41b2-847b-638d63cab456/kimberlina_co2_train_label.zip"
+     },
+     {
+      "description": "",
+      "format": "ZIP",
+      "id": "fccadee0-acaf-4915-bad6-99ef9ac00af0",
+      "last_modified": null,
+      "mimetype": null,
+      "name": "kimberlina_co2_test_data.zip",
+      "package_id": "fd3542de-47a3-4f6b-b988-c034b1032ab7",
+      "resource_type": null,
+      "revision_id": "860cb196-fff5-4a4b-b117-c652d7418f4c",
+      "size": 16538098319,
+      "state": null,
+      "url": "https://edx.netl.doe.gov/storage/f/edx/2021/11/2021-11-19T20:28:04.768Z/4cccca89-04af-4338-882b-54d0f4329c88/kimberlina_co2_test_data.zip"
+     },
+     {
+      "description": "",
+      "format": "ZIP",
+      "id": "cace3957-0ede-48a5-a75b-ef4f929d2ebe",
+      "last_modified": null,
+      "mimetype": null,
+      "name": "kimberlina_co2_train_data.zip",
+      "package_id": "fd3542de-47a3-4f6b-b988-c034b1032ab7",
+      "resource_type": null,
+      "revision_id": "a1bd3641-8fa8-4058-ad22-0262d1528af6",
+      "size": 55999995907,
+      "state": null,
+      "url": "https://edx.netl.doe.gov/storage/f/edx/2021/11/2021-11-19T23:51:43.798Z/efb6d0c9-777b-4331-8b5d-8196bc444faf/kimberlina_co2_train_data.zip"
+     }
+    ]
+   },
+   {
+    "aiml_info": {
+     "aiml_types": []
+    },
+    "aiml_product": false,
+    "citation": "Kayla Kroll, Christopher Sherman, ORION: Operational FoRecastIng Of INduced Seismicity, 2/9/2023, https://edx.netl.doe.gov/dataset/orion-operational-forecasting-of-induced-seismicity, DOI: 10.18141/1958726",
+    "creator_user_id": "18dddd20-5e08-427d-96d0-c9ed6cc81d05",
+    "geospatial_product": false,
+    "id": "e5be4e0f-d530-4315-b579-bfa6a80009d0",
+    "issued": null,
+    "metadata_created": "2023-02-09T16:23:21.077984",
+    "metadata_modified": "2023-12-13T20:37:22.694552",
+    "name": "orion-operational-forecasting-of-induced-seismicity",
+    "netl_info": {
+     "listed_reviewer_email": "",
+     "listed_reviewer_id": "",
+     "listed_reviewer_name": "",
+     "program_or_project": "",
+     "project_number": ""
+    },
+    "netl_product": true,
+    "notes": "The Operational Forecasting of Induced Seismicity toolkit “ORION” (ORION) is an open-source, observation-based ensemble forecasting toolkit which is geared towards helping operators understand the seismic hazard (i.e., probabilistic assessment of the magnitude and frequency of induced seismic events) at a site. ORION analyzes how the seismic hazard evolves during injection and suggests possible mitigation strategies to employ if an earthquake that exceeds certain threshold is observed. Through its ensemble modeling approach, ORION leverages the benefits of statistical-, physics-, and machine learning-based forecasting methodologies, while reducing the impact of each model’s respective limitations. The ORION toolkit consists of an easy-to-use GUI interface that affords a user as much or as little interaction as desired. Advanced capabilities allow the user to upload local, high-precision earthquake catalogs, projected injection profiles and/or spatiotemporal estimates of pressure/stress, and to tune various model parameters. ORION will then provide a spatial and temporal ensemble forecast of seismicity defined as the probability of exceedance of a given earthquake magnitude over a forecast period. Additionally, ORION will provide probability distribution of the statistically derived maximum possible earthquake magnitude that may be expected. Finally, ORION will provide suggested operational management strategies (e.g. reduce injection volumes at specific wells) based on the level of hazard.",
+    "num_resources": 3,
+    "num_tags": 5,
+    "osti_info": {},
+    "osti_product": true,
+    "owner_org": null,
+    "package_reviewed": true,
+    "private": false,
+    "spatial_info": {
+     "extent_geometry": "",
+     "spatial_extent": ""
+    },
+    "state": "active",
+    "tags": [
+     "NRAP",
+     "ORION",
+     "NRAP Tools",
+     "Operational Forcasting of Induced Seismicity",
+     "seismic hazard"
+    ],
+    "title": "ORION: Operational FoRecastIng Of INduced Seismicity",
+    "type": "tool",
+    "version": null,
+    "workspace": null,
+    "groups": [
+     {
+      "description": "The National Risk Assessment Partnership Phase II publicly released tools.  Email contact@example.org to join the beta-test program, engage with the NRAP development team, and share your feedback! \r\nBuilding on the NRAP Phase I toolset, NRAP researchers have developed and continue to refine a Phase II toolset with improved functionality. In Phase II, NRAP has adopted an open-source paradigm for new risk assessment tools to foster their adoption and further development by the CCUS RD&D stakeholder community. Tools from the NRAP Phase II toolset fall into three topic areas: ensuring containment effectiveness/quantifying leakage risk, managing induced seismicity, and strategic monitoring design for uncertainty reduction.",
+      "display_name": "NRAP Toolset (Currently Supported)",
+      "id": "e66d49c2-e0d2-458d-9d67-d87c374dfe61",
+      "image_display_url": "https://edx.netl.doe.gov/groups/nrap-toolset/2022-11-17T11:45:38.530354.png",
+      "name": "nrap-toolset",
+      "title": "NRAP Toolset (Currently Supported)"
+     },
+     {
+      "description": "Tool submissions on EDX that support transport and storage activities",
+      "display_name": "Transport & Storage Tools",
+      "id": "1481e3bf-2042-4cc5-940b-022c568256f5",
+      "image_display_url": "",
+      "name": "transport-and-storage-tools",
+      "title": "Transport & Storage Tools"
+     },
+     {
+      "description": "This EDX group curates all tools that support EDX Discover. As Discover grows, tools within this group will be featured within the platform. \r\nA complimentary group has been created for Discover related datasets and can be accessed here: https://edx.netl.doe.gov/group/discover-datasets\r\n\r\nEDX Discover is a common operating platform to accelerate access to over three decades of subsurface digital assets in support of multi-domain subsurface research such as transport, storage, oil and gas, co-production (enhanced hydrocarbon recovery, critical minerals), energy infrastructure reuse, and more. This powerful, AI-informed platform connects users to thousands of integrated digital assets from the National Energy Technology Laboratory's (NETL's) Energy Data eXchange (EDX) and other authoritative sources to drive future subsurface innovation, technology commercialization, and R&D.\r\n\r\nThe description for this group will be updated with URLs and relevant information as the Discover platform grows. ",
+      "display_name": "discover Tools",
+      "id": "6955cdbc-e83c-4012-bd7d-5e30892d113e",
+      "image_display_url": "/uploads/group//groups/disco2ver-tools/2025-10-06T14:58:11.101788.png",
+      "name": "discover-tools",
+      "title": "discover Tools"
+     }
+    ],
+    "resources": [
+     {
+      "description": "",
+      "format": "HTML",
+      "id": "fae7d4b9-9df2-4ca3-b7d8-96408a209a10",
+      "last_modified": null,
+      "mimetype": null,
+      "name": "ORION Gitlab ",
+      "package_id": "e5be4e0f-d530-4315-b579-bfa6a80009d0",
+      "resource_type": null,
+      "revision_id": "65602d8d-001f-4971-a2b2-56e3fa4429ca",
+      "size": 0,
+      "state": null,
+      "url": "https://nrap.gitlab.io/orion/index.html"
+     },
+     {
+      "description": "",
+      "format": "PDF",
+      "id": "f1d5c115-d1f6-4c59-9fb0-54c381aef4ae",
+      "last_modified": null,
+      "mimetype": null,
+      "name": "ORION Documentation v05",
+      "package_id": "e5be4e0f-d530-4315-b579-bfa6a80009d0",
+      "resource_type": null,
+      "revision_id": "09d3d31e-f1db-4463-bf8f-8f09a3f29af7",
+      "size": 2392291,
+      "state": null,
+      "url": "https://edx.netl.doe.gov/storage/f/edx/2023/02/2023-02-09T16:41:47.469Z/3d6947bd-42d9-4fa2-85c4-ab23d1ec69eb/orion_documentation_v05.pdf"
+     },
+     {
+      "description": "",
+      "format": "TXT",
+      "id": "9c92883e-b127-44b2-8381-3b7cb30f8b1d",
+      "last_modified": null,
+      "mimetype": null,
+      "name": "orion_auspices_and_license_information.txt",
+      "package_id": "e5be4e0f-d530-4315-b579-bfa6a80009d0",
+      "resource_type": null,
+      "revision_id": "14704ccc-1d63-4ebe-956c-9b437d7b8f97",
+      "size": 1794,
+      "state": null,
+      "url": "https://edx.netl.doe.gov/storage/f/edx/2023/02/2023-02-23T18:00:32.819Z/a9d411fe-ae53-48ae-80d1-989d9cd998bc/orion_auspices_and_license_information-2.txt"
+     }
+    ]
+   },
+   {
+    "aiml_info": {
+     "aiml_types": []
+    },
+    "aiml_product": false,
+    "citation": "Kelley, M., Grindei, L., Humphries, M., Coleman, T., Modroo, A., and Gupta, N. 2020 Distributed Acoustic Sensing (DAS) Seismic Monitoring of CO2 Injected for Enhanced Oil Recovery in Northern Michigan. MRCSP topical report prepared for DOE-NETL project DE-FC26-05NT42589, Battelle Memorial Institute, Columbus, OH, DOI: 10.18141/1755400, DOI: 10.2172/1760423",
+    "creator_user_id": "f07f4e2a-947a-4e44-a9e8-50190a58a606",
+    "geospatial_product": false,
+    "id": "86eca02a-0e6b-45f1-b187-3739f5fea826",
+    "issued": null,
+    "metadata_created": "2020-09-22T17:31:30.208440",
+    "metadata_modified": "2021-03-03T12:07:12.047810",
+    "name": "chester16-das-vsp-report",
+    "netl_info": {
+     "listed_reviewer_email": "",
+     "listed_reviewer_id": "",
+     "listed_reviewer_name": "",
+     "program_or_project": "",
+     "project_number": ""
+    },
+    "netl_product": true,
+    "notes": "As part of the Midwest Regional Carbon Sequestration Partnership (MRCSP) Phase III project, a monitoring study was conducted to assess the effectiveness of DAS (Distributed Acoustic Sensing) -based VSP (Vertical Seismic Profiling) technology for delineating CO2 injected into the Silurian-age pinnacle reefs in northern Michigan, the host rocks for the MRCSP Phase III demonstration project. The DAS VSP study was conducted in the Chester 16 reef, one of several reefs in Otsego County Michigan that is operated by Core Energy, LLC of Traverse City, Michigan. ",
+    "num_resources": 1,
+    "num_tags": 6,
+    "osti_info": {},
+    "osti_product": true,
+    "owner_org": null,
+    "package_reviewed": true,
+    "private": false,
+    "spatial_info": {
+     "extent_geometry": "",
+     "spatial_extent": ""
+    },
+    "state": "active",
+    "tags": [
+     "velocity",
+     "seismic",
+     "VSP",
+     "Chester 16",
+     "density",
+     "DAS"
+    ],
+    "title": "Distributed Acoustic Sensing (DAS) Seismic Monitoring of CO2 Injected for Enhanced Oil Recovery in Northern Michigan",
+    "type": "publication",
+    "version": null,
+    "workspace": null,
+    "groups": [
+     {
+      "description": "This is a group to bring together data resources related to all onshore storage.",
+      "display_name": "Onshore Storage",
+      "id": "f316636f-1bd3-4713-b2e2-308d915490de",
+      "image_display_url": "",
+      "name": "onshore-storage",
+      "title": "Onshore Storage"
+     },
+     {
+      "description": "Includes carbon storage datasets are from the Midwest Regional Carbon Sequestration Partnership.",
+      "display_name": "RCSP - MRCSP",
+      "id": "25a71eaf-4b3d-495c-822e-8df427bc2d10",
+      "image_display_url": "https://edx.netl.doe.gov/groups/rcsp-mrcsp/2019-01-30T11:22:04.847151.png",
+      "name": "rcsp-mrcsp",
+      "title": "RCSP - MRCSP"
+     }
+    ],
+    "resources": [
+     {
+      "description": "",
+      "format": "PDF",
+      "id": "693ee6b7-962f-4618-8512-15e0dd4ccb34",
+      "last_modified": null,
+      "mimetype": null,
+      "name": "mrcsp-das-seismic-monitoring-report.pdf",
+      "package_id": "86eca02a-0e6b-45f1-b187-3739f5fea826",
+      "position": 0,
+      "resource_type": null,
+      "revision_id": "523c8eab-b8ae-4bf3-9e0c-70122e64b76e",
+      "size": 163548779,
+      "state": null,
+      "url": "https://edx.netl.doe.gov/storage/f/edx/2021/02/2021-02-26T21:59:57.276Z/693ee6b7-962f-4618-8512-15e0dd4ccb34/mrcsp-das-seismic-monitoring-report.pdf"
+     }
+    ]
+   }
+  ],
+  "sort": "score desc",
+  "search_facets": {
+   "products": {
+    "title": "products",
+    "items": [
+     {
+      "name": "NETL",
+      "display_name": "NETL",
+      "count": 712
+     },
+     {
+      "name": "Geospatial",
+      "display_name": "Geospatial",
+      "count": 10
+     },
+     {
+      "name": "DOI",
+      "display_name": "DOI",
+      "count": 48
+     },
+     {
+      "name": "AI/ML",
+      "display_name": "AI/ML",
+      "count": 0
+     }
+    ]
+   }
+  }
+ }
+}
