@@ -22,7 +22,7 @@ use serde_json::Value;
 use crate::cli::By;
 use crate::credentials::{Credentials, Key};
 use crate::find;
-use crate::http::{Call, Http, SourceError};
+use crate::http::{Call, Http, SourceError, Unreached};
 use crate::output::Out;
 use crate::record::{Dataset, text};
 use crate::sources::{HUB_FIELDS, github_record, gitlab_record, hub_record};
@@ -54,22 +54,8 @@ pub enum Error {
         "only a GitHub repository has forks to list\n  Try:   drop --by forks, or give a page under github.com/OWNER/REPO"
     )]
     NoForks,
-    #[error(
-        "cannot reach {url}\n  Try:   check the address and the connection, then run it again"
-    )]
-    Unreachable {
-        url: String,
-        #[source]
-        source: SourceError,
-    },
-    #[error("cannot verify the certificate of {url}\n  Try:   {hint}")]
-    Certificate {
-        url: String,
-        /// From [`crate::http::certificate_hint`].
-        hint: String,
-        #[source]
-        source: SourceError,
-    },
+    #[error(transparent)]
+    Unreached(#[from] Unreached),
     #[error(
         "related asks the item's host, so it needs the network\n  Try:   run it again without --offline"
     )]
@@ -162,17 +148,10 @@ pub fn run(url: &str, by: By, limit: usize, out: &Out) -> Result<()> {
     let found =
         fetch(&plan, &asked, limit).and_then(|body| datasets(&plan, &body));
     progress.finish_and_clear();
-    let mut found = found.map_err(|e| match e {
-        SourceError::Offline => Error::Offline,
-        SourceError::Unreachable(_) => {
-            Error::Unreachable { url: url.to_owned(), source: e }
-        }
-        SourceError::Certificate(_) => Error::Certificate {
-            url: url.to_owned(),
-            hint: crate::http::certificate_hint(),
-            source: e,
-        },
-        _ => Error::Fetch { url: url.to_owned(), source: e },
+    let mut found = found.map_err(|e| match Unreached::of(url, e) {
+        Ok(unreached) => Error::Unreached(unreached),
+        Err(SourceError::Offline) => Error::Offline,
+        Err(source) => Error::Fetch { url: url.to_owned(), source },
     })?;
     let total = found.len();
     found.truncate(limit);

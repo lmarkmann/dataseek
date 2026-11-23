@@ -52,19 +52,12 @@ pub fn search(
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
     let size = limit.saturating_mul(2).clamp(1, PAGE_CAP);
-    let (query, mut body) = first_page(ctx, query, size)?;
-    let mut found = parse(&body, limit)?;
-    for page in 2..=MAX_PAGES {
-        if found.len() >= limit || !has_next(&body) {
-            break;
-        }
-        if ctx.stopped() {
-            return Err(SourceError::Stopped);
-        }
-        body = fetch(ctx, &query, size, page)?;
-        found.extend(parse(&body, limit.saturating_sub(found.len()))?);
-    }
-    Ok(found)
+    let (query, first) = super::retry_without_syntax(query, |query| {
+        fetch(ctx, query, size, 1)
+    })?;
+    super::paginate_next(ctx, limit, MAX_PAGES, first, parse, |page| {
+        fetch(ctx, &query, size, page)
+    })
 }
 
 fn fetch(
@@ -83,25 +76,6 @@ fn fetch(
         .query("affiliation", "false")
         .query("mailto", CONTACT)
         .json()
-}
-
-/// The first page with the query that got it, which is the plain form when
-/// the source rejected the original.
-fn first_page(
-    ctx: &Ctx<'_>,
-    query: &str,
-    size: usize,
-) -> Result<(String, Value), SourceError> {
-    super::retry_plain(
-        query,
-        &[400, 500],
-        |query| super::plain_query(query, super::QUERY_SYNTAX),
-        |query| fetch(ctx, query, size, 1),
-    )
-}
-
-fn has_next(body: &Value) -> bool {
-    body.pointer("/links/next").is_some()
 }
 
 pub(super) fn parse(
@@ -216,7 +190,9 @@ mod tests {
 
     #[test]
     fn only_a_page_with_a_next_link_is_followed() {
-        assert!(has_next(&fixture::json("datacite.json")));
-        assert!(!has_next(&serde_json::json!({ "data": [], "links": {} })));
+        assert!(super::super::has_next(&fixture::json("datacite.json")));
+        assert!(!super::super::has_next(
+            &serde_json::json!({ "data": [], "links": {} })
+        ));
     }
 }

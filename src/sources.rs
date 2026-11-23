@@ -152,6 +152,48 @@ fn retry_plain<T>(
     Ok((plain, answer))
 }
 
+/// [`retry_plain`] for the sources whose parser reads [`QUERY_SYNTAX`] and
+/// answers 400 or 500 to a query it cannot read.
+fn retry_without_syntax<T>(
+    query: &str,
+    ask: impl FnMut(&str) -> Result<T, SourceError>,
+) -> Result<(String, T), SourceError> {
+    let plain = |query: &str| plain_query(query, QUERY_SYNTAX);
+    retry_plain(query, &[400, 500], plain, ask)
+}
+
+/// Whether a page links the one after it.
+fn has_next(body: &Value) -> bool {
+    body.pointer("/links/next").is_some()
+}
+
+/// The records of the `first` page and of the pages after it, up to page
+/// `last`, until `limit` records are in hand or a page links no next one.
+/// A failed page fails the search, so a list cut short is never cached as
+/// the answer for this `limit`.
+fn paginate_next(
+    ctx: &Ctx<'_>,
+    limit: usize,
+    last: usize,
+    first: Value,
+    parse: impl Fn(&Value, usize) -> Result<Vec<Dataset>, SourceError>,
+    fetch: impl Fn(usize) -> Result<Value, SourceError>,
+) -> Result<Vec<Dataset>, SourceError> {
+    let mut body = first;
+    let mut found = parse(&body, limit)?;
+    for page in 2..=last {
+        if found.len() >= limit || !has_next(&body) {
+            break;
+        }
+        if ctx.stopped() {
+            return Err(SourceError::Stopped);
+        }
+        body = fetch(page)?;
+        found.extend(parse(&body, limit.saturating_sub(found.len()))?);
+    }
+    Ok(found)
+}
+
 /// The records of the list at `pointer`, at most `limit`. A body with
 /// nothing at `pointer` is a changed response, never an empty list.
 fn parse_list(

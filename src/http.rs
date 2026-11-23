@@ -118,6 +118,47 @@ impl SourceError {
     }
 }
 
+/// Why a command that reads one address got no answer from its host, for
+/// the two failures that say nothing about the address.
+#[derive(Debug, thiserror::Error)]
+pub enum Unreached {
+    #[error(
+        "cannot reach {url}\n  Try:   check the address and the connection, then run it again"
+    )]
+    Unreachable {
+        url: String,
+        #[source]
+        source: SourceError,
+    },
+    #[error("cannot verify the certificate of {url}\n  Try:   {hint}")]
+    Certificate {
+        url: String,
+        /// From [`certificate_hint`].
+        hint: String,
+        #[source]
+        source: SourceError,
+    },
+}
+
+impl Unreached {
+    /// The failure to connect to `url` that `error` is, or `error` back
+    /// when it is of another kind.
+    pub fn of(url: &str, error: SourceError) -> Result<Self, SourceError> {
+        let url = url.to_owned();
+        match error {
+            SourceError::Unreachable(_) => {
+                Ok(Self::Unreachable { url, source: error })
+            }
+            SourceError::Certificate(_) => Ok(Self::Certificate {
+                url,
+                hint: certificate_hint(),
+                source: error,
+            }),
+            other => Err(other),
+        }
+    }
+}
+
 /// Error text that came from upstream, with its control characters
 /// replaced: a provider that puts an escape sequence into a tag name or a
 /// header must not get to drive the terminal the error is printed on.

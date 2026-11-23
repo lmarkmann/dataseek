@@ -10,7 +10,7 @@ use dataseek::internals::{Hit, merge};
 
 use crate::metrics::{DEPTH, Grade, Interval, SEED, bootstrap, paired};
 use crate::report::{self, show};
-use crate::snapshot::{Half, Query};
+use crate::snapshot::{Half, Judged, Query};
 use crate::variants::{self, Config, Priors, Setting};
 use crate::{Case, HELD, Metric, Score, TUNE, cases, graded, score, variant};
 
@@ -322,17 +322,8 @@ fn flips(
             {
                 let flipped = if grade == 0 { 2 } else { 0 };
                 let judged = case.judged.with(index, flipped);
-                let rescore = |ranking: &Evaluated| {
-                    let mut scores = ranking.scores.clone();
-                    if let Some(slot) = scores.get_mut(ci) {
-                        let ranked = ranking.rankings.get(ci);
-                        *slot =
-                            graded(&judged, ranked.map_or(&[], Vec::as_slice));
-                    }
-                    scores
-                };
                 let after =
-                    verdict(cases, &rescore(base), &rescore(f), mrr_tolerance);
+                    regraded(cases, base, f, ci, &judged, mrr_tolerance);
                 if after.adopt != decision.adopt {
                     flagged = flagged.saturating_add(1);
                     writeln!(
@@ -348,6 +339,27 @@ fn flips(
         writeln!(out, "  none")?;
     }
     Ok(())
+}
+
+/// The verdict on `finalist` when query `ci` is scored against `judged`,
+/// its labels with one of them flipped.
+fn regraded(
+    cases: &[Case],
+    base: &Evaluated,
+    finalist: &Evaluated,
+    ci: usize,
+    judged: &Judged,
+    mrr_tolerance: f64,
+) -> Verdict {
+    let rescore = |ranking: &Evaluated| {
+        let mut scores = ranking.scores.clone();
+        if let Some(slot) = scores.get_mut(ci) {
+            let ranked = ranking.rankings.get(ci);
+            *slot = graded(judged, ranked.map_or(&[], Vec::as_slice));
+        }
+        scores
+    };
+    verdict(cases, &rescore(base), &rescore(finalist), mrr_tolerance)
 }
 
 /// The labels the top 10 of two rankings of one query rest on, each once:
