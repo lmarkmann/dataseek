@@ -81,7 +81,7 @@ use crate::cache::{CATALOG_TTL, Cache, Freshness, Kind};
 use crate::credentials::{Credentials, Key};
 use crate::http::{Http, SourceError};
 use crate::license;
-use crate::record::{Dataset, file_formats};
+use crate::record::{Dataset, file_formats, items};
 
 /// A Hub listing row as the record `search` returns for it. `related` reads
 /// its rows through these three functions, so one JSON row is one record
@@ -106,6 +106,65 @@ fn spelled(mut dataset: Dataset) -> Dataset {
     dataset.license = dataset.license.as_deref().and_then(license::normalized);
     dataset.formats = file_formats(&dataset.formats);
     dataset
+}
+
+/// Characters the query parsers of CERN Open Data and DataCite read as
+/// operators, besides the words AND, OR and NOT in capitals.
+const QUERY_SYNTAX: &[char] = &[
+    '+', '-', '=', '&', '|', '<', '>', '!', '(', ')', '{', '}', '[', ']', '^',
+    '"', '~', '*', '?', ':', '\\', '/',
+];
+
+/// The words of a query without the characters in `syntax`, and with a bare
+/// AND, OR or NOT in lower case, where a parser reads it as a word.
+fn plain_query(query: &str, syntax: &[char]) -> String {
+    query
+        .replace(syntax, " ")
+        .split_whitespace()
+        .map(|word| match word {
+            "AND" | "OR" | "NOT" => word.to_lowercase(),
+            _ => word.to_owned(),
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+/// Asks with the query as typed. A status in `rejected` is how the source
+/// answers a query its parser cannot read, so the query is then asked once
+/// more in its `plain` form, unless that form is empty or the same query.
+/// Returns the answer with the query that got it.
+fn retry_plain<T>(
+    query: &str,
+    rejected: &[u16],
+    plain: impl Fn(&str) -> String,
+    mut ask: impl FnMut(&str) -> Result<T, SourceError>,
+) -> Result<(String, T), SourceError> {
+    let error = match ask(query) {
+        Ok(answer) => return Ok((query.to_owned(), answer)),
+        Err(error) => error,
+    };
+    let SourceError::Status(status) = error else { return Err(error) };
+    let plain = plain(query);
+    if !rejected.contains(&status) || plain.is_empty() || plain == query {
+        return Err(error);
+    }
+    let answer = ask(&plain)?;
+    Ok((plain, answer))
+}
+
+/// The records of the list at `pointer`, at most `limit`. A body with
+/// nothing at `pointer` is a changed response, never an empty list.
+fn parse_list(
+    body: &Value,
+    pointer: &str,
+    limit: usize,
+    record: impl Fn(&Value) -> Option<Dataset>,
+) -> Result<Vec<Dataset>, SourceError> {
+    if body.pointer(pointer).is_none() {
+        let path = pointer.trim_start_matches('/').replace('/', ".");
+        return Err(SourceError::shape(format!("no {path} array")));
+    }
+    Ok(items(body, pointer).iter().filter_map(record).take(limit).collect())
 }
 
 pub type Live = fn(&Ctx<'_>, &str, usize) -> Result<Vec<Dataset>, SourceError>;
@@ -1447,6 +1506,77 @@ mod tests {
                 ncbi::parse(&ids, b, n)
             }),
         ]
+    }
+
+    #[test]
+    fn a_plain_query_has_no_syntax_and_no_operator_word() {
+        for (query, plain) in [
+            ("\"unbalanced muon", "unbalanced muon"),
+            ("C++ (benchmark", "C benchmark"),
+            ("muon AND", "muon and"),
+            ("NOT a:b OR c/d", "not a b or c d"),
+            ("muon neutrino", "muon neutrino"),
+            ("\"\"", ""),
+        ] {
+            assert_eq!(plain_query(query, QUERY_SYNTAX), plain, "{query}");
+        }
+    }
+
+    /// The queries `retry_plain` asks, and what it returns, for a source
+    /// that answers `status` to any query that holds a quote.
+    fn asked(
+        query: &str,
+        status: u16,
+    ) -> (Vec<String>, Result<String, SourceError>) {
+        let mut asked = Vec::new();
+        let plain = |query: &str| plain_query(query, QUERY_SYNTAX);
+        let answer = retry_plain(query, &[400, 500], plain, |query| {
+            asked.push(query.to_owned());
+            if query.contains('"') {
+                Err(SourceError::Status(status))
+            } else {
+                Ok(())
+            }
+        });
+        (asked, answer.map(|(query, ())| query))
+    }
+
+    #[test]
+    fn a_rejected_query_is_asked_once_more_in_its_plain_form() {
+        for status in [400, 500] {
+            let (queries, answer) = asked("\"sea ice", status);
+            assert_eq!(queries, ["\"sea ice", "sea ice"]);
+            assert_eq!(answer.unwrap(), "sea ice");
+        }
+        let (queries, answer) = asked("sea ice", 500);
+        assert_eq!(queries, ["sea ice"]);
+        assert_eq!(answer.unwrap(), "sea ice");
+    }
+
+    #[test]
+    fn a_query_is_not_asked_again_when_that_would_change_nothing() {
+        let (queries, answer) = asked("\"\"", 400);
+        assert_eq!(queries, ["\"\""], "no word is left to ask with");
+        assert!(matches!(answer, Err(SourceError::Status(400))));
+
+        let (queries, answer) = asked("\"sea ice", 404);
+        assert_eq!(queries, ["\"sea ice"], "404 is not a rejected query");
+        assert!(matches!(answer, Err(SourceError::Status(404))));
+
+        let mut count = 0_u32;
+        let limited = retry_plain("a:b", &[400], str::to_lowercase, |_| {
+            count = count.saturating_add(1);
+            Err::<(), _>(SourceError::RateLimited)
+        });
+        assert!(matches!(limited, Err(SourceError::RateLimited)));
+        assert_eq!(count, 1);
+
+        let same = retry_plain("a:b", &[400], str::to_owned, |_| {
+            count = count.saturating_add(1);
+            Err::<(), _>(SourceError::Status(400))
+        });
+        assert!(matches!(same, Err(SourceError::Status(400))));
+        assert_eq!(count, 2, "the plain form is the query itself");
     }
 
     #[test]

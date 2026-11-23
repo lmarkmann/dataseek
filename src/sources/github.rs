@@ -26,7 +26,7 @@ use serde_json::Value;
 use super::Ctx;
 use crate::credentials::Key;
 use crate::http::SourceError;
-use crate::record::{Dataset, day, items, number, text};
+use crate::record::{Dataset, day, number, text};
 
 const FIELDS: &str = "in:name,description,topics,readme";
 
@@ -52,10 +52,7 @@ pub(super) fn parse(
     body: &Value,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    if body.get("items").is_none() {
-        return Err(SourceError::shape("no items array"));
-    }
-    Ok(items(body, "/items").iter().filter_map(record).take(limit).collect())
+    super::parse_list(body, "/items", limit, record)
 }
 
 pub(super) fn record(repo: &Value) -> Option<Dataset> {

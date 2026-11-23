@@ -18,16 +18,9 @@ use serde_json::Value;
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::{Dataset, items, number, text};
+use crate::record::{Dataset, number, text};
 
 const PAGE: usize = 10;
-
-/// Characters the query parser reads as operators, besides the words AND, OR
-/// and NOT in capitals.
-const SYNTAX: &[char] = &[
-    '+', '-', '=', '&', '|', '<', '>', '!', '(', ')', '{', '}', '[', ']', '^',
-    '"', '~', '*', '?', ':', '\\', '/',
-];
 
 pub fn search(
     ctx: &Ctx<'_>,
@@ -72,28 +65,12 @@ fn first_page(
     query: &str,
     size: usize,
 ) -> Result<(String, Value), SourceError> {
-    match fetch(ctx, query, size, 1) {
-        Ok(body) => Ok((query.to_owned(), body)),
-        Err(error) => {
-            let plain = plain(query, &error).ok_or(error)?;
-            let body = fetch(ctx, &plain, size, 1)?;
-            Ok((plain, body))
-        }
-    }
-}
-
-fn plain(query: &str, error: &SourceError) -> Option<String> {
-    let rejected = matches!(error, SourceError::Status(400 | 500));
-    let plain = query
-        .replace(SYNTAX, " ")
-        .split_whitespace()
-        .map(|word| match word {
-            "AND" | "OR" | "NOT" => word.to_lowercase(),
-            _ => word.to_owned(),
-        })
-        .collect::<Vec<_>>()
-        .join(" ");
-    (rejected && plain != query && !plain.is_empty()).then_some(plain)
+    super::retry_plain(
+        query,
+        &[400, 500],
+        |query| super::plain_query(query, super::QUERY_SYNTAX),
+        |query| fetch(ctx, query, size, 1),
+    )
 }
 
 fn has_next(body: &Value) -> bool {
@@ -104,14 +81,7 @@ pub(super) fn parse(
     body: &Value,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    if body.pointer("/hits/hits").is_none() {
-        return Err(SourceError::shape("no hits.hits"));
-    }
-    Ok(items(body, "/hits/hits")
-        .iter()
-        .filter_map(record)
-        .take(limit)
-        .collect())
+    super::parse_list(body, "/hits/hits", limit, record)
 }
 
 fn record(hit: &Value) -> Option<Dataset> {
@@ -172,32 +142,5 @@ mod tests {
         let empty = fixture::json("cern.empty.json");
         assert!(!has_next(&empty));
         assert_eq!(parse(&empty, 10).unwrap(), Vec::<Dataset>::new());
-    }
-
-    #[test]
-    fn a_rejected_query_is_asked_again_without_its_syntax() {
-        for status in [400, 500] {
-            assert_eq!(
-                plain("\"unbalanced muon", &SourceError::Status(status))
-                    .as_deref(),
-                Some("unbalanced muon")
-            );
-        }
-        assert_eq!(
-            plain("C++ (benchmark", &SourceError::Status(400)).as_deref(),
-            Some("C benchmark")
-        );
-        assert_eq!(
-            plain("muon AND", &SourceError::Status(500)).as_deref(),
-            Some("muon and")
-        );
-    }
-
-    #[test]
-    fn a_query_is_not_asked_again_when_that_would_change_nothing() {
-        assert_eq!(plain("muon neutrino", &SourceError::Status(500)), None);
-        assert_eq!(plain("\"\"", &SourceError::Status(400)), None);
-        assert_eq!(plain("a:b", &SourceError::Status(404)), None);
-        assert_eq!(plain("a:b", &SourceError::RateLimited), None);
     }
 }

@@ -37,14 +37,10 @@ pub fn search(
     query: &str,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    let mut body = request(ctx, domain, query, limit);
-    if matches!(body, Err(SourceError::Status(400))) {
-        let plain = plain_words(query);
-        if !plain.is_empty() && plain != query {
-            body = request(ctx, domain, &plain, limit);
-        }
-    }
-    parse(domain, &body?, limit)
+    let (_, body) = super::retry_plain(query, &[400], plain_words, |query| {
+        request(ctx, domain, query, limit)
+    })?;
+    parse(domain, &body, limit)
 }
 
 fn request(

@@ -26,7 +26,7 @@ use serde_json::Value;
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::{Dataset, day, doi, items, text};
+use crate::record::{Dataset, day, doi, text};
 
 const OPERATORS: [&str; 3] = ["AND", "OR", "NOT"];
 
@@ -66,14 +66,7 @@ pub(super) fn parse(
     body: &Value,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    if body.pointer("/response/docs").is_none() {
-        return Err(SourceError::shape("no response.docs"));
-    }
-    Ok(items(body, "/response/docs")
-        .iter()
-        .filter_map(record)
-        .take(limit)
-        .collect())
+    super::parse_list(body, "/response/docs", limit, record)
 }
 
 fn record(doc: &Value) -> Option<Dataset> {

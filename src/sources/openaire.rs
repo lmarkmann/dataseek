@@ -30,18 +30,20 @@ use crate::record::{Dataset, day, doi, items, number, text};
 
 const MAX_ALIASES: usize = 10;
 
+/// What opens or closes a phrase or a group.
+const SYNTAX: &[char] = &['"', '(', ')'];
+
 pub fn search(
     ctx: &Ctx<'_>,
     query: &str,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    let body = match fetch(ctx, query, limit) {
-        Err(error) => {
-            let plain = plain(query, &error).ok_or(error)?;
-            fetch(ctx, &plain, limit)?
-        }
-        Ok(body) => body,
-    };
+    let (_, body) = super::retry_plain(
+        query,
+        &[400, 500],
+        |query| super::plain_query(query, SYNTAX),
+        |query| fetch(ctx, query, limit),
+    )?;
     parse(&body, limit)
 }
 
@@ -58,28 +60,11 @@ fn fetch(
         .json()
 }
 
-fn plain(query: &str, error: &SourceError) -> Option<String> {
-    let rejected = matches!(error, SourceError::Status(400 | 500));
-    let plain = query
-        .replace(['"', '(', ')'], " ")
-        .split_whitespace()
-        .map(|word| match word {
-            "AND" | "OR" | "NOT" => word.to_lowercase(),
-            _ => word.to_owned(),
-        })
-        .collect::<Vec<_>>()
-        .join(" ");
-    (rejected && plain != query && !plain.is_empty()).then_some(plain)
-}
-
 pub(super) fn parse(
     body: &Value,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    if body.get("results").is_none() {
-        return Err(SourceError::shape("no results array"));
-    }
-    Ok(items(body, "/results").iter().filter_map(record).take(limit).collect())
+    super::parse_list(body, "/results", limit, record)
 }
 
 fn record(row: &Value) -> Option<Dataset> {
@@ -196,28 +181,16 @@ mod tests {
     }
 
     #[test]
-    fn a_rejected_query_is_asked_again_as_plain_words() {
-        for (query, status, plain_query) in [
-            ("\"unbalanced", 400, "unbalanced"),
-            ("C++ (benchmark", 400, "C++ benchmark"),
-            ("sea AND", 500, "sea and"),
-            ("NOT ice OR", 500, "not ice or"),
+    fn the_plain_form_keeps_every_word_and_drops_the_syntax() {
+        for (query, plain) in [
+            ("\"unbalanced", "unbalanced"),
+            ("C++ (benchmark", "C++ benchmark"),
+            ("sea AND", "sea and"),
+            ("NOT ice OR", "not ice or"),
+            ("sea surface temperature", "sea surface temperature"),
+            ("\"()\"", ""),
         ] {
-            assert_eq!(
-                plain(query, &SourceError::Status(status)).as_deref(),
-                Some(plain_query),
-                "{query}"
-            );
+            assert_eq!(super::super::plain_query(query, SYNTAX), plain);
         }
-    }
-
-    #[test]
-    fn a_query_is_not_asked_again_when_that_would_change_nothing() {
-        let error = SourceError::Status(500);
-        assert_eq!(plain("sea surface temperature", &error), None);
-        assert_eq!(plain("android", &error), None);
-        assert_eq!(plain("\"()\"", &SourceError::Status(400)), None);
-        assert_eq!(plain("sea AND", &SourceError::Status(404)), None);
-        assert_eq!(plain("sea AND", &SourceError::RateLimited), None);
     }
 }

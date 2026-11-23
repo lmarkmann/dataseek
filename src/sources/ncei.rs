@@ -20,21 +20,17 @@ use serde_json::Value;
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::{Dataset, items, text};
+use crate::record::{Dataset, text};
 
 pub fn search(
     ctx: &Ctx<'_>,
     query: &str,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    let mut body = request(ctx, query, limit);
-    if matches!(body, Err(SourceError::Status(400))) {
-        let plain = plain_words(query);
-        if !plain.is_empty() && plain != query {
-            body = request(ctx, &plain, limit);
-        }
-    }
-    parse(&body?, limit)
+    let (_, body) = super::retry_plain(query, &[400], plain_words, |query| {
+        request(ctx, query, limit)
+    })?;
+    parse(&body, limit)
 }
 
 fn request(
@@ -61,10 +57,7 @@ pub(super) fn parse(
     body: &Value,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    if body.get("results").is_none() {
-        return Err(SourceError::shape("no results array"));
-    }
-    Ok(items(body, "/results").iter().filter_map(record).take(limit).collect())
+    super::parse_list(body, "/results", limit, record)
 }
 
 fn record(row: &Value) -> Option<Dataset> {

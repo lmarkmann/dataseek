@@ -15,7 +15,7 @@ use serde_json::Value;
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::{Dataset, day, first_text, items, text};
+use crate::record::{Dataset, day, first_text, text};
 
 pub fn search(
     ctx: &Ctx<'_>,
@@ -37,14 +37,7 @@ pub(super) fn parse(
     body: &Value,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    if body.pointer("/data/items").is_none() {
-        return Err(SourceError::shape("no data.items"));
-    }
-    Ok(items(body, "/data/items")
-        .iter()
-        .filter_map(record)
-        .take(limit)
-        .collect())
+    super::parse_list(body, "/data/items", limit, record)
 }
 
 fn record(row: &Value) -> Option<Dataset> {

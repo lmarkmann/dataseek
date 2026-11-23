@@ -44,17 +44,7 @@ fn with_plain_retry(
     query: &str,
     run: impl Fn(&str) -> Result<Vec<Dataset>, SourceError>,
 ) -> Result<Vec<Dataset>, SourceError> {
-    match run(query) {
-        Err(SourceError::Status(500)) => {
-            let plain = plain_words(query);
-            if plain == query {
-                Err(SourceError::Status(500))
-            } else {
-                run(&plain)
-            }
-        }
-        found => found,
-    }
+    super::retry_plain(query, &[500], plain_words, run).map(|(_, found)| found)
 }
 
 /// Pages of one size, fetched in order until `limit` records are in hand or
@@ -91,14 +81,7 @@ pub(super) fn parse(
     body: &Value,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    if body.pointer("/hits/hits").is_none() {
-        return Err(SourceError::shape("no hits.hits"));
-    }
-    Ok(items(body, "/hits/hits")
-        .iter()
-        .filter_map(record)
-        .take(limit)
-        .collect())
+    super::parse_list(body, "/hits/hits", limit, record)
 }
 
 fn record(row: &Value) -> Option<Dataset> {
