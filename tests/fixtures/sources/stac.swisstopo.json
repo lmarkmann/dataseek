@@ -1,0 +1,259 @@
+{
+  "collections": [
+    {
+      "stac_version": "1.0.0",
+      "id": "ch.agroscope.abschaetzung-organische_boeden",
+      "title": "Distribution of organic soils in Switzerland (Agroscope 2025)",
+      "description": "The map of organic soils in Switzerland is an update of the first map published in 2015. It provides an estimate of the distribution of (former) moorland soils that still exist today and are sufficiently humus-rich and deep to meet the criteria for organic soil.",
+      "summaries": {
+        "proj:epsg": [
+          2056
+        ]
+      },
+      "extent": {
+        "spatial": {
+          "bbox": [
+            [
+              5.96,
+              45.82,
+              10.49,
+              47.81
+            ]
+          ]
+        },
+        "temporal": {
+          "interval": [
+            [
+              "2024-10-31T00:00:00Z",
+              "2024-10-31T00:00:00Z"
+            ]
+          ]
+        }
+      },
+      "providers": [
+        {
+          "name": "Agroscope",
+          "roles": [
+            "producer",
+            "licensor"
+          ],
+          "url": "https://www.agroscope.admin.ch/agroscope/en/home.html"
+        }
+      ],
+      "license": "CC-BY",
+      "created": "2025-05-22T15:30:58.190278Z",
+      "updated": "2026-03-04T14:03:13.017136Z",
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://data.geo.admin.ch/api/stac/v1/collections/ch.agroscope.abschaetzung-organische_boeden"
+        },
+        {
+          "rel": "root",
+          "href": "https://data.geo.admin.ch/api/stac/v1/"
+        },
+        {
+          "rel": "parent",
+          "href": "https://data.geo.admin.ch/api/stac/v1/"
+        },
+        {
+          "rel": "items",
+          "href": "https://data.geo.admin.ch/api/stac/v1/collections/ch.agroscope.abschaetzung-organische_boeden/items"
+        }
+      ],
+      "crs": [
+        "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
+      ],
+      "itemType": "Feature",
+      "assets": {
+        "abschaetzung-organische_boeden.zip": {
+          "title": "Additional files",
+          "type": "application/zip",
+          "href": "https://data.geo.admin.ch/ch.agroscope.abschaetzung-organische_boeden/abschaetzung-organische_boeden.zip",
+          "created": "2025-05-22T15:32:28.414781Z",
+          "updated": "2025-05-28T14:41:40.105023Z",
+          "file:checksum": "1220d9f7215a457ef462ec0cb48b4fa9bbdf693ef62fa1954318557e4478901e14f6"
+        }
+      },
+      "type": "Collection"
+    },
+    {
+      "stac_version": "1.0.0",
+      "id": "ch.agroscope.amphibien-ausbreitungskarten",
+      "title": "Amphibian dispersal maps",
+      "description": "Swiss-wide map depicting the dispersal probability of the Smooth newt (Lissotriton vulgaris). Each grid cell indicates the relative probability that dispersing individuals will pass through that hectare on their way between known amphibian breeding sites.",
+      "summaries": {
+        "proj:epsg": [
+          2056
+        ]
+      },
+      "extent": {
+        "spatial": {
+          "bbox": [
+            [
+              5.96,
+              45.82,
+              10.49,
+              47.81
+            ]
+          ]
+        },
+        "temporal": {
+          "interval": [
+            [
+              "2024-02-23T00:00:00Z",
+              "2024-02-23T00:00:00Z"
+            ]
+          ]
+        }
+      },
+      "providers": [
+        {
+          "name": "Agroscope",
+          "roles": [
+            "producer",
+            "licensor"
+          ],
+          "url": "https://www.agroscope.admin.ch/agroscope/en/home.html"
+        }
+      ],
+      "license": "proprietary",
+      "created": "2025-05-22T14:39:07.159700Z",
+      "updated": "2026-05-11T20:00:02.195398Z",
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://data.geo.admin.ch/api/stac/v1/collections/ch.agroscope.amphibien-ausbreitungskarten"
+        },
+        {
+          "rel": "root",
+          "href": "https://data.geo.admin.ch/api/stac/v1/"
+        },
+        {
+          "rel": "parent",
+          "href": "https://data.geo.admin.ch/api/stac/v1/"
+        },
+        {
+          "rel": "items",
+          "href": "https://data.geo.admin.ch/api/stac/v1/collections/ch.agroscope.amphibien-ausbreitungskarten/items"
+        }
+      ],
+      "crs": [
+        "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
+      ],
+      "itemType": "Feature",
+      "assets": {
+        "amphibien-ausbreitungskarten.zip": {
+          "title": "Additional files",
+          "type": "application/zip",
+          "href": "https://data.geo.admin.ch/ch.agroscope.amphibien-ausbreitungskarten/amphibien-ausbreitungskarten.zip",
+          "created": "2025-05-22T14:52:53.222219Z",
+          "updated": "2025-05-28T14:31:10.607224Z",
+          "file:checksum": "12209ce52dc40e77ba3fc35e4906358ee19b0175236f589d39c5ebe13024fc95987e"
+        }
+      },
+      "type": "Collection"
+    },
+    {
+      "stac_version": "1.0.0",
+      "id": "ch.agroscope.amphibien-bedeutung_parzellen",
+      "title": "Agricultural parcels with potential importance to amphibians, surfaces",
+      "description": "Switzerland-wide map of agricultural parcels that are potentially suitable as either terrestrial habitat or as part of a dispersal route between amphibian breeding sites for up to 11 amphibian species.",
+      "summaries": {
+        "proj:epsg": [
+          2056
+        ]
+      },
+      "extent": {
+        "spatial": {
+          "bbox": [
+            [
+              5.96,
+              45.82,
+              10.49,
+              47.81
+            ]
+          ]
+        },
+        "temporal": {
+          "interval": [
+            [
+              "2021-01-01T00:00:00Z",
+              "2021-01-01T00:00:00Z"
+            ]
+          ]
+        }
+      },
+      "providers": [
+        {
+          "name": "Agroscope",
+          "roles": [
+            "producer",
+            "licensor"
+          ],
+          "url": "https://www.agroscope.admin.ch/agroscope/en/home.html"
+        }
+      ],
+      "license": "proprietary",
+      "created": "2025-05-22T14:57:25.695200Z",
+      "updated": "2026-03-04T14:03:14.434992Z",
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://data.geo.admin.ch/api/stac/v1/collections/ch.agroscope.amphibien-bedeutung_parzellen"
+        },
+        {
+          "rel": "root",
+          "href": "https://data.geo.admin.ch/api/stac/v1/"
+        },
+        {
+          "rel": "parent",
+          "href": "https://data.geo.admin.ch/api/stac/v1/"
+        },
+        {
+          "rel": "items",
+          "href": "https://data.geo.admin.ch/api/stac/v1/collections/ch.agroscope.amphibien-bedeutung_parzellen/items"
+        }
+      ],
+      "crs": [
+        "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
+      ],
+      "itemType": "Feature",
+      "assets": {
+        "amphibien-bedeutung_parzellen.zip": {
+          "title": "Additional files",
+          "type": "application/zip",
+          "href": "https://data.geo.admin.ch/ch.agroscope.amphibien-bedeutung_parzellen/amphibien-bedeutung_parzellen.zip",
+          "created": "2025-05-22T15:28:30.091771Z",
+          "updated": "2025-05-28T14:28:13.084856Z",
+          "file:checksum": "1220ac64e9e9b278d06a91ebec197534c271de08c2954cad6e42e07b715fb985d163"
+        }
+      },
+      "type": "Collection"
+    }
+  ],
+  "links": [
+    {
+      "rel": "self",
+      "href": "https://data.geo.admin.ch/api/stac/v1/collections"
+    },
+    {
+      "rel": "root",
+      "href": "https://data.geo.admin.ch/api/stac/v1/"
+    },
+    {
+      "rel": "parent",
+      "href": "https://data.geo.admin.ch/api/stac/v1/"
+    },
+    {
+      "rel": "alternate",
+      "title": "STAC Browser",
+      "type": "text/html",
+      "href": "https://data.geo.admin.ch/browser/index.html#/"
+    },
+    {
+      "rel": "next",
+      "href": "https://data.geo.admin.ch/api/stac/v1/collections?cursor=cD1jaC5iYWZ1Lmdlb2NoZW1pc2NoZXItYm9kZW5hdGxhc19zY2h3ZWl6X21vbHliZGFlbg%3D%3D&limit=1000"
+    }
+  ]
+}

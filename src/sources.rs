@@ -1235,6 +1235,22 @@ pub static SOURCES: &[Source] = &[
         "https://cds.climate.copernicus.eu/how-to-api",
         Adapter::Stac(&stac::COPERNICUS_CDS),
     ),
+    via(
+        "swisstopo",
+        "Swisstopo STAC",
+        Geospatial,
+        "STAC",
+        "https://www.geo.admin.ch/en/rest-interface-stac-api/",
+        Adapter::Stac(&stac::SWISSTOPO),
+    ),
+    via(
+        "usgs-landsat",
+        "USGS LandsatLook",
+        Geospatial,
+        "STAC",
+        "https://www.usgs.gov/landsat-missions/spatiotemporal-asset-catalog-stac",
+        Adapter::Stac(&stac::USGS_LANDSAT),
+    ),
     listed(
         "earth-engine",
         "Google Earth Engine catalog",

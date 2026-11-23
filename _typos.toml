@@ -16,6 +16,7 @@ extend-ignore-re = [
   # A name with an escaped c-cedilla in a TCIA abstract.
   "Fran\\\\u\\{e7\\}ois",
   "census for BA 44/45",
+  "abschaetzung-organische_boeden",
   # HTML entity names, decoded in src/record.rs.
   "\"curren\"",
   "caf&eacute;",

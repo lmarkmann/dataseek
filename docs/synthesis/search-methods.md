@@ -63,7 +63,7 @@ These publish a complete list but no search endpoint, so dataseek downloads the 
 | SDMX agencies | `/dataflow` as SDMX-ML 2.1 | IMF 222 (101 with a portal page), OECD 1,548, ECB 215, BIS 32, ILO 1,216, UNdata 15, Bundesbank 94 |
 | Eurostat | catalogue table of contents (`toc/txt`) | 7,563 |
 | WHO GHO | OData `/api/Indicator` | 3,099 |
-| STAC catalogs | `/collections?limit=1000`, following `next` | Planetary Computer 138, Earth Search 9, Copernicus Data Space 427, CDS 144 |
+| STAC catalogs | `/collections?limit=1000`, following `next` | Planetary Computer 138, Earth Search 9, Copernicus Data Space 427, CDS 144; Swisstopo 515 on 6 pages of 100 and LandsatLook 14 (2026-11-23) |
 | Earth Engine | catalog HTML page | 867 |
 | AWS Open Data | registry index HTML page | 1,215 |
 | TensorFlow Datasets | catalog overview page: names and category headings | 446 |
@@ -106,6 +106,7 @@ These publish a complete list but no search endpoint, so dataseek downloads the 
 | ENCODE | 10 GET requests per second per user, group, company or lab (terms); an IP block on abuse | none |
 | OpenSLR | 5 simultaneous connections per host, then a firewall rule drops them (home page) | none |
 | OpenDataSoft | 10,000 calls a day, shared by every anonymous caller | none |
+| Swisstopo (STAC) | 40 requests a minute, 21 million a year, for every geo.admin.ch REST service (FSDI terms) | none |
 | OSF (trove) | unstated; 17 requests in 3 minutes drew an hour-long 429 | none |
 | OpenAlex (not used) | $0.10 per day of search credit | $1 per day free, then paid |
 

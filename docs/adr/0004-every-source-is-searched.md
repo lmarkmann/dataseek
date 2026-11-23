@@ -142,6 +142,8 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `earth-search` | Earth Search (AWS) | STAC | local |  | [docs](https://element84.com/earth-search/) |
 | `copernicus-dataspace` | Copernicus Data Space | STAC | local |  | [docs](https://documentation.dataspace.copernicus.eu/APIs/STAC.html) |
 | `copernicus-cds` | Copernicus Climate Data Store | STAC | local |  | [docs](https://cds.climate.copernicus.eu/how-to-api) |
+| `swisstopo` | Swisstopo STAC | STAC | local |  | [docs](https://www.geo.admin.ch/en/rest-interface-stac-api/) |
+| `usgs-landsat` | USGS LandsatLook (overlaps `planetary-computer` and `earth-search`) | STAC | local |  | [docs](https://www.usgs.gov/landsat-missions/spatiotemporal-asset-catalog-stac) |
 | `earth-engine` | Google Earth Engine catalog | catalog page | local |  | [docs](https://developers.google.com/earth-engine/datasets/catalog) |
 | `ncei` | NOAA NCEI | NCEI Search Service | live |  | [docs](https://www.ncei.noaa.gov/support/access-search-service-api-user-documentation) |
 | `pangaea` | PANGAEA | PANGAEA search | live |  | [docs](https://wiki.pangaea.de/wiki/PANGAEA_search) |
