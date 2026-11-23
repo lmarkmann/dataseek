@@ -118,6 +118,26 @@ pub static B2FIND: Portal = Portal {
     page: "https://b2find.eudat.eu/dataset/",
     bilingual_orgs: false,
 };
+/// The e-Gov data portal moved from data.go.jp, which no longer resolves.
+/// Its metadata is in Japanese: "climate" matches 467 records and 気候 1,282.
+/// Resource sizes are rounded to the kilobyte (November 2026).
+pub static DATA_GO_JP: Portal = Portal {
+    api: "https://data.e-gov.go.jp/data/api/3/action",
+    page: "https://data.e-gov.go.jp/data/dataset/",
+    bilingual_orgs: false,
+};
+/// The World Bank's energy portal. Its `url` field sometimes names a
+/// provider ("KTH") instead of a page (November 2026).
+pub static ENERGYDATA: Portal = Portal {
+    api: "https://energydata.info/api/3/action",
+    page: "https://energydata.info/dataset/",
+    bilingual_orgs: false,
+};
+pub static OPEN_AFRICA: Portal = Portal {
+    api: "https://open.africa/api/3/action",
+    page: "https://open.africa/dataset/",
+    bilingual_orgs: false,
+};
 
 pub fn search(
     ctx: &Ctx<'_>,
@@ -692,6 +712,123 @@ mod tests {
                 "https://b2share.fz-juelich.de/records/\
                  be5cde68c6ba4ab08b6687b17adbb3b6"
             ]
+        );
+    }
+
+    #[test]
+    fn data_go_jp_names_the_ministry_and_sums_rounded_sizes() {
+        let hits =
+            parse(&DATA_GO_JP, &fixture::json("ckan.data-go-jp.json"), 10)
+                .unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "\u{6c17}\u{5019}\u{30fb}\u{6d77}\u{6d0b}\u{30fb}\
+                        \u{5730}\u{7403}\u{74b0}\u{5883}_\u{520a}\u{884c}\
+                        \u{7269}\u{3001}\u{305d}\u{306e}\u{4ed6}"
+                    .into(),
+                url: "https://data.e-gov.go.jp/data/dataset/\
+                      mlit_20140919_0739"
+                    .into(),
+                description: Some(
+                    "\u{6c17}\u{5019}\u{30fb}\u{6d77}\u{6d0b}\u{3084}\
+                     \u{5730}\u{7403}\u{74b0}\u{5883}\u{5206}\u{91ce}\
+                     \u{306e}\u{520a}\u{884c}\u{7269}\u{3067}\u{3059}\
+                     \u{3002}"
+                        .into()
+                ),
+                publisher: Some(
+                    "\u{56fd}\u{571f}\u{4ea4}\u{901a}\u{7701}".into()
+                ),
+                doi: None,
+                license: None,
+                updated: Some("2025-06-20".into()),
+                size_bytes: Some(
+                    8000 + 5000
+                        + 4000
+                        + 6000
+                        + 7000
+                        + 6000
+                        + 5000
+                        + 7_600_000
+                        + 7000
+                        + 4000
+                        + 5000
+                        + 8000
+                ),
+                popularity: None,
+                formats: [
+                    "HTML", "HTML", "HTML", "HTML", "HTML", "HTML", "HTML",
+                    "PDF", "HTML", "HTML", "HTML", "HTML",
+                ]
+                .map(String::from)
+                .to_vec(),
+                aliases: vec![],
+            }
+        );
+        assert_eq!(hits[1].description, None, "its notes are one space");
+    }
+
+    #[test]
+    fn energydata_keeps_only_a_url_that_is_a_link() {
+        let hits =
+            parse(&ENERGYDATA, &fixture::json("ckan.energydata.json"), 10)
+                .unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Solar Potential".into(),
+                url: "https://energydata.info/dataset/solar-potential".into(),
+                description: Some(
+                    "Global Horizontal Irradiance in Kwh / m2 for Nigeria, \
+                     Tanzania and Zambia. The original data was provided by \
+                     KTH."
+                        .into()
+                ),
+                publisher: Some("Offgrid Market Opportunities".into()),
+                doi: None,
+                license: Some("Creative Commons Attribution 4.0".into()),
+                updated: Some("2021-05-05".into()),
+                size_bytes: None,
+                popularity: None,
+                formats: vec!["GeoJSON".into(), "TILE".into()],
+                aliases: vec![],
+            },
+            "`url` is \"KTH\", not a page"
+        );
+        assert_eq!(hits[1].aliases, vec!["https://esmap.org/node/3058"]);
+    }
+
+    #[test]
+    fn open_africa_drops_an_unspecified_license() {
+        let hits =
+            parse(&OPEN_AFRICA, &fixture::json("ckan.open-africa.json"), 10)
+                .unwrap();
+        assert_eq!(hits.len(), 4);
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "Water Dashboard".into(),
+                url: "https://open.africa/dataset/water-dashboard".into(),
+                description: Some(
+                    "This dataset contains data which are used to create \
+                     water dashboard"
+                        .into()
+                ),
+                publisher: Some(
+                    "Tanzania National Bureau of Statistics".into()
+                ),
+                doi: None,
+                license: None,
+                updated: Some("2019-08-17".into()),
+                size_bytes: None,
+                popularity: None,
+                formats: vec!["CSV".into(); 5],
+                aliases: vec![],
+            },
+            "`notspecified` is no license"
         );
     }
 

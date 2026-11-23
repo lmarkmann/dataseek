@@ -96,6 +96,9 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `data-gov-au` | data.gov.au | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
 | `govdata` | GovData (Germany) | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
 | `hdx` | Humanitarian Data Exchange | CKAN | live |  | [docs](https://docs.humdata.org/build/hdx-apis/metadata-endpoints/package_search) |
+| `data-go-jp` | Japan e-Gov Data | CKAN | live |  | [docs](https://data.e-gov.go.jp/data/api_guide) |
+| `energydata` | World Bank EnergyData | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
+| `open-africa` | openAFRICA | CKAN | live |  | [docs](https://docs.ckan.org/en/latest/api/) |
 | `socrata` | Socrata portals (US) | Socrata Discovery | live |  | [docs](https://dev.socrata.com/docs/other/discovery) |
 | `socrata-eu` | Socrata portals (EU) | Socrata Discovery | live |  | [docs](https://dev.socrata.com/docs/other/discovery) |
 | `opendatasoft` | OpenDataSoft hub | OpenDataSoft Explore | live |  | [docs](https://help.huwise.com/apis/ods-explore-v2/) |
