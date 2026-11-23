@@ -79,6 +79,9 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | `recherche-data-gouv` | Recherche Data Gouv (France) | Dataverse | live |  | [docs](https://guides.dataverse.org/en/latest/api/search.html) |
 | `dataverse-nl` | DataverseNL | Dataverse | live |  | [docs](https://guides.dataverse.org/en/latest/api/search.html) |
 | `dataverse-no` | DataverseNO | Dataverse | live |  | [docs](https://guides.dataverse.org/en/latest/api/search.html) |
+| `darus` | DaRUS Stuttgart | Dataverse | live |  | [docs](https://guides.dataverse.org/en/latest/api/search.html) |
+| `juelich` | Juelich DATA | Dataverse | live |  | [docs](https://guides.dataverse.org/en/latest/api/search.html) |
+| `cora` | CORA.RDR | Dataverse | live |  | [docs](https://guides.dataverse.org/en/latest/api/search.html) |
 | `osf` | OSF (via SHARE) | SHARE trove | live |  | [docs](https://share.osf.io/trove/docs) |
 | `mendeley` | Mendeley Data | site search API | live | opt-in | [docs](https://data.mendeley.com/api/docs/) |
 
@@ -191,3 +194,5 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 |---|---|---|---|---|---|
 | `cessda` | CESSDA Data Catalogue | CESSDA | live |  | [docs](https://api.tech.cessda.eu/) |
 | `unicef` | UNICEF SDMX | SDMX | local |  | [docs](https://data.unicef.org/sdmx-api-documentation/) |
+| `aussda` | AUSSDA | Dataverse | live |  | [docs](https://guides.dataverse.org/en/latest/api/search.html) |
+| `qdr` | QDR Syracuse | Dataverse | live |  | [docs](https://guides.dataverse.org/en/latest/api/search.html) |

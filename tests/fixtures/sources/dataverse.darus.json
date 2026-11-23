@@ -1,0 +1,206 @@
+{
+  "status": "OK",
+  "data": {
+    "q": "simulation",
+    "total_count": 767,
+    "start": 0,
+    "spelling_alternatives": {},
+    "items": [
+      {
+        "name": "Replication Data for: Biocatalytic stereocontrolled head-to-tail cyclizations of unbiased terpenes as a tool in chemoenzymatic synthesis",
+        "type": "dataset",
+        "url": "https://doi.org/10.18419/DARUS-4135",
+        "global_id": "doi:10.18419/DARUS-4135",
+        "description": "This data set contains all relevant simulation input files (topologies, coordinates, simulation parameters), generated simulation output (final configurations, time series of collective variables) together with scripts used for set-up and analysis of the umbrella sampling and double decoupling simulations.",
+        "published_at": "2024-06-11T13:50:45Z",
+        "publisher": "Molecular Simulation",
+        "citationHtml": "Hansen, Niels; Markthaler, Daniel, 2024, \"Replication Data for: Biocatalytic stereocontrolled head-to-tail cyclizations of unbiased terpenes as a tool in chemoenzymatic synthesis\", <a href=\"https://doi.org/10.18419/DARUS-4135\" target=\"_blank\">https://doi.org/10.18419/DARUS-4135</a>, DaRUS, V1",
+        "identifier_of_dataverse": "itt_molsim",
+        "name_of_dataverse": "Molecular Simulation",
+        "citation": "Hansen, Niels; Markthaler, Daniel, 2024, \"Replication Data for: Biocatalytic stereocontrolled head-to-tail cyclizations of unbiased terpenes as a tool in chemoenzymatic synthesis\", https://doi.org/10.18419/DARUS-4135, DaRUS, V1",
+        "publicationStatuses": [
+          "Published"
+        ],
+        "storageIdentifier": "s3://10.18419/darus-4135",
+        "keywords": [
+          "Molecular Dynamics Simulation"
+        ],
+        "subjects": [
+          "Chemistry",
+          "Physics"
+        ],
+        "fileCount": 1,
+        "versionId": 4647,
+        "versionState": "RELEASED",
+        "majorVersion": 1,
+        "minorVersion": 0,
+        "createdAt": "2024-04-04T14:00:39Z",
+        "updatedAt": "2024-06-11T13:50:45Z",
+        "contacts": [
+          {
+            "name": "Hansen, Niels",
+            "affiliation": "Universität Stuttgart"
+          }
+        ],
+        "publications": [
+          {
+            "citation": "Schneider, Andreas; Lystbæk, Thomas B.; Markthaler, Daniel; Hansen, Niels; Hauer, Bernhard (2024): Biocatalytic stereocontrolled head-to-tail cyclizations of unbiased terpenes as a tool in chemoenzymatic synthesis. In: Nature Communications, 15, 4925.",
+            "url": "https://doi.org/10.1038/s41467-024-48993-9"
+          }
+        ],
+        "authors": [
+          "Hansen, Niels",
+          "Markthaler, Daniel"
+        ]
+      },
+      {
+        "name": "Supplementary material for 'Umbrella sampling and double decoupling data for methanol binding to Candida antarctica lipase B'",
+        "type": "dataset",
+        "url": "https://doi.org/10.18419/DARUS-2104",
+        "global_id": "doi:10.18419/DARUS-2104",
+        "description": "This dataset contains all relevant simulation input files (topologies, coordinates, simulation parameters), generated simulation output (final configurations, time series of collective variables) together with scripts used for set-up and analysis of the umbrella sampling and double decoupling simulations.",
+        "published_at": "2021-11-25T14:49:37Z",
+        "publisher": "Molecular Simulation",
+        "citationHtml": "Markthaler, Daniel; Hansen, Niels, 2021, \"Supplementary material for 'Umbrella sampling and double decoupling data for methanol binding to Candida antarctica lipase B'\", <a href=\"https://doi.org/10.18419/DARUS-2104\" target=\"_blank\">https://doi.org/10.18419/DARUS-2104</a>, DaRUS, V1",
+        "identifier_of_dataverse": "itt_molsim",
+        "name_of_dataverse": "Molecular Simulation",
+        "citation": "Markthaler, Daniel; Hansen, Niels, 2021, \"Supplementary material for 'Umbrella sampling and double decoupling data for methanol binding to Candida antarctica lipase B'\", https://doi.org/10.18419/DARUS-2104, DaRUS, V1",
+        "isLinked": true,
+        "publicationStatuses": [
+          "Published"
+        ],
+        "storageIdentifier": "s3://10.18419/darus-2104",
+        "keywords": [
+          "Molecular Dynamics Simulation",
+          "Free Energy",
+          "Potential of Mean Force"
+        ],
+        "subjects": [
+          "Chemistry",
+          "Physics"
+        ],
+        "fileCount": 2,
+        "versionId": 2264,
+        "versionState": "RELEASED",
+        "majorVersion": 1,
+        "minorVersion": 0,
+        "createdAt": "2021-07-27T08:27:27Z",
+        "updatedAt": "2021-11-25T14:49:37Z",
+        "contacts": [
+          {
+            "name": "Hansen, Niels",
+            "affiliation": "Universität Stuttgart"
+          }
+        ],
+        "publications": [
+          {
+            "citation": "D. Markthaler, N. Hansen, Umbrella sampling and double decoupling data for methanol binding to Candida antarctica lipase B. In: Data in Brief (2021), 107618",
+            "url": "https://doi.org/10.1016/j.dib.2021.107618"
+          }
+        ],
+        "authors": [
+          "Markthaler, Daniel",
+          "Hansen, Niels"
+        ]
+      },
+      {
+        "name": "Supplementary material for 'Olefin metathesis in confined geometries: a biomimetic approach towards selective macrocyclization'",
+        "type": "dataset",
+        "url": "https://doi.org/10.18419/DARUS-477",
+        "global_id": "doi:10.18419/DARUS-477",
+        "description": "This dataset contains simulation input files in GROMACS format accompanying the mentioned publication.",
+        "published_at": "2020-03-20T13:04:12Z",
+        "publisher": "Molecular Simulation",
+        "citationHtml": "Kraus, Hamzeh; Rybka, Julia, 2019, \"Supplementary material for 'Olefin metathesis in confined geometries: a biomimetic approach towards selective macrocyclization'\", <a href=\"https://doi.org/10.18419/DARUS-477\" target=\"_blank\">https://doi.org/10.18419/DARUS-477</a>, DaRUS, V2",
+        "identifier_of_dataverse": "itt_molsim",
+        "name_of_dataverse": "Molecular Simulation",
+        "citation": "Kraus, Hamzeh; Rybka, Julia, 2019, \"Supplementary material for 'Olefin metathesis in confined geometries: a biomimetic approach towards selective macrocyclization'\", https://doi.org/10.18419/DARUS-477, DaRUS, V2",
+        "isLinked": true,
+        "publicationStatuses": [
+          "Published"
+        ],
+        "storageIdentifier": "s3://10.18419/darus-477",
+        "subjects": [
+          "Chemistry"
+        ],
+        "fileCount": 26,
+        "versionId": 308,
+        "versionState": "RELEASED",
+        "majorVersion": 2,
+        "minorVersion": 0,
+        "createdAt": "2019-10-15T07:12:59Z",
+        "updatedAt": "2025-12-02T10:33:18Z",
+        "contacts": [
+          {
+            "name": "Kraus, Hamzeh",
+            "affiliation": "Universität Stuttgart"
+          }
+        ],
+        "publications": [
+          {
+            "citation": "Ziegler, Felix; Teske, Johannes; Elser, Iris; Dyballa, Michael; Frey, Wolfgang; Kraus, Hamzeh; Hansen, Niels; Rybka, Julia; Tallarek, Ulrich; Buchmeiser, Michael R (2019): Olefin Metathesis in Confined Geometries: A Biomimetic Approach toward Selective Macrocyclization. In: Journal of the American Chemical Society.",
+            "url": "https://doi.org/10.1021/jacs.9b08776"
+          }
+        ],
+        "authors": [
+          "Kraus, Hamzeh",
+          "Rybka, Julia"
+        ]
+      },
+      {
+        "name": "Supplementary material for 'Confined Ru‐catalysts in a Two‐phase Heptane/Ionic Liquid Solution: Modeling Aspects'",
+        "type": "dataset",
+        "url": "https://doi.org/10.18419/DARUS-1138",
+        "global_id": "doi:10.18419/DARUS-1138",
+        "description": "This dataset contains simulation input files in GROMACS format accompanying the mentioned publication.",
+        "published_at": "2021-04-29T15:29:45Z",
+        "publisher": "Molecular Simulation",
+        "citationHtml": "Kobayashi, Takeshi; Kraus, Hamzeh; Hansen, Niels; Fyta, Maria, 2021, \"Supplementary material for 'Confined Ru‐catalysts in a Two‐phase Heptane/Ionic Liquid Solution: Modeling Aspects'\", <a href=\"https://doi.org/10.18419/DARUS-1138\" target=\"_blank\">https://doi.org/10.18419/DARUS-1138</a>, DaRUS, V1",
+        "identifier_of_dataverse": "itt_molsim",
+        "name_of_dataverse": "Molecular Simulation",
+        "citation": "Kobayashi, Takeshi; Kraus, Hamzeh; Hansen, Niels; Fyta, Maria, 2021, \"Supplementary material for 'Confined Ru‐catalysts in a Two‐phase Heptane/Ionic Liquid Solution: Modeling Aspects'\", https://doi.org/10.18419/DARUS-1138, DaRUS, V1",
+        "isLinked": true,
+        "publicationStatuses": [
+          "Published"
+        ],
+        "storageIdentifier": "s3://10.18419/darus-1138",
+        "keywords": [
+          "molecular dynamics simulation",
+          "ionic liquids",
+          "porous media",
+          "supported ionic liquid phase"
+        ],
+        "subjects": [
+          "Chemistry",
+          "Physics"
+        ],
+        "fileCount": 38,
+        "versionId": 716,
+        "versionState": "RELEASED",
+        "majorVersion": 1,
+        "minorVersion": 0,
+        "createdAt": "2020-10-21T08:16:07Z",
+        "updatedAt": "2025-12-02T10:32:57Z",
+        "contacts": [
+          {
+            "name": "Kobayashi, Takeshi",
+            "affiliation": "University of Stuttgart"
+          }
+        ],
+        "publications": [
+          {
+            "citation": "Takeshi Kobayashi, Hamzeh Kraus, Niels Hansen and Maria Fyta, Confined Ru‐catalysts in a Two‐phase Heptane/Ionic Liquid Solution: Modeling Aspects, ChemCatChem 2021, 13, 739-746",
+            "url": "https://doi.org/10.1002/cctc.202001596"
+          }
+        ],
+        "authors": [
+          "Kobayashi, Takeshi",
+          "Kraus, Hamzeh",
+          "Hansen, Niels",
+          "Fyta, Maria"
+        ]
+      }
+    ],
+    "count_in_response": 4
+  }
+}

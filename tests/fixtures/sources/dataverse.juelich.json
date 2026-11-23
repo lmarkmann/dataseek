@@ -1,0 +1,176 @@
+{
+  "status": "OK",
+  "data": {
+    "q": "brain",
+    "total_count": 17,
+    "start": 0,
+    "spelling_alternatives": {},
+    "items": [
+      {
+        "name": "SpEx - Speech and executive function",
+        "type": "dataset",
+        "url": "https://doi.org/10.26165/JUELICH-DATA/CHWZDZ",
+        "global_id": "doi:10.26165/JUELICH-DATA/CHWZDZ",
+        "description": "The goal of this study was to generate a dataset that capitalises on both the rich variety of attributes that can be found in speech as well as the modern methods that allow the extraction of such attributes.",
+        "published_at": "2023-06-22T08:22:57Z",
+        "publisher": " Institute of Neuroscience and Medicine – Brain and Behaviour (INM-7)",
+        "citationHtml": "Camilleri, Julia; Weis, Susanne, 2023, \"SpEx - Speech and executive function\", <a href=\"https://doi.org/10.26165/JUELICH-DATA/CHWZDZ\" target=\"_blank\">https://doi.org/10.26165/JUELICH-DATA/CHWZDZ</a>, J&uuml;lich DATA, V1",
+        "identifier_of_dataverse": "inm-7",
+        "name_of_dataverse": " Institute of Neuroscience and Medicine – Brain and Behaviour (INM-7)",
+        "citation": "Camilleri, Julia; Weis, Susanne, 2023, \"SpEx - Speech and executive function\", https://doi.org/10.26165/JUELICH-DATA/CHWZDZ, Jülich DATA, V1",
+        "storageIdentifier": "s3://10.26165/JUELICH-DATA/CHWZDZ",
+        "keywords": [
+          "Speech",
+          "Executive Functions"
+        ],
+        "subjects": [
+          "Medicine, Health and Life Sciences"
+        ],
+        "fileCount": 0,
+        "versionId": 491,
+        "versionState": "RELEASED",
+        "majorVersion": 1,
+        "minorVersion": 3,
+        "createdAt": "2023-04-17T12:05:01Z",
+        "updatedAt": "2024-04-16T06:07:00Z",
+        "contacts": [
+          {
+            "name": "Camilleri, Julia",
+            "affiliation": "FZ-Jülich"
+          }
+        ],
+        "publications": [
+          {
+            "citation": "Amunts, J., Camilleri, J.A., Eickhoff, S.B. et al. Executive functions predict verbal fluency scores in healthy participants. Sci Rep 10, 11141 (2020). https://doi.org/10.1038/s41598-020-65525-9",
+            "url": "https://doi.org/10.1038/s41598-020-65525-9"
+          },
+          {
+            "citation": "Amunts, J., Camilleri, J.A., Eickhoff, S.B. et al. Comprehensive verbal fluency features predict executive function performance. Sci Rep 11, 6929 (2021). https://doi.org/10.1038/s41598-021-85981-1",
+            "url": "https://doi.org/10.1038/s41598-021-85981-1"
+          }
+        ],
+        "authors": [
+          "Camilleri, Julia",
+          "Weis, Susanne"
+        ]
+      },
+      {
+        "name": "Data availability information for \"Sleep deprivation increases levels of the synaptic density marker SV2A in the human brain\"",
+        "type": "dataset",
+        "url": "https://doi.org/10.26165/JUELICH-DATA/GOTGS5",
+        "global_id": "doi:10.26165/JUELICH-DATA/GOTGS5",
+        "description": "The raw data could be identified and linked to a single subject and represent a large amount of data.",
+        "published_at": "2026-05-05T09:05:05Z",
+        "publisher": "Institute of Neuroscience and Medicine – Molecular Organization of the Brain (INM-2)",
+        "citationHtml": "Elmenhorst, David, 2026, \"Data availability information for &quot;Sleep deprivation increases levels of the synaptic density marker SV2A in the human brain&quot;\", <a href=\"https://doi.org/10.26165/JUELICH-DATA/GOTGS5\" target=\"_blank\">https://doi.org/10.26165/JUELICH-DATA/GOTGS5</a>, J&uuml;lich DATA, V1",
+        "identifier_of_dataverse": "inm-2",
+        "name_of_dataverse": "Institute of Neuroscience and Medicine – Molecular Organization of the Brain (INM-2)",
+        "citation": "Elmenhorst, David, 2026, \"Data availability information for \"Sleep deprivation increases levels of the synaptic density marker SV2A in the human brain\"\", https://doi.org/10.26165/JUELICH-DATA/GOTGS5, Jülich DATA, V1",
+        "storageIdentifier": "s3://10.26165/JUELICH-DATA/GOTGS5",
+        "subjects": [
+          "Medicine, Health and Life Sciences"
+        ],
+        "fileCount": 0,
+        "versionId": 1214,
+        "versionState": "RELEASED",
+        "majorVersion": 1,
+        "minorVersion": 0,
+        "createdAt": "2026-05-05T08:54:30Z",
+        "updatedAt": "2026-05-05T09:05:05Z",
+        "contacts": [
+          {
+            "name": "Elmenhorst, David",
+            "affiliation": ""
+          }
+        ],
+        "publications": [
+          {}
+        ],
+        "authors": [
+          "Elmenhorst, David"
+        ]
+      },
+      {
+        "name": "Replication data for the article \"Exploring the 3D Architecture of Rat Brain Tissue Using Digital Holographic Microscopy\"",
+        "type": "dataset",
+        "url": "https://doi.org/10.26165/JUELICH-DATA/V7YD2L",
+        "global_id": "doi:10.26165/JUELICH-DATA/V7YD2L",
+        "description": "This dataset contains the supplementary document to the article 'Exploring the 3D Architecture of Rat Brain Tissue Using Digital Holographic Microscopy'.",
+        "published_at": "2025-06-18T09:30:22Z",
+        "publisher": "Institute of Neuroscience and Medicine – Structural and functional organisation of the brain (INM-1)",
+        "citationHtml": "Scheidt, Dennis, 2025, \"Replication data for the article &quot;Exploring the 3D Architecture of Rat Brain Tissue Using Digital Holographic Microscopy&quot;\", <a href=\"https://doi.org/10.26165/JUELICH-DATA/V7YD2L\" target=\"_blank\">https://doi.org/10.26165/JUELICH-DATA/V7YD2L</a>, J&uuml;lich DATA, V2",
+        "identifier_of_dataverse": "inm-1",
+        "name_of_dataverse": "Institute of Neuroscience and Medicine – Structural and functional organisation of the brain (INM-1)",
+        "citation": "Scheidt, Dennis, 2025, \"Replication data for the article \"Exploring the 3D Architecture of Rat Brain Tissue Using Digital Holographic Microscopy\"\", https://doi.org/10.26165/JUELICH-DATA/V7YD2L, Jülich DATA, V2",
+        "storageIdentifier": "s3://10.26165/JUELICH-DATA/V7YD2L",
+        "keywords": [
+          "Holography",
+          "Brain Imaging"
+        ],
+        "subjects": [
+          "Medicine, Health and Life Sciences",
+          "Physics"
+        ],
+        "fileCount": 787,
+        "versionId": 838,
+        "versionState": "RELEASED",
+        "majorVersion": 2,
+        "minorVersion": 0,
+        "createdAt": "2025-02-18T09:28:05Z",
+        "updatedAt": "2025-06-18T09:30:22Z",
+        "contacts": [
+          {
+            "name": "Scheidt, Dennis",
+            "affiliation": "INM-1"
+          }
+        ],
+        "publications": [
+          {
+            "citation": "Preprint:",
+            "url": "https://doi.org/10.1364/opticaopen.29149751"
+          }
+        ],
+        "dataSources": [
+          "DSB Microscope at the Laboratory of Micromanipulation with Light at the Physics Institute of the Universidad Nacional Autonóma de México."
+        ],
+        "authors": [
+          "Scheidt, Dennis"
+        ]
+      },
+      {
+        "name": "Replication Data for: 3D-PLI Fiber Orientation Maps of Rat Brains",
+        "type": "dataset",
+        "url": "https://doi.org/10.26165/JUELICH-DATA/AFEMQ5",
+        "global_id": "doi:10.26165/JUELICH-DATA/AFEMQ5",
+        "description": "The data set includes Fiber Orientation Maps obtained with 3D-Polarized Light Imaging (3D-PLI) technique from two male Wistar rat brains. The colors encode nerve fiber orientations.",
+        "published_at": "2024-06-03T08:21:54Z",
+        "publisher": "Institute of Neuroscience and Medicine – Structural and functional organisation of the brain (INM-1)",
+        "citationHtml": "Axer, Markus, 2024, \"Replication Data for: 3D-PLI Fiber Orientation Maps of Rat Brains\", <a href=\"https://doi.org/10.26165/JUELICH-DATA/AFEMQ5\" target=\"_blank\">https://doi.org/10.26165/JUELICH-DATA/AFEMQ5</a>, J&uuml;lich DATA, V1",
+        "identifier_of_dataverse": "inm-1",
+        "name_of_dataverse": "Institute of Neuroscience and Medicine – Structural and functional organisation of the brain (INM-1)",
+        "citation": "Axer, Markus, 2024, \"Replication Data for: 3D-PLI Fiber Orientation Maps of Rat Brains\", https://doi.org/10.26165/JUELICH-DATA/AFEMQ5, Jülich DATA, V1",
+        "storageIdentifier": "s3://10.26165/JUELICH-DATA/AFEMQ5",
+        "subjects": [
+          "Medicine, Health and Life Sciences"
+        ],
+        "fileCount": 5,
+        "versionId": 527,
+        "versionState": "RELEASED",
+        "majorVersion": 1,
+        "minorVersion": 0,
+        "createdAt": "2024-05-29T14:50:10Z",
+        "updatedAt": "2024-06-03T08:21:54Z",
+        "contacts": [
+          {
+            "name": "Axer, Markus",
+            "affiliation": "Institut für Neurowissenschaften und Medizin, Forschungszentrum Jülich"
+          }
+        ],
+        "authors": [
+          "Axer, Markus"
+        ]
+      }
+    ],
+    "count_in_response": 4
+  }
+}

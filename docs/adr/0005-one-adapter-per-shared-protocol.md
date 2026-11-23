@@ -14,7 +14,7 @@ A protocol is written once and configured per registry row:
 | protocol | module | rows today | searched |
 |---|---|---|---|
 | CKAN `package_search` | `ckan.rs` | data.gov.uk, Canada, Australia, GovData, HDX, B2FIND | live |
-| Dataverse Search API | `dataverse.rs` | Harvard, Borealis, Recherche Data Gouv, DataverseNL, DataverseNO | live |
+| Dataverse Search API | `dataverse.rs` | Harvard, Borealis, Recherche Data Gouv, DataverseNL, DataverseNO, DaRUS, Juelich DATA, CORA.RDR, AUSSDA, QDR | live |
 | NADA catalog search | `nada.rs` | World Bank, IHSN, FAO, UNHCR | live |
 | Socrata Discovery | `socrata.rs` | US and EU regions (every Socrata domain) | live |
 | EBI Search | `ebi.rs` | ArrayExpress, BioStudies | live |

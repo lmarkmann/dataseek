@@ -903,6 +903,30 @@ pub static SOURCES: &[Source] = &[
         DATAVERSE_DOCS,
         Adapter::Dataverse("https://dataverse.no"),
     ),
+    via(
+        "darus",
+        "DaRUS Stuttgart",
+        Research,
+        "Dataverse",
+        DATAVERSE_DOCS,
+        Adapter::Dataverse("https://darus.uni-stuttgart.de"),
+    ),
+    via(
+        "juelich",
+        "Juelich DATA",
+        Research,
+        "Dataverse",
+        DATAVERSE_DOCS,
+        Adapter::Dataverse("https://data.fz-juelich.de"),
+    ),
+    via(
+        "cora",
+        "CORA.RDR",
+        Research,
+        "Dataverse",
+        DATAVERSE_DOCS,
+        Adapter::Dataverse("https://dataverse.csuc.cat"),
+    ),
     live(
         "osf",
         "OSF (via SHARE)",
@@ -1435,6 +1459,22 @@ pub static SOURCES: &[Source] = &[
         "SDMX",
         "https://data.unicef.org/sdmx-api-documentation/",
         Adapter::Sdmx(&sdmx::UNICEF),
+    ),
+    via(
+        "aussda",
+        "AUSSDA",
+        SocialScience,
+        "Dataverse",
+        DATAVERSE_DOCS,
+        Adapter::Dataverse("https://data.aussda.at"),
+    ),
+    via(
+        "qdr",
+        "QDR Syracuse",
+        SocialScience,
+        "Dataverse",
+        DATAVERSE_DOCS,
+        Adapter::Dataverse("https://data.qdr.syr.edu"),
     ),
 ];
 
