@@ -18,7 +18,7 @@ use serde::Serialize;
 use crate::cli::{PER_SOURCE_DEFAULT, Selection};
 use crate::dedup::merge;
 use crate::output::Out;
-use crate::search::{Plan, run as search};
+use crate::search::{Outcome, Plan, run as search};
 use crate::sources::{Services, select};
 use crate::{palette, ui};
 
@@ -47,6 +47,36 @@ struct Row {
     shared_with: BTreeMap<&'static str, usize>,
     #[serde(skip)]
     timings: Vec<Duration>,
+}
+
+impl Row {
+    /// One query's outcome: how long the source took and what it found, or
+    /// why it gave nothing. A source that was not asked has no attempt.
+    fn count(&mut self, outcome: &Outcome) {
+        let status = &outcome.status;
+        if status.attempted() {
+            self.attempts = self.attempts.saturating_add(1);
+            self.timings.push(outcome.elapsed);
+        }
+        if status.attempted() && status.answered() {
+            self.answered = self.answered.saturating_add(1);
+            self.results = self.results.saturating_add(outcome.datasets.len());
+        } else {
+            push_unique(&mut self.errors, status.label());
+        }
+    }
+
+    /// One merged hit this source found, with the sources that found it.
+    fn share(&mut self, found_by: &[&'static str]) {
+        self.contributed = self.contributed.saturating_add(1);
+        if found_by.len() == 1 {
+            self.unique = self.unique.saturating_add(1);
+        }
+        for &other in found_by.iter().filter(|other| **other != self.id) {
+            let count = self.shared_with.entry(other).or_insert(0);
+            *count = count.saturating_add(1);
+        }
+    }
 }
 
 pub fn run(
@@ -93,36 +123,7 @@ pub fn run(
             since: None,
         });
         let outcomes = search(&services, true, &plan, &progress, None);
-        for o in &outcomes {
-            let Some(row) = rows.get_mut(o.source.id) else { continue };
-            if !o.status.attempted() {
-                push_unique(&mut row.errors, o.status.label());
-                continue;
-            }
-            row.attempts = row.attempts.saturating_add(1);
-            row.timings.push(o.elapsed);
-            if o.status.answered() {
-                row.answered = row.answered.saturating_add(1);
-                row.results = row.results.saturating_add(o.datasets.len());
-            } else {
-                push_unique(&mut row.errors, o.status.label());
-            }
-        }
-        let lists =
-            outcomes.into_iter().map(|o| (o.source.id, o.datasets)).collect();
-        for hit in merge(lists) {
-            for &id in &hit.sources {
-                let Some(row) = rows.get_mut(id) else { continue };
-                row.contributed = row.contributed.saturating_add(1);
-                if hit.sources.len() == 1 {
-                    row.unique = row.unique.saturating_add(1);
-                }
-                for &other in hit.sources.iter().filter(|o| **o != id) {
-                    let count = row.shared_with.entry(other).or_insert(0);
-                    *count = count.saturating_add(1);
-                }
-            }
-        }
+        count(&mut rows, outcomes);
     }
     progress.finish_and_clear();
     services.cache.trim();
@@ -132,6 +133,25 @@ pub fn run(
         b.answered.cmp(&a.answered).then_with(|| a.median_ms.cmp(&b.median_ms))
     });
     print(out, &queries, &rows)
+}
+
+/// One query's outcomes counted into the rows: how each source did, and
+/// what it gave the merged list.
+fn count(rows: &mut HashMap<&'static str, Row>, outcomes: Vec<Outcome>) {
+    for outcome in &outcomes {
+        if let Some(row) = rows.get_mut(outcome.source.id) {
+            row.count(outcome);
+        }
+    }
+    let lists =
+        outcomes.into_iter().map(|o| (o.source.id, o.datasets)).collect();
+    for hit in merge(lists) {
+        for id in &hit.sources {
+            if let Some(row) = rows.get_mut(id) {
+                row.share(&hit.sources);
+            }
+        }
+    }
 }
 
 fn finish(mut row: Row) -> Row {
@@ -167,24 +187,37 @@ fn print(out: &Out, queries: &[String], rows: &[Row]) -> Result<()> {
     }
     let mut w = out.stdout();
     if out.plain {
-        for r in rows {
-            let partner =
-                top_partner(r).map_or(String::new(), |(id, _)| id.to_owned());
-            writeln!(
-                w,
-                "{}\t{}/{}\t{}\t{}\t{}\t{}\t{}",
-                r.id,
-                r.answered,
-                r.attempts,
-                r.median_ms,
-                r.worst_ms,
-                r.results,
-                r.unique,
-                partner
-            )?;
-        }
-        return Ok(());
+        print_plain(&mut w, rows)
+    } else {
+        print_table(&mut w, queries, rows)
     }
+}
+
+fn print_plain(w: &mut impl Write, rows: &[Row]) -> Result<()> {
+    for r in rows {
+        let partner =
+            top_partner(r).map_or(String::new(), |(id, _)| id.to_owned());
+        writeln!(
+            w,
+            "{}\t{}/{}\t{}\t{}\t{}\t{}\t{}",
+            r.id,
+            r.answered,
+            r.attempts,
+            r.median_ms,
+            r.worst_ms,
+            r.results,
+            r.unique,
+            partner
+        )?;
+    }
+    Ok(())
+}
+
+fn print_table(
+    w: &mut impl Write,
+    queries: &[String],
+    rows: &[Row],
+) -> Result<()> {
     let (head, muted, warn) =
         (palette::accent(), palette::muted(), palette::warning());
     writeln!(

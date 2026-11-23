@@ -80,103 +80,41 @@ pub struct Request<'a> {
 }
 
 pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
-    let Request {
-        words,
-        selection,
-        filters,
-        limit,
-        sort,
-        refresh,
-        offline,
-        timeout,
-    } = *request;
-    let wanted = Wanted::new(filters);
+    let wanted = Wanted::new(request.filters);
     let services = Arc::new(Services::load()?);
-    let query = words.join(" ");
-    let plan = Arc::new(Plan {
-        query: query.clone(),
-        sources: select(
-            &selection.only,
-            &selection.include,
-            &selection.exclude,
-            &selection.categories,
-        ),
-        per_source: usize::from(selection.per_source.unwrap_or(
-            if wanted.any() {
-                PER_SOURCE_FILTERED
-            } else {
-                PER_SOURCE_DEFAULT
-            },
-        )),
-        forced: offline || !selection.only.is_empty(),
-        since: wanted.since.clone(),
-    });
+    let plan = Arc::new(plan(request, &wanted));
     if plan.sources.is_empty() {
         return Err(Error::NoneSelected.into());
     }
-
-    // A source without its required key is skipped before any request, so
-    // the line counts only the sources that will be asked.
-    let keyless = plan
-        .sources
-        .iter()
-        .filter(|s| s.missing_key(&services.creds).is_some())
-        .count();
-    let asked = plan.sources.len().saturating_sub(keyless);
-    if asked > 0 {
-        let need = if keyless == 1 { "needs" } else { "need" };
-        let keys = if keyless > 0 {
-            format!(
-                "; {keyless} {need} a key, see `{} doctor`",
-                crate::invoked_name()
-            )
-        } else {
-            String::new()
-        };
-        ui::stage(format!(
-            "searching {} for \"{query}\"{}{keys}",
-            ui::count(asked, "source"),
-            if offline { ", offline" } else { "" }
-        ));
-    }
+    let asked = announce(&plan, &services, request.offline);
     let progress = ui::bar(asked as u64, "sources");
     let mut outcomes = run(
         &services,
-        refresh,
+        request.refresh,
         &plan,
         &progress,
-        timeout.map(Duration::from_secs),
+        request.timeout.map(Duration::from_secs),
     );
     progress.finish_and_clear();
     let renewing = renew(&services.cache, &outcomes);
     services.cache.trim();
 
     notes(out, &outcomes);
-    if !outcomes.iter().any(|o| o.status.attempted()) {
-        let resting =
-            outcomes.iter().any(|o| matches!(o.status, Status::Resting(_)));
-        return Err(
-            if resting { Error::Resting } else { Error::NothingRan }.into()
-        );
-    }
-    if !outcomes.iter().any(|o| o.status.answered()) {
-        warn_failures(&outcomes, renewing, &services.cache);
-        let late = not_waited_for(&outcomes);
-        if !late.is_empty() {
-            ui::warn(format!("{} not waited for", named(&late)));
-        }
-        return Err(failure(&outcomes, offline).into());
+    if let Some(error) =
+        unanswered(&outcomes, renewing, &services.cache, request.offline)
+    {
+        return Err(error.into());
     }
 
     let sources = reports(&outcomes);
     let complete = !outcomes
         .iter()
         .any(|o| matches!(o.status, Status::Running(_) | Status::Downloading));
-    let (hits, found) =
-        filtered(ranked(&mut outcomes, &query, sort), &wanted, limit);
-    print(out, &query, &hits, &found, sources, complete)?;
+    let ranked = ranked(&mut outcomes, &plan.query, request.sort);
+    let (hits, found) = filtered(ranked, &wanted, request.limit);
+    print(out, &plan.query, &hits, &found, sources, complete)?;
     summarize(
-        &query,
+        &plan.query,
         hits.len(),
         &found,
         &outcomes,
@@ -184,6 +122,81 @@ pub fn run_search(request: &Request<'_>, out: &Out) -> Result<()> {
         &services.cache,
     );
     Ok(())
+}
+
+/// What the search loop is to do: the query, the chosen sources and how
+/// many results each is asked for, more when a filter will drop some.
+fn plan(request: &Request<'_>, wanted: &Wanted) -> Plan {
+    let selection = request.selection;
+    let default =
+        if wanted.any() { PER_SOURCE_FILTERED } else { PER_SOURCE_DEFAULT };
+    Plan {
+        query: request.words.join(" "),
+        sources: select(
+            &selection.only,
+            &selection.include,
+            &selection.exclude,
+            &selection.categories,
+        ),
+        per_source: usize::from(selection.per_source.unwrap_or(default)),
+        forced: request.offline || !selection.only.is_empty(),
+        since: wanted.since.clone(),
+    }
+}
+
+/// Says how many sources are searched and returns that number. A source
+/// without its required key is skipped before any request, so the line
+/// counts only the sources that will be asked.
+fn announce(plan: &Plan, services: &Services, offline: bool) -> usize {
+    let keyless = plan
+        .sources
+        .iter()
+        .filter(|s| s.missing_key(&services.creds).is_some())
+        .count();
+    let asked = plan.sources.len().saturating_sub(keyless);
+    if asked == 0 {
+        return asked;
+    }
+    let need = if keyless == 1 { "needs" } else { "need" };
+    let keys = if keyless > 0 {
+        format!(
+            "; {keyless} {need} a key, see `{} doctor`",
+            crate::invoked_name()
+        )
+    } else {
+        String::new()
+    };
+    ui::stage(format!(
+        "searching {} for \"{}\"{}{keys}",
+        ui::count(asked, "source"),
+        plan.query,
+        if offline { ", offline" } else { "" }
+    ));
+    asked
+}
+
+/// Why the search has nothing to show, when no source answered: none was
+/// asked, or each one asked failed, which is warned about first.
+fn unanswered(
+    outcomes: &[Outcome],
+    renewing: bool,
+    cache: &Cache,
+    offline: bool,
+) -> Option<Error> {
+    if !outcomes.iter().any(|o| o.status.attempted()) {
+        let resting =
+            outcomes.iter().any(|o| matches!(o.status, Status::Resting(_)));
+        return Some(if resting { Error::Resting } else { Error::NothingRan });
+    }
+    if outcomes.iter().any(|o| o.status.answered()) {
+        return None;
+    }
+    warn_failures(outcomes, renewing, cache);
+    let late = not_waited_for(outcomes);
+    if !late.is_empty() {
+        ui::warn(format!("{} not waited for", named(&late)));
+    }
+    Some(failure(outcomes, offline))
 }
 
 /// The hits that pass the filters, cut to `limit`, and how many passed and

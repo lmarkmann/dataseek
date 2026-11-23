@@ -286,64 +286,71 @@ fn frame(
     tick: usize,
     width: usize,
 ) -> String {
-    const BAR: usize = 30;
-    let secs = elapsed.as_secs();
-    let time = if secs < 60 {
-        format!("{secs}s")
-    } else {
-        format!("{}m {:02}s", secs / 60, secs % 60)
-    };
+    let time = clock(elapsed);
     let (mark, suffix) = match len {
-        None => {
-            let ticks = if unicode() {
-                "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
-            } else {
-                "|/-\\"
-            };
-            let at = tick.checked_rem(ticks.chars().count()).unwrap_or(0);
-            let spin = ticks.chars().nth(at).unwrap_or(' ').to_string();
-            (Some(spin), format!(" {time}"))
-        }
-        Some(len) => {
-            let (full, empty) =
-                if unicode() { ("█", "░") } else { ("#", "-") };
-            let filled = pos
-                .min(len)
-                .saturating_mul(BAR as u64)
-                .checked_div(len)
-                .and_then(|f| usize::try_from(f).ok())
-                .unwrap_or(0);
-            let bar = full.repeat(filled)
-                + &empty.repeat(BAR.saturating_sub(filled));
-            let counts = format!(" {pos}/{len} {time}");
-            // The indent, the brackets, four columns of message and the
-            // column the cursor rests in.
-            let bar_fits =
-                BAR.saturating_add(10).saturating_add(counts.len()) <= width;
-            let suffix = if bar_fits {
-                format!(" [{}]{counts}", paint(palette::accent(), bar))
-            } else {
-                counts
-            };
-            (None, suffix)
-        }
+        None => (Some(spin_mark(tick)), format!(" {time}")),
+        Some(len) => (None, bar_suffix(pos, len, &time, width)),
     };
     let indent = if mark.is_some() { 4 } else { 2 };
     let fixed = visible(&suffix).saturating_add(indent);
-    let room = width.saturating_sub(1).saturating_sub(fixed);
-    let msg = if msg.chars().count() <= room {
+    let msg = fitted(msg, width.saturating_sub(1).saturating_sub(fixed));
+    match mark {
+        Some(spin) => {
+            format!("  {} {msg}{suffix}", paint(palette::accent(), spin))
+        }
+        None => format!("  {msg}{suffix}"),
+    }
+}
+
+/// `42s`, or `3m 07s` from a minute on.
+fn clock(elapsed: Duration) -> String {
+    let secs = elapsed.as_secs();
+    if secs < 60 {
+        format!("{secs}s")
+    } else {
+        format!("{}m {:02}s", secs / 60, secs % 60)
+    }
+}
+
+fn spin_mark(tick: usize) -> String {
+    let ticks =
+        if unicode() { "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏" } else { "|/-\\" };
+    let at = tick.checked_rem(ticks.chars().count()).unwrap_or(0);
+    ticks.chars().nth(at).unwrap_or(' ').to_string()
+}
+
+/// ` [███░░░] 2/4 3s`, or the counts alone where the bar does not fit.
+fn bar_suffix(pos: u64, len: u64, time: &str, width: usize) -> String {
+    const BAR: usize = 30;
+    let (full, empty) = if unicode() { ("█", "░") } else { ("#", "-") };
+    let filled = pos
+        .min(len)
+        .saturating_mul(BAR as u64)
+        .checked_div(len)
+        .and_then(|f| usize::try_from(f).ok())
+        .unwrap_or(0);
+    let bar = full.repeat(filled) + &empty.repeat(BAR.saturating_sub(filled));
+    let counts = format!(" {pos}/{len} {time}");
+    // The indent, the brackets, four columns of message and the column the
+    // cursor rests in.
+    let bar_fits =
+        BAR.saturating_add(10).saturating_add(counts.len()) <= width;
+    if bar_fits {
+        format!(" [{}]{counts}", paint(palette::accent(), bar))
+    } else {
+        counts
+    }
+}
+
+/// The message, cut to `room` columns with an ellipsis where it is longer.
+fn fitted(msg: &str, room: usize) -> String {
+    if msg.chars().count() <= room {
         msg.to_owned()
     } else if room > 3 {
         let cut: String = msg.chars().take(room.saturating_sub(3)).collect();
         cut + "..."
     } else {
         msg.chars().take(room).collect()
-    };
-    match mark {
-        Some(spin) => {
-            format!("  {} {msg}{suffix}", paint(palette::accent(), spin))
-        }
-        None => format!("  {msg}{suffix}"),
     }
 }
 
