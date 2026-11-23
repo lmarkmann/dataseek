@@ -16,31 +16,13 @@ use super::Ctx;
 use crate::http::SourceError;
 use crate::record::{Dataset, clean, day, text};
 
-const PAGE: usize = 100;
-
 pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
-    let mut entries = Vec::new();
-    for page in 1..=10 {
-        if ctx.stopped() {
-            return Err(SourceError::Stopped);
-        }
-        let body = ctx
-            .http
-            .get("https://lila.science/wp-json/wp/v2/posts")
-            .query("per_page", PAGE)
-            .query("page", page)
-            .query("_fields", "title,link,excerpt,modified")
-            .slow()
-            .json()?;
-        let posts = body
-            .as_array()
-            .ok_or_else(|| SourceError::shape("expected a list of posts"))?;
-        entries.extend(parse(posts));
-        if posts.len() < PAGE {
-            break;
-        }
-    }
-    Ok(entries)
+    let posts = super::wordpress_rows(
+        ctx,
+        "https://lila.science/wp-json/wp/v2/posts",
+        "title,link,excerpt,modified",
+    )?;
+    Ok(parse(&posts))
 }
 
 fn parse(posts: &[Value]) -> Vec<Dataset> {

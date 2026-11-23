@@ -8,8 +8,9 @@
 //! the loop asks for the next page only while a page is full. `_fields`
 //! keeps each page near 340 KB instead of 2.2 MB. A collection marked
 //! Limited needs registration and an approved license to download, and its
-//! description says so. The legacy NBIA host, services.cancerimagingarchive.net, times out
-//! and is not used. robots.txt disallows nothing.
+//! description says so. The legacy NBIA host,
+//! services.cancerimagingarchive.net, times out and is not used. robots.txt
+//! disallows nothing.
 
 use serde_json::Value;
 
@@ -17,35 +18,18 @@ use super::Ctx;
 use crate::http::SourceError;
 use crate::record::{Dataset, day, first_text, items, text};
 
-const PAGE: usize = 100;
 const FIELDS: &str = "link,collection_title,collection_short_title,\
     collection_doi,cancer_types,cancer_locations,data_types,supporting_data,\
     species,subjects,date_updated,collection_summary,collection_abstract,\
     collection_page_accessibility";
 
 pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
-    let mut entries = Vec::new();
-    for page in 1..=10 {
-        if ctx.stopped() {
-            return Err(SourceError::Stopped);
-        }
-        let body = ctx
-            .http
-            .get("https://www.cancerimagingarchive.net/api/v1/collections/")
-            .query("per_page", PAGE)
-            .query("page", page)
-            .query("_fields", FIELDS)
-            .slow()
-            .json()?;
-        let rows = body.as_array().ok_or_else(|| {
-            SourceError::shape("expected a list of collections")
-        })?;
-        entries.extend(rows.iter().filter_map(collection));
-        if rows.len() < PAGE {
-            break;
-        }
-    }
-    Ok(entries)
+    let rows = super::wordpress_rows(
+        ctx,
+        "https://www.cancerimagingarchive.net/api/v1/collections/",
+        FIELDS,
+    )?;
+    Ok(rows.iter().filter_map(collection).collect())
 }
 
 fn collection(row: &Value) -> Option<Dataset> {

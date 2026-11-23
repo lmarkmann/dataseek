@@ -18,8 +18,9 @@
 //!
 //! What adapters share lives in this module too: `parse_list`
 //! for a body that holds its records in one list, `retry_plain` for a
-//! source that answers an error to a query its parser cannot read, and
-//! `paginate_next` for pages that link the next one.
+//! source that answers an error to a query its parser cannot read,
+//! `paginate_next` for pages that link the next one, and `wordpress_rows`
+//! for a site that lists its datasets through the WordPress REST API.
 
 mod academictorrents;
 mod arcgis;
@@ -181,9 +182,44 @@ fn retry_without_syntax<T>(
     retry_plain(query, &[400, 500], plain, ask)
 }
 
-/// Whether a page links the one after it.
+/// Whether a page links the one after it: as `links.next`, or as a `next`
+/// address that is `null` on the last page.
 fn has_next(body: &Value) -> bool {
     body.pointer("/links/next").is_some()
+        || body.pointer("/next").is_some_and(Value::is_string)
+}
+
+/// Every row of a WordPress REST list at `url`, with only the `fields`
+/// named: pages of 100 until one is not full, and ten pages at most.
+fn wordpress_rows(
+    ctx: &Ctx<'_>,
+    url: &str,
+    fields: &str,
+) -> Result<Vec<Value>, SourceError> {
+    const PAGE: usize = 100;
+    let mut rows = Vec::new();
+    for page in 1..=10 {
+        if ctx.stopped() {
+            return Err(SourceError::Stopped);
+        }
+        let body = ctx
+            .http
+            .get(url)
+            .query("per_page", PAGE)
+            .query("page", page)
+            .query("_fields", fields)
+            .slow()
+            .json()?;
+        let Value::Array(listed) = body else {
+            return Err(SourceError::shape("expected a list of rows"));
+        };
+        let full = listed.len() >= PAGE;
+        rows.extend(listed);
+        if !full {
+            break;
+        }
+    }
+    Ok(rows)
 }
 
 /// The records of the `first` page and of the pages after it, up to page

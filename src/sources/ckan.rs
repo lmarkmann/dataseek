@@ -262,8 +262,6 @@ fn extra(row: &Value, key: &str) -> Option<String> {
     })
 }
 
-/// The publisher a harvested record names, else the organization, in
-/// English where the portal writes two languages, else the author.
 /// A field that a portal sends either as text or as a map from language code
 /// to text, which opendata.swiss does. English wins over German, both over
 /// French and Italian, and an empty string never wins.
@@ -280,6 +278,8 @@ fn label(row: &Value, path: &str) -> Option<String> {
     })
 }
 
+/// The publisher a harvested record names, else the organization, in
+/// English where the portal writes two languages, else the author.
 fn publisher(portal: &Portal, row: &Value) -> Option<String> {
     extra(row, "publisher_name")
         .or_else(|| extra(row, "Publisher"))

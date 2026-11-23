@@ -36,20 +36,11 @@ pub fn search(
     query: &str,
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    let mut body = fetch(ctx, query, 1)?;
-    let mut found = parse(&body, limit)?;
-    let pages = limit.div_ceil(PAGE).saturating_add(1);
-    for page in 2..=pages {
-        if found.len() >= limit || !has_next(&body) {
-            break;
-        }
-        if ctx.stopped() {
-            return Err(SourceError::Stopped);
-        }
-        body = fetch(ctx, query, page)?;
-        found.extend(parse(&body, limit.saturating_sub(found.len()))?);
-    }
-    Ok(found)
+    let last = limit.div_ceil(PAGE).saturating_add(1);
+    let first = fetch(ctx, query, 1)?;
+    super::paginate_next(ctx, limit, last, first, parse, |page| {
+        fetch(ctx, query, page)
+    })
 }
 
 fn fetch(
@@ -66,10 +57,6 @@ fn fetch(
         .query("search", query)
         .query("page", page)
         .json()
-}
-
-fn has_next(body: &Value) -> bool {
-    body.pointer("/next").is_some_and(Value::is_string)
 }
 
 pub(super) fn parse(
@@ -151,7 +138,7 @@ mod tests {
     #[test]
     fn a_page_without_next_ends_the_walk() {
         let body = fixture::json("elg.json");
-        assert!(has_next(&body));
-        assert!(!has_next(&serde_json::json!({"next": null})));
+        assert!(super::super::has_next(&body));
+        assert!(!super::super::has_next(&serde_json::json!({"next": null})));
     }
 }

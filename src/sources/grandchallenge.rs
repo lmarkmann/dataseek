@@ -14,7 +14,7 @@ use serde_json::Value;
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::{Dataset, day, first_text, items, text};
+use crate::record::{Dataset, day, first_text, text};
 
 const API: &str = "https://grand-challenge.org/api/v1/challenges/";
 
@@ -38,25 +38,21 @@ pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
 
 /// One page of challenges and the link to the next page, if any.
 fn parse(body: &Value) -> Result<(Vec<Dataset>, Option<String>), SourceError> {
-    if body.pointer("/results").is_none() {
-        return Err(SourceError::shape("no results array"));
-    }
-    let entries = items(body, "/results")
-        .iter()
-        .filter(|row| {
-            row.get("public").and_then(Value::as_bool) != Some(false)
-        })
-        .filter_map(|row| {
-            let mut dataset = Dataset::new(
-                &first_text(row, &["/title", "/slug"])?,
-                &text(row, "/url")?,
-            )
-            .describe(text(row, "/description"));
-            dataset.updated = day(text(row, "/modified"));
-            dataset.valid()
-        })
-        .collect();
+    let entries = super::parse_list(body, "/results", usize::MAX, challenge)?;
     Ok((entries, text(body, "/next")))
+}
+
+fn challenge(row: &Value) -> Option<Dataset> {
+    if row.get("public").and_then(Value::as_bool) == Some(false) {
+        return None;
+    }
+    let mut dataset = Dataset::new(
+        &first_text(row, &["/title", "/slug"])?,
+        &text(row, "/url")?,
+    )
+    .describe(text(row, "/description"));
+    dataset.updated = day(text(row, "/modified"));
+    dataset.valid()
 }
 
 #[cfg(test)]

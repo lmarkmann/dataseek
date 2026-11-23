@@ -13,7 +13,7 @@ use serde_json::Value;
 
 use super::Ctx;
 use crate::http::SourceError;
-use crate::record::{Dataset, items};
+use crate::record::Dataset;
 
 pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
     let body = ctx
@@ -26,25 +26,17 @@ pub fn list(ctx: &Ctx<'_>) -> Result<Vec<Dataset>, SourceError> {
 }
 
 fn parse(body: &Value) -> Result<Vec<Dataset>, SourceError> {
-    if body.pointer("/corpora").is_none() {
-        return Err(SourceError::shape("no corpora array"));
-    }
-    Ok(items(body, "/corpora")
-        .iter()
-        .filter_map(Value::as_str)
-        .filter(|name| {
-            name.chars().all(|c| {
-                c.is_ascii_alphanumeric() || matches!(c, '-' | '_' | '.')
-            })
-        })
-        .filter_map(|name| {
-            Dataset::new(
-                name,
-                &format!("https://opus.nlpl.eu/datasets/{name}"),
-            )
-            .valid()
-        })
-        .collect())
+    super::parse_list(body, "/corpora", usize::MAX, corpus)
+}
+
+/// A corpus whose name is safe to put in the path of its page.
+fn corpus(name: &Value) -> Option<Dataset> {
+    let name = name.as_str().filter(|name| {
+        name.chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '_' | '.'))
+    })?;
+    Dataset::new(name, &format!("https://opus.nlpl.eu/datasets/{name}"))
+        .valid()
 }
 
 #[cfg(test)]
