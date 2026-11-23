@@ -65,7 +65,7 @@ The `sources` tool (or `dsk sources --json`) is the live list: id, name, categor
 | `geospatial` | `cmr`, `planetary-computer`*, `earth-search`*, `copernicus-dataspace`*, `copernicus-cds`*, `earth-engine`*, `ncei`, `pangaea` |
 | `government` | `europa`, `datagov`, `data-gov-uk`, `open-canada`, `data-gov-au`, `govdata`, `hdx`, `socrata`, `socrata-eu`, `opendatasoft`, `arcgis` |
 | `life-sciences` | `geo`, `arrayexpress`, `biostudies`, `omicsdi`, `cellxgene`*, `synapse`, `encode` |
-| `machine-learning` | `huggingface`, `kaggle`, `openml`*, `uci`*, `roboflow`, `modelscope`, `mozilla`, `clarin`, `aws`*, `tfds`* |
+| `machine-learning` | `huggingface`, `kaggle`, `openml`*, `uci`*, `roboflow`, `modelscope`, `mozilla`, `clarin`, `elg`, `aws`*, `tfds`* |
 | `neuroscience` | `openneuro`*, `dandi`, `physionet`* |
 | `physics` | `cern`, `materials-project`*, `nomad`* |
 | `research` | `zenodo`, `figshare`, `harvard-dataverse`, `borealis`, `recherche-data-gouv`, `dataverse-nl`, `dataverse-no`, `osf`, `mendeley` (opt-in) |

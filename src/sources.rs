@@ -38,6 +38,7 @@ mod dataone;
 mod dataverse;
 mod dbnomics;
 mod ebi;
+mod elg;
 mod encode;
 mod europa;
 pub(crate) mod eurostat;
@@ -726,6 +727,14 @@ pub static SOURCES: &[Source] = &[
         "VLO API",
         "https://vlo.clarin.eu/api/swagger-ui/index.html",
         clarin::search,
+    ),
+    live(
+        "elg",
+        "European Language Grid",
+        MachineLearning,
+        "ELG catalogue API",
+        "https://european-language-grid.readthedocs.io/en/stable/all/A1_PythonSDK/Catalog.html",
+        elg::search,
     ),
     listed(
         "aws",
@@ -1543,6 +1552,7 @@ mod tests {
             ("dataone", |b, n| dataone::parse(b, n)),
             ("dataverse", |b, n| dataverse::parse(b, n)),
             ("dbnomics", |b, n| dbnomics::parse(b, n)),
+            ("elg", |b, n| elg::parse(b, n)),
             ("encode", |b, n| encode::parse(b, n)),
             ("europa", |b, n| europa::parse(b, n)),
             ("figshare", |b, n| figshare::parse(b, n)),

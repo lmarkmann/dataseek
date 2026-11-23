@@ -48,6 +48,7 @@ How each search interface takes a query, pages, ranks and limits, as found when 
 | ModelScope | GET `/api/v1/dolphin/datasets` | `Query` | names, authors and descriptions, every word must match | site default | 100 per page, larger values capped (October 2026) |
 | Mozilla Data Collective | GET `/api/datasets` | `q`, `pricing=free` | loose: a query of several words, or of no real word, still answers datasets that share a part of it (2026-11-23) | relevance (`sort` also takes `newest`, `size`) | 100 (`limit`; 101 answers 400) |
 | CLARIN VLO | GET `/api/records` | `q` (Solr), `fq=resourceClass:corpus` | metadata full text; a word with a colon is a field query | relevance | `size`; `from` reached 9,990 with an empty page past the end (2026-11-23) |
+| European Language Grid | GET `/catalogue_backend/api/registry/search/` | `search`, `entity_type__term=LanguageResource` (`keyword` matches one keyword value exactly) | metadata full text, any word | relevance | 20 a page, fixed; `page` walks on while `next` is set |
 | Roboflow Universe | GET `/universe/search` | `q`, inline filters (`images>100`) | names, classes | site default | 12 a page by the SDK default; `page` from 1 |
 
 ## Catalogs searched locally
