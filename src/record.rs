@@ -691,14 +691,32 @@ fn decode_entities(text: &str, out: &mut Spaced) {
 }
 
 fn entity(name: &str) -> Option<char> {
+    if let Some(code) = name.strip_prefix('#') {
+        return shown(numeric_entity(code)?);
+    }
+    // Nearly every entity in a description is one of these six, so they
+    // are answered before the table is searched.
+    Some(match name {
+        "amp" => '&',
+        "lt" => '<',
+        "gt" => '>',
+        "quot" => '"',
+        "apos" => '\'',
+        "nbsp" => ' ',
+        _ => return rare_entity(name),
+    })
+}
+
+fn rare_entity(name: &str) -> Option<char> {
     if let Ok(i) = NAMED_ENTITIES.binary_search_by_key(&name, |&(n, _)| n) {
         return NAMED_ENTITIES.get(i).map(|&(_, c)| c);
     }
-    let number = match name.strip_prefix('#') {
-        Some(code) => numeric_entity(code)?,
-        None => greek(name).or_else(|| latin1(name))?,
-    };
-    char::from_u32(number).filter(|&c| !c.is_control())
+    shown(greek(name).or_else(|| latin1(name))?)
+}
+
+/// The character of a code point, unless it is a control character.
+fn shown(code_point: u32) -> Option<char> {
+    char::from_u32(code_point).filter(|&c| !c.is_control())
 }
 
 /// The code point of `#38` or `#x26`, given without the `#`.
@@ -714,14 +732,12 @@ fn latin1(name: &str) -> Option<u32> {
     u32::try_from(i).ok()?.checked_add(0xa0)
 }
 
-/// The entities with no rule to their code point, sorted by name for the
-/// binary search. The four spaces all show as a plain one.
-const NAMED_ENTITIES: [(&str, char); 57] = [
+/// The other entities with no rule to their code point, sorted by name
+/// for the binary search. Each space shows as a plain one.
+const NAMED_ENTITIES: [(&str, char); 51] = [
     ("Dagger", '\u{2021}'),
     ("Prime", '\u{2033}'),
-    ("amp", '&'),
     ("and", '\u{2227}'),
-    ("apos", '\''),
     ("asymp", '\u{2248}'),
     ("bull", '\u{2022}'),
     ("cap", '\u{2229}'),
@@ -735,7 +751,6 @@ const NAMED_ENTITIES: [(&str, char); 57] = [
     ("exist", '\u{2203}'),
     ("forall", '\u{2200}'),
     ("ge", '\u{2265}'),
-    ("gt", '>'),
     ("hArr", '\u{21d4}'),
     ("harr", '\u{2194}'),
     ("hellip", '\u{2026}'),
@@ -747,11 +762,9 @@ const NAMED_ENTITIES: [(&str, char); 57] = [
     ("le", '\u{2264}'),
     ("lowast", '\u{2217}'),
     ("lsquo", '\u{2018}'),
-    ("lt", '<'),
     ("mdash", '\u{2014}'),
     ("minus", '\u{2212}'),
     ("nabla", '\u{2207}'),
-    ("nbsp", ' '),
     ("ndash", '\u{2013}'),
     ("ne", '\u{2260}'),
     ("notin", '\u{2209}'),
@@ -761,7 +774,6 @@ const NAMED_ENTITIES: [(&str, char); 57] = [
     ("prime", '\u{2032}'),
     ("prod", '\u{220f}'),
     ("prop", '\u{221d}'),
-    ("quot", '"'),
     ("rArr", '\u{21d2}'),
     ("radic", '\u{221a}'),
     ("rarr", '\u{2192}'),
@@ -1276,7 +1288,8 @@ mod tests {
         for (name, shown) in NAMED_ENTITIES {
             assert_eq!(entity(name), Some(shown), "{name}");
         }
-        assert_eq!(entity("thinsp"), Some(' '));
+        assert_eq!(entity("nbsp"), Some(' '));
+        assert_eq!(entity("apos"), Some('\''));
         assert_eq!(entity("eacute"), Some('\u{e9}'));
         assert_eq!(entity("Omega"), Some('\u{3a9}'));
         assert_eq!(entity("#x41"), Some('A'));
