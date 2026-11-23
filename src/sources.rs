@@ -70,6 +70,7 @@ mod opendatasoft;
 mod openml;
 mod openneuro;
 mod openslr;
+mod opus;
 mod osf;
 mod owid;
 mod pangaea;
@@ -797,6 +798,14 @@ pub static SOURCES: &[Source] = &[
         "dataset index pages",
         "https://research.google/resources/datasets/",
         googleresearch::list,
+    ),
+    listed(
+        "opus",
+        "OPUS",
+        MachineLearning,
+        "OPUS API corpus list",
+        "https://opus.nlpl.eu/opusapi",
+        opus::list,
     ),
     keyed(
         live(

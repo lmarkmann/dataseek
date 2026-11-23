@@ -72,6 +72,7 @@ These publish a complete list but no search endpoint, so dataseek downloads the 
 | Polaris Hub | `polarishub.io/api/v1/dataset?limit=100` (6 MB: every row carries its README) | 96 (2026-11-23) |
 | Academic Torrents | `database.xml` (RSS 2.0, 3.2 MB, rebuilt nightly), category Dataset | 1,724 (2026-11-23) |
 | Google Research Datasets | `/resources/datasets/?page=N`, 15 cards a page, until a page brings no new link | 169 (2026-11-23) |
+| OPUS | `opusapi?corpora=True`, names only, so matching is on the name | 1,215 (2026-11-23) |
 | CELLxGENE | Curation API `/collections` | 397 |
 | Grand Challenge | `/api/v1/challenges/?limit=100`, following `next` | 264 (2026-11-23) |
 | OpenNeuro | GraphQL `datasets`, cursor pages of 100 | 1,905 |
