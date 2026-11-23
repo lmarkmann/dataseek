@@ -488,7 +488,7 @@ mod tests {
     }
 
     #[test]
-    fn a_url_names_its_resolver() {
+    fn a_hub_url_names_its_resolver() {
         let hub = "https://huggingface.co";
         assert_eq!(
             planned(
@@ -530,6 +530,10 @@ mod tests {
                 slug: "AnPrudentia/datasets-6a9dd086".into()
             }
         );
+    }
+
+    #[test]
+    fn a_repository_url_names_its_resolver() {
         let repo = "https://github.com/zalandoresearch/fashion-mnist";
         assert_eq!(
             planned(&format!("{repo}/issues?q=x"), By::Owner),
