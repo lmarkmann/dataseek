@@ -5,7 +5,7 @@
 
 ## Context
 
-An agent or a user often knows more than the words of a query: the data must be openly licensed, recent, offered as CSV, or confirmed by more than one source. Putting those constraints in the query does not work, because every source treats them as more words to match. Each source has its own filter syntax or none at all: CKAN takes Solr `fq` clauses, NASA CMR an `updated_since` parameter, ArcGIS Hub a CQL `filter`, Dataverse `fq` over its own Solr fields, and most of the 76 sources nothing. The fields disagree too: licenses arrive as SPDX ids, Creative Commons deed URLs, EU vocabulary URIs or free text ("CC-By Attribution 4.0 International"), and a record's date is a different field on every source.
+An agent or a user often knows more than the words of a query: the data must be openly licensed, recent, offered as CSV, or confirmed by more than one source. Putting those constraints in the query does not work, because every source treats them as more words to match. Each source has its own filter syntax or none at all: CKAN takes Solr `fq` clauses, NASA CMR an `updated_since` parameter, ArcGIS Hub a CQL `filter`, Dataverse `fq` over its own Solr fields, and most of the 77 sources nothing. The fields disagree too: licenses arrive as SPDX ids, Creative Commons deed URLs, EU vocabulary URIs or free text ("CC-By Attribution 4.0 International"), and a record's date is a different field on every source.
 
 ## Decision
 

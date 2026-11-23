@@ -99,7 +99,7 @@ for q in "sea surface temperature" "ERSST"; do
 done | jq -s 'unique_by(.url)'
 ```
 
-For a batch larger than a few dozen queries, set `HF_TOKEN` and `GITHUB_TOKEN` first: Hugging Face allows 500 requests per 5 minutes per address without a key, GitHub 10 searches a minute. Hugging Face also allows 50 full-text searches per 5 minutes, one for each multi-word query, with or without a key; past that, `huggingface` reports `rate limited by the source` and rests for a few minutes.
+For a batch larger than a few dozen queries, set `HF_TOKEN` and `GITHUB_TOKEN` first: Hugging Face allows 500 requests per 5 minutes per address without a key, GitHub 10 searches a minute. Hugging Face also allows 50 full-text searches per 5 minutes, one for each multi-word query, with or without a key; past that, `huggingface` reports `rate limited by the source` and rests for a few minutes. GitLab allows 60 requests per address in each clock hour and dataseek reads no GitLab key; past that, `gitlab` reports the same status until the next full hour.
 
 ## Discovering the surface
 

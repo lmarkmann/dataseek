@@ -40,6 +40,7 @@ mod fred;
 mod gbif;
 mod gee;
 mod github;
+mod gitlab;
 mod google;
 mod huggingface;
 mod kaggle;
@@ -606,6 +607,14 @@ pub static SOURCES: &[Source] = &[
         ),
         Key::GitHub,
         Need::Optional,
+    ),
+    live(
+        "gitlab",
+        "GitLab (topic:dataset)",
+        Code,
+        "GitLab projects API",
+        "https://docs.gitlab.com/api/projects/",
+        gitlab::search,
     ),
     // Research repositories.
     live(
@@ -1383,6 +1392,7 @@ mod tests {
             ("fred", |b, n| fred::parse(b, n)),
             ("gbif", |b, n| gbif::parse(b, n)),
             ("github", |b, n| github::parse(b, n)),
+            ("gitlab", |b, n| gitlab::parse(b, n)),
             ("kaggle", |b, n| kaggle::parse(b, n)),
             ("mendeley", |b, n| mendeley::parse(b, n)),
             ("modelscope", |b, n| modelscope::parse(b, n)),

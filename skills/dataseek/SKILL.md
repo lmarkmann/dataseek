@@ -3,7 +3,7 @@ name: dataseek
 description: >
   Not for papers or citations, not for reading rows inside one dataset, not
   for downloading or converting data files, and not for changing dataseek's
-  own code or source adapters. Finds datasets across 76 archives at once
+  own code or source adapters. Finds datasets across 77 archives at once
   (Hugging Face, Kaggle, Zenodo, Dataverse, data.gov, data.europa.eu, IMF,
   OECD, ECB, NASA, Copernicus, GEO and more) through dataseek: its MCP
   server's search, sources and inspect tools, or the dsk CLI with --json.

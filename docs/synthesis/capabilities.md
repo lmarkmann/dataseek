@@ -19,6 +19,7 @@ Columns: **license**, **date** and **format** filters; **type** is a resource-ty
 | `aws` | none (free text per entry in the YAML) | none | none (tag pages `/tag/<tag>/`) | none (`Resources[].Type` in the YAML) | none (`Resources[].ARN` and `Region` in the per-entry YAML) | none | none (local search) | `DataAtWork` in the YAML | schema.org JSON-LD on entry pages; per-entry YAML |
 | `tfds` | none | none | none | none (83 category headings) | none | none | none | none | none |
 | `github` | `license:<keyword>` in `q` | `pushed:`, `created:` in `q` | none | none (`topic:`, `fork:`, `archived:`, `is:`) | `GET /repos/{owner}/{repo}/git/trees/{branch}?recursive=1` | `page` and `per_page` (100), 1,000 deep | `total_count` | none (`homepage`, `topics`) | none (`CITATION.cff` through `/contents/`) |
+| `gitlab` | none | `last_activity_after`, `last_activity_before` | none | none (`topic`, `archived`, `with_programming_language`) | `GET /projects/{id}/repository/tree?recursive=true` | `page` and `per_page` (100), 50,000 projects deep; `pagination=keyset` beyond | `x-total` header | none (`forked_from_project`) | none |
 | `zenodo` | `q` field `metadata.rights.id:cc-by-4.0` | `q` fields `updated:[...]`, `publication_date:[...]` | `q` field `filetype:csv` | `type=dataset`, `subtype` | `/api/records/{id}/files` (key, size, md5, link) | `page` and `size` (25 anonymous), `links.next`, 10,000 deep | `hits.total` | `metadata.related_identifiers[]`, `conceptdoi` | `Accept: application/ld+json` or `application/dcat+xml`; OAI-PMH `/oai2d` |
 | `figshare` | none (`:license:` is rejected) | `published_since`, `modified_since` | none | `item_type` (integer) | `/v2/articles/{id}/files` (name, size, md5, download_url) | `page` and `page_size`, or `offset` and `limit`; `X-Cursor` header | none | `related_materials`, `references`, `resource_doi` (detail record) | OAI-PMH `/v3/oai` (oai_dc, oai_datacite, qdc, rdf, cerif) |
 | `harvard-dataverse` | `fq=license:"CC0 1.0"` (facet) | `fq=publicationDate:<yyyy>`; `sort=date` | `type=file` with `fq=fileTypeGroupFacet:...` (file level) | `type=dataverse`, `dataset` or `file` | `/api/datasets/:persistentId/versions/:latest-published/files` | `start` and `per_page` (guide: 1,000) | `data.total_count` | `publications` in the search item | `/api/datasets/export?exporter=...` (schema.org, croissant, croissantSlim, dcterms, ddi, Datacite) |
@@ -85,16 +86,16 @@ Columns: **license**, **date** and **format** filters; **type** is a resource-ty
 
 ## Counts per column
 
-Rows with something other than `none` in each column, out of 76. The `as <id>` cells count with the row they copy.
+Rows with something other than `none` in each column, out of 77. The `as <id>` cells count with the row they copy.
 
 | capability | sources that offer it |
 |---|---|
 | license filter | 27 |
-| date filter | 40 |
+| date filter | 41 |
 | format filter | 26 |
 | resource-type filter | 46 |
-| file manifest | 47 |
-| paging past the first page | 56 |
-| total hit count | 54 |
+| file manifest | 48 |
+| paging past the first page | 57 |
+| total hit count | 55 |
 | related records | 62 |
 | machine-readable metadata | 65 |

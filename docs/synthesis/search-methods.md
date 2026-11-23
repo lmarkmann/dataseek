@@ -43,6 +43,7 @@ How each search interface takes a query, pages, ranks and limits, as found when 
 | Our World in Data | GET `/api/search` | `q`, `hitsPerPage` | charts and explorer views (`type=charts`; `type=pages` is articles) | relevance | 100 |
 | FRED | GET `/fred/series/search` | `search_text` | full text | relevance or popularity | 1,000 |
 | GitHub | GET `/search/repositories` | `q` with `in:name,description,topics,readme topic:dataset` | name, description, topics, readme (2026-11-23) | best match | 100; first 1,000 results only (page 11 answers 422) |
+| GitLab | GET `/api/v4/projects` | `search`, `topic=dataset` | every word as a substring of the path, name or description, ignoring case (2026-11-23) | `order_by=star_count`; a relevance order exists only for a signed-in member's own projects | 100 (`per_page`); `page` reaches 50,000 projects, `pagination=keyset` beyond |
 | ModelScope | GET `/api/v1/dolphin/datasets` | `Query` | names, authors and descriptions, every word must match | site default | 100 per page, larger values capped (October 2026) |
 | Roboflow Universe | GET `/universe/search` | `q`, inline filters (`images>100`) | names, classes | site default | 12 a page by the SDK default; `page` from 1 |
 
@@ -84,6 +85,7 @@ These publish a complete list but no search endpoint, so dataseek downloads the 
 | api.data.gov | `DEMO_KEY`: 30 per hour, 50 per day | 1,000 per hour |
 | NCBI E-utilities | 3 per second, with `tool` and `email` | 10 per second |
 | GitHub search | 10 per minute | 30 per minute |
+| GitLab | 60 requests per clock hour per IP, then 429 with `Retry-After` to the next full hour (observed 2026-11-23); the docs also give 400 project-list requests per 10 minutes | 2,000 project-list requests per 10 minutes (dataseek reads no GitLab key) |
 | CERN Open Data | 60 per minute, 429 with `Retry-After: 60` (headers) | none |
 | OpenDataSoft | 10,000 calls a day, shared by every anonymous caller | none |
 | OSF (trove) | unstated; 17 requests in 3 minutes drew an hour-long 429 | none |

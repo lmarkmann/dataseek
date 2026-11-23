@@ -15,7 +15,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 
 ## Consequences
 
-- One query fans out to about 74 hosts. The search deadline (ADR 0007) bounds the cost of the slowest; the cache bounds repeats.
+- One query fans out to about 75 hosts. The search deadline (ADR 0007) bounds the cost of the slowest; the cache bounds repeats.
 - Adding a source is one registry row plus, at most, one module. Removing one is the reverse; nothing else refers to a source by id.
 - Overlap is low (ADR 0006 evidence: 96% of merged hits came from exactly one source), so dropping a source loses results rather than duplicates. Reverting to tiers would cut recall in proportion.
 
@@ -26,7 +26,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 
 ## The sources
 
-76 sources, grouped by `--category`. Each source's terms verdict and the sentence it rests on are in [`../synthesis/terms.md`](../synthesis/terms.md); what each offers for filters and file lists is in [`../synthesis/capabilities.md`](../synthesis/capabilities.md). Keys are read from the environment or `credentials.toml` ([`../reference/keys-and-cache.md`](../reference/keys-and-cache.md)); an optional key raises a rate limit or unlocks a better endpoint, a required one is the only way in.
+77 sources, grouped by `--category`. Each source's terms verdict and the sentence it rests on are in [`../synthesis/terms.md`](../synthesis/terms.md); what each offers for filters and file lists is in [`../synthesis/capabilities.md`](../synthesis/capabilities.md). Keys are read from the environment or `credentials.toml` ([`../reference/keys-and-cache.md`](../reference/keys-and-cache.md)); an optional key raises a rate limit or unlocks a better endpoint, a required one is the only way in.
 
 ### aggregator
 
@@ -55,6 +55,7 @@ Every source below is implemented to the same contract (`src/sources.rs`) and se
 | id | source | protocol | search | key | API docs |
 |---|---|---|---|---|---|
 | `github` | GitHub (topic:dataset) | GitHub search | live | `$GITHUB_TOKEN` (optional) | [docs](https://docs.github.com/en/rest/search/search) |
+| `gitlab` | GitLab (topic:dataset) | GitLab projects API | live |  | [docs](https://docs.gitlab.com/api/projects/) |
 
 ### research
 

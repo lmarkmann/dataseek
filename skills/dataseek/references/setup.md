@@ -51,7 +51,7 @@ After upgrading dataseek, restart the server in the client: a running server kee
 
 ## Verify
 
-Call the `sources` tool once with no arguments. It answers with 76 rows; count them and note any `key` of `missing`. That count is the Setup lane's **Verified** part.
+Call the `sources` tool once with no arguments. It answers with 77 rows; count them and note any `key` of `missing`. That count is the Setup lane's **Verified** part.
 
 When the tools do not appear at all, probe the server from a shell. This sends the handshake and a tool list request, holding stdin open for three seconds because closing it ends the server and every call still running:
 
@@ -66,7 +66,7 @@ Two JSON lines back, the second naming `search`, `sources` and `inspect`, means 
 
 ## Keys
 
-73 of the 76 sources need no key. A key unlocks three, raises the limits of four, and Kaggle reads one but answers the same without:
+74 of the 77 sources need no key. A key unlocks three, raises the limits of four, and Kaggle reads one but answers the same without:
 
 | Source | Variable | Without it |
 |---|---|---|

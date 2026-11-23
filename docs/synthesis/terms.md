@@ -4,7 +4,7 @@ May a publicly distributed copy of dataseek query each source the way its adapte
 
 Verdicts: **keep** (the provider documents or invites this use), **keep with conditions** (the use is allowed or not forbidden, with something to honour), **opt-in only** (asked only when named, [ADR 0013](../adr/0013-opt-in-sources.md)), **drop** (none). Where the table says `unclear`, no sentence in the terms speaks to a third-party client querying this endpoint.
 
-## The 76 rows
+## The 77 rows
 
 | id | verdict | the term | registry effect | checked |
 |---|---|---|---|---|
@@ -21,6 +21,7 @@ Verdicts: **keep** (the provider documents or invites this use), **keep with con
 | `aws` | keep with conditions | "This license does not include ... any use of data mining, robots, or similar data gathering and extraction tools." [AWS site terms](https://aws.amazon.com/terms/); the registry repository itself is Apache-2.0 and its hosted YAML is published for machine use | none | 2026-10-06 |
 | `tfds` | keep | "using automated means to access content from any of our services in violation of the machine-readable instructions on our web pages (for example, robots.txt files that disallow crawling, training, or other activities)" is barred [terms](https://policies.google.com/terms); `tensorflow.org/robots.txt` has no Disallow line | none | 2026-10-06 |
 | `github` | keep with conditions | "Scraping does not refer to the collection of information through our API." [acceptable use](https://docs.github.com/en/site-policy/acceptable-use-policies/github-acceptable-use-policies); "You may not share API tokens to exceed GitHub's rate limitations." | never ship a shared token | 2026-10-06 |
+| `gitlab` | keep with conditions | "Most API requests require authentication, or return only public data when authentication isn't provided." [API docs](https://docs.gitlab.com/api/rest/authentication/); the acceptable use policy asks users not to "Do anything to compromise, overburden, or otherwise impair our services" [policy](https://handbook.gitlab.com/handbook/legal/acceptable-use-policy/); `robots.txt` has `Disallow: /api/v*`, a crawler rule that conflicts with the documented client API | one request a search, inside 60 an hour per IP | 2026-11-23 |
 | `zenodo` | keep with conditions | "Search REST API endpoints 30 requests per minute" [rate limiting](https://developers.zenodo.org/#rate-limiting); the terms are silent on automated use and `robots.txt` has `Disallow: /api`, a crawler rule that conflicts with the documented client API | at most four requests a search | 2026-10-06 |
 | `figshare` | keep | "The content can be bulk- downloaded or mined using the Figshare API, depending on the licenses the author published the content under." [policies](https://info.figshare.com/user-guide/figshare-policies/); the Terms and Conditions page sits behind a bot challenge and was not read | none | 2026-10-06 |
 | `harvard-dataverse` | keep | Barred: "Use an unreasonable amount of bandwidth. Harvard Dataverse reserves the right to decide what is unreasonable" and concealing the application's identity [API terms](https://support.dataverse.harvard.edu/harvard-dataverse-api-terms-use) | one request per search | 2026-10-06 |
@@ -87,7 +88,7 @@ Verdicts: **keep** (the provider documents or invites this use), **keep with con
 
 ## Counts
 
-43 keep, 32 keep with conditions, 1 opt-in only (`mendeley`), 0 drop. Google Dataset Search is opt-in by decision and its verdict stays keep with conditions. Rows served by one protocol module share its terms check: the five Dataverse installations, the six CKAN portals, the four NADA hosts, the seven SDMX agencies, the four STAC catalogs and the two Socrata hosts were checked once per protocol and per host where the reports named a difference.
+43 keep, 33 keep with conditions, 1 opt-in only (`mendeley`), 0 drop. Google Dataset Search is opt-in by decision and its verdict stays keep with conditions. Rows served by one protocol module share its terms check: the five Dataverse installations, the six CKAN portals, the four NADA hosts, the seven SDMX agencies, the four STAC catalogs and the two Socrata hosts were checked once per protocol and per host where the reports named a difference.
 
 ## What the terms ask the tool to show
 

@@ -37,7 +37,7 @@ dsk inspect https://zenodo.org/records/13135140    # a page's metadata and the f
 `dsk search air quality -n 3` on a terminal:
 
 ```text
-- searching 71 sources for "air quality"; 3 need a key, see `dsk doctor`
+- searching 72 sources for "air quality"; 3 need a key, see `dsk doctor`
 1  Improving Indoor Air Quality for Poor Families: Controlled Experiments 2005-2006
    https://microdata.worldbank.org/catalog/396
    worldbank-microdata, ihsn | Susmita Dasgupta, Mainul Huq, M. Khaliquzzaman and David Wheeler | 2...
@@ -53,7 +53,7 @@ dsk inspect https://zenodo.org/records/13135140    # a page's metadata and the f
    openaire, socrata | City of Calgary Open Data Portal | 2018-07-16 | See Terms of Use
    This dataset makes historical air quality data accessible for various parameter...
 
-  ✓ 3 of 359 results; 70 of 71 sources answered; -n 359 shows all
+  ✓ 3 of 359 results; 71 of 72 sources answered; -n 359 shows all
 ```
 
 `dsk` alone shows the commands, `dsk help environment` the variables it reads, `dsk help exit-codes` what it returns. `cargo install` cannot install a man page or completions: `dsk man > ~/.local/share/man/man1/dsk.1` puts the page where `man dsk` finds it, and `dsk completion fish` (or `bash`, `zsh`) says where its script goes.

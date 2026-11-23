@@ -58,7 +58,7 @@ The `sources` tool (or `dsk sources --json`) is the live list: id, name, categor
 | Category | Sources |
 |---|---|
 | `aggregator` | `datacite`, `openaire`, `google` (opt-in), `b2find` |
-| `code` | `github` |
+| `code` | `github`, `gitlab` |
 | `ecology` | `gbif`, `dataone` |
 | `economics` | `dbnomics`, `worldbank`*, `worldbank-microdata`, `imf`*, `oecd`*, `ilo`* |
 | `finance` | `ecb`*, `bis`*, `fred`, `bundesbank`*, `fiscal-data`* |
