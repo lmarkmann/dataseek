@@ -28,7 +28,7 @@ bless:
     cargo insta test --accept --unreferenced=reject
 
 run *args:
-    cargo run -- {{ args }}
+    cargo run --bin dataseek -- {{ args }}
 
 build:
     cargo build --release
