@@ -117,16 +117,16 @@ The **related** column is what a record links to. The neighbors of an item (its 
 
 ## Counts per column
 
-Rows with something other than `none` in each column, out of 77. The `as <id>` cells count with the row they copy.
+Rows with something other than `none` in each column, out of 106. The `as <id>` cells count with the row they copy.
 
 | capability | sources that offer it |
 |---|---|
-| license filter | 27 |
-| date filter | 41 |
-| format filter | 26 |
-| resource-type filter | 46 |
-| file manifest | 48 |
-| paging past the first page | 57 |
-| total hit count | 55 |
-| related records | 62 |
-| machine-readable metadata | 65 |
+| license filter | 63 |
+| date filter | 77 |
+| format filter | 50 |
+| resource-type filter | 80 |
+| file manifest | 91 |
+| paging past the first page | 85 |
+| total hit count | 80 |
+| related records | 86 |
+| machine-readable metadata | 97 |

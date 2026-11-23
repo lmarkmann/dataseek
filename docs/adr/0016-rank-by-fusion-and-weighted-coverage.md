@@ -5,7 +5,7 @@
 
 ## Context
 
-Results arrive as about 75 ranked lists with incomparable scores, and only about 4% of merged hits are found by more than one source (ADR 0006's bench). Fusion therefore mostly interleaves lists that rarely agree, and the order of the top 10 rests on the coverage step that rescales each hit by how much of the query it mentions. ADR 0006 counted every query word the same, so in a sentence such as "monthly inflation by country since 2000" a hit carrying "country" and "by" outscored one carrying only "inflation". The relevance benchmark (`just relevance`, [`../reference/development.md`](../reference/development.md#relevance)) now measures the merged top 10 offline against graded judgments, which makes ranking changes testable instead of argued.
+Results arrive as about 104 ranked lists with incomparable scores, and only about 4% of merged hits are found by more than one source (ADR 0006's bench). Fusion therefore mostly interleaves lists that rarely agree, and the order of the top 10 rests on the coverage step that rescales each hit by how much of the query it mentions. ADR 0006 counted every query word the same, so in a sentence such as "monthly inflation by country since 2000" a hit carrying "country" and "by" outscored one carrying only "inflation". The relevance benchmark (`just relevance`, [`../reference/development.md`](../reference/development.md#relevance)) now measures the merged top 10 offline against graded judgments, which makes ranking changes testable instead of argued.
 
 ## Decision
 

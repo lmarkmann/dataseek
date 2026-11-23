@@ -38,7 +38,7 @@ dsk related https://huggingface.co/datasets/nyu-mll/glue   # what else its owner
 `dsk search air quality -n 3` on a terminal:
 
 ```text
-- searching 72 sources for "air quality"; 3 need a key, see `dsk doctor`
+- searching 101 sources for "air quality"; 3 need a key, see `dsk doctor`
 1  Improving Indoor Air Quality for Poor Families: Controlled Experiments 2005-2006
    https://microdata.worldbank.org/catalog/396
    worldbank-microdata, ihsn | Susmita Dasgupta, Mainul Huq, M. Khaliquzzaman and David Wheeler | 2...
@@ -54,7 +54,7 @@ dsk related https://huggingface.co/datasets/nyu-mll/glue   # what else its owner
    openaire, socrata | City of Calgary Open Data Portal | 2018-07-16 | See Terms of Use
    This dataset makes historical air quality data accessible for various parameter...
 
-  ✓ 3 of 359 results; 71 of 72 sources answered; -n 359 shows all
+  ✓ 3 of 422 results; 93 of 101 sources answered, 8 sources not waited for; -n 422 shows all
 ```
 
 `dsk` alone shows the commands, `dsk help environment` the variables it reads, `dsk help exit-codes` what it returns. `cargo install` cannot install a man page or completions: `dsk man > ~/.local/share/man/man1/dsk.1` puts the page where `man dsk` finds it, and `dsk completion fish` (or `bash`, `zsh`) says where its script goes.

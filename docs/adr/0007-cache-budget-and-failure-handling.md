@@ -5,7 +5,7 @@
 
 ## Context
 
-A search that waits for 75 hosts is only as fast as the slowest, and some hosts fail or rate-limit. Catalog sources download lists of up to tens of thousands of entries (World Bank indicators: 29,533). The cache must not bloat.
+A search that waits for 104 hosts is only as fast as the slowest, and some hosts fail or rate-limit. Catalog sources download lists of up to tens of thousands of entries (World Bank indicators: 29,533). The cache must not bloat.
 
 ## Decision
 

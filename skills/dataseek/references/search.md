@@ -158,7 +158,7 @@ Datasets
    datagov, ncei | NOAA National Centers for Environmental Information | updated 2015-05-26 | CC0 1.0 | doi:10.7289/v5kd1vvf
 2. ...
 
-Coverage: 10 of 328 matches shown; 70 of 71 sources answered; complete: false, data-gov-uk not waited for after 2 s.
+Coverage: 10 of 430 matches shown; 93 of 101 sources answered; complete: false, govdata not waited for after 1 s.
 
 Queries
 dsk search sea surface temperature -n 10

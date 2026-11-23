@@ -47,9 +47,9 @@ const QUERY: &str = "sea surface temperature";
 /// and tables, the SDMX agencies hundreds to a few thousand.
 const CATALOG_SIZES: [usize; 3] = [1_000, 4_000, 16_000];
 
-/// 77 sources answering with this many records each.
+/// 106 sources answering with this many records each.
 const RECORDS_PER_SOURCE: [usize; 3] = [5, 20, 80];
-const SOURCES: usize = 77;
+const SOURCES: usize = 106;
 
 fn word(i: usize) -> &'static str {
     WORDS[i % WORDS.len()]

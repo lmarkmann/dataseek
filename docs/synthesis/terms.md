@@ -4,7 +4,7 @@ May a publicly distributed copy of dataseek query each source the way its adapte
 
 Verdicts: **keep** (the provider documents or invites this use), **keep with conditions** (the use is allowed or not forbidden, with something to honour), **opt-in only** (asked only when named, [ADR 0013](../adr/0013-opt-in-sources.md)), **drop** (none). Where the table says `unclear`, no sentence in the terms speaks to a third-party client querying this endpoint.
 
-## The 77 rows
+## The 106 rows
 
 | id | verdict | the term | registry effect | checked |
 |---|---|---|---|---|
@@ -117,7 +117,7 @@ Verdicts: **keep** (the provider documents or invites this use), **keep with con
 
 ## Counts
 
-43 keep, 33 keep with conditions, 1 opt-in only (`mendeley`), 0 drop. Google Dataset Search is opt-in by decision and its verdict stays keep with conditions. Rows served by one protocol module share its terms check: the five Dataverse installations, the six CKAN portals, the four NADA hosts, the seven SDMX agencies, the four STAC catalogs and the two Socrata hosts were checked once per protocol and per host where the reports named a difference.
+61 keep, 44 keep with conditions, 1 opt-in only (`mendeley`), 0 drop. Google Dataset Search is opt-in by decision and its verdict stays keep with conditions. Rows served by one protocol module share its terms check: the ten Dataverse installations, the eleven CKAN portals, the four NADA hosts, the eight SDMX agencies, the six STAC catalogs, the four EBI Search domains and the two Socrata hosts were checked once per protocol and per host where the reports named a difference.
 
 ## What the terms ask the tool to show
 

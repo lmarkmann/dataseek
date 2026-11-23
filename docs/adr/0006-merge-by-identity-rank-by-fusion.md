@@ -5,7 +5,7 @@
 
 ## Context
 
-Results arrive as about 75 ranked lists with incomparable scores (Elasticsearch relevance, download counts, catalog order). The same dataset appears in several (a Zenodo record in Zenodo, DataCite, OpenAIRE and Google), DataCite lists every version of a record, and many sources match loosely (any word, stemmed, or in fields dataseek never sees).
+Results arrive as about 104 ranked lists with incomparable scores (Elasticsearch relevance, download counts, catalog order). The same dataset appears in several (a Zenodo record in Zenodo, DataCite, OpenAIRE and Google), DataCite lists every version of a record, and many sources match loosely (any word, stemmed, or in fields dataseek never sees).
 
 ## Decision
 
