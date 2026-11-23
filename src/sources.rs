@@ -1405,6 +1405,10 @@ mod tests {
             ("huggingface", |b, n| {
                 huggingface::parse(b, &["temperature".to_owned()], n)
             }),
+            ("huggingface.fulltext", |b, n| {
+                let terms = ["sea", "surface"].map(String::from);
+                huggingface::parse_hits(b, &terms, n)
+            }),
             ("ncbi", |b, n| {
                 let ids = ["200304969", "200279746", "200279384", "5662"]
                     .map(String::from);

@@ -17,12 +17,34 @@
 //! is never cached as the answer. Anonymous clients get 500 API requests per
 //! IP in 5 minutes (Hugging Face Hub, October 2026).
 //!
+//! A longer query also asks the Hub's full-text search,
+//! `/api/search/full-text` with `type=dataset`, which matches the text of the
+//! dataset cards: "sea surface temperature" is in no repository id and in
+//! 1,145 cards (probed 2026-11-23). One request returns at most 100 hits in
+//! the Hub's own order, and `q` holds at most 250 characters (the Hub's
+//! OpenAPI file). A hit carries the id, the owner, the update time in
+//! milliseconds, the tags as one comma-joined string, and the card's text
+//! from its first line on, as fragments with each matched word apart. The
+//! start of that text, read as Markdown, is the description. A hit has no
+//! size or download count: its `likes` are not downloads. A dataset the
+//! full-text search finds passes the word filter, because the Hub matched
+//! its card; it counts the query words in its id, tags and description.
+//! Where an anchor page holds the same id, that row is the record: its
+//! description is the Hub's own teaser. The word count still orders the
+//! list, then the downloads, then the Hub's full-text order: with the
+//! full-text order first, nDCG@10 on the tuning queries of `just relevance`
+//! fell from 0.646 to 0.595 (2026-11-23). A failed full-text call fails the
+//! search like a failed anchor. The full-text search has its own limit, 50
+//! requests per IP in 5 minutes, and a token does not raise it (response
+//! headers, 2026-11-23).
+//!
 //! The listing's description is the card's text with each heading alone on a
 //! line that starts with two tabs, cut short with "See the full description
 //! on the dataset page" and the page's address (Hugging Face Hub, October
 //! 2026). The headings and that notice are dropped so the teaser is prose.
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
+use std::thread::ScopedJoinHandle;
 
 use serde_json::Value;
 
@@ -30,17 +52,28 @@ use super::Ctx;
 use crate::catalog;
 use crate::credentials::Key;
 use crate::http::SourceError;
-use crate::record::{Dataset, day, items, number, text};
+use crate::record::{
+    Dataset, date_from_epoch, day, from_markdown, items, number, text,
+};
 
 const PAGE: usize = 1000;
 /// How many of a query's words are searched for on the Hub, longest first.
 const ANCHORS: usize = 4;
 /// The fewest query words a row of a longer query holds, above half of them.
 const LEAST_WORDS: usize = 2;
+/// The most hits one full-text request returns.
+const HITS: usize = 100;
+/// The longest query the full-text search takes, in characters.
+const LONGEST_QUERY: usize = 250;
+/// How many characters of a hit's card are read for its description. A card
+/// can hold 850,000, and the description shows the first 320 of its prose.
+const CARD_START: usize = 4000;
 const CUT_NOTICE: &str = " See the full description on the dataset page:";
 
 const FIELDS: [&str; 6] =
     ["author", "description", "downloads", "lastModified", "mainSize", "tags"];
+
+type Fetched = Result<Value, SourceError>;
 
 pub fn search(
     ctx: &Ctx<'_>,
@@ -48,32 +81,51 @@ pub fn search(
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
     let terms = catalog::terms(query);
-    let size = if terms.len() > 1 { PAGE } else { limit };
-    let pages: Vec<Result<Value, SourceError>> = std::thread::scope(|scope| {
+    let wide = terms.len() > 1;
+    let size = if wide { PAGE } else { limit };
+    let (pages, hits) = std::thread::scope(|scope| {
+        let cards = wide.then(|| scope.spawn(move || full_text(ctx, query)));
         let workers: Vec<_> = anchors(&terms)
             .into_iter()
             .map(|anchor| scope.spawn(move || page(ctx, anchor, size)))
             .collect();
-        workers
-            .into_iter()
-            .map(|worker| {
-                worker.join().unwrap_or_else(|_| {
-                    Err(SourceError::shape("the adapter crashed"))
-                })
-            })
-            .collect()
+        let pages: Vec<Fetched> = workers.into_iter().map(joined).collect();
+        (pages, cards.map(joined))
     });
-    settle(pages, &terms, limit)
+    settle(pages, hits, &terms, limit)
 }
 
-/// The anchors' pages as one answer, or the first anchor's failure.
+fn joined(worker: ScopedJoinHandle<'_, Fetched>) -> Fetched {
+    worker
+        .join()
+        .unwrap_or_else(|_| Err(SourceError::shape("the adapter crashed")))
+}
+
+/// The anchors' pages and the full-text hits as one answer, or the first
+/// failure among them.
 fn settle(
-    pages: Vec<Result<Value, SourceError>>,
+    pages: Vec<Fetched>,
+    hits: Option<Fetched>,
     terms: &[String],
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
     let bodies = pages.into_iter().collect::<Result<Vec<_>, _>>()?;
-    pick(&bodies, terms, limit)
+    let hits = hits.transpose()?;
+    pick(&bodies, hits.as_ref(), terms, limit)
+}
+
+fn full_text(ctx: &Ctx<'_>, query: &str) -> Fetched {
+    let cut: String = query.chars().take(LONGEST_QUERY).collect();
+    let mut call = ctx
+        .http
+        .get("https://huggingface.co/api/search/full-text")
+        .query("q", cut)
+        .query("type", "dataset")
+        .query("limit", HITS);
+    if let Some(secret) = ctx.creds.get(Key::HuggingFace) {
+        call = call.key_header("Authorization", secret.authorization());
+    }
+    call.json()
 }
 
 fn page(
@@ -117,57 +169,105 @@ pub(super) fn parse(
     terms: &[String],
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
-    pick(std::slice::from_ref(body), terms, limit)
+    pick(std::slice::from_ref(body), None, terms, limit)
 }
 
-/// The rows of every page, each once: for one term in the Hub's order, for
-/// several those holding at least half of them and at least [`LEAST_WORDS`],
-/// the most first.
+/// One recorded full-text answer, as [`pick`] reads it for a longer query.
+#[cfg(test)]
+pub(super) fn parse_hits(
+    body: &Value,
+    terms: &[String],
+    limit: usize,
+) -> Result<Vec<Dataset>, SourceError> {
+    pick(&[], Some(body), terms, limit)
+}
+
+/// A row to rank: the query words it holds, its place among the full-text
+/// hits, and the record.
+type Scored = (usize, Option<usize>, Dataset);
+
+/// The rows of every page and the full-text hits, each dataset once: for one
+/// term in the Hub's order, for several those holding at least half of them
+/// and at least [`LEAST_WORDS`] or found by the full-text search, the most
+/// words first.
 fn pick(
     bodies: &[Value],
+    hits: Option<&Value>,
     terms: &[String],
     limit: usize,
 ) -> Result<Vec<Dataset>, SourceError> {
     let wide = terms.len() > 1;
     let needles = catalog::needles(terms);
     let least = terms.len().div_ceil(2).max(terms.len().min(LEAST_WORDS));
+    let hits = match hits {
+        Some(body) => hit_list(body)?,
+        None => &[],
+    };
+    let mut ranks: HashMap<String, usize> = HashMap::new();
+    for (rank, hit) in hits.iter().enumerate() {
+        if let Some(name) = text(hit, "/name") {
+            ranks.entry(name).or_insert(rank);
+        }
+    }
     let mut seen = HashSet::new();
-    let mut scored: Vec<(usize, Dataset)> = Vec::new();
+    let mut scored: Vec<Scored> = Vec::new();
     for body in bodies {
         let rows = body.as_array().ok_or_else(|| {
             SourceError::shape("expected a list of datasets")
         })?;
         for row in rows {
             let Some(id) = text(row, "/id") else { continue };
+            let rank = ranks.get(&id).copied();
             if !seen.insert(id) {
                 continue;
             }
-            let held = if wide { holds(row, &needles) } else { 0 };
-            if wide && held < least {
+            let held = if wide { holds(&haystack(row), &needles) } else { 0 };
+            if wide && held < least && rank.is_none() {
                 continue;
             }
             if let Some(dataset) = record(row) {
-                scored.push((held, dataset));
+                scored.push((held, rank, dataset));
             }
         }
     }
+    for (rank, hit) in hits.iter().enumerate() {
+        let Some(name) = text(hit, "/name") else { continue };
+        if !seen.insert(name) {
+            continue;
+        }
+        if let Some(dataset) = hit_record(hit) {
+            let held = holds(&hit_haystack(hit, &dataset), &needles);
+            scored.push((held, Some(rank), dataset));
+        }
+    }
     if wide {
-        scored.sort_by(|(a, x), (b, y)| {
+        scored.sort_by(|(a, i, x), (b, j, y)| {
             b.cmp(a)
                 .then_with(|| y.popularity.cmp(&x.popularity))
+                .then_with(|| {
+                    i.unwrap_or(usize::MAX).cmp(&j.unwrap_or(usize::MAX))
+                })
                 .then_with(|| x.title.cmp(&y.title))
         });
     }
-    Ok(scored.into_iter().take(limit).map(|(_, dataset)| dataset).collect())
+    Ok(scored.into_iter().take(limit).map(|(_, _, dataset)| dataset).collect())
 }
 
-/// How many of the query's words start a word of the row's id, description
-/// or tags.
-fn holds(row: &Value, needles: &[String]) -> usize {
-    let bits = catalog::found(&haystack(row), needles).count_ones();
+/// The hits of a full-text answer.
+fn hit_list(body: &Value) -> Result<&[Value], SourceError> {
+    body.get("hits")
+        .and_then(Value::as_array)
+        .map(Vec::as_slice)
+        .ok_or_else(|| SourceError::shape("no hits list"))
+}
+
+/// How many of the query's words start a word of `haystack`.
+fn holds(haystack: &str, needles: &[String]) -> usize {
+    let bits = catalog::found(haystack, needles).count_ones();
     usize::try_from(bits).unwrap_or(usize::MAX)
 }
 
+/// A listing row's id, description and tags.
 fn haystack(row: &Value) -> String {
     let mut haystack = text(row, "/id").unwrap_or_default();
     haystack.push(' ');
@@ -177,6 +277,48 @@ fn haystack(row: &Value) -> String {
         haystack.push_str(tag);
     }
     haystack
+}
+
+/// A full-text hit's id, tags and description.
+fn hit_haystack(hit: &Value, dataset: &Dataset) -> String {
+    let mut haystack = dataset.title.clone();
+    haystack.push(' ');
+    haystack.push_str(&text(hit, "/tags").unwrap_or_default());
+    haystack.push(' ');
+    haystack.push_str(dataset.description.as_deref().unwrap_or_default());
+    haystack
+}
+
+fn hit_record(hit: &Value) -> Option<Dataset> {
+    let name = text(hit, "/name")?;
+    let tags = text(hit, "/tags").unwrap_or_default();
+    let tagged = |prefix: &str| {
+        tags.split(',')
+            .find_map(|tag| tag.trim().strip_prefix(prefix))
+            .map(str::to_owned)
+    };
+    let mut dataset = Dataset::new(
+        &name,
+        &format!("https://huggingface.co/datasets/{name}"),
+    )
+    .describe(card_start(hit))
+    .doi_from(tagged("doi:"));
+    dataset.publisher = text(hit, "/repoOwner");
+    dataset.updated = number(hit, "/updatedAt").and_then(date_from_epoch);
+    dataset.license = tagged("license:");
+    dataset.valid()
+}
+
+/// The start of a hit's card as prose. The Hub returns the card as
+/// fragments, each matched word apart from the text around it.
+fn card_start(hit: &Value) -> Option<String> {
+    let card: String = items(hit, "/formatted/fileContent")
+        .iter()
+        .filter_map(|fragment| fragment.get("text")?.as_str())
+        .flat_map(str::chars)
+        .take(CARD_START)
+        .collect();
+    (!card.is_empty()).then(|| from_markdown(&card))
 }
 
 fn record(row: &Value) -> Option<Dataset> {
@@ -323,7 +465,7 @@ mod tests {
             row("a/protein-folding-benchmark", "", 1),
             row("d/benchmark-suite", "", 7000),
         ]);
-        let found = pick(&[protein, benchmark], &terms, 10).unwrap();
+        let found = pick(&[protein, benchmark], None, &terms, 10).unwrap();
         assert_eq!(
             ids(&found),
             ["a/protein-folding-benchmark", "b/protein-structures"]
@@ -362,7 +504,7 @@ mod tests {
         let terms = words(&["climate", "fund"]);
         let found = serde_json::json!([row("y/climate-funds", "", 10)]);
         let pages = vec![Ok(found), Err(SourceError::RateLimited)];
-        let outcome = settle(pages, &terms, 10);
+        let outcome = settle(pages, None, &terms, 10);
         assert!(matches!(outcome, Err(SourceError::RateLimited)));
     }
 
@@ -374,5 +516,138 @@ mod tests {
             );
         let found = parse(&body, &words(&["iris"]), 10).unwrap();
         assert_eq!(ids(&found), ["x/least", "y/most"]);
+    }
+
+    const SST: [&str; 3] = ["sea", "surface", "temperature"];
+
+    #[test]
+    fn full_text_hits_map_from_a_recorded_search() {
+        let hits = parse_hits(
+            &fixture::json("huggingface.fulltext.json"),
+            &words(&SST),
+            10,
+        )
+        .unwrap();
+        assert_eq!(
+            ids(&hits),
+            [
+                "PranavKonijeti/viirs-sst-daily-nonNRT",
+                "PranavKonijeti/viirs-sst-daily-nrt",
+                "nilsleh/OceanTACO",
+                "louisbrulenaudet/obis",
+                "edilia12380/era5-daily-weather-western-europe",
+            ]
+        );
+        assert_eq!(
+            hits[0],
+            Dataset {
+                title: "PranavKonijeti/viirs-sst-daily-nonNRT".into(),
+                url: "https://huggingface.co/datasets/\
+                      PranavKonijeti/viirs-sst-daily-nonNRT"
+                    .into(),
+                description: Some(
+                    "VIIRS/SNPP Daily Sea Surface Temperature \u{2014} 4 km, \
+                     Science Quality Daily global sea surface temperature \
+                     from the VIIRS instrument aboard Suomi-NPP, Level-3 \
+                     Standard Mapped Image at 4 km, as distributed by the \
+                     NASA Ocean Biology Processing Group. This is the \
+                     science-quality (refined) feed \u{2014} fully \
+                     calibrated and..."
+                        .into()
+                ),
+                publisher: Some("PranavKonijeti".into()),
+                doi: None,
+                license: Some("other".into()),
+                updated: Some("2026-07-31".into()),
+                size_bytes: None,
+                popularity: None,
+                formats: vec![],
+                aliases: vec![],
+            }
+        );
+        assert_eq!(hits[2].doi.as_deref(), Some("10.57967/hf/8171"));
+        assert_eq!(hits[2].license.as_deref(), Some("cc-by-4.0"));
+        assert_eq!(hits[2].updated.as_deref(), Some("2026-09-08"));
+    }
+
+    fn hit(name: &str, tags: &str) -> Value {
+        serde_json::json!({
+            "name": name,
+            "repoOwner": name.split('/').next(),
+            "tags": tags,
+            "updatedAt": 1_765_224_169_324_u64,
+        })
+    }
+
+    #[test]
+    fn a_dataset_in_both_answers_appears_once_as_its_listing_row() {
+        let page = serde_json::json!([row(
+            "a/sst-fields",
+            "sea surface temperature fields",
+            40
+        )]);
+        let cards = serde_json::json!({"hits": [
+            hit("a/sst-fields", "region:us"),
+            hit("b/ocean-cards", "region:us"),
+        ]});
+        let found = pick(&[page], Some(&cards), &words(&SST), 10).unwrap();
+        assert_eq!(ids(&found), ["a/sst-fields", "b/ocean-cards"]);
+        assert_eq!(found[0].popularity, Some(40));
+        assert_eq!(
+            found[0].description.as_deref(),
+            Some("sea surface temperature fields")
+        );
+    }
+
+    #[test]
+    fn a_dataset_found_by_full_text_passes_the_word_filter() {
+        let page = serde_json::json!([
+            row("c/buoys", "moored buoy records", 7),
+            row("d/sea-ice", "ice extent", 9000),
+        ]);
+        let cards = serde_json::json!({"hits": [
+            hit("b/ocean-cards", "region:us"),
+            hit("c/buoys", "region:us"),
+        ]});
+        let found = pick(&[page], Some(&cards), &words(&SST), 10).unwrap();
+        assert_eq!(ids(&found), ["c/buoys", "b/ocean-cards"]);
+        assert_eq!(found[0].popularity, Some(7));
+        assert_eq!(found[1].updated.as_deref(), Some("2025-12-08"));
+    }
+
+    #[test]
+    fn the_words_a_dataset_holds_outrank_its_full_text_place() {
+        let page = serde_json::json!([row(
+            "a/sst-fields",
+            "sea surface temperature fields",
+            40
+        )]);
+        let cards = serde_json::json!({"hits": [
+            hit("b/ocean-cards", "region:us"),
+            hit("e/sea-temperature", "region:us"),
+            hit("f/argo-floats", "region:us"),
+        ]});
+        let found = pick(&[page], Some(&cards), &words(&SST), 10).unwrap();
+        assert_eq!(
+            ids(&found),
+            [
+                "a/sst-fields",
+                "e/sea-temperature",
+                "b/ocean-cards",
+                "f/argo-floats",
+            ]
+        );
+    }
+
+    #[test]
+    fn a_failed_full_text_call_fails_the_search() {
+        let page = serde_json::json!([row("y/climate-funds", "", 10)]);
+        let outcome = settle(
+            vec![Ok(page)],
+            Some(Err(SourceError::RateLimited)),
+            &words(&["climate", "fund"]),
+            10,
+        );
+        assert!(matches!(outcome, Err(SourceError::RateLimited)));
     }
 }

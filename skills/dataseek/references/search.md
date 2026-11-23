@@ -78,7 +78,7 @@ A category is a coarse filter. Aggregators such as `datacite` and `openaire` ind
 
 ## Writing queries
 
-Each source runs its own search engine and most of them require every word to match: the catalog sources need every word as a token prefix, PANGAEA, CESSDA and ModelScope need every word, Socrata needs all of up to three terms, and Hugging Face matches words against the repository id only. So every word added is a filter at most sources.
+Each source runs its own search engine and most of them require every word to match: the catalog sources need every word as a token prefix, PANGAEA, CESSDA and ModelScope need every word, Socrata needs all of up to three terms, and Hugging Face matches words against the repository id, or for several words also against the dataset card. So every word added is a filter at most sources.
 
 Measured 2026-10-20 over the default sources: "sea surface temperature" merged 328 results; "global monthly sea surface temperature dataset since 1980" merged 136.
 

@@ -13,7 +13,7 @@ Each key is one `name = "value"` line, in double or single quotes, with `#` comm
 
 | source | environment variable | file key | without it | get one |
 |---|---|---|---|---|
-| Hugging Face | `HF_TOKEN` | `huggingface` | 500 requests per 5 min per IP | https://huggingface.co/settings/tokens |
+| Hugging Face | `HF_TOKEN` | `huggingface` | 500 requests per 5 min per IP; the full-text search of a multi-word query has its own 50 per 5 min, which a token does not raise | https://huggingface.co/settings/tokens |
 | Kaggle | `KAGGLE_API_TOKEN`, or `~/.kaggle/access_token`, or `~/.kaggle/kaggle.json` | `kaggle` | anonymous requests reach every page; a key changed nothing observable | https://www.kaggle.com/settings/api |
 | Data.gov | `DATAGOV_API_KEY` | `datagov` | catalog.data.gov's keyless search | https://api.data.gov/signup/ |
 | GitHub | `GITHUB_TOKEN` | `github` | 10 searches per minute | https://github.com/settings/tokens |

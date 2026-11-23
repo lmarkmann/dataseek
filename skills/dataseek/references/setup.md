@@ -73,7 +73,7 @@ Two JSON lines back, the second naming `search`, `sources` and `inspect`, means 
 | FRED | `FRED_API_KEY` | skipped (`needs $FRED_API_KEY`) |
 | Roboflow Universe | `ROBOFLOW_API_KEY` | skipped |
 | Data Commons | `DATACOMMONS_API_KEY` | skipped |
-| Hugging Face | `HF_TOKEN` | 500 requests per 5 minutes per IP |
+| Hugging Face | `HF_TOKEN` | 500 requests per 5 minutes per IP; 50 multi-word searches per 5 minutes with or without it |
 | GitHub | `GITHUB_TOKEN` | 10 searches per minute |
 | NCBI (GEO) | `NCBI_API_KEY` | 3 requests per second |
 | Data.gov | `DATAGOV_API_KEY` | the keyless catalog search |

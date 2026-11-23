@@ -1,6 +1,6 @@
 # Search methods across the sources
 
-dataseek asks every source for `--per-source` results (default 10, at most 100), so a page cap below that matters: Zenodo (25), Kaggle (20), CERN (10 a request) and Roboflow (12) are paged until the count is met, Hugging Face asks once per anchor word of a multi-word query, and the others answer in one request.
+dataseek asks every source for `--per-source` results (default 10, at most 100), so a page cap below that matters: Zenodo (25), Kaggle (20), CERN (10 a request) and Roboflow (12) are paged until the count is met, Hugging Face asks once per anchor word of a multi-word query and once more for the full text of the dataset cards, and the others answer in one request.
 
 How each search interface takes a query, pages, ranks and limits, as found when the adapters were written (2026-10-06). The adapter for each row lives in `src/sources/`. What dataseek does with the differences is decided in ADRs 0005 to 0007 and 0013.
 
@@ -9,6 +9,7 @@ How each search interface takes a query, pages, ranks and limits, as found when 
 | interface | method and endpoint | query parameter | matching | ranking | documented page cap |
 |---|---|---|---|---|---|
 | Hugging Face Hub | GET `/api/datasets` | `search` | substring of the repo id only | `sort=downloads` (no relevance) | 1,000 (observed); `Link` cursor, as `skip` answers HTTP 400 from 4,000 |
+| Hugging Face Hub, full text | GET `/api/search/full-text` | `q` (at most 250 characters), `type=dataset` | the text of the dataset card, the id and the tags (2026-11-23) | the Hub's own order, not documented | 100 (`limit`, OpenAPI); `skip` pages |
 | Kaggle | GET `/api/v1/datasets/list` | `search` | title, subtitle, tags | Kaggle "hottest" by default | 20, fixed (observed); `page` reaches page 100 at least |
 | DataCite | GET `/dois` | `query` (Elasticsearch query string) | all metadata fields | `sort=relevance` (the API's default returns newest updated first) | 1,000 per page, 10,000 deep |
 | OpenAIRE Graph | GET `/graph/v3/research-products` | `search` | title, abstract, subjects | relevance | 100 per page, 10,000 deep; `cursor` beyond |
@@ -74,6 +75,7 @@ These publish a complete list but no search endpoint, so dataseek downloads the 
 | source | limit without a key | with a key |
 |---|---|---|
 | Hugging Face | 500 requests per 5 minutes per IP | 1,000 (free), 2,500 (PRO) |
+| Hugging Face full-text search | 50 requests per 5 minutes per IP (response header, 2026-11-23) | the same 50 with a free token |
 | Kaggle | dynamic, 429 on abuse | same, attributed to the account |
 | DataCite | 500 per 5 minutes; 1,000 with a contact address | 3,000 for members |
 | Zenodo | 30 searches per minute | 30 per minute, larger pages |

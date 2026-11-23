@@ -10,7 +10,7 @@ Columns: **license**, **date** and **format** filters; **type** is a resource-ty
 | `openaire` | `hasLicense` (boolean) | `fromPublicationDate`, `toPublicationDate`, `publicationYear` | none | `type` (publication, dataset, software, other) | none | `page` and `pageSize` (100), 10,000 deep; `cursor=*` beyond | `header.numFound` | `/v3/research-products/links` (Scholix) | `/skg-if/v1/products/{id}` |
 | `google` | none (UI "Usage rights" only) | none (UI "Last updated" only) | none (UI only) | none | none (format names at record position 10) | none (first 20 only) | `ds:0` `data[8]` (undocumented position) | none | none (a Croissant facet count only) |
 | `b2find` | `fq=license_id:<id>` | `fq=metadata_modified:[<ISO> TO *]` | `fq=res_format:CSV` | `fq=dataset_type:dataset` | `resources[]` in each result, or `package_show?id=` | `start` and `rows` (to 1,000, site-configurable) | `result.count` | `RelatedIdentifier` extra | none (`.jsonld` answers 404) |
-| `huggingface` | `filter=license:cc0-1.0` | none (`sort=lastModified` or `createdAt`) | `filter=format:parquet` | `filter=task_categories:...`, `filter=modality:...` | `/api/datasets/{id}/tree/main`, or `expand[]=siblings` | `limit` (to 1,000) and `skip`; `Link: rel="next"` cursor | none | tags `arxiv:`, `doi:`, `source_datasets:` | `/api/datasets/{id}/croissant` |
+| `huggingface` | `filter=license:cc0-1.0` | none (`sort=lastModified` or `createdAt`) | `filter=format:parquet` | `filter=task_categories:...`, `filter=modality:...` | `/api/datasets/{id}/tree/main`, or `expand[]=siblings` | `limit` (to 1,000) and `skip`; `Link: rel="next"` cursor; full text: `limit` (to 100) and `skip` | `estimatedTotalHits` (full text only) | tags `arxiv:`, `doi:`, `source_datasets:` | `/api/datasets/{id}/croissant` |
 | `kaggle` | `license` (cc, gpl, odb, other, all) | none (`sortBy=updated` or `published`) | `fileType` (csv, sqlite, json, bigQuery, parquet, all) | none (datasets only) | `/api/v1/datasets/list/{owner}/{dataset}` (names, sizes; no checksums) | `page` (20 a page; depth 100 confirmed) | none | none | Croissant at `/datasets/{owner}/{dataset}/croissant/download` (a web route) |
 | `openml` | none (per dataset in `/data/{id}`) | none | none | none (`status` filter only) | `/data/{id}` (file URL, md5, Parquet URL); `/data/features/{id}` | `limit/N/offset/M` | none | none (tasks and studies reference dataset ids) | `/data/{id}`, `/data/qualities/{id}` (JSON) |
 | `uci` | none | none | `filter=python` on the list (no true format filter) | none | `/api/dataset?id=N` (`data_url`, `variables` table) | none (`take` and `skip` ignored) | none | `intro_paper` at `/api/dataset?id=N` | `/api/dataset?id=N` (UCI's own schema) |
@@ -95,6 +95,6 @@ Rows with something other than `none` in each column, out of 76. The `as <id>` c
 | resource-type filter | 46 |
 | file manifest | 47 |
 | paging past the first page | 56 |
-| total hit count | 53 |
+| total hit count | 54 |
 | related records | 62 |
 | machine-readable metadata | 65 |

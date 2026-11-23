@@ -75,7 +75,7 @@ The search succeeded but one source is missing. Act only when that source matter
 | `downloading its catalog` | a first download is running in the background | search again in a minute, or `dsk cache warm -s <id>` |
 | `expired catalog` | answered from a copy over 7 days old | nothing urgent; `dsk cache warm` refreshes it |
 | `stale cache (<reason>)` | the fetch failed and an older answer was used | say the answer may be dated; `refresh: true` once the source is back |
-| `rate limited by the source` | too many requests from this address | wait; for `huggingface` or `github`, a key raises the limit |
+| `rate limited by the source` | too many requests from this address | wait; for `huggingface` or `github`, a key raises the limit, except the 50 multi-word searches per 5 minutes on `huggingface` |
 | `refused the request (HTTP 401)` or `(HTTP 403)` without a key | the source wants authentication or blocks the request | for a source that takes a key, the key may lift it |
 | `rejected the credentials (HTTP <n>)` | the key that was sent is wrong or expired | the user replaces the key |
 | `sent a challenge page instead of results` | a bot wall; counted as an outage | retry after ten minutes |

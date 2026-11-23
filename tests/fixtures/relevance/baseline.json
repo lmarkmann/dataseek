@@ -1,22 +1,22 @@
 {
   "metrics": {
     "ndcg": {
-      "mean": 0.640268,
-      "low": 0.556751,
-      "high": 0.719724,
-      "tolerance": 0.010345
+      "mean": 0.644939,
+      "low": 0.573235,
+      "high": 0.715727,
+      "tolerance": 0.009135
     },
     "precision": {
-      "mean": 0.759375,
-      "low": 0.6625,
-      "high": 0.84375,
-      "tolerance": 0.011539
+      "mean": 0.778125,
+      "low": 0.69375,
+      "high": 0.85,
+      "tolerance": 0.010031
     },
     "mrr": {
-      "mean": 0.518403,
-      "low": 0.309722,
-      "high": 0.733333,
-      "tolerance": 0.026859
+      "mean": 0.517686,
+      "low": 0.308487,
+      "high": 0.73309,
+      "tolerance": 0.026904
     }
   },
   "queries": {
@@ -25,14 +25,14 @@
       1.0
     ],
     "amazon-deforestation": [
-      0.448122,
+      0.414913,
       0.6
     ],
     "american-community-survey": [
-      0.1
+      0.090909
     ],
     "band-gap": [
-      0.460983,
+      0.431537,
       0.6
     ],
     "bird-occurrence": [
@@ -40,7 +40,7 @@
       0.9
     ],
     "chest-xray": [
-      0.797013,
+      0.75377,
       0.9
     ],
     "climate-temperature": [
@@ -52,12 +52,12 @@
       0.9
     ],
     "consumer-price-index": [
-      0.646798,
+      0.691834,
       0.8
     ],
     "county-population": [
-      0.0,
-      0.0
+      0.521296,
+      0.1
     ],
     "covid-admissions": [
       1.0,
@@ -77,15 +77,15 @@
       1.0
     ],
     "euro-dollar": [
-      0.634808,
-      0.9
+      0.570725,
+      0.8
     ],
     "european-social-survey": [
       1.0
     ],
     "fmri-movies": [
-      0.652587,
-      0.3
+      0.585507,
+      0.8
     ],
     "gbif-backbone": [
       1.0
@@ -99,7 +99,7 @@
       0.9
     ],
     "github-issues": [
-      0.951662,
+      0.957586,
       1.0
     ],
     "higgs-challenge": [
@@ -114,18 +114,18 @@
       0.9
     ],
     "image-classification": [
-      0.856411,
-      1.0
+      0.791035,
+      0.9
     ],
     "inflation-by-country": [
-      0.179477,
-      0.2
+      0.25881,
+      0.3
     ],
     "iris": [
       0.111111
     ],
     "lhc-collisions": [
-      0.517688,
+      0.48462,
       1.0
     ],
     "mimic-iv": [
@@ -138,7 +138,7 @@
       0.25
     ],
     "nyc-311": [
-      0.05
+      0.047619
     ],
     "penn-world-table": [
       1.0
@@ -156,18 +156,18 @@
       0.9
     ],
     "skin-lesions": [
-      0.579553,
+      0.457926,
       0.6
     ],
     "source-code": [
-      0.186831,
+      0.162006,
       0.2
     ],
     "squad": [
       0.2
     ],
     "sst-monthly": [
-      0.62365,
+      0.577073,
       0.8
     ],
     "stock-prices": [
@@ -182,15 +182,15 @@
       0.7
     ],
     "trust-in-government": [
-      0.37215,
+      0.369385,
       0.8
     ],
     "unemployment-rate": [
-      0.603746,
-      0.7
+      0.62583,
+      0.8
     ],
     "wolf-sightings": [
-      0.554473,
+      0.561551,
       0.5
     ],
     "world-development-indicators": [
